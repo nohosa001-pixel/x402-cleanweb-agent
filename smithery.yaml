@@ -1,0 +1,11 @@
+startCommand:
+  type: stdio
+  config:
+    command: python
+    args:
+      - mcp_server.py
+    env:
+      POLYGON_RPC_URL: "https://polygon-bor-rpc.publicnode.com"
+      USDC_CONTRACT_ADDRESS: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359"
+      SERVER_WALLET_ADDRESS: "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf"
+      PAYMENT_AMOUNT_USDC: "0.01"
