@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Polygon x402 AI Data Agent | Web3 Micro-Payment DApp</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <!-- Ethers.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.2/ethers.umd.min.js"></script>
+  <style>
+    :root {
+      --bg-dark: #0a0b10;
+      --card-bg: rgba(18, 20, 29, 0.75);
+      --card-border: rgba(130, 71, 229, 0.25);
+      --primary: #8247e5;
+      --primary-glow: rgba(130, 71, 229, 0.4);
+      --accent: #00f2fe;
+      --text: #f0f2f5;
+      --text-muted: #8b949e;
+      --success: #00e676;
+      --error: #ff5252;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at top right, #1b0e36, #0a0b10 60%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 900px;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .logo-group {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .logo-badge {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      padding: 0.4rem 0.8rem;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 0.9rem;
+      letter-spacing: 1px;
+      color: #000;
+    }
+
+    .logo-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      background: linear-gradient(90deg, #fff, #b8c1ec);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .wallet-btn {
+      background: rgba(130, 71, 229, 0.15);
+      border: 1px solid var(--primary);
+      color: #fff;
+      padding: 0.6rem 1.2rem;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .wallet-btn:hover {
+      background: var(--primary);
+      box-shadow: 0 0 20px var(--primary-glow);
+      transform: translateY(-2px);
+    }
+
+    /* Main Card */
+    .glass-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      margin-bottom: 2rem;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 0.5rem;
+    }
+
+    .tab {
+      padding: 0.6rem 1.2rem;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--text-muted);
+      transition: all 0.2s;
+    }
+
+    .tab.active {
+      background: rgba(130, 71, 229, 0.25);
+      color: #fff;
+      border: 1px solid var(--primary);
+    }
+
+    .input-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .input-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .url-input {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      padding: 0.9rem 1.2rem;
+      border-radius: 12px;
+      font-size: 1rem;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .url-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 15px rgba(0, 242, 254, 0.25);
+    }
+
+    .action-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .price-tag {
+      font-size: 1rem;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .pay-btn {
+      background: linear-gradient(135deg, var(--primary), #5a22b8);
+      color: #fff;
+      border: none;
+      padding: 0.9rem 2rem;
+      border-radius: 14px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .pay-btn:hover {
+      box-shadow: 0 0 25px var(--primary-glow);
+      transform: translateY(-2px);
+    }
+
+    .pay-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Result Box */
+    .result-section {
+      display: none;
+      margin-top: 2rem;
+    }
+
+    .result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .stats-bar {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      font-size: 0.85rem;
+    }
+
+    .stat-chip {
+      background: rgba(0, 242, 254, 0.1);
+      border: 1px solid rgba(0, 242, 254, 0.3);
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      color: var(--accent);
+    }
+
+    .markdown-viewer {
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 1.5rem;
+      max-height: 450px;
+      overflow-y: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      white-space: pre-wrap;
+      color: #e6edf3;
+      line-height: 1.6;
+    }
+
+    .copy-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      padding: 0.4rem 0.9rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+
+    .copy-btn:hover {
+      background: #fff;
+      color: #000;
+    }
+
+    /* Status Alert */
+    .status-msg {
+      margin-top: 1rem;
+      padding: 0.8rem 1rem;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .status-msg.error {
+      background: rgba(255, 82, 82, 0.15);
+      border: 1px solid var(--error);
+      color: #ff8a80;
+      display: block;
+    }
+
+    .status-msg.info {
+      background: rgba(0, 242, 254, 0.15);
+      border: 1px solid var(--accent);
+      color: #80d8ff;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo-group">
+        <span class="logo-badge">x402</span>
+        <div class="logo-title">Polygon AI Clean Data Agent</div>
+      </div>
+      <button class="wallet-btn" id="connectWalletBtn" onclick="connectWallet()">
+        <span>🦊 지갑 연결</span>
+      </button>
+    </header>
+
+    <div class="glass-card">
+      <div class="tabs">
+        <div class="tab active" id="tabWeb" onclick="switchTab('web')">🌐 Clean Web Markdown (0.01 USDC)</div>
+        <div class="tab" id="tabYoutube" onclick="switchTab('youtube')">🎬 YouTube Transcript (0.02 USDC)</div>
+      </div>
+
+      <div class="input-group">
+        <label id="inputLabel">정제할 웹페이지 URL 주소</label>
+        <input type="text" class="url-input" id="targetUrl" placeholder="https://example.com/article" value="https://example.com">
+      </div>
+
+      <div class="action-row">
+        <div class="price-tag" id="priceTag">💰 결제 금액: 0.01 USDC (Polygon)</div>
+        <button class="pay-btn" id="payAndFetchBtn" onclick="payAndFetch()">
+          <span>💳 결제 & AI 마크다운 추출</span>
+        </button>
+      </div>
+
+      <div class="status-msg" id="statusMsg"></div>
+
+      <div class="result-section" id="resultSection">
+        <div class="result-header">
+          <h3 id="resultTitle">📄 추출된 AI Markdown</h3>
+          <button class="copy-btn" onclick="copyMarkdown()">📋 마크다운 복사</button>
+        </div>
+        <div class="stats-bar" id="statsBar"></div>
+        <div class="markdown-viewer" id="markdownOutput"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const CHAIN_ID_HEX = "0x89"; // 137 in hex
+    const USDC_ADDRESS = "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359";
+    const RECIPIENT_WALLET = "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf";
+    
+    // ERC-20 transfer ABI
+    const ERC20_ABI = [
+      "function transfer(address to, uint256 amount) returns (bool)"
+    ];
+
+    let currentMode = "web";
+    let userAddress = null;
+    let provider = null;
+    let signer = null;
+
+    function switchTab(mode) {
+      currentMode = mode;
+      document.getElementById('tabWeb').classList.toggle('active', mode === 'web');
+      document.getElementById('tabYoutube').classList.toggle('active', mode === 'youtube');
+      
+      const input = document.getElementById('targetUrl');
+      const label = document.getElementById('inputLabel');
+      const price = document.getElementById('priceTag');
+
+      if (mode === 'web') {
+        label.innerText = "정제할 웹페이지 URL 주소";
+        input.placeholder = "https://example.com/article";
+        price.innerText = "💰 결제 금액: 0.01 USDC (Polygon)";
+      } else {
+        label.innerText = "자막을 추출할 YouTube 영상 URL 주소";
+        input.placeholder = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+        price.innerText = "💰 결제 금액: 0.02 USDC (Polygon)";
+      }
+    }
+
+    async function connectWallet() {
+      if (!window.ethereum) {
+        alert("MetaMask 또는 Web3 지갑 브라우저 익스텐션을 설치해 주세요!");
+        return;
+      }
+      try {
+        provider = new ethers.BrowserProvider(window.ethereum);
+        const network = await provider.getNetwork();
+        
+        // Polygon 메인넷 전환 체크
+        if (network.chainId !== 137n) {
+          try {
+            await window.ethereum.request({
+              method: 'wallet_switchEthereumChain',
+              params: [{ chainId: CHAIN_ID_HEX }]
+            });
+          } catch (switchError) {
+            alert("지갑 네트워크를 Polygon Mainnet(체인 ID: 137)으로 전환해 주세요.");
+            return;
+          }
+        }
+
+        signer = await provider.getSigner();
+        userAddress = await signer.getAddress();
+        document.getElementById('connectWalletBtn').innerHTML = `<span>🟢 ${userAddress.slice(0,6)}...${userAddress.slice(-4)}</span>`;
+      } catch (err) {
+        console.error(err);
+        showStatus("지갑 연결에 실패했습니다: " + err.message, "error");
+      }
+    }
+
+    async function payAndFetch() {
+      const url = document.getElementById('targetUrl').value.trim();
+      if (!url) {
+        alert("URL을 입력해 주세요.");
+        return;
+      }
+
+      if (!signer) {
+        await connectWallet();
+        if (!signer) return;
+      }
+
+      const btn = document.getElementById('payAndFetchBtn');
+      btn.disabled = true;
+      btn.innerHTML = "<span>⏳ 0.01/0.02 USDC 결제 서명 중...</span>";
+      showStatus("Polygon 트랜잭션 전송 중... 지갑에서 서명을 승인해 주세요.", "info");
+
+      try {
+        const usdcContract = new ethers.Contract(USDC_ADDRESS, ERC20_ABI, signer);
+        const amountUsdc = currentMode === "web" ? "0.01" : "0.02";
+        const rawAmount = ethers.parseUnits(amountUsdc, 6); // USDC는 6 decimals
+
+        // 1. 온체인 USDC 전송
+        const tx = await usdcContract.transfer(RECIPIENT_WALLET, rawAmount);
+        showStatus(`트랜잭션 블록 확정 대기 중... (Tx: ${tx.hash})`, "info");
+        
+        const receipt = await tx.wait(1); // 1 컨펌 대기
+        showStatus("✅ 결제 확인 완료! AI 마크다운 데이터를 가져옵니다...", "info");
+
+        // 2. 백엔드 x402 엔드포인트 호출 (헤더에 Tx Hash 전송)
+        const endpoint = currentMode === "web" ? "/api/v1/clean-web" : "/api/v1/clean-youtube";
+        const reqUrl = `${endpoint}?url=${encodeURIComponent(url)}`;
+
+        const res = await fetch(reqUrl, {
+          headers: {
+            "X-Payment-Tx": tx.hash
+          }
+        });
+
+        const data = await res.json();
+        if (res.status === 200) {
+          renderResult(data);
+          showStatus("🎉 성공적으로 AI 마크다운을 정제하여 불러왔습니다!", "info");
+        } else {
+          showStatus("데이터 수집 실패: " + (data.detail || data.message || "오류"), "error");
+        }
+      } catch (err) {
+        console.error(err);
+        showStatus("결제 및 호출 실패: " + (err.reason || err.message), "error");
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = "<span>💳 결제 & AI 마크다운 추출</span>";
+      }
+    }
+
+    function renderResult(data) {
+      document.getElementById('resultSection').style.display = 'block';
+      const output = document.getElementById('markdownOutput');
+      const statsBar = document.getElementById('statsBar');
+
+      if (currentMode === "web") {
+        output.innerText = data.markdown_content || "";
+        const analytics = data.token_analytics || {};
+        statsBar.innerHTML = `
+          <div class="stat-chip">✨ 토큰 절감: ${analytics.token_savings_percentage || "70%"}</div>
+          <div class="stat-chip">📉 정제 토큰: ${analytics.clean_markdown_estimated_tokens || 0} tokens</div>
+          <div class="stat-chip">💵 절약된 비용: ${analytics.estimated_llm_cost_saved_usd || "$0.00"}</div>
+        `;
+      } else {
+        output.innerText = data.markdown_transcript || "";
+        const analytics = data.transcript_analytics || {};
+        statsBar.innerHTML = `
+          <div class="stat-chip">🎬 총 자막 수: ${analytics.total_segments || 0} 개</div>
+          <div class="stat-chip">📝 단어 수: ${analytics.word_count || 0} words</div>
+          <div class="stat-chip">🤖 예상 토큰: ${analytics.estimated_tokens || 0} tokens</div>
+        `;
+      }
+    }
+
+    function copyMarkdown() {
+      const text = document.getElementById('markdownOutput').innerText;
+      navigator.clipboard.writeText(text);
+      alert("클립보드에 마크다운이 복사되었습니다!");
+    }
+
+    function showStatus(msg, type) {
+      const box = document.getElementById('statusMsg');
+      box.innerText = msg;
+      box.className = `status-msg ${type}`;
+    }
+  </script>
+</body>
+</html>

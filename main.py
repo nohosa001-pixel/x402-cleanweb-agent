@@ -251,6 +251,10 @@ def format_timestamp(seconds: float) -> str:
 
 @app.get("/")
 def read_root():
+    static_file_path = os.path.join(os.path.dirname(__file__), "static", "index.html")
+    if os.path.exists(static_file_path):
+        from fastapi.responses import FileResponse
+        return FileResponse(static_file_path)
     return {
         "service": "Polygon x402 Micro-Payment AI Data Agent",
         "version": "1.1.0",
