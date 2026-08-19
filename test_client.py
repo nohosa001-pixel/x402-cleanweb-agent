@@ -2,25 +2,20 @@ import requests
 
 BASE_URL = "http://127.0.0.1:8000"
 
-def test_no_payment():
-    print("\n--- 1. Testing without X-Payment-Tx Header (Expecting HTTP 402) ---")
+def test_clean_web():
+    print("\n--- 1. Testing Clean-Web (Expecting HTTP 402 - 0.01 USDC) ---")
     url = f"{BASE_URL}/api/v1/clean-web?url=https://example.com"
     res = requests.get(url)
     print(f"Status Code: {res.status_code}")
-    print("Response JSON:")
-    print(res.json())
+    print("Response JSON:", res.json())
 
-def test_invalid_payment():
-    print("\n--- 2. Testing with Invalid X-Payment-Tx Header (Expecting HTTP 402) ---")
-    url = f"{BASE_URL}/api/v1/clean-web?url=https://example.com"
-    headers = {
-        "X-Payment-Tx": "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
-    }
-    res = requests.get(url, headers=headers)
+def test_clean_youtube():
+    print("\n--- 2. Testing Clean-YouTube (Expecting HTTP 402 - 0.02 USDC) ---")
+    url = f"{BASE_URL}/api/v1/clean-youtube?url=https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+    res = requests.get(url)
     print(f"Status Code: {res.status_code}")
-    print("Response JSON:")
-    print(res.json())
+    print("Response JSON:", res.json())
 
 if __name__ == "__main__":
-    test_no_payment()
-    test_invalid_payment()
+    test_clean_web()
+    test_clean_youtube()

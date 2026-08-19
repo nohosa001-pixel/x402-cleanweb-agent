@@ -6,15 +6,15 @@ from web3 import Web3
 from bs4 import BeautifulSoup, Comment
 import requests
 from dotenv import load_dotenv
+from youtube_transcript_api import YouTubeTranscriptApi
 
-# .env 로드 (환경변수 덮어쓰기 허용)
 load_dotenv(override=True)
 
 # MCP Server 초기화
 mcp = MCPServer(
-    name="Polygon-x402-CleanWeb",
-    version="1.0.0",
-    description="Web3 x402 Micropayment MCP Tool on Polygon Mainnet"
+    name="Polygon-x402-AI-Data-Agent",
+    version="1.1.0",
+    description="Web3 x402 Micropayment MCP Tool for Clean Web & YouTube Transcripts on Polygon Mainnet"
 )
 
 # Polygon & Token Config
@@ -30,8 +30,6 @@ USDC_CONTRACT_ADDRESS = Web3.to_checksum_address(
     os.getenv("USDC_CONTRACT_ADDRESS", "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359")
 )
 USDC_DECIMALS = 6
-REQUIRED_AMOUNT_USDC = float(os.getenv("PAYMENT_AMOUNT_USDC", "0.01"))
-REQUIRED_RAW_AMOUNT = int(REQUIRED_AMOUNT_USDC * (10 ** USDC_DECIMALS)) # 10,000 raw units
 
 RECIPIENT_WALLET = Web3.to_checksum_address(
     os.getenv("SERVER_WALLET_ADDRESS", "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf")
@@ -52,13 +50,15 @@ def get_web3_instance() -> Web3:
 
 w3 = get_web3_instance()
 
-def verify_payment_tx(tx_hash: str) -> tuple[bool, str]:
+def verify_payment_tx(tx_hash: str, required_amount_usdc: float) -> tuple[bool, str]:
     if not tx_hash or not re.match(r"^0x[a-fA-F0-9]{64}$", tx_hash):
         return False, "Invalid tx hash format. Must be 0x followed by 64 hex characters."
 
     tx_hash_lower = tx_hash.lower()
     if tx_hash_lower in processed_txs:
         return False, "Transaction hash has already been used (Replay protection)."
+
+    required_raw_amount = int(required_amount_usdc * (10 ** USDC_DECIMALS))
 
     try:
         receipt = w3.eth.get_transaction_receipt(tx_hash)
@@ -89,12 +89,12 @@ def verify_payment_tx(tx_hash: str) -> tuple[bool, str]:
                 else:
                     amount = 0
 
-                if to_address == RECIPIENT_WALLET and amount >= REQUIRED_RAW_AMOUNT:
+                if to_address == RECIPIENT_WALLET and amount >= required_raw_amount:
                     payment_found = True
                     break
 
         if not payment_found:
-            return False, f"No valid USDC Transfer to '{RECIPIENT_WALLET}' for >= {REQUIRED_AMOUNT_USDC} USDC found."
+            return False, f"No valid USDC Transfer to '{RECIPIENT_WALLET}' for >= {required_amount_usdc} USDC found."
 
         processed_txs.add(tx_hash_lower)
         return True, "Payment verified."
@@ -139,38 +139,60 @@ def extract_clean_markdown_for_ai(html_content: str, source_url: str) -> str:
     markdown_text = "\n".join(lines).strip()
     return re.sub(r"\n{3,}", "\n\n", markdown_text)
 
+def extract_youtube_video_id(url: str) -> Optional[str]:
+    patterns = [
+        r"(?:v=|\/)([0-9A-Za-z_-]{11}).*",
+        r"(?:youtu\.be\/)([0-9A-Za-z_-]{11})",
+        r"(?:shorts\/)([0-9A-Za-z_-]{11})"
+    ]
+    for pattern in patterns:
+        match = re.search(pattern, url)
+        if match:
+            return match.group(1)
+    return None
+
+def format_timestamp(seconds: float) -> str:
+    m, s = divmod(int(seconds), 60)
+    h, m = divmod(m, 60)
+    if h > 0:
+        return f"{h:02d}:{m:02d}:{s:02d}"
+    return f"{m:02d}:{s:02d}"
+
 @mcp.tool(
     name="get_payment_info",
-    description="Returns the Polygon Web3 micropayment requirements for accessing tools in this server."
+    description="Returns the Polygon Web3 micropayment pricing and recipient details for tools in this server."
 )
 def get_payment_info() -> str:
-    return f"""### 💳 Web3 x402 Micropayment Details
+    return f"""### 💳 Polygon x402 Micropayment Services & Pricing
 - **Network**: Polygon Mainnet (Chain ID: {CHAIN_ID})
 - **Token**: Native USDC (`{USDC_CONTRACT_ADDRESS}`)
-- **Amount**: {REQUIRED_AMOUNT_USDC} USDC ({REQUIRED_RAW_AMOUNT} raw units)
-- **Recipient Wallet Address**: `{RECIPIENT_WALLET}`
-- **Usage**: Send 0.01 USDC to the recipient wallet on Polygon and use the returned transaction hash as the `payment_tx_hash` parameter when calling `fetch_clean_web_content`.
+- **Recipient Wallet**: `{RECIPIENT_WALLET}`
+
+**Available Paid Tools**:
+1. `fetch_clean_web_content`: **0.01 USDC** (Clean webpage into AI Markdown)
+2. `fetch_youtube_transcript`: **0.02 USDC** (Full YouTube timestamps & transcript Markdown)
 """
 
 @mcp.tool(
     name="fetch_clean_web_content",
-    description="Fetches and transforms any webpage into AI-ready clean Markdown. Requires a 0.01 USDC micropayment on Polygon (x402 protocol)."
+    description="Fetches and transforms any webpage into AI-ready clean Markdown. Requires 0.01 USDC micropayment on Polygon (x402 protocol)."
 )
 def fetch_clean_web_content(url: str, payment_tx_hash: Optional[str] = None) -> str:
+    price_usdc = 0.01
     if not payment_tx_hash:
         return f"""⚠️ [HTTP 402 - PAYMENT REQUIRED]
-To access clean web content for '{url}', a micropayment of {REQUIRED_AMOUNT_USDC} USDC on Polygon Mainnet is required.
+To access clean web content for '{url}', a micropayment of {price_usdc} USDC on Polygon Mainnet is required.
 
-Please transfer {REQUIRED_AMOUNT_USDC} USDC to:
+Please transfer {price_usdc} USDC to:
 👉 Recipient Wallet: `{RECIPIENT_WALLET}`
 👉 Token Contract (USDC): `{USDC_CONTRACT_ADDRESS}`
 👉 Chain ID: {CHAIN_ID}
 
 After completing the transaction, call this tool again with `payment_tx_hash` set to your transaction hash."""
 
-    is_valid, reason = verify_payment_tx(payment_tx_hash)
+    is_valid, reason = verify_payment_tx(payment_tx_hash, price_usdc)
     if not is_valid:
-        return f"❌ [PAYMENT VERIFICATION FAILED]: {reason}\nPlease verify your transaction hash on Polygonscan and ensure 0.01 USDC was transferred to `{RECIPIENT_WALLET}`."
+        return f"❌ [PAYMENT VERIFICATION FAILED]: {reason}\nPlease ensure {price_usdc} USDC was transferred to `{RECIPIENT_WALLET}`."
 
     try:
         headers = {
@@ -182,6 +204,53 @@ After completing the transaction, call this tool again with `payment_tx_hash` se
         return f"✅ [PAYMENT VERIFIED (Tx: {payment_tx_hash})]\n\n{markdown}"
     except Exception as e:
         return f"❌ [FETCH ERROR]: Failed to fetch web page content: {str(e)}"
+
+@mcp.tool(
+    name="fetch_youtube_transcript",
+    description="Extracts full transcript and timestamps from any YouTube video into AI-ready Markdown. Requires 0.02 USDC micropayment on Polygon (x402 protocol)."
+)
+def fetch_youtube_transcript(url: str, language: str = "ko,en", payment_tx_hash: Optional[str] = None) -> str:
+    price_usdc = 0.02
+    if not payment_tx_hash:
+        return f"""⚠️ [HTTP 402 - PAYMENT REQUIRED]
+To extract YouTube transcript for '{url}', a micropayment of {price_usdc} USDC on Polygon Mainnet is required.
+
+Please transfer {price_usdc} USDC to:
+👉 Recipient Wallet: `{RECIPIENT_WALLET}`
+👉 Token Contract (USDC): `{USDC_CONTRACT_ADDRESS}`
+👉 Chain ID: {CHAIN_ID}
+
+After completing the transaction, call this tool again with `payment_tx_hash` set to your transaction hash."""
+
+    is_valid, reason = verify_payment_tx(payment_tx_hash, price_usdc)
+    if not is_valid:
+        return f"❌ [PAYMENT VERIFICATION FAILED]: {reason}\nPlease ensure {price_usdc} USDC was transferred to `{RECIPIENT_WALLET}`."
+
+    video_id = extract_youtube_video_id(url)
+    if not video_id:
+        return "❌ [INVALID URL]: Could not parse YouTube video ID from URL."
+
+    try:
+        pref_langs = [l.strip() for l in language.split(",") if l.strip()]
+        try:
+            transcript_list = YouTubeTranscriptApi.get_transcript(video_id, languages=pref_langs)
+        except Exception:
+            transcript_list = YouTubeTranscriptApi.get_transcript(video_id)
+
+        lines = [
+            f"# 🎬 YouTube Transcript ({video_id})\n",
+            f"> **Source**: https://www.youtube.com/watch?v={video_id}\n",
+            "## 📜 Transcript & Timestamps\n"
+        ]
+        for item in transcript_list:
+            start_sec = item.get("start", 0)
+            time_str = format_timestamp(start_sec)
+            text = item.get("text", "").strip()
+            lines.append(f"- **`[{time_str}]`** {text}")
+
+        return f"✅ [PAYMENT VERIFIED (Tx: {payment_tx_hash})]\n\n" + "\n".join(lines)
+    except Exception as e:
+        return f"❌ [TRANSCRIPT ERROR]: Could not fetch transcript: {str(e)}"
 
 if __name__ == "__main__":
     mcp.run(transport="stdio")
