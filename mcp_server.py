@@ -1,0 +1,187 @@
+import os
+import re
+from typing import Optional, Set
+from mcp.server import MCPServer
+from web3 import Web3
+from bs4 import BeautifulSoup, Comment
+import requests
+from dotenv import load_dotenv
+
+# .env 로드 (환경변수 덮어쓰기 허용)
+load_dotenv(override=True)
+
+# MCP Server 초기화
+mcp = MCPServer(
+    name="Polygon-x402-CleanWeb",
+    version="1.0.0",
+    description="Web3 x402 Micropayment MCP Tool on Polygon Mainnet"
+)
+
+# Polygon & Token Config
+POLYGON_RPC_URL = os.getenv("POLYGON_RPC_URL", "https://polygon-bor-rpc.publicnode.com")
+POLYGON_RPC_URLS = [
+    POLYGON_RPC_URL,
+    "https://polygon.llamarpc.com",
+    "https://1rpc.io/matic",
+    "https://polygon-rpc.com"
+]
+CHAIN_ID = 137
+USDC_CONTRACT_ADDRESS = Web3.to_checksum_address(
+    os.getenv("USDC_CONTRACT_ADDRESS", "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359")
+)
+USDC_DECIMALS = 6
+REQUIRED_AMOUNT_USDC = float(os.getenv("PAYMENT_AMOUNT_USDC", "0.01"))
+REQUIRED_RAW_AMOUNT = int(REQUIRED_AMOUNT_USDC * (10 ** USDC_DECIMALS)) # 10,000 raw units
+
+RECIPIENT_WALLET = Web3.to_checksum_address(
+    os.getenv("SERVER_WALLET_ADDRESS", "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf")
+)
+
+TRANSFER_EVENT_TOPIC = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
+processed_txs: Set[str] = set()
+
+def get_web3_instance() -> Web3:
+    for rpc in POLYGON_RPC_URLS:
+        try:
+            w3_inst = Web3(Web3.HTTPProvider(rpc, request_kwargs={"timeout": 10}))
+            if w3_inst.is_connected():
+                return w3_inst
+        except Exception:
+            continue
+    return Web3(Web3.HTTPProvider(POLYGON_RPC_URLS[0]))
+
+w3 = get_web3_instance()
+
+def verify_payment_tx(tx_hash: str) -> tuple[bool, str]:
+    if not tx_hash or not re.match(r"^0x[a-fA-F0-9]{64}$", tx_hash):
+        return False, "Invalid tx hash format. Must be 0x followed by 64 hex characters."
+
+    tx_hash_lower = tx_hash.lower()
+    if tx_hash_lower in processed_txs:
+        return False, "Transaction hash has already been used (Replay protection)."
+
+    try:
+        receipt = w3.eth.get_transaction_receipt(tx_hash)
+        if not receipt:
+            return False, f"Transaction '{tx_hash}' not found on Polygon Mainnet."
+
+        if receipt.get("status") != 1:
+            return False, "Transaction failed on-chain (status == 0)."
+
+        payment_found = False
+        for log in receipt.get("logs", []):
+            if Web3.to_checksum_address(log.get("address")) != USDC_CONTRACT_ADDRESS:
+                continue
+
+            topics = log.get("topics", [])
+            if not topics or topics[0].hex().lower() != TRANSFER_EVENT_TOPIC.lower():
+                continue
+
+            if len(topics) >= 3:
+                to_addr_hex = "0x" + topics[2].hex()[-40:]
+                to_address = Web3.to_checksum_address(to_addr_hex)
+
+                raw_data = log.get("data")
+                if isinstance(raw_data, bytes):
+                    amount = int.from_bytes(raw_data, byteorder="big")
+                elif isinstance(raw_data, str):
+                    amount = int(raw_data, 16)
+                else:
+                    amount = 0
+
+                if to_address == RECIPIENT_WALLET and amount >= REQUIRED_RAW_AMOUNT:
+                    payment_found = True
+                    break
+
+        if not payment_found:
+            return False, f"No valid USDC Transfer to '{RECIPIENT_WALLET}' for >= {REQUIRED_AMOUNT_USDC} USDC found."
+
+        processed_txs.add(tx_hash_lower)
+        return True, "Payment verified."
+    except Exception as e:
+        return False, f"On-chain verification error: {str(e)}"
+
+def extract_clean_markdown_for_ai(html_content: str, source_url: str) -> str:
+    soup = BeautifulSoup(html_content, "html.parser")
+    for comment in soup.find_all(text=lambda text: isinstance(text, Comment)):
+        comment.extract()
+
+    noise_tags = ["script", "style", "nav", "footer", "header", "aside", "noscript", "iframe", "svg", "form"]
+    for tag in soup(noise_tags):
+        tag.decompose()
+
+    title = soup.title.string.strip() if soup.title and soup.title.string else (soup.find("h1").get_text().strip() if soup.find("h1") else source_url)
+    container = soup.find("article") or soup.find("main") or soup.find("body") or soup
+
+    lines = [f"# {title}\n", f"> **Source**: {source_url}\n"]
+    for elem in container.find_all(["h1", "h2", "h3", "h4", "h5", "h6", "p", "li", "blockquote", "pre", "code"]):
+        tag = elem.name
+        text = elem.get_text().strip()
+        if not text:
+            continue
+        if tag == "h1":
+            lines.append(f"\n# {text}\n")
+        elif tag == "h2":
+            lines.append(f"\n## {text}\n")
+        elif tag == "h3":
+            lines.append(f"\n### {text}\n")
+        elif tag in ["h4", "h5", "h6"]:
+            lines.append(f"\n#### {text}\n")
+        elif tag == "li":
+            lines.append(f"- {text}")
+        elif tag == "blockquote":
+            lines.append(f"\n> {text}\n")
+        elif tag in ["pre", "code"]:
+            lines.append(f"\n```\n{text}\n```\n")
+        elif tag == "p":
+            lines.append(f"\n{text}\n")
+
+    markdown_text = "\n".join(lines).strip()
+    return re.sub(r"\n{3,}", "\n\n", markdown_text)
+
+@mcp.tool(
+    name="get_payment_info",
+    description="Returns the Polygon Web3 micropayment requirements for accessing tools in this server."
+)
+def get_payment_info() -> str:
+    return f"""### 💳 Web3 x402 Micropayment Details
+- **Network**: Polygon Mainnet (Chain ID: {CHAIN_ID})
+- **Token**: Native USDC (`{USDC_CONTRACT_ADDRESS}`)
+- **Amount**: {REQUIRED_AMOUNT_USDC} USDC ({REQUIRED_RAW_AMOUNT} raw units)
+- **Recipient Wallet Address**: `{RECIPIENT_WALLET}`
+- **Usage**: Send 0.01 USDC to the recipient wallet on Polygon and use the returned transaction hash as the `payment_tx_hash` parameter when calling `fetch_clean_web_content`.
+"""
+
+@mcp.tool(
+    name="fetch_clean_web_content",
+    description="Fetches and transforms any webpage into AI-ready clean Markdown. Requires a 0.01 USDC micropayment on Polygon (x402 protocol)."
+)
+def fetch_clean_web_content(url: str, payment_tx_hash: Optional[str] = None) -> str:
+    if not payment_tx_hash:
+        return f"""⚠️ [HTTP 402 - PAYMENT REQUIRED]
+To access clean web content for '{url}', a micropayment of {REQUIRED_AMOUNT_USDC} USDC on Polygon Mainnet is required.
+
+Please transfer {REQUIRED_AMOUNT_USDC} USDC to:
+👉 Recipient Wallet: `{RECIPIENT_WALLET}`
+👉 Token Contract (USDC): `{USDC_CONTRACT_ADDRESS}`
+👉 Chain ID: {CHAIN_ID}
+
+After completing the transaction, call this tool again with `payment_tx_hash` set to your transaction hash."""
+
+    is_valid, reason = verify_payment_tx(payment_tx_hash)
+    if not is_valid:
+        return f"❌ [PAYMENT VERIFICATION FAILED]: {reason}\nPlease verify your transaction hash on Polygonscan and ensure 0.01 USDC was transferred to `{RECIPIENT_WALLET}`."
+
+    try:
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        }
+        res = requests.get(url, headers=headers, timeout=15)
+        res.raise_for_status()
+        markdown = extract_clean_markdown_for_ai(res.text, url)
+        return f"✅ [PAYMENT VERIFIED (Tx: {payment_tx_hash})]\n\n{markdown}"
+    except Exception as e:
+        return f"❌ [FETCH ERROR]: Failed to fetch web page content: {str(e)}"
+
+if __name__ == "__main__":
+    mcp.run(transport="stdio")
