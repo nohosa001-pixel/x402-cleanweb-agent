@@ -3,11 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Polygon x402 AI Data Agent | Web3 Micro-Payment DApp</title>
+  <title>Polygon x402 AI Data Suite | Web3 Micro-Payment DApp</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-  <!-- Ethers.js CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.2/ethers.umd.min.js"></script>
   <style>
     :root {
@@ -42,16 +41,15 @@
 
     .container {
       width: 100%;
-      max-width: 900px;
+      max-width: 960px;
     }
 
-    /* Header */
     header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 2.5rem;
-      padding-bottom: 1.5rem;
+      margin-bottom: 2rem;
+      padding-bottom: 1.2rem;
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     }
 
@@ -67,12 +65,11 @@
       border-radius: 8px;
       font-weight: 800;
       font-size: 0.9rem;
-      letter-spacing: 1px;
       color: #000;
     }
 
     .logo-title {
-      font-size: 1.4rem;
+      font-size: 1.3rem;
       font-weight: 700;
       background: linear-gradient(90deg, #fff, #b8c1ec);
       -webkit-background-clip: text;
@@ -96,10 +93,8 @@
     .wallet-btn:hover {
       background: var(--primary);
       box-shadow: 0 0 20px var(--primary-glow);
-      transform: translateY(-2px);
     }
 
-    /* Main Card */
     .glass-card {
       background: var(--card-bg);
       backdrop-filter: blur(16px);
@@ -112,25 +107,28 @@
 
     .tabs {
       display: flex;
-      gap: 1rem;
+      flex-wrap: wrap;
+      gap: 0.6rem;
       margin-bottom: 1.5rem;
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      padding-bottom: 0.5rem;
+      padding-bottom: 0.8rem;
     }
 
     .tab {
-      padding: 0.6rem 1.2rem;
+      padding: 0.5rem 1rem;
       border-radius: 10px;
       cursor: pointer;
       font-weight: 600;
+      font-size: 0.9rem;
       color: var(--text-muted);
       transition: all 0.2s;
+      border: 1px solid transparent;
     }
 
     .tab.active {
       background: rgba(130, 71, 229, 0.25);
       color: #fff;
-      border: 1px solid var(--primary);
+      border-color: var(--primary);
     }
 
     .input-group {
@@ -183,9 +181,6 @@
       font-size: 1rem;
       cursor: pointer;
       transition: all 0.3s;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
     }
 
     .pay-btn:hover {
@@ -199,7 +194,6 @@
       transform: none;
     }
 
-    /* Result Box */
     .result-section {
       display: none;
       margin-top: 2rem;
@@ -214,7 +208,8 @@
 
     .stats-bar {
       display: flex;
-      gap: 1rem;
+      flex-wrap: wrap;
+      gap: 0.8rem;
       margin-bottom: 1rem;
       font-size: 0.85rem;
     }
@@ -232,7 +227,7 @@
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 12px;
       padding: 1.5rem;
-      max-height: 450px;
+      max-height: 480px;
       overflow-y: auto;
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.9rem;
@@ -249,7 +244,6 @@
       border-radius: 8px;
       cursor: pointer;
       font-size: 0.85rem;
-      transition: all 0.2s;
     }
 
     .copy-btn:hover {
@@ -257,7 +251,6 @@
       color: #000;
     }
 
-    /* Status Alert */
     .status-msg {
       margin-top: 1rem;
       padding: 0.8rem 1rem;
@@ -286,7 +279,7 @@
     <header>
       <div class="logo-group">
         <span class="logo-badge">x402</span>
-        <div class="logo-title">Polygon AI Clean Data Agent</div>
+        <div class="logo-title">Polygon AI Data Suite</div>
       </div>
       <button class="wallet-btn" id="connectWalletBtn" onclick="connectWallet()">
         <span>🦊 지갑 연결</span>
@@ -295,8 +288,10 @@
 
     <div class="glass-card">
       <div class="tabs">
-        <div class="tab active" id="tabWeb" onclick="switchTab('web')">🌐 Clean Web Markdown (0.01 USDC)</div>
+        <div class="tab active" id="tabWeb" onclick="switchTab('web')">🌐 Clean Web (0.01 USDC)</div>
         <div class="tab" id="tabYoutube" onclick="switchTab('youtube')">🎬 YouTube Transcript (0.02 USDC)</div>
+        <div class="tab" id="tabPdf" onclick="switchTab('pdf')">📑 PDF Paper (0.05 USDC)</div>
+        <div class="tab" id="tabText" onclick="switchTab('text')">📝 Plain Text (0.005 USDC)</div>
       </div>
 
       <div class="input-group">
@@ -315,8 +310,8 @@
 
       <div class="result-section" id="resultSection">
         <div class="result-header">
-          <h3 id="resultTitle">📄 추출된 AI Markdown</h3>
-          <button class="copy-btn" onclick="copyMarkdown()">📋 마크다운 복사</button>
+          <h3 id="resultTitle">📄 추출된 AI 결과</h3>
+          <button class="copy-btn" onclick="copyResult()">📋 결과 복사</button>
         </div>
         <div class="stats-bar" id="statsBar"></div>
         <div class="markdown-viewer" id="markdownOutput"></div>
@@ -325,120 +320,92 @@
   </div>
 
   <script>
-    const CHAIN_ID_HEX = "0x89"; // 137 in hex
+    const CHAIN_ID_HEX = "0x89"; // 137
     const USDC_ADDRESS = "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359";
     const RECIPIENT_WALLET = "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf";
     
-    // ERC-20 transfer ABI
-    const ERC20_ABI = [
-      "function transfer(address to, uint256 amount) returns (bool)"
-    ];
+    const ERC20_ABI = ["function transfer(address to, uint256 amount) returns (bool)"];
 
     let currentMode = "web";
-    let userAddress = null;
     let provider = null;
     let signer = null;
 
+    const SERVICE_CONFIG = {
+      web: { price: "0.01", endpoint: "/api/v1/clean-web", label: "정제할 웹페이지 URL 주소", placeholder: "https://example.com/article" },
+      youtube: { price: "0.02", endpoint: "/api/v1/clean-youtube", label: "자막을 추출할 YouTube 영상 URL", placeholder: "https://www.youtube.com/watch?v=dQw4w9WgXcQ" },
+      pdf: { price: "0.05", endpoint: "/api/v1/clean-pdf", label: "마크다운으로 변환할 PDF 문서 URL", placeholder: "https://arxiv.org/pdf/2301.00001.pdf" },
+      text: { price: "0.005", endpoint: "/api/v1/clean-text", label: "순수 텍스트만 추출할 URL", placeholder: "https://example.com" }
+    };
+
     function switchTab(mode) {
       currentMode = mode;
-      document.getElementById('tabWeb').classList.toggle('active', mode === 'web');
-      document.getElementById('tabYoutube').classList.toggle('active', mode === 'youtube');
+      ['web', 'youtube', 'pdf', 'text'].forEach(m => {
+        document.getElementById(`tab${m.charAt(0).toUpperCase() + m.slice(1)}`).classList.toggle('active', m === mode);
+      });
       
-      const input = document.getElementById('targetUrl');
-      const label = document.getElementById('inputLabel');
-      const price = document.getElementById('priceTag');
-
-      if (mode === 'web') {
-        label.innerText = "정제할 웹페이지 URL 주소";
-        input.placeholder = "https://example.com/article";
-        price.innerText = "💰 결제 금액: 0.01 USDC (Polygon)";
-      } else {
-        label.innerText = "자막을 추출할 YouTube 영상 URL 주소";
-        input.placeholder = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
-        price.innerText = "💰 결제 금액: 0.02 USDC (Polygon)";
-      }
+      const config = SERVICE_CONFIG[mode];
+      document.getElementById('inputLabel').innerText = config.label;
+      document.getElementById('targetUrl').placeholder = config.placeholder;
+      document.getElementById('priceTag').innerText = `💰 결제 금액: ${config.price} USDC (Polygon)`;
     }
 
     async function connectWallet() {
       if (!window.ethereum) {
-        alert("MetaMask 또는 Web3 지갑 브라우저 익스텐션을 설치해 주세요!");
+        alert("MetaMask 브라우저 지갑을 설치해 주세요!");
         return;
       }
       try {
         provider = new ethers.BrowserProvider(window.ethereum);
         const network = await provider.getNetwork();
-        
-        // Polygon 메인넷 전환 체크
         if (network.chainId !== 137n) {
           try {
-            await window.ethereum.request({
-              method: 'wallet_switchEthereumChain',
-              params: [{ chainId: CHAIN_ID_HEX }]
-            });
-          } catch (switchError) {
-            alert("지갑 네트워크를 Polygon Mainnet(체인 ID: 137)으로 전환해 주세요.");
+            await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: CHAIN_ID_HEX }] });
+          } catch (e) {
+            alert("Polygon Mainnet으로 네트워크를 변경해 주세요.");
             return;
           }
         }
-
         signer = await provider.getSigner();
-        userAddress = await signer.getAddress();
-        document.getElementById('connectWalletBtn').innerHTML = `<span>🟢 ${userAddress.slice(0,6)}...${userAddress.slice(-4)}</span>`;
+        const addr = await signer.getAddress();
+        document.getElementById('connectWalletBtn').innerHTML = `<span>🟢 ${addr.slice(0,6)}...${addr.slice(-4)}</span>`;
       } catch (err) {
-        console.error(err);
-        showStatus("지갑 연결에 실패했습니다: " + err.message, "error");
+        showStatus("지갑 연결 실패: " + err.message, "error");
       }
     }
 
     async function payAndFetch() {
       const url = document.getElementById('targetUrl').value.trim();
-      if (!url) {
-        alert("URL을 입력해 주세요.");
-        return;
-      }
+      if (!url) { alert("URL을 입력해 주세요."); return; }
+      if (!signer) { await connectWallet(); if (!signer) return; }
 
-      if (!signer) {
-        await connectWallet();
-        if (!signer) return;
-      }
-
+      const config = SERVICE_CONFIG[currentMode];
       const btn = document.getElementById('payAndFetchBtn');
       btn.disabled = true;
-      btn.innerHTML = "<span>⏳ 0.01/0.02 USDC 결제 서명 중...</span>";
+      btn.innerHTML = `<span>⏳ ${config.price} USDC 결제 서명 중...</span>`;
       showStatus("Polygon 트랜잭션 전송 중... 지갑에서 서명을 승인해 주세요.", "info");
 
       try {
         const usdcContract = new ethers.Contract(USDC_ADDRESS, ERC20_ABI, signer);
-        const amountUsdc = currentMode === "web" ? "0.01" : "0.02";
-        const rawAmount = ethers.parseUnits(amountUsdc, 6); // USDC는 6 decimals
+        const rawAmount = ethers.parseUnits(config.price, 6);
 
-        // 1. 온체인 USDC 전송
         const tx = await usdcContract.transfer(RECIPIENT_WALLET, rawAmount);
-        showStatus(`트랜잭션 블록 확정 대기 중... (Tx: ${tx.hash})`, "info");
+        showStatus(`블록 확정 대기 중... (Tx: ${tx.hash.slice(0,10)}...)`, "info");
         
-        const receipt = await tx.wait(1); // 1 컨펌 대기
-        showStatus("✅ 결제 확인 완료! AI 마크다운 데이터를 가져옵니다...", "info");
+        await tx.wait(1);
+        showStatus("✅ 결제 확인 완료! 데이터를 불러옵니다...", "info");
 
-        // 2. 백엔드 x402 엔드포인트 호출 (헤더에 Tx Hash 전송)
-        const endpoint = currentMode === "web" ? "/api/v1/clean-web" : "/api/v1/clean-youtube";
-        const reqUrl = `${endpoint}?url=${encodeURIComponent(url)}`;
-
-        const res = await fetch(reqUrl, {
-          headers: {
-            "X-Payment-Tx": tx.hash
-          }
-        });
-
+        const reqUrl = `${config.endpoint}?url=${encodeURIComponent(url)}`;
+        const res = await fetch(reqUrl, { headers: { "X-Payment-Tx": tx.hash } });
         const data = await res.json();
+
         if (res.status === 200) {
           renderResult(data);
-          showStatus("🎉 성공적으로 AI 마크다운을 정제하여 불러왔습니다!", "info");
+          showStatus("🎉 성공적으로 AI 데이터를 추출했습니다!", "info");
         } else {
           showStatus("데이터 수집 실패: " + (data.detail || data.message || "오류"), "error");
         }
       } catch (err) {
-        console.error(err);
-        showStatus("결제 및 호출 실패: " + (err.reason || err.message), "error");
+        showStatus("결제 실패: " + (err.reason || err.message), "error");
       } finally {
         btn.disabled = false;
         btn.innerHTML = "<span>💳 결제 & AI 마크다운 추출</span>";
@@ -456,23 +423,36 @@
         statsBar.innerHTML = `
           <div class="stat-chip">✨ 토큰 절감: ${analytics.token_savings_percentage || "70%"}</div>
           <div class="stat-chip">📉 정제 토큰: ${analytics.clean_markdown_estimated_tokens || 0} tokens</div>
-          <div class="stat-chip">💵 절약된 비용: ${analytics.estimated_llm_cost_saved_usd || "$0.00"}</div>
+          <div class="stat-chip">💵 절약 비용: ${analytics.estimated_llm_cost_saved_usd || "$0.00"}</div>
         `;
-      } else {
+      } else if (currentMode === "youtube") {
         output.innerText = data.markdown_transcript || "";
         const analytics = data.transcript_analytics || {};
         statsBar.innerHTML = `
-          <div class="stat-chip">🎬 총 자막 수: ${analytics.total_segments || 0} 개</div>
+          <div class="stat-chip">🎬 자막 수: ${analytics.total_segments || 0} 개</div>
           <div class="stat-chip">📝 단어 수: ${analytics.word_count || 0} words</div>
-          <div class="stat-chip">🤖 예상 토큰: ${analytics.estimated_tokens || 0} tokens</div>
+          <div class="stat-chip">🤖 토큰: ${analytics.estimated_tokens || 0} tokens</div>
+        `;
+      } else if (currentMode === "pdf") {
+        output.innerText = data.markdown_content || "";
+        const analytics = data.pdf_analytics || {};
+        statsBar.innerHTML = `
+          <div class="stat-chip">📑 총 페이지: ${analytics.total_pages || 0} pages</div>
+          <div class="stat-chip">📝 단어 수: ${analytics.word_count || 0} words</div>
+          <div class="stat-chip">🤖 토큰: ${analytics.estimated_tokens || 0} tokens</div>
+        `;
+      } else {
+        output.innerText = data.plain_text || "";
+        statsBar.innerHTML = `
+          <div class="stat-chip">📝 글자 수: ${data.character_count || 0} 자</div>
+          <div class="stat-chip">🤖 예상 토큰: ${data.estimated_tokens || 0} tokens</div>
         `;
       }
     }
 
-    function copyMarkdown() {
-      const text = document.getElementById('markdownOutput').innerText;
-      navigator.clipboard.writeText(text);
-      alert("클립보드에 마크다운이 복사되었습니다!");
+    function copyResult() {
+      navigator.clipboard.writeText(document.getElementById('markdownOutput').innerText);
+      alert("클립보드에 복사되었습니다!");
     }
 
     function showStatus(msg, type) {

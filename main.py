@@ -1,22 +1,24 @@
 import os
 import re
+import io
 from typing import Optional, Set
 from fastapi import FastAPI, Header, Query, HTTPException, status
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from web3 import Web3
 from bs4 import BeautifulSoup, Comment
 import requests
 from dotenv import load_dotenv
 from youtube_transcript_api import YouTubeTranscriptApi
+from pypdf import PdfReader
 
 # .env 로드 (환경변수 덮어쓰기 허용)
 load_dotenv(override=True)
 
 app = FastAPI(
-    title="Polygon x402 Micro-Payment AI Data Agent",
-    description="Web3 x402 Micropayment gateway on Polygon network for AI-ready Clean Web & YouTube content.",
-    version="1.1.0"
+    title="Polygon x402 Micro-Payment AI Data Agent Suite",
+    description="Web3 x402 Micropayment gateway on Polygon for AI-ready Clean Web, YouTube Transcripts, PDF Papers & Plain Text.",
+    version="1.2.0"
 )
 
 # CORS 설정
@@ -91,9 +93,7 @@ def get_402_response_data(required_amount_usdc: float, service_name: str) -> dic
     }
 
 def verify_payment_tx(tx_hash: str, required_amount_usdc: float) -> tuple[bool, str]:
-    """
-    Polygon 메인넷 상의 USDC 입금 트랜잭션을 온체인 검증합니다.
-    """
+    """Polygon 메인넷 상의 USDC 입금 트랜잭션을 온체인 검증합니다."""
     if not tx_hash or not re.match(r"^0x[a-fA-F0-9]{64}$", tx_hash):
         return False, "Invalid transaction hash format. Expected 0x prefixed 64 hex string."
 
@@ -146,9 +146,6 @@ def verify_payment_tx(tx_hash: str, required_amount_usdc: float) -> tuple[bool, 
         return False, f"On-chain verification error: {str(e)}"
 
 def extract_clean_markdown_for_ai(html_content: str, source_url: str) -> tuple[str, str, str, dict]:
-    """
-    HTML 웹 문서를 AI/LLM에 최적화된 마크다운 구조로 정제하고 토큰 통계를 계산합니다.
-    """
     raw_char_count = len(html_content)
     raw_est_tokens = max(1, raw_char_count // 4)
 
@@ -227,8 +224,44 @@ def extract_clean_markdown_for_ai(html_content: str, source_url: str) -> tuple[s
 
     return title, meta_desc, clean_markdown, token_stats
 
+def extract_pdf_to_markdown(pdf_bytes: bytes, source_url: str) -> tuple[str, str, dict]:
+    """PDF 바이트 데이터를 읽고 AI 최적화 마크다운 및 메타데이터를 추출합니다."""
+    reader = PdfReader(io.BytesIO(pdf_bytes))
+    num_pages = len(reader.pages)
+    
+    info = reader.metadata or {}
+    pdf_title = info.title if info and info.title else source_url.split("/")[-1]
+
+    lines = [
+        f"# 📑 {pdf_title}\n",
+        f"> **Source PDF**: {source_url}",
+        f"> **Total Pages**: {num_pages} pages\n"
+    ]
+
+    total_words = 0
+    for idx, page in enumerate(reader.pages):
+        page_num = idx + 1
+        text = page.extract_text() or ""
+        cleaned_text = text.strip()
+        if not cleaned_text:
+            continue
+
+        total_words += len(cleaned_text.split())
+        lines.append(f"\n## 📄 Page {page_num}\n")
+        lines.append(cleaned_text)
+
+    markdown_pdf = "\n".join(lines).strip()
+    est_tokens = max(1, len(markdown_pdf) // 4)
+
+    stats = {
+        "total_pages": num_pages,
+        "word_count": total_words,
+        "estimated_tokens": est_tokens
+    }
+
+    return pdf_title, markdown_pdf, stats
+
 def extract_youtube_video_id(url: str) -> Optional[str]:
-    """유튜브 링크에서 Video ID를 안전하게 파싱합니다."""
     patterns = [
         r"(?:v=|\/)([0-9A-Za-z_-]{11}).*",
         r"(?:youtu\.be\/)([0-9A-Za-z_-]{11})",
@@ -242,7 +275,6 @@ def extract_youtube_video_id(url: str) -> Optional[str]:
     return None
 
 def format_timestamp(seconds: float) -> str:
-    """초를 mm:ss 또는 hh:mm:ss 포맷으로 변환합니다."""
     m, s = divmod(int(seconds), 60)
     h, m = divmod(m, 60)
     if h > 0:
@@ -253,25 +285,18 @@ def format_timestamp(seconds: float) -> str:
 def read_root():
     static_file_path = os.path.join(os.path.dirname(__file__), "static", "index.html")
     if os.path.exists(static_file_path):
-        from fastapi.responses import FileResponse
         return FileResponse(static_file_path)
     return {
-        "service": "Polygon x402 Micro-Payment AI Data Agent",
-        "version": "1.1.0",
+        "service": "Polygon x402 Micro-Payment AI Data Agent Suite",
+        "version": "1.2.0",
         "chain_id": CHAIN_ID,
         "token": "USDC",
         "recipient": RECIPIENT_WALLET,
         "pricing_and_services": {
-            "clean_web_markdown": {
-                "endpoint": "/api/v1/clean-web?url=<URL>",
-                "price": "0.01 USDC",
-                "description": "Clean web scraping to AI-ready Markdown with token savings analytics"
-            },
-            "youtube_transcript_markdown": {
-                "endpoint": "/api/v1/clean-youtube?url=<YOUTUBE_URL>",
-                "price": "0.02 USDC",
-                "description": "Extracts full timestamps & structured Markdown transcript for any YouTube video"
-            }
+            "clean_web_markdown": {"endpoint": "/api/v1/clean-web?url=<URL>", "price": "0.01 USDC"},
+            "youtube_transcript": {"endpoint": "/api/v1/clean-youtube?url=<YOUTUBE_URL>", "price": "0.02 USDC"},
+            "pdf_markdown": {"endpoint": "/api/v1/clean-pdf?url=<PDF_URL>", "price": "0.05 USDC"},
+            "plain_text": {"endpoint": "/api/v1/clean-text?url=<URL>", "price": "0.005 USDC"}
         },
         "docs": "/docs"
     }
@@ -281,9 +306,6 @@ def clean_web_endpoint(
     url: str = Query(..., description="Target web page URL to clean for AI ingestion"),
     x_payment_tx: Optional[str] = Header(None, alias="X-Payment-Tx", description="Polygon Tx Hash for 0.01 USDC payment")
 ):
-    """
-    [0.01 USDC] x402 웹페이지 마크다운 정제 + AI 토큰 절감 통계 엔드포인트
-    """
     price_usdc = 0.01
     if not x_payment_tx:
         return JSONResponse(
@@ -301,16 +323,11 @@ def clean_web_endpoint(
         )
 
     try:
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-        }
+        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
         resp = requests.get(url, headers=headers, timeout=15)
         resp.raise_for_status()
     except requests.exceptions.RequestException as e:
-        raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=f"Error fetching target URL '{url}': {str(e)}"
-        )
+        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=f"Error fetching URL '{url}': {str(e)}")
 
     title, meta_desc, markdown_content, token_stats = extract_clean_markdown_for_ai(resp.text, url)
 
@@ -320,24 +337,16 @@ def clean_web_endpoint(
         "title": title,
         "description": meta_desc,
         "token_analytics": token_stats,
-        "payment": {
-            "tx_hash": x_payment_tx,
-            "chain_id": CHAIN_ID,
-            "token": "USDC",
-            "amount": price_usdc
-        },
+        "payment": {"tx_hash": x_payment_tx, "chain_id": CHAIN_ID, "token": "USDC", "amount": price_usdc},
         "markdown_content": markdown_content
     }
 
 @app.get("/api/v1/clean-youtube")
 def clean_youtube_endpoint(
-    url: str = Query(..., description="YouTube Video URL (e.g. https://www.youtube.com/watch?v=... or https://youtu.be/...)"),
-    language: str = Query("ko,en", description="Preferred transcript language codes comma-separated (e.g. 'ko,en' or 'en')"),
+    url: str = Query(..., description="YouTube Video URL"),
+    language: str = Query("ko,en", description="Language codes comma-separated"),
     x_payment_tx: Optional[str] = Header(None, alias="X-Payment-Tx", description="Polygon Tx Hash for 0.02 USDC payment")
 ):
-    """
-    [0.02 USDC] x402 유튜브 전체 자막 및 타임스탬프 마크다운 정제 엔드포인트
-    """
     price_usdc = 0.02
     if not x_payment_tx:
         return JSONResponse(
@@ -356,12 +365,8 @@ def clean_youtube_endpoint(
 
     video_id = extract_youtube_video_id(url)
     if not video_id:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid YouTube video URL. Could not parse video ID."
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid YouTube video URL.")
 
-    # 유튜브 영상 제목 조회 (oEmbed API)
     video_title = f"YouTube Video ({video_id})"
     try:
         oembed_url = f"https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v={video_id}&format=json"
@@ -371,27 +376,16 @@ def clean_youtube_endpoint(
     except Exception:
         pass
 
-    # 자막 가져오기
     pref_langs = [l.strip() for l in language.split(",") if l.strip()]
     try:
         transcript_list = YouTubeTranscriptApi.get_transcript(video_id, languages=pref_langs)
-    except Exception as e:
-        # 언어 폴백 시도
+    except Exception:
         try:
             transcript_list = YouTubeTranscriptApi.get_transcript(video_id)
-        except Exception as fallback_err:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Could not retrieve transcript for YouTube video '{video_id}': {str(fallback_err)}"
-            )
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Transcript unavailable: {str(e)}")
 
-    # 마크다운 포맷팅
-    lines = [
-        f"# 🎬 {video_title}\n",
-        f"> **YouTube URL**: https://www.youtube.com/watch?v={video_id}\n",
-        "## 📜 Transcript & Timestamps\n"
-    ]
-
+    lines = [f"# 🎬 {video_title}\n", f"> **YouTube URL**: https://www.youtube.com/watch?v={video_id}\n", "## 📜 Transcript & Timestamps\n"]
     total_words = 0
     for item in transcript_list:
         start_sec = item.get("start", 0)
@@ -407,19 +401,100 @@ def clean_youtube_endpoint(
         "status": "success",
         "video_id": video_id,
         "title": video_title,
-        "url": f"https://www.youtube.com/watch?v={video_id}",
-        "transcript_analytics": {
-            "total_segments": len(transcript_list),
-            "estimated_tokens": est_tokens,
-            "word_count": total_words
-        },
-        "payment": {
-            "tx_hash": x_payment_tx,
-            "chain_id": CHAIN_ID,
-            "token": "USDC",
-            "amount": price_usdc
-        },
+        "transcript_analytics": {"total_segments": len(transcript_list), "estimated_tokens": est_tokens, "word_count": total_words},
+        "payment": {"tx_hash": x_payment_tx, "chain_id": CHAIN_ID, "token": "USDC", "amount": price_usdc},
         "markdown_transcript": markdown_transcript
+    }
+
+@app.get("/api/v1/clean-pdf")
+def clean_pdf_endpoint(
+    url: str = Query(..., description="Direct PDF file URL (e.g. arXiv paper or company report)"),
+    x_payment_tx: Optional[str] = Header(None, alias="X-Payment-Tx", description="Polygon Tx Hash for 0.05 USDC payment")
+):
+    """
+    [0.05 USDC] x402 PDF 논문/기업보고서 구조화 마크다운 정제 엔드포인트
+    """
+    price_usdc = 0.05
+    if not x_payment_tx:
+        return JSONResponse(
+            status_code=status.HTTP_402_PAYMENT_REQUIRED,
+            content=get_402_response_data(price_usdc, "PDF Paper & Report Markdown")
+        )
+
+    is_valid, reason = verify_payment_tx(x_payment_tx, price_usdc)
+    if not is_valid:
+        res_data = get_402_response_data(price_usdc, "PDF Paper & Report Markdown")
+        res_data["verification_error"] = reason
+        return JSONResponse(
+            status_code=status.HTTP_402_PAYMENT_REQUIRED,
+            content=res_data
+        )
+
+    try:
+        headers = {"User-Agent": "Mozilla/5.0"}
+        pdf_res = requests.get(url, headers=headers, timeout=25)
+        pdf_res.raise_for_status()
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=f"Failed to download PDF from '{url}': {str(e)}")
+
+    try:
+        title, markdown_content, stats = extract_pdf_to_markdown(pdf_res.content, url)
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=f"Failed to parse PDF content: {str(e)}")
+
+    return {
+        "status": "success",
+        "url": url,
+        "title": title,
+        "pdf_analytics": stats,
+        "payment": {"tx_hash": x_payment_tx, "chain_id": CHAIN_ID, "token": "USDC", "amount": price_usdc},
+        "markdown_content": markdown_content
+    }
+
+@app.get("/api/v1/clean-text")
+def clean_text_endpoint(
+    url: str = Query(..., description="Target web page URL to extract pure plain text"),
+    x_payment_tx: Optional[str] = Header(None, alias="X-Payment-Tx", description="Polygon Tx Hash for 0.005 USDC payment")
+):
+    """
+    [0.005 USDC] x402 순수 플레인 텍스트 초경량 추출 엔드포인트
+    """
+    price_usdc = 0.005
+    if not x_payment_tx:
+        return JSONResponse(
+            status_code=status.HTTP_402_PAYMENT_REQUIRED,
+            content=get_402_response_data(price_usdc, "Pure Plain Text Extractor")
+        )
+
+    is_valid, reason = verify_payment_tx(x_payment_tx, price_usdc)
+    if not is_valid:
+        res_data = get_402_response_data(price_usdc, "Pure Plain Text Extractor")
+        res_data["verification_error"] = reason
+        return JSONResponse(
+            status_code=status.HTTP_402_PAYMENT_REQUIRED,
+            content=res_data
+        )
+
+    try:
+        headers = {"User-Agent": "Mozilla/5.0"}
+        resp = requests.get(url, headers=headers, timeout=15)
+        resp.raise_for_status()
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=f"Error fetching URL: {str(e)}")
+
+    soup = BeautifulSoup(resp.text, "html.parser")
+    for tag in soup(["script", "style", "nav", "footer", "header", "aside", "noscript", "svg", "form"]):
+        tag.decompose()
+
+    plain_text = re.sub(r"\s+", " ", soup.get_text()).strip()
+
+    return {
+        "status": "success",
+        "url": url,
+        "character_count": len(plain_text),
+        "estimated_tokens": max(1, len(plain_text) // 4),
+        "payment": {"tx_hash": x_payment_tx, "chain_id": CHAIN_ID, "token": "USDC", "amount": price_usdc},
+        "plain_text": plain_text
     }
 
 if __name__ == "__main__":

@@ -1,5 +1,6 @@
 import os
 import re
+import io
 from typing import Optional, Set
 from mcp.server import MCPServer
 from web3 import Web3
@@ -7,14 +8,15 @@ from bs4 import BeautifulSoup, Comment
 import requests
 from dotenv import load_dotenv
 from youtube_transcript_api import YouTubeTranscriptApi
+from pypdf import PdfReader
 
 load_dotenv(override=True)
 
 # MCP Server 초기화
 mcp = MCPServer(
     name="Polygon-x402-AI-Data-Agent",
-    version="1.1.0",
-    description="Web3 x402 Micropayment MCP Tool for Clean Web & YouTube Transcripts on Polygon Mainnet"
+    version="1.2.0",
+    description="Web3 x402 Micropayment MCP Suite for Web, YouTube, PDF Papers & Plain Text on Polygon Mainnet"
 )
 
 # Polygon & Token Config
@@ -171,64 +173,52 @@ def get_payment_info() -> str:
 **Available Paid Tools**:
 1. `fetch_clean_web_content`: **0.01 USDC** (Clean webpage into AI Markdown)
 2. `fetch_youtube_transcript`: **0.02 USDC** (Full YouTube timestamps & transcript Markdown)
+3. `fetch_pdf_markdown`: **0.05 USDC** (PDF papers & corporate reports into structured Markdown)
+4. `fetch_plain_text`: **0.005 USDC** (Pure lightweight plain text extraction)
 """
 
 @mcp.tool(
     name="fetch_clean_web_content",
-    description="Fetches and transforms any webpage into AI-ready clean Markdown. Requires 0.01 USDC micropayment on Polygon (x402 protocol)."
+    description="Fetches and transforms any webpage into AI-ready clean Markdown. Requires 0.01 USDC on Polygon."
 )
 def fetch_clean_web_content(url: str, payment_tx_hash: Optional[str] = None) -> str:
     price_usdc = 0.01
     if not payment_tx_hash:
         return f"""⚠️ [HTTP 402 - PAYMENT REQUIRED]
 To access clean web content for '{url}', a micropayment of {price_usdc} USDC on Polygon Mainnet is required.
-
-Please transfer {price_usdc} USDC to:
-👉 Recipient Wallet: `{RECIPIENT_WALLET}`
-👉 Token Contract (USDC): `{USDC_CONTRACT_ADDRESS}`
-👉 Chain ID: {CHAIN_ID}
-
-After completing the transaction, call this tool again with `payment_tx_hash` set to your transaction hash."""
+👉 Recipient Wallet: `{RECIPIENT_WALLET}` (Chain ID: {CHAIN_ID})"""
 
     is_valid, reason = verify_payment_tx(payment_tx_hash, price_usdc)
     if not is_valid:
-        return f"❌ [PAYMENT VERIFICATION FAILED]: {reason}\nPlease ensure {price_usdc} USDC was transferred to `{RECIPIENT_WALLET}`."
+        return f"❌ [PAYMENT VERIFICATION FAILED]: {reason}"
 
     try:
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-        }
+        headers = {"User-Agent": "Mozilla/5.0"}
         res = requests.get(url, headers=headers, timeout=15)
         res.raise_for_status()
         markdown = extract_clean_markdown_for_ai(res.text, url)
         return f"✅ [PAYMENT VERIFIED (Tx: {payment_tx_hash})]\n\n{markdown}"
     except Exception as e:
-        return f"❌ [FETCH ERROR]: Failed to fetch web page content: {str(e)}"
+        return f"❌ [FETCH ERROR]: {str(e)}"
 
 @mcp.tool(
     name="fetch_youtube_transcript",
-    description="Extracts full transcript and timestamps from any YouTube video into AI-ready Markdown. Requires 0.02 USDC micropayment on Polygon (x402 protocol)."
+    description="Extracts full transcript and timestamps from any YouTube video into AI-ready Markdown. Requires 0.02 USDC on Polygon."
 )
 def fetch_youtube_transcript(url: str, language: str = "ko,en", payment_tx_hash: Optional[str] = None) -> str:
     price_usdc = 0.02
     if not payment_tx_hash:
         return f"""⚠️ [HTTP 402 - PAYMENT REQUIRED]
 To extract YouTube transcript for '{url}', a micropayment of {price_usdc} USDC on Polygon Mainnet is required.
-
-Please transfer {price_usdc} USDC to:
-👉 Recipient Wallet: `{RECIPIENT_WALLET}`
-👉 Token Contract (USDC): `{USDC_CONTRACT_ADDRESS}`
-👉 Chain ID: {CHAIN_ID}
-
-After completing the transaction, call this tool again with `payment_tx_hash` set to your transaction hash."""
+👉 Recipient Wallet: `{RECIPIENT_WALLET}` (Chain ID: {CHAIN_ID})"""
 
     is_valid, reason = verify_payment_tx(payment_tx_hash, price_usdc)
     if not is_valid:
-        return f"❌ [PAYMENT VERIFICATION FAILED]: {reason}\nPlease ensure {price_usdc} USDC was transferred to `{RECIPIENT_WALLET}`."
+        return f"❌ [PAYMENT VERIFICATION FAILED]: {reason}"
 
     video_id = extract_youtube_video_id(url)
     if not video_id:
-        return "❌ [INVALID URL]: Could not parse YouTube video ID from URL."
+        return "❌ [INVALID URL]: Could not parse YouTube video ID."
 
     try:
         pref_langs = [l.strip() for l in language.split(",") if l.strip()]
@@ -237,20 +227,68 @@ After completing the transaction, call this tool again with `payment_tx_hash` se
         except Exception:
             transcript_list = YouTubeTranscriptApi.get_transcript(video_id)
 
-        lines = [
-            f"# 🎬 YouTube Transcript ({video_id})\n",
-            f"> **Source**: https://www.youtube.com/watch?v={video_id}\n",
-            "## 📜 Transcript & Timestamps\n"
-        ]
+        lines = [f"# 🎬 YouTube Transcript ({video_id})\n", f"> **Source**: https://www.youtube.com/watch?v={video_id}\n", "## 📜 Transcript & Timestamps\n"]
         for item in transcript_list:
             start_sec = item.get("start", 0)
-            time_str = format_timestamp(start_sec)
-            text = item.get("text", "").strip()
-            lines.append(f"- **`[{time_str}]`** {text}")
+            lines.append(f"- **`[{format_timestamp(start_sec)}]`** {item.get('text', '').strip()}")
 
         return f"✅ [PAYMENT VERIFIED (Tx: {payment_tx_hash})]\n\n" + "\n".join(lines)
     except Exception as e:
-        return f"❌ [TRANSCRIPT ERROR]: Could not fetch transcript: {str(e)}"
+        return f"❌ [TRANSCRIPT ERROR]: {str(e)}"
+
+@mcp.tool(
+    name="fetch_pdf_markdown",
+    description="Extracts structured Markdown from PDF research papers and reports. Requires 0.05 USDC on Polygon."
+)
+def fetch_pdf_markdown(url: str, payment_tx_hash: Optional[str] = None) -> str:
+    price_usdc = 0.05
+    if not payment_tx_hash:
+        return f"""⚠️ [HTTP 402 - PAYMENT REQUIRED]
+To extract PDF document for '{url}', a micropayment of {price_usdc} USDC on Polygon Mainnet is required.
+👉 Recipient Wallet: `{RECIPIENT_WALLET}` (Chain ID: {CHAIN_ID})"""
+
+    is_valid, reason = verify_payment_tx(payment_tx_hash, price_usdc)
+    if not is_valid:
+        return f"❌ [PAYMENT VERIFICATION FAILED]: {reason}"
+
+    try:
+        res = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=25)
+        res.raise_for_status()
+        reader = PdfReader(io.BytesIO(res.content))
+        lines = [f"# 📑 PDF Document ({url.split('/')[-1]})\n", f"> **Pages**: {len(reader.pages)}\n"]
+        for idx, page in enumerate(reader.pages):
+            text = (page.extract_text() or "").strip()
+            if text:
+                lines.append(f"\n## 📄 Page {idx + 1}\n{text}")
+        return f"✅ [PAYMENT VERIFIED (Tx: {payment_tx_hash})]\n\n" + "\n".join(lines)
+    except Exception as e:
+        return f"❌ [PDF ERROR]: {str(e)}"
+
+@mcp.tool(
+    name="fetch_plain_text",
+    description="Extracts ultra-lightweight pure plain text from any web page. Requires 0.005 USDC on Polygon."
+)
+def fetch_plain_text(url: str, payment_tx_hash: Optional[str] = None) -> str:
+    price_usdc = 0.005
+    if not payment_tx_hash:
+        return f"""⚠️ [HTTP 402 - PAYMENT REQUIRED]
+To extract plain text for '{url}', a micropayment of {price_usdc} USDC on Polygon Mainnet is required.
+👉 Recipient Wallet: `{RECIPIENT_WALLET}` (Chain ID: {CHAIN_ID})"""
+
+    is_valid, reason = verify_payment_tx(payment_tx_hash, price_usdc)
+    if not is_valid:
+        return f"❌ [PAYMENT VERIFICATION FAILED]: {reason}"
+
+    try:
+        res = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=15)
+        res.raise_for_status()
+        soup = BeautifulSoup(res.text, "html.parser")
+        for tag in soup(["script", "style", "nav", "footer", "header", "aside", "noscript", "svg"]):
+            tag.decompose()
+        plain_text = re.sub(r"\s+", " ", soup.get_text()).strip()
+        return f"✅ [PAYMENT VERIFIED (Tx: {payment_tx_hash})]\n\n{plain_text}"
+    except Exception as e:
+        return f"❌ [TEXT ERROR]: {str(e)}"
 
 if __name__ == "__main__":
     mcp.run(transport="stdio")

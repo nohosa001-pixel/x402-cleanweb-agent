@@ -1,0 +1,42 @@
+================================================================================
+🚀 [1] X (구 트위터) 홍보용 텍스트 (그대로 복사해서 트윗 작성창에 붙여넣기)
+================================================================================
+
+🚀 Built an AI Data Agent Suite with Web3 Micropayments via x402 on @0xPolygon!
+
+🔹 Clean Web to Markdown: Strips ads/noise + token savings analytics (0.01 USDC)
+🔹 YouTube Transcript Extractor: Full timestamps & Markdown for any video (0.02 USDC)
+🔹 PDF Paper & Report Extractor: Structured Markdown for arXiv / finance reports (0.05 USDC)
+🔹 Pure Plain Text Extractor: Ultra-lightweight text scraper (0.005 USDC)
+🔹 Native MCP Tools for Claude Desktop, Cursor & Antigravity
+
+🌐 Web3 DApp: https://x402-cleanweb-agent.onrender.com (Connect MetaMask & test instantly!)
+📂 GitHub: https://github.com/nohosa001-pixel/x402-cleanweb-agent
+
+#Polygon #Web3 #AI #Claude #MCP #BuildInPublic #Crypto #Solidity
+
+
+================================================================================
+🌐 [2] 레딧(Reddit) 게시글 템플릿 (r/ClaudeAI, r/0xPolygon, r/LocalLLaMA)
+================================================================================
+
+[제목 (Title)]
+I built a Web3 Micropayment AI Data Agent Suite on Polygon (x402 protocol) for Web, YouTube & PDF
+
+[본문 (Post Body)]
+Hey everyone!
+
+I just released an open-source Web3 AI Data Agent and MCP Server suite on Polygon Mainnet:
+
+1. Clean Web Markdown (0.01 USDC): Removes ads and noise from articles while providing token savings analytics.
+2. YouTube Transcript Extractor (0.02 USDC): Extracts full timestamps and structured Markdown from any YouTube video.
+3. PDF Research Paper Extractor (0.05 USDC): Converts arXiv and financial PDF reports into page-by-page clean Markdown.
+4. Pure Plain Text (0.005 USDC): Ultra-fast raw text scraping.
+5. Model Context Protocol (MCP): Plugs directly into Claude Desktop, Cursor, and Antigravity.
+6. Web3 DApp UI: Anyone can connect MetaMask and test/pay in 1 click.
+
+Check out the live DApp & GitHub:
+- Web3 DApp: https://x402-cleanweb-agent.onrender.com
+- GitHub Repo: https://github.com/nohosa001-pixel/x402-cleanweb-agent
+
+Feedback is very welcome!
