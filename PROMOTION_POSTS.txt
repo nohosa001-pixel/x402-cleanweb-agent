@@ -9,11 +9,12 @@
 🔹 PDF Paper & Report Extractor: Structured Markdown for arXiv / finance reports (0.05 USDC)
 🔹 Pure Plain Text Extractor: Ultra-lightweight text scraper (0.005 USDC)
 🔹 Native MCP Tools for Claude Desktop, Cursor & Antigravity
+🔹 Zero-Human Autonomous AI Agent Python SDK Included!
 
-🌐 Web3 DApp: https://x402-cleanweb-agent.onrender.com (Connect MetaMask & test instantly!)
+🌐 Web3 DApp: https://x402-cleanweb-agent.onrender.com
 📂 GitHub: https://github.com/nohosa001-pixel/x402-cleanweb-agent
 
-#Polygon #Web3 #AI #Claude #MCP #BuildInPublic #Crypto #Solidity
+#Polygon #Web3 #AI #Claude #MCP #BuildInPublic #Crypto #Solidity #AIAgents
 
 
 ================================================================================
@@ -32,11 +33,33 @@ I just released an open-source Web3 AI Data Agent and MCP Server suite on Polygo
 2. YouTube Transcript Extractor (0.02 USDC): Extracts full timestamps and structured Markdown from any YouTube video.
 3. PDF Research Paper Extractor (0.05 USDC): Converts arXiv and financial PDF reports into page-by-page clean Markdown.
 4. Pure Plain Text (0.005 USDC): Ultra-fast raw text scraping.
-5. Model Context Protocol (MCP): Plugs directly into Claude Desktop, Cursor, and Antigravity.
-6. Web3 DApp UI: Anyone can connect MetaMask and test/pay in 1 click.
+5. Autonomous AI Agent SDK: AI agents with private keys can pay on-chain and scrape data with zero human intervention.
+6. Model Context Protocol (MCP): Plugs directly into Claude Desktop, Cursor, and Antigravity.
+7. Web3 DApp UI: Connect MetaMask and test/pay in 1 click.
 
 Check out the live DApp & GitHub:
 - Web3 DApp: https://x402-cleanweb-agent.onrender.com
 - GitHub Repo: https://github.com/nohosa001-pixel/x402-cleanweb-agent
 
 Feedback is very welcome!
+
+
+================================================================================
+🤖 [3] AI 자율 에이전트 & Web3 빌더 타겟 특화 포스트 (X / Hacker News / Telegram)
+================================================================================
+
+[제목/트윗]
+Give your Autonomous AI Agents the power to buy clean web data for $0.01 on Polygon without API keys or credit cards.
+
+Traditional web APIs force expensive $49/mo subscriptions.
+With HTTP 402 + Polygon USDC, autonomous AI agents can:
+1. Hit an endpoint
+2. Read 402 instructions
+3. Send 0.01 USDC on-chain
+4. Get token-optimized Markdown in 0.4s
+
+Zero humans in the loop. 
+
+Try it now:
+- Web3 DApp: https://x402-cleanweb-agent.onrender.com
+- SDK & GitHub: https://github.com/nohosa001-pixel/x402-cleanweb-agent

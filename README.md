@@ -1,7 +1,7 @@
 # ⚡ x402-cleanweb-agent
 
 > **Turn any messy webpage, YouTube video, or PDF paper into pure, LLM-ready clean Markdown on Polygon.**  
-> *Zero Sign-up. Zero Subscriptions. True Machine-to-Machine HTTP 402 Micropayments.*
+> *Zero Sign-up. Zero Subscriptions. True Machine-to-Machine HTTP 402 Micropayments for Autonomous AI Agents.*
 
 [![Live Web3 DApp](https://img.shields.io/badge/Live%20DApp-Online-00f2fe?style=for-the-badge&logo=polygon&logoColor=white)](https://x402-cleanweb-agent.onrender.com)
 [![Swagger API](https://img.shields.io/badge/API%20Docs-Swagger-8247e5?style=for-the-badge&logo=fastapi&logoColor=white)](https://x402-cleanweb-agent.onrender.com/docs)
@@ -19,6 +19,7 @@ Traditional web scraping and data extraction APIs force expensive **$49/month su
 
 - ❌ **No Monthly Subscriptions**: Pay only for what you query ($0.005 ~ $0.05 per call in USDC).
 - ❌ **No Sign-ups or API Keys**: Native **HTTP 402 Payment Required** machine-to-machine protocol.
+- 🤖 **Zero-Human AI Agent Ready**: AI agents with a crypto wallet can autonomously buy data 24/7.
 - ⚡ **Sub-Second Speed**: Strips ads, tracking scripts, and clutter, returning pure, structured Markdown.
 - 🪙 **Ultra-Low Gas Fees**: Powered by **Polygon PoS** (< $0.005 network gas).
 - 📊 **Token Savings Engine**: Calculates raw vs. cleaned token reduction (avg. 60~85% savings) and estimated LLM prompt cost savings ($).
@@ -40,11 +41,29 @@ Traditional web scraping and data extraction APIs force expensive **$49/month su
 
 ---
 
-## 📊 Before & After Comparison
+## 🤖 Zero-Human Autonomous AI Agent Integration (Python SDK)
 
-| Raw Messy Input (Wastes 80%+ LLM Tokens) | Cleaned Output by Agent (LLM-Ready Markdown) |
-| :--- | :--- |
-| `<div><script>...</script><h1>Paper Title</h1>` | `# Paper Title - Clean paragraph text directly ready for prompt injection.` |
+AI agents with a Polygon wallet (Private Key) can autonomously handle payment and data extraction with **zero human intervention**:
+
+```python
+from autonomous_agent_client import AutonomousX402Agent
+
+# 1. Initialize Autonomous Agent with Polygon Wallet
+agent = AutonomousX402Agent(private_key="0xYOUR_AGENT_PRIVATE_KEY")
+
+# 2. Autonomous Clean Web Extraction (0.01 USDC)
+result = agent.clean_web("https://example.com/article")
+print("AI-Ready Markdown:\n", result["markdown_content"])
+print("Token Savings:", result["token_analytics"]["token_savings_percentage"])
+
+# 3. Autonomous YouTube Transcript Extraction (0.02 USDC)
+yt_result = agent.clean_youtube("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+print("YouTube Transcripts:\n", yt_result["markdown_transcript"])
+
+# 4. Autonomous PDF Paper Extraction (0.05 USDC)
+pdf_result = agent.clean_pdf("https://arxiv.org/pdf/2301.00001.pdf")
+print("PDF Paper Markdown:\n", pdf_result["markdown_content"])
+```
 
 ---
 
@@ -53,7 +72,7 @@ Traditional web scraping and data extraction APIs force expensive **$49/month su
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Agent as AI Agent / DApp User
+    actor Agent as Autonomous AI Agent
     participant Server as x402 Gateway (FastAPI)
     participant Polygon as Polygon Mainnet (Bor RPC)
     participant Scraper as AI Data Cleaning Engine
@@ -76,9 +95,7 @@ sequenceDiagram
 
 ---
 
-## 🤖 AI Agent & Developer Quickstart
-
-AI Agents can autonomously consume this API with zero human intervention:
+## ⚡ Direct cURL Quickstart
 
 ```bash
 # Step 1: Query without payment to inspect 402 payment requirements
