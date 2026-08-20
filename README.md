@@ -1,50 +1,70 @@
 # Polygon x402 Micro-Payment AI Data Agent Suite
 
-폴리곤(Polygon Mainnet) 상에서 **0.005~0.05 USDC** 마이크로 결제를 온체인으로 검증하고, 웹페이지, **YouTube 영상 자막**, **PDF 논문/보고서**, **순수 텍스트**를 AI/LLM 프롬프트에 최적화된 형태로 변환하여 반환하는 종합 Web3 AI 데이터 에이전트 서비스입니다.
+A production-grade Web3 AI Data Agent Suite powered by the **HTTP 402 Payment Required (x402)** protocol on **Polygon Mainnet**. It enables on-chain verified **0.005 ~ 0.05 USDC** micro-payments for converting raw web pages, **YouTube video transcripts**, **PDF research papers**, and **plain text** into AI/LLM-optimized clean Markdown.
 
 ---
 
-## 🚀 제공 서비스 및 가격표 (x402 Protocol)
+## 🚀 Live Demo & Endpoints
 
-| 서비스 | 엔드포인트 | 결제 금액 | 기능 설명 |
+- **Live Web3 DApp**: [https://x402-cleanweb-agent.onrender.com](https://x402-cleanweb-agent.onrender.com)
+- **Interactive Swagger Docs**: [https://x402-cleanweb-agent.onrender.com/docs](https://x402-cleanweb-agent.onrender.com/docs)
+
+| Service | Endpoint | Pricing | Description |
 | :--- | :--- | :--- | :--- |
-| **🌐 Clean Web** | `GET /api/v1/clean-web` | **0.01 USDC** | 광고/노이즈 제거 + AI 마크다운 + **토큰 절감 통계** |
-| **🎬 YouTube Transcript** | `GET /api/v1/clean-youtube` | **0.02 USDC** | 유튜브 영상 **전체 자막 & 타임스탬프** 마크다운 정제 |
-| **📑 PDF Paper & Report** | `GET /api/v1/clean-pdf` | **0.05 USDC** | arXiv 논문, 공시 보고서 PDF **페이지별 구조화 마크다운** |
-| **📝 Pure Plain Text** | `GET /api/v1/clean-text` | **0.005 USDC** | 초경량 순수 텍스트 추출 |
+| **🌐 Clean Web** | `GET /api/v1/clean-web` | **0.01 USDC** | Ad/Noise removal + AI-ready Markdown + **Token savings analytics** |
+| **🎬 YouTube Transcript** | `GET /api/v1/clean-youtube` | **0.02 USDC** | Complete video **transcripts with timestamps** formatted in Markdown |
+| **📑 PDF Paper & Report** | `GET /api/v1/clean-pdf` | **0.05 USDC** | arXiv papers & financial reports converted to **structured Markdown** |
+| **📝 Pure Plain Text** | `GET /api/v1/clean-text` | **0.005 USDC** | Ultra-lightweight raw text extraction |
 
 ---
 
-## 💡 주요 특징
+## 💡 Key Features
 
-1. **HTTP 402 Payment Required (x402 규격)**
-   - `X-Payment-Tx` 헤더 누락 시 402 응답 및 결제 가이드 반환.
-2. **Polygon 메인넷 온체인 검증 (`web3.py`)**
-   - Native USDC (`0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359`) Transfer 이벤트 검증.
-   - 수신 주소(`0x255F9991233f86B29dB847c8d5b8CB9915e80dCf`) 일치 및 Replay Attack 방지.
-3. **AI 토큰 절감 통계 분석**
-   - 원본 대비 마크다운 변환 시 절감된 토큰 수(%) 및 절약된 LLM 비용 추정치 반환.
-4. **Web3 DApp UI 제공**
-   - 메타마스크 지갑 연결 후 브라우저에서 원클릭 결제 및 결과 복사 가능.
+1. **Autonomous HTTP 402 Protocol (x402)**
+   - Requests without payment return `402 Payment Required` with complete on-chain transfer instructions.
+   - Attach the transaction hash in the `X-Payment-Tx` header to unlock data.
+2. **Polygon Mainnet On-Chain Verification (`web3.py`)**
+   - Direct verification of native USDC (`0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359`) transfer logs.
+   - Exact recipient verification (`0x255F9991233f86B29dB847c8d5b8CB9915e80dCf`) with replay attack protection.
+3. **AI Token Savings & Analytics**
+   - Calculates raw vs. cleaned token counts, percentage savings, and estimated LLM prompt cost savings ($).
+4. **Global Web3 DApp UI**
+   - Sleek dark-mode interface with MetaMask / Web3 wallet integration and bilingual (English / Korean) toggle support.
+5. **Model Context Protocol (MCP) Ready**
+   - Full MCP server support (`mcp_server.py`) for direct integration with Cursor, Claude Desktop, and AI agents.
 
 ---
 
-## 🛠 실행 방법
+## 🛠 Local Setup & Running
 
 ```bash
+# 1. Clone repository & setup virtual environment
+git clone https://github.com/nohosa001-pixel/x402-cleanweb-agent.git
+cd x402-cleanweb-agent
 python -m venv .venv
-.venv\Scripts\activate
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# 2. Install dependencies
 pip install -r requirements.txt
+
+# 3. Start server
 python main.py
-# 또는 원클릭 실행: run_server.bat
+# Or run with batch script: run_server.bat
 ```
 
 ---
 
-## 🤖 MCP (Model Context Protocol) 도구 목록
+## 🤖 MCP (Model Context Protocol) Tools
 
-- `get_payment_info()`: 결제 요금표 및 지갑 주소 안내
-- `fetch_clean_web_content(url, payment_tx_hash)`: 0.01 USDC 웹 정제
-- `fetch_youtube_transcript(url, language, payment_tx_hash)`: 0.02 USDC 유튜브 자막 추출
-- `fetch_pdf_markdown(url, payment_tx_hash)`: 0.05 USDC PDF 논문/보고서 추출
-- `fetch_plain_text(url, payment_tx_hash)`: 0.005 USDC 순수 텍스트 추출
+- `get_payment_info()`: Retrieve pricing table and recipient wallet address.
+- `fetch_clean_web_content(url, payment_tx_hash)`: Clean web scraper (0.01 USDC).
+- `fetch_youtube_transcript(url, language, payment_tx_hash)`: YouTube transcript scraper (0.02 USDC).
+- `fetch_pdf_markdown(url, payment_tx_hash)`: PDF paper to markdown converter (0.05 USDC).
+- `fetch_plain_text(url, payment_tx_hash)`: Lightweight plain text extractor (0.005 USDC).
+
+---
+
+## 📄 License & Standards
+
+- Protocol: [HTTP 402 Payment Required (x402)](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes#402)
+- Blockchain: Polygon Mainnet (Chain ID: `137`)

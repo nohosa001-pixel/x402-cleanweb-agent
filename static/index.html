@@ -1,89 +1,170 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Polygon x402 AI Data Suite | Web3 Micro-Payment DApp</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.2/ethers.umd.min.js"></script>
   <style>
     :root {
-      --bg-dark: #0a0b10;
-      --card-bg: rgba(18, 20, 29, 0.75);
-      --card-border: rgba(130, 71, 229, 0.25);
+      --bg-dark: #090a10;
+      --bg-gradient: radial-gradient(circle at top right, #1d103b, #090a10 65%);
+      --card-bg: rgba(17, 20, 30, 0.78);
+      --card-border: rgba(130, 71, 229, 0.3);
+      --card-border-glow: rgba(130, 71, 229, 0.6);
       --primary: #8247e5;
-      --primary-glow: rgba(130, 71, 229, 0.4);
+      --primary-hover: #965cf5;
+      --primary-glow: rgba(130, 71, 229, 0.45);
       --accent: #00f2fe;
-      --text: #f0f2f5;
-      --text-muted: #8b949e;
-      --success: #00e676;
-      --error: #ff5252;
+      --accent-glow: rgba(0, 242, 254, 0.35);
+      --text: #f3f4f6;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --success: #10b981;
+      --error: #ef4444;
+      --warning: #f59e0b;
+      --code-bg: rgba(0, 0, 0, 0.65);
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Outfit', sans-serif;
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
 
     body {
-      background: radial-gradient(circle at top right, #1b0e36, #0a0b10 60%);
+      background: var(--bg-gradient);
+      background-attachment: fixed;
       color: var(--text);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 2rem 1rem;
+      padding: 2rem 1rem 3rem 1rem;
     }
 
     .container {
       width: 100%;
-      max-width: 960px;
+      max-width: 980px;
     }
 
+    /* Header */
     header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 2rem;
-      padding-bottom: 1.2rem;
+      padding-bottom: 1.25rem;
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      gap: 1rem;
+      flex-wrap: wrap;
     }
 
     .logo-group {
       display: flex;
       align-items: center;
-      gap: 0.8rem;
+      gap: 0.85rem;
     }
 
     .logo-badge {
       background: linear-gradient(135deg, var(--primary), var(--accent));
-      padding: 0.4rem 0.8rem;
-      border-radius: 8px;
+      padding: 0.4rem 0.85rem;
+      border-radius: 10px;
       font-weight: 800;
-      font-size: 0.9rem;
+      font-size: 0.95rem;
       color: #000;
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 15px var(--accent-glow);
+    }
+
+    .logo-text-wrap {
+      display: flex;
+      flex-direction: column;
     }
 
     .logo-title {
-      font-size: 1.3rem;
+      font-size: 1.35rem;
       font-weight: 700;
-      background: linear-gradient(90deg, #fff, #b8c1ec);
+      background: linear-gradient(90deg, #ffffff, #c7d2fe);
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
+      letter-spacing: -0.3px;
+    }
+
+    .logo-subtitle {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    /* Language Switcher */
+    .lang-switcher {
+      display: flex;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      padding: 2px;
+    }
+
+    .lang-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 0.4rem 0.75rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .lang-btn.active {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 2px 8px var(--primary-glow);
+    }
+
+    .api-link-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text-muted);
+      padding: 0.55rem 0.9rem;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.2s;
+    }
+
+    .api-link-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.25);
     }
 
     .wallet-btn {
-      background: rgba(130, 71, 229, 0.15);
+      background: rgba(130, 71, 229, 0.18);
       border: 1px solid var(--primary);
       color: #fff;
-      padding: 0.6rem 1.2rem;
+      padding: 0.55rem 1.2rem;
       border-radius: 12px;
       font-weight: 600;
+      font-size: 0.9rem;
       cursor: pointer;
       transition: all 0.3s ease;
       display: flex;
@@ -94,98 +175,195 @@
     .wallet-btn:hover {
       background: var(--primary);
       box-shadow: 0 0 20px var(--primary-glow);
+      transform: translateY(-1px);
     }
 
+    /* Hero Banner */
+    .hero-banner {
+      background: linear-gradient(135deg, rgba(130, 71, 229, 0.15), rgba(0, 242, 254, 0.08));
+      border: 1px solid rgba(130, 71, 229, 0.25);
+      border-radius: 16px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .hero-text h1 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.3rem;
+    }
+
+    .hero-text p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .hero-tags {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .hero-tag {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--accent);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Main Card */
     .glass-card {
       background: var(--card-bg);
-      backdrop-filter: blur(16px);
+      backdrop-filter: blur(20px);
       border: 1px solid var(--card-border);
-      border-radius: 20px;
-      padding: 2rem;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      border-radius: 24px;
+      padding: 2.2rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
       margin-bottom: 2rem;
+      transition: border-color 0.3s ease;
     }
 
     .tabs {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.6rem;
-      margin-bottom: 1.5rem;
+      gap: 0.65rem;
+      margin-bottom: 1.8rem;
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      padding-bottom: 0.8rem;
+      padding-bottom: 1rem;
     }
 
     .tab {
-      padding: 0.5rem 1rem;
-      border-radius: 10px;
+      padding: 0.6rem 1.1rem;
+      border-radius: 12px;
       cursor: pointer;
       font-weight: 600;
-      font-size: 0.9rem;
+      font-size: 0.92rem;
       color: var(--text-muted);
-      transition: all 0.2s;
+      transition: all 0.25s ease;
       border: 1px solid transparent;
+      background: rgba(255, 255, 255, 0.03);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .tab:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.07);
     }
 
     .tab.active {
-      background: rgba(130, 71, 229, 0.25);
+      background: rgba(130, 71, 229, 0.28);
       color: #fff;
       border-color: var(--primary);
+      box-shadow: 0 4px 15px rgba(130, 71, 229, 0.2);
+    }
+
+    .tab-badge {
+      font-size: 0.75rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: 6px;
+      background: rgba(0, 242, 254, 0.15);
+      color: var(--accent);
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
     }
 
     .input-group {
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.8rem;
     }
 
     .input-group label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-size: 0.9rem;
-      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.6rem;
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: #e2e8f0;
+    }
+
+    .input-hint {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      font-weight: normal;
     }
 
     .url-input {
       width: 100%;
-      background: rgba(0, 0, 0, 0.4);
+      background: rgba(0, 0, 0, 0.45);
       border: 1px solid rgba(255, 255, 255, 0.15);
       color: #fff;
-      padding: 0.9rem 1.2rem;
-      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      border-radius: 14px;
       font-size: 1rem;
+      font-family: 'JetBrains Mono', monospace;
       outline: none;
-      transition: all 0.2s;
+      transition: all 0.25s;
     }
 
     .url-input:focus {
       border-color: var(--accent);
-      box-shadow: 0 0 15px rgba(0, 242, 254, 0.25);
+      box-shadow: 0 0 20px rgba(0, 242, 254, 0.25);
+      background: rgba(0, 0, 0, 0.6);
     }
 
     .action-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .price-box {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .price-sub {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
     }
 
     .price-tag {
-      font-size: 1rem;
+      font-size: 1.15rem;
       color: var(--accent);
       font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
     }
 
     .pay-btn {
-      background: linear-gradient(135deg, var(--primary), #5a22b8);
+      background: linear-gradient(135deg, var(--primary), #6023cc);
       color: #fff;
       border: none;
-      padding: 0.9rem 2rem;
+      padding: 0.95rem 2.2rem;
       border-radius: 14px;
       font-weight: 700;
-      font-size: 1rem;
+      font-size: 1.02rem;
       cursor: pointer;
-      transition: all 0.3s;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
     }
 
     .pay-btn:hover {
-      box-shadow: 0 0 25px var(--primary-glow);
+      background: linear-gradient(135deg, var(--primary-hover), #702eed);
+      box-shadow: 0 0 30px var(--primary-glow);
       transform: translateY(-2px);
     }
 
@@ -193,166 +371,467 @@
       opacity: 0.5;
       cursor: not-allowed;
       transform: none;
+      box-shadow: none;
     }
 
+    /* Status Notifications */
+    .status-msg {
+      margin-top: 1.4rem;
+      padding: 1rem 1.25rem;
+      border-radius: 12px;
+      font-size: 0.92rem;
+      display: none;
+      line-height: 1.5;
+    }
+
+    .status-msg.error {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+      display: block;
+    }
+
+    .status-msg.info {
+      background: rgba(0, 242, 254, 0.12);
+      border: 1px solid rgba(0, 242, 254, 0.35);
+      color: #a5f3fc;
+      display: block;
+    }
+
+    .status-msg.success {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: #6ee7b7;
+      display: block;
+    }
+
+    /* Result Section */
     .result-section {
       display: none;
-      margin-top: 2rem;
+      margin-top: 2.2rem;
+      animation: fadeIn 0.4s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .result-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 1rem;
+      margin-bottom: 1.2rem;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+    }
+
+    .result-header h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
     }
 
     .stats-bar {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.8rem;
-      margin-bottom: 1rem;
-      font-size: 0.85rem;
+      gap: 0.65rem;
+      margin-bottom: 1.2rem;
     }
 
     .stat-chip {
-      background: rgba(0, 242, 254, 0.1);
-      border: 1px solid rgba(0, 242, 254, 0.3);
-      padding: 0.3rem 0.8rem;
+      background: rgba(0, 242, 254, 0.08);
+      border: 1px solid rgba(0, 242, 254, 0.25);
+      padding: 0.4rem 0.85rem;
       border-radius: 20px;
-      color: var(--accent);
+      color: #e0f2fe;
+      font-size: 0.82rem;
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .stat-chip.highlight {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: rgba(16, 185, 129, 0.4);
+      color: #a7f3d0;
     }
 
     .markdown-viewer {
-      background: rgba(0, 0, 0, 0.6);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      padding: 1.5rem;
-      max-height: 480px;
+      background: var(--code-bg);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      padding: 1.6rem;
+      max-height: 520px;
       overflow-y: auto;
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.9rem;
       white-space: pre-wrap;
-      color: #e6edf3;
-      line-height: 1.6;
+      color: #e2e8f0;
+      line-height: 1.65;
     }
 
     .copy-btn {
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.08);
       border: 1px solid rgba(255, 255, 255, 0.2);
       color: #fff;
-      padding: 0.4rem 0.9rem;
-      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      border-radius: 10px;
       cursor: pointer;
       font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
     }
 
     .copy-btn:hover {
       background: #fff;
       color: #000;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
     }
 
-    .status-msg {
-      margin-top: 1rem;
-      padding: 0.8rem 1rem;
+    /* Developer Section */
+    .dev-card {
+      background: rgba(15, 18, 28, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 18px;
+      padding: 1.5rem 1.8rem;
+      margin-bottom: 2rem;
+    }
+
+    .dev-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #cbd5e1;
+      margin-bottom: 0.6rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .dev-desc {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 0.8rem;
+    }
+
+    .dev-code {
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.06);
       border-radius: 10px;
-      font-size: 0.9rem;
-      display: none;
+      padding: 0.75rem 1rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--accent);
+      overflow-x: auto;
     }
 
-    .status-msg.error {
-      background: rgba(255, 82, 82, 0.15);
-      border: 1px solid var(--error);
-      color: #ff8a80;
-      display: block;
+    /* Footer */
+    footer {
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
     }
 
-    .status-msg.info {
-      background: rgba(0, 242, 254, 0.15);
-      border: 1px solid var(--accent);
-      color: #80d8ff;
-      display: block;
+    footer a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    footer a:hover {
+      color: var(--accent);
+    }
+
+    @media (max-width: 640px) {
+      body { padding: 1rem 0.75rem 2rem 0.75rem; }
+      .glass-card { padding: 1.4rem; border-radius: 18px; }
+      .header-actions { width: 100%; justify-content: space-between; }
+      .action-row { flex-direction: column; align-items: stretch; }
+      .pay-btn { width: 100%; justify-content: center; }
     }
   </style>
 </head>
 <body>
   <div class="container">
+    <!-- Header -->
     <header>
       <div class="logo-group">
         <span class="logo-badge">x402</span>
-        <div class="logo-title">Polygon AI Data Suite</div>
+        <div class="logo-text-wrap">
+          <div class="logo-title">Polygon AI Data Suite</div>
+          <div class="logo-subtitle">Web3 Micro-Payment Protocol</div>
+        </div>
       </div>
-      <button class="wallet-btn" id="connectWalletBtn" onclick="connectWallet()">
-        <span>🦊 지갑 연결</span>
-      </button>
+      <div class="header-actions">
+        <div class="lang-switcher">
+          <button class="lang-btn active" id="langEnBtn" onclick="setLanguage('en')">EN</button>
+          <button class="lang-btn" id="langKoBtn" onclick="setLanguage('ko')">KO</button>
+        </div>
+        <a href="/docs" target="_blank" class="api-link-btn">
+          <span>📚 API Docs</span>
+        </a>
+        <button class="wallet-btn" id="connectWalletBtn" onclick="connectWallet()">
+          <span>🦊 Connect Wallet</span>
+        </button>
+      </div>
     </header>
 
+    <!-- Hero Banner -->
+    <div class="hero-banner">
+      <div class="hero-text">
+        <h1 id="heroTitle">Autonomous Web3 AI Data Extraction & Scraper</h1>
+        <p id="heroDesc">Instant on-chain USDC micro-payments on Polygon. Clean web noise, fetch YouTube transcripts, convert PDF research papers to AI-ready Markdown.</p>
+      </div>
+      <div class="hero-tags">
+        <span class="hero-tag">Chain: Polygon (137)</span>
+        <span class="hero-tag">Token: USDC</span>
+        <span class="hero-tag">Spec: HTTP 402</span>
+      </div>
+    </div>
+
+    <!-- Main Workspace Card -->
     <div class="glass-card">
       <div class="tabs">
-        <div class="tab active" id="tabWeb" onclick="switchTab('web')">🌐 Clean Web (0.01 USDC)</div>
-        <div class="tab" id="tabYoutube" onclick="switchTab('youtube')">🎬 YouTube Transcript (0.02 USDC)</div>
-        <div class="tab" id="tabPdf" onclick="switchTab('pdf')">📑 PDF Paper (0.05 USDC)</div>
-        <div class="tab" id="tabText" onclick="switchTab('text')">📝 Plain Text (0.005 USDC)</div>
+        <div class="tab active" id="tabWeb" onclick="switchTab('web')">
+          <span>🌐 Clean Web</span>
+          <span class="tab-badge">0.01 USDC</span>
+        </div>
+        <div class="tab" id="tabYoutube" onclick="switchTab('youtube')">
+          <span>🎬 YouTube Transcript</span>
+          <span class="tab-badge">0.02 USDC</span>
+        </div>
+        <div class="tab" id="tabPdf" onclick="switchTab('pdf')">
+          <span>📑 PDF Paper</span>
+          <span class="tab-badge">0.05 USDC</span>
+        </div>
+        <div class="tab" id="tabText" onclick="switchTab('text')">
+          <span>📝 Plain Text</span>
+          <span class="tab-badge">0.005 USDC</span>
+        </div>
       </div>
 
       <div class="input-group">
-        <label id="inputLabel">정제할 웹페이지 URL 주소</label>
+        <label>
+          <span id="inputLabel">Target Webpage URL</span>
+          <span class="input-hint" id="inputHint">HTTP/HTTPS URL</span>
+        </label>
         <input type="text" class="url-input" id="targetUrl" placeholder="https://example.com/article" value="https://example.com">
       </div>
 
       <div class="action-row">
-        <div class="price-tag" id="priceTag">💰 결제 금액: 0.01 USDC (Polygon)</div>
+        <div class="price-box">
+          <span class="price-sub" id="priceSub">Micro-Payment Required</span>
+          <div class="price-tag" id="priceTag">0.01 USDC (Polygon Mainnet)</div>
+        </div>
         <button class="pay-btn" id="payAndFetchBtn" onclick="payAndFetch()">
-          <span>💳 결제 & AI 마크다운 추출</span>
+          <span id="payBtnText">💳 Pay & Extract with AI</span>
         </button>
       </div>
 
       <div class="status-msg" id="statusMsg"></div>
 
+      <!-- Result Section -->
       <div class="result-section" id="resultSection">
         <div class="result-header">
-          <h3 id="resultTitle">📄 추출된 AI 결과</h3>
-          <button class="copy-btn" onclick="copyResult()">📋 결과 복사</button>
+          <h3 id="resultTitle">📄 Extracted AI Result</h3>
+          <button class="copy-btn" onclick="copyResult()">
+            <span id="copyBtnText">📋 Copy Output</span>
+          </button>
         </div>
         <div class="stats-bar" id="statsBar"></div>
         <div class="markdown-viewer" id="markdownOutput"></div>
       </div>
     </div>
+
+    <!-- Developer Section -->
+    <div class="dev-card">
+      <div class="dev-title">
+        <span>🤖 AI Agent & Developer Integration (x402 Protocol)</span>
+      </div>
+      <div class="dev-desc" id="devDesc">
+        AI Agents can autonomously consume this API. Request any endpoint without payment to receive a <code>402 Payment Required</code> response with payment instructions, send USDC on Polygon, and attach <code>X-Payment-Tx: &lt;TX_HASH&gt;</code> to retrieve data.
+      </div>
+      <div class="dev-code">
+        curl -X GET "https://x402-cleanweb-agent.onrender.com/api/v1/clean-web?url=https://example.com" \<br>
+        &nbsp;&nbsp;-H "X-Payment-Tx: 0x&lt;POLYGON_USDC_TX_HASH&gt;"
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      <div>Polygon x402 AI Agent Data Suite &bull; Standardized HTTP 402 Protocol</div>
+      <div>
+        <a href="/docs" target="_blank">Swagger API</a> &bull; 
+        <a href="https://polygonscan.com/token/0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359" target="_blank">Polygon USDC Contract</a> &bull; 
+        <a href="https://github.com" target="_blank">Open Source</a>
+      </div>
+    </footer>
   </div>
 
   <script>
-    const CHAIN_ID_HEX = "0x89"; // 137
+    const CHAIN_ID_HEX = "0x89"; // 137 (Polygon Mainnet)
     const USDC_ADDRESS = "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359";
     const RECIPIENT_WALLET = "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf";
     
     const ERC20_ABI = ["function transfer(address to, uint256 amount) returns (bool)"];
 
     let currentMode = "web";
+    let currentLang = "en";
     let provider = null;
     let signer = null;
 
-    const SERVICE_CONFIG = {
-      web: { price: "0.01", endpoint: "/api/v1/clean-web", label: "정제할 웹페이지 URL 주소", placeholder: "https://example.com/article" },
-      youtube: { price: "0.02", endpoint: "/api/v1/clean-youtube", label: "자막을 추출할 YouTube 영상 URL", placeholder: "https://www.youtube.com/watch?v=dQw4w9WgXcQ" },
-      pdf: { price: "0.05", endpoint: "/api/v1/clean-pdf", label: "마크다운으로 변환할 PDF 문서 URL", placeholder: "https://arxiv.org/pdf/2301.00001.pdf" },
-      text: { price: "0.005", endpoint: "/api/v1/clean-text", label: "순수 텍스트만 추출할 URL", placeholder: "https://example.com" }
+    const I18N = {
+      en: {
+        heroTitle: "Autonomous Web3 AI Data Extraction & Scraper",
+        heroDesc: "Instant on-chain USDC micro-payments on Polygon. Clean web noise, fetch YouTube transcripts, convert PDF research papers to AI-ready Markdown.",
+        connectWallet: "🦊 Connect Wallet",
+        priceSub: "Micro-Payment Required",
+        payBtn: "💳 Pay & Extract with AI",
+        payBtnSigning: "⏳ Signing {price} USDC Payment...",
+        payBtnProcessing: "⚡ Fetching AI Data...",
+        resultTitle: "📄 Extracted AI Result",
+        copyBtn: "📋 Copy Output",
+        copied: "✅ Copied to clipboard!",
+        devDesc: "AI Agents can autonomously consume this API. Request any endpoint without payment to receive a 402 Payment Required response with payment instructions, send USDC on Polygon, and attach X-Payment-Tx: <TX_HASH> to retrieve data.",
+        alertMetaMask: "Please install MetaMask or a compatible Web3 browser wallet!",
+        alertSwitchNetwork: "Please switch your network to Polygon Mainnet (Chain ID 137).",
+        alertEnterUrl: "Please enter a valid URL.",
+        statusWalletErr: "Wallet connection failed: ",
+        statusSigning: "Sending Polygon transaction... Please confirm the signature in your wallet.",
+        statusWaitingTx: "Waiting for block confirmation... (Tx: {txHash}...)",
+        statusPaid: "✅ Payment verified! Fetching AI-ready data...",
+        statusSuccess: "🎉 Successfully extracted AI-ready data!",
+        statusFetchFail: "Data extraction failed: ",
+        statusPayFail: "Payment failed: ",
+        web: {
+          price: "0.01",
+          endpoint: "/api/v1/clean-web",
+          label: "Target Webpage URL to Extract",
+          placeholder: "https://example.com/article",
+          hint: "Articles, blogs, news or documentation"
+        },
+        youtube: {
+          price: "0.02",
+          endpoint: "/api/v1/clean-youtube",
+          label: "YouTube Video URL for Transcripts",
+          placeholder: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+          hint: "Full transcript extraction with timestamps"
+        },
+        pdf: {
+          price: "0.05",
+          endpoint: "/api/v1/clean-pdf",
+          label: "PDF Document / Paper URL",
+          placeholder: "https://arxiv.org/pdf/2301.00001.pdf",
+          hint: "Research papers, whitepapers, earnings reports"
+        },
+        text: {
+          price: "0.005",
+          endpoint: "/api/v1/clean-text",
+          label: "Target URL for Plain Text Extraction",
+          placeholder: "https://example.com",
+          hint: "Ultra-fast raw textual scraper"
+        }
+      },
+      ko: {
+        heroTitle: "자율형 Web3 AI 데이터 추출 & 웹 스크래퍼",
+        heroDesc: "Polygon 온체인 USDC 마이크로 결제 지원. 웹 광고 노이즈 제거, YouTube 영상 자막 추출, PDF 논문 및 보고서를 AI 최적화 마크다운으로 변환합니다.",
+        connectWallet: "🦊 지갑 연결",
+        priceSub: "필요 결제 금액",
+        payBtn: "💳 결제 & AI 마크다운 추출",
+        payBtnSigning: "⏳ {price} USDC 결제 서명 중...",
+        payBtnProcessing: "⚡ AI 데이터 수집 중...",
+        resultTitle: "📄 추출된 AI 결과",
+        copyBtn: "📋 결과 복사",
+        copied: "✅ 클립보드에 복사되었습니다!",
+        devDesc: "AI 에이전트가 자율적으로 API를 호출할 수 있습니다. 결제 없이 요청 시 402 Payment Required 가이드를 반환하며, 온체인 전송 후 X-Payment-Tx 헤더를 전송하여 데이터를 획득합니다.",
+        alertMetaMask: "MetaMask 등 Web3 브라우저 지갑을 설치해 주세요!",
+        alertSwitchNetwork: "Polygon Mainnet(Chain ID 137)으로 네트워크를 변경해 주세요.",
+        alertEnterUrl: "올바른 URL을 입력해 주세요.",
+        statusWalletErr: "지갑 연결 실패: ",
+        statusSigning: "Polygon 트랜잭션 전송 중... 지갑에서 서명을 승인해 주세요.",
+        statusWaitingTx: "블록 확정 대기 중... (Tx: {txHash}...)",
+        statusPaid: "✅ 결제 확인 완료! AI 데이터를 불러옵니다...",
+        statusSuccess: "🎉 성공적으로 AI 데이터를 추출했습니다!",
+        statusFetchFail: "데이터 수집 실패: ",
+        statusPayFail: "결제 실패: ",
+        web: {
+          price: "0.01",
+          endpoint: "/api/v1/clean-web",
+          label: "정제할 웹페이지 URL 주소",
+          placeholder: "https://example.com/article",
+          hint: "뉴스, 블로그, 기술 문서"
+        },
+        youtube: {
+          price: "0.02",
+          endpoint: "/api/v1/clean-youtube",
+          label: "자막을 추출할 YouTube 영상 URL",
+          placeholder: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+          hint: "전체 자막 및 타임스탬프 추출"
+        },
+        pdf: {
+          price: "0.05",
+          endpoint: "/api/v1/clean-pdf",
+          label: "마크다운으로 변환할 PDF 문서 URL",
+          placeholder: "https://arxiv.org/pdf/2301.00001.pdf",
+          hint: "arXiv 논문, 기업 공시 보고서"
+        },
+        text: {
+          price: "0.005",
+          endpoint: "/api/v1/clean-text",
+          label: "순수 텍스트만 추출할 URL",
+          placeholder: "https://example.com",
+          hint: "초경량 순수 텍스트 추출"
+        }
+      }
     };
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      document.getElementById('langEnBtn').classList.toggle('active', lang === 'en');
+      document.getElementById('langKoBtn').classList.toggle('active', lang === 'ko');
+
+      const t = I18N[lang];
+      document.getElementById('heroTitle').innerText = t.heroTitle;
+      document.getElementById('heroDesc').innerText = t.heroDesc;
+      document.getElementById('priceSub').innerText = t.priceSub;
+      document.getElementById('payBtnText').innerText = t.payBtn;
+      document.getElementById('resultTitle').innerText = t.resultTitle;
+      document.getElementById('copyBtnText').innerText = t.copyBtn;
+      document.getElementById('devDesc').innerHTML = t.devDesc;
+
+      if (!signer) {
+        document.getElementById('connectWalletBtn').innerHTML = `<span>${t.connectWallet}</span>`;
+      }
+
+      updateTabConfig();
+    }
 
     function switchTab(mode) {
       currentMode = mode;
       ['web', 'youtube', 'pdf', 'text'].forEach(m => {
         document.getElementById(`tab${m.charAt(0).toUpperCase() + m.slice(1)}`).classList.toggle('active', m === mode);
       });
-      
-      const config = SERVICE_CONFIG[mode];
+      updateTabConfig();
+    }
+
+    function updateTabConfig() {
+      const config = I18N[currentLang][currentMode];
       document.getElementById('inputLabel').innerText = config.label;
+      document.getElementById('inputHint').innerText = config.hint;
       document.getElementById('targetUrl').placeholder = config.placeholder;
-      document.getElementById('priceTag').innerText = `💰 결제 금액: ${config.price} USDC (Polygon)`;
+      document.getElementById('priceTag').innerText = `${config.price} USDC (Polygon Mainnet)`;
     }
 
     async function connectWallet() {
+      const t = I18N[currentLang];
       if (!window.ethereum) {
-        alert("MetaMask 브라우저 지갑을 설치해 주세요!");
+        alert(t.alertMetaMask);
         return;
       }
       try {
@@ -362,7 +841,7 @@
           try {
             await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: CHAIN_ID_HEX }] });
           } catch (e) {
-            alert("Polygon Mainnet으로 네트워크를 변경해 주세요.");
+            alert(t.alertSwitchNetwork);
             return;
           }
         }
@@ -370,30 +849,32 @@
         const addr = await signer.getAddress();
         document.getElementById('connectWalletBtn').innerHTML = `<span>🟢 ${addr.slice(0,6)}...${addr.slice(-4)}</span>`;
       } catch (err) {
-        showStatus("지갑 연결 실패: " + err.message, "error");
+        showStatus(t.statusWalletErr + err.message, "error");
       }
     }
 
     async function payAndFetch() {
+      const t = I18N[currentLang];
       const url = document.getElementById('targetUrl').value.trim();
-      if (!url) { alert("URL을 입력해 주세요."); return; }
+      if (!url) { alert(t.alertEnterUrl); return; }
       if (!signer) { await connectWallet(); if (!signer) return; }
 
-      const config = SERVICE_CONFIG[currentMode];
+      const config = I18N[currentLang][currentMode];
       const btn = document.getElementById('payAndFetchBtn');
       btn.disabled = true;
-      btn.innerHTML = `<span>⏳ ${config.price} USDC 결제 서명 중...</span>`;
-      showStatus("Polygon 트랜잭션 전송 중... 지갑에서 서명을 승인해 주세요.", "info");
+      btn.innerHTML = `<span>${t.payBtnSigning.replace('{price}', config.price)}</span>`;
+      showStatus(t.statusSigning, "info");
 
       try {
         const usdcContract = new ethers.Contract(USDC_ADDRESS, ERC20_ABI, signer);
         const rawAmount = ethers.parseUnits(config.price, 6);
 
         const tx = await usdcContract.transfer(RECIPIENT_WALLET, rawAmount);
-        showStatus(`블록 확정 대기 중... (Tx: ${tx.hash.slice(0,10)}...)`, "info");
+        showStatus(t.statusWaitingTx.replace('{txHash}', tx.hash.slice(0, 10)), "info");
         
         await tx.wait(1);
-        showStatus("✅ 결제 확인 완료! 데이터를 불러옵니다...", "info");
+        showStatus(t.statusPaid, "info");
+        btn.innerHTML = `<span>${t.payBtnProcessing}</span>`;
 
         const reqUrl = `${config.endpoint}?url=${encodeURIComponent(url)}`;
         const res = await fetch(reqUrl, { headers: { "X-Payment-Tx": tx.hash } });
@@ -401,15 +882,15 @@
 
         if (res.status === 200) {
           renderResult(data);
-          showStatus("🎉 성공적으로 AI 데이터를 추출했습니다!", "info");
+          showStatus(t.statusSuccess, "success");
         } else {
-          showStatus("데이터 수집 실패: " + (data.detail || data.message || "오류"), "error");
+          showStatus(t.statusFetchFail + (data.detail || data.message || "Error"), "error");
         }
       } catch (err) {
-        showStatus("결제 실패: " + (err.reason || err.message), "error");
+        showStatus(t.statusPayFail + (err.reason || err.message), "error");
       } finally {
         btn.disabled = false;
-        btn.innerHTML = "<span>💳 결제 & AI 마크다운 추출</span>";
+        btn.innerHTML = `<span id="payBtnText">${t.payBtn}</span>`;
       }
     }
 
@@ -417,43 +898,48 @@
       document.getElementById('resultSection').style.display = 'block';
       const output = document.getElementById('markdownOutput');
       const statsBar = document.getElementById('statsBar');
+      const isEn = currentLang === 'en';
 
       if (currentMode === "web") {
         output.innerText = data.markdown_content || "";
         const analytics = data.token_analytics || {};
         statsBar.innerHTML = `
-          <div class="stat-chip">✨ 토큰 절감: ${analytics.token_savings_percentage || "70%"}</div>
-          <div class="stat-chip">📉 정제 토큰: ${analytics.clean_markdown_estimated_tokens || 0} tokens</div>
-          <div class="stat-chip">💵 절약 비용: ${analytics.estimated_llm_cost_saved_usd || "$0.00"}</div>
+          <div class="stat-chip highlight">✨ ${isEn ? 'Token Savings' : '토큰 절감'}: ${analytics.token_savings_percentage || "70%"}</div>
+          <div class="stat-chip">📉 ${isEn ? 'Clean Tokens' : '정제 토큰'}: ${analytics.clean_markdown_estimated_tokens || 0} tokens</div>
+          <div class="stat-chip highlight">💵 ${isEn ? 'Saved Cost' : '절약 비용'}: ${analytics.estimated_llm_cost_saved_usd || "$0.00"}</div>
+          <div class="stat-chip">⏱️ ${isEn ? 'Speed' : '처리 시간'}: ${data.processing_time_seconds || 0.5}s</div>
         `;
       } else if (currentMode === "youtube") {
         output.innerText = data.markdown_transcript || "";
         const analytics = data.transcript_analytics || {};
         statsBar.innerHTML = `
-          <div class="stat-chip">🎬 자막 수: ${analytics.total_segments || 0} 개</div>
-          <div class="stat-chip">📝 단어 수: ${analytics.word_count || 0} words</div>
-          <div class="stat-chip">🤖 토큰: ${analytics.estimated_tokens || 0} tokens</div>
+          <div class="stat-chip highlight">🎬 ${isEn ? 'Segments' : '자막 수'}: ${analytics.total_segments || 0}</div>
+          <div class="stat-chip">📝 ${isEn ? 'Words' : '단어 수'}: ${analytics.word_count || 0} words</div>
+          <div class="stat-chip">🤖 ${isEn ? 'Est. Tokens' : '예상 토큰'}: ${analytics.estimated_tokens || 0} tokens</div>
+          <div class="stat-chip">⏱️ ${isEn ? 'Speed' : '처리 시간'}: ${data.processing_time_seconds || 0.4}s</div>
         `;
       } else if (currentMode === "pdf") {
         output.innerText = data.markdown_content || "";
         const analytics = data.pdf_analytics || {};
         statsBar.innerHTML = `
-          <div class="stat-chip">📑 총 페이지: ${analytics.total_pages || 0} pages</div>
-          <div class="stat-chip">📝 단어 수: ${analytics.word_count || 0} words</div>
-          <div class="stat-chip">🤖 토큰: ${analytics.estimated_tokens || 0} tokens</div>
+          <div class="stat-chip highlight">📑 ${isEn ? 'Pages' : '총 페이지'}: ${analytics.total_pages || 0} pages</div>
+          <div class="stat-chip">📝 ${isEn ? 'Words' : '단어 수'}: ${analytics.word_count || 0} words</div>
+          <div class="stat-chip">🤖 ${isEn ? 'Est. Tokens' : '예상 토큰'}: ${analytics.estimated_tokens || 0} tokens</div>
+          <div class="stat-chip">⏱️ ${isEn ? 'Speed' : '처리 시간'}: ${data.processing_time_seconds || 0.8}s</div>
         `;
       } else {
         output.innerText = data.plain_text || "";
         statsBar.innerHTML = `
-          <div class="stat-chip">📝 글자 수: ${data.character_count || 0} 자</div>
-          <div class="stat-chip">🤖 예상 토큰: ${data.estimated_tokens || 0} tokens</div>
+          <div class="stat-chip highlight">📝 ${isEn ? 'Characters' : '글자 수'}: ${data.character_count || 0} chars</div>
+          <div class="stat-chip">🤖 ${isEn ? 'Est. Tokens' : '예상 토큰'}: ${data.estimated_tokens || 0} tokens</div>
+          <div class="stat-chip">⏱️ ${isEn ? 'Speed' : '처리 시간'}: ${data.processing_time_seconds || 0.3}s</div>
         `;
       }
     }
 
     function copyResult() {
       navigator.clipboard.writeText(document.getElementById('markdownOutput').innerText);
-      alert("클립보드에 복사되었습니다!");
+      alert(I18N[currentLang].copied);
     }
 
     function showStatus(msg, type) {
@@ -461,6 +947,9 @@
       box.innerText = msg;
       box.className = `status-msg ${type}`;
     }
+
+    // Initialize English view
+    setLanguage('en');
   </script>
 </body>
 </html>
