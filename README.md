@@ -13,9 +13,10 @@
 
 ## 💡 Why x402-cleanweb-agent?
 
-Traditional web scraping and data extraction APIs force expensive **$49/month subscriptions** and complex API key management. 
+Traditional web scraping and data extraction APIs force expensive **$49/month subscriptions** and complex API key management.
 
 `x402-cleanweb-agent` solves this for autonomous AI agents, scrapers, and developers:
+
 - ❌ **No Monthly Subscriptions**: Pay only for what you query ($0.005 ~ $0.05 per call in USDC).
 - ❌ **No Sign-ups or API Keys**: Native **HTTP 402 Payment Required** machine-to-machine protocol.
 - ⚡ **Sub-Second Speed**: Strips ads, tracking scripts, and clutter, returning pure, structured Markdown.
@@ -43,7 +44,7 @@ Traditional web scraping and data extraction APIs force expensive **$49/month su
 
 | Raw Messy Input (Wastes 80%+ LLM Tokens) | Cleaned Output by Agent (LLM-Ready Markdown) |
 | :--- | :--- |
-| `<div class="ad-banner"><script>...</script><nav><ul>...</ul></nav><h1>Paper Title</h1>` | `# Paper Title`<br><br>`Clean paragraph text directly ready for prompt injection...` |
+| `<div><script>...</script><h1>Paper Title</h1>` | `# Paper Title - Clean paragraph text directly ready for prompt injection.` |
 
 ---
 
@@ -88,7 +89,7 @@ curl -X GET "https://x402-cleanweb-agent.onrender.com/api/v1/clean-web?url=https
   -H "X-Payment-Tx: 0x<YOUR_POLYGON_TX_HASH>"
 ```
 
-### Sample Response:
+### Sample Response
 
 ```json
 {
@@ -125,7 +126,8 @@ Seamlessly integrate into **Cursor**, **Claude Desktop**, and **Antigravity**:
 }
 ```
 
-### Exposed MCP Tools:
+### Exposed MCP Tools
+
 - `get_payment_info()`: Retrieve pricing tiers and recipient address.
 - `fetch_clean_web_content(url, payment_tx_hash)`: Clean Web scraper (0.01 USDC).
 - `fetch_youtube_transcript(url, language, payment_tx_hash)`: YouTube transcript extractor (0.02 USDC).
