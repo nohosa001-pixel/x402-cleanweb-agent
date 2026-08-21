@@ -14,8 +14,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 # 소스코드 복사
 COPY . .
 
-# 표준 입출력 버퍼링 방지
 ENV PYTHONUNBUFFERED=1
+ENV PORT=8000
 
-# MCP stdio 서버 실행 (Smithery / Docker MCP 실행용)
-CMD ["python", "-u", "mcp_server.py"]
+EXPOSE 8000
+
+# Render 웹 애플리케이션 실행 ($PORT 환경변수 바인딩)
+CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"]
