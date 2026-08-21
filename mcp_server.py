@@ -290,8 +290,41 @@ To extract plain text for '{url}', a micropayment of {price_usdc} USDC on Polygo
     except Exception as e:
         return f"❌ [TEXT ERROR]: {str(e)}"
 
+@mcp.tool(
+    name="fetch_batch_clean_markdown",
+    description="Batch scrapes and cleans up to 10 web URLs concurrently into AI-ready Markdown in a single transaction. Requires 0.01 USDC per URL on Polygon."
+)
+def fetch_batch_clean_markdown(urls: str, payment_tx_hash: Optional[str] = None) -> str:
+    url_list = [u.strip() for u in urls.split(",") if u.strip()]
+    if not url_list:
+        return "❌ [INVALID REQUEST]: Please provide comma-separated URLs."
+    if len(url_list) > 10:
+        return "❌ [LIMIT EXCEEDED]: Maximum 10 URLs per batch."
+
+    price_usdc = round(len(url_list) * 0.01, 4)
+    if not payment_tx_hash:
+        return f"""⚠️ [HTTP 402 - PAYMENT REQUIRED]
+To batch clean {len(url_list)} URLs, a micropayment of {price_usdc} USDC on Polygon Mainnet is required.
+👉 Recipient Wallet: `{RECIPIENT_WALLET}` (Chain ID: {CHAIN_ID})"""
+
+    is_valid, reason = verify_payment_tx(payment_tx_hash, price_usdc)
+    if not is_valid:
+        return f"❌ [PAYMENT VERIFICATION FAILED]: {reason}"
+
+    outputs = [f"✅ [PAYMENT VERIFIED (Tx: {payment_tx_hash})]\n# 📦 Batch Cleaned Results ({len(url_list)} URLs)\n"]
+    for u in url_list:
+        try:
+            res = requests.get(u, headers={"User-Agent": "Mozilla/5.0"}, timeout=12)
+            res.raise_for_status()
+            md = extract_clean_markdown_for_ai(res.text, u)
+            outputs.append(f"## 🌐 {u}\n\n{md}\n\n---")
+        except Exception as e:
+            outputs.append(f"## ❌ {u}\nError: {str(e)}\n\n---")
+    return "\n\n".join(outputs)
+
 def main():
     mcp.run(transport="stdio")
+
 
 if __name__ == "__main__":
     main()

@@ -602,6 +602,10 @@
           <span>🌐 Clean Web</span>
           <span class="tab-badge">0.01 USDC</span>
         </div>
+        <div class="tab" id="tabBatch" onclick="switchTab('batch')">
+          <span>📦 Batch Clean</span>
+          <span class="tab-badge">0.01/URL</span>
+        </div>
         <div class="tab" id="tabYoutube" onclick="switchTab('youtube')">
           <span>🎬 YouTube Transcript</span>
           <span class="tab-badge">0.02 USDC</span>
@@ -621,7 +625,7 @@
           <span id="inputLabel">Target Webpage URL</span>
           <span class="input-hint" id="inputHint">HTTP/HTTPS URL</span>
         </label>
-        <input type="text" class="url-input" id="targetUrl" placeholder="https://example.com/article" value="https://example.com">
+        <textarea class="url-input" id="targetUrl" rows="3" style="resize: vertical;" placeholder="https://example.com/article">https://example.com</textarea>
       </div>
 
       <div class="action-row">
@@ -689,7 +693,7 @@
     const I18N = {
       en: {
         heroTitle: "Autonomous Web3 AI Data Extraction & Scraper",
-        heroDesc: "Instant on-chain USDC micro-payments on Polygon. Clean web noise, fetch YouTube transcripts, convert PDF research papers to AI-ready Markdown.",
+        heroDesc: "Instant on-chain USDC micro-payments on Polygon. Clean web noise, batch clean URLs, fetch YouTube transcripts, convert PDF research papers to AI-ready Markdown.",
         connectWallet: "🦊 Connect Wallet",
         priceSub: "Micro-Payment Required",
         payBtn: "💳 Pay & Extract with AI",
@@ -716,6 +720,13 @@
           placeholder: "https://example.com/article",
           hint: "Articles, blogs, news or documentation"
         },
+        batch: {
+          price: "0.01",
+          endpoint: "/api/v1/batch-clean",
+          label: "Batch URLs (One per line or comma-separated, max 10)",
+          placeholder: "https://example.com/page1\nhttps://example.com/page2\nhttps://example.com/page3",
+          hint: "Batch parallel scraping for AI Agent swarms"
+        },
         youtube: {
           price: "0.02",
           endpoint: "/api/v1/clean-youtube",
@@ -740,7 +751,7 @@
       },
       ko: {
         heroTitle: "자율형 Web3 AI 데이터 추출 & 웹 스크래퍼",
-        heroDesc: "Polygon 온체인 USDC 마이크로 결제 지원. 웹 광고 노이즈 제거, YouTube 영상 자막 추출, PDF 논문 및 보고서를 AI 최적화 마크다운으로 변환합니다.",
+        heroDesc: "Polygon 온체인 USDC 마이크로 결제 지원. 웹 광고 노이즈 제거, 다중 일괄 스크래핑, YouTube 영상 자막 추출, PDF 논문을 AI 최적화 마크다운으로 변환합니다.",
         connectWallet: "🦊 지갑 연결",
         priceSub: "필요 결제 금액",
         payBtn: "💳 결제 & AI 마크다운 추출",
@@ -766,6 +777,13 @@
           label: "정제할 웹페이지 URL 주소",
           placeholder: "https://example.com/article",
           hint: "뉴스, 블로그, 기술 문서"
+        },
+        batch: {
+          price: "0.01",
+          endpoint: "/api/v1/batch-clean",
+          label: "다중 URL (줄바꿈 또는 쉼표 구분, 최대 10개)",
+          placeholder: "https://example.com/page1\nhttps://example.com/page2\nhttps://example.com/page3",
+          hint: "AI 에이전트 군집용 병렬 일괄 수집"
         },
         youtube: {
           price: "0.02",
@@ -814,8 +832,9 @@
 
     function switchTab(mode) {
       currentMode = mode;
-      ['web', 'youtube', 'pdf', 'text'].forEach(m => {
-        document.getElementById(`tab${m.charAt(0).toUpperCase() + m.slice(1)}`).classList.toggle('active', m === mode);
+      ['web', 'batch', 'youtube', 'pdf', 'text'].forEach(m => {
+        const el = document.getElementById(`tab${m.charAt(0).toUpperCase() + m.slice(1)}`);
+        if (el) el.classList.toggle('active', m === mode);
       });
       updateTabConfig();
     }
@@ -825,7 +844,11 @@
       document.getElementById('inputLabel').innerText = config.label;
       document.getElementById('inputHint').innerText = config.hint;
       document.getElementById('targetUrl').placeholder = config.placeholder;
-      document.getElementById('priceTag').innerText = `${config.price} USDC (Polygon Mainnet)`;
+      if (currentMode === "batch") {
+        document.getElementById('priceTag').innerText = "0.01 USDC / URL (Polygon Mainnet)";
+      } else {
+        document.getElementById('priceTag').innerText = `${config.price} USDC (Polygon Mainnet)`;
+      }
     }
 
     async function connectWallet() {
@@ -855,19 +878,30 @@
 
     async function payAndFetch() {
       const t = I18N[currentLang];
-      const url = document.getElementById('targetUrl').value.trim();
-      if (!url) { alert(t.alertEnterUrl); return; }
+      const rawInput = document.getElementById('targetUrl').value.trim();
+      if (!rawInput) { alert(t.alertEnterUrl); return; }
       if (!signer) { await connectWallet(); if (!signer) return; }
 
       const config = I18N[currentLang][currentMode];
       const btn = document.getElementById('payAndFetchBtn');
+
+      let calculatedPrice = config.price;
+      let urlList = [];
+
+      if (currentMode === "batch") {
+        urlList = rawInput.split(/[\n,]+/).map(u => u.trim()).filter(u => u.startsWith("http"));
+        if (urlList.length === 0) { alert(t.alertEnterUrl); return; }
+        if (urlList.length > 10) { alert("Maximum 10 URLs per batch."); return; }
+        calculatedPrice = (urlList.length * 0.01).toFixed(2);
+      }
+
       btn.disabled = true;
-      btn.innerHTML = `<span>${t.payBtnSigning.replace('{price}', config.price)}</span>`;
+      btn.innerHTML = `<span>${t.payBtnSigning.replace('{price}', calculatedPrice)}</span>`;
       showStatus(t.statusSigning, "info");
 
       try {
         const usdcContract = new ethers.Contract(USDC_ADDRESS, ERC20_ABI, signer);
-        const rawAmount = ethers.parseUnits(config.price, 6);
+        const rawAmount = ethers.parseUnits(calculatedPrice, 6);
 
         const tx = await usdcContract.transfer(RECIPIENT_WALLET, rawAmount);
         showStatus(t.statusWaitingTx.replace('{txHash}', tx.hash.slice(0, 10)), "info");
@@ -876,15 +910,24 @@
         showStatus(t.statusPaid, "info");
         btn.innerHTML = `<span>${t.payBtnProcessing}</span>`;
 
-        const reqUrl = `${config.endpoint}?url=${encodeURIComponent(url)}`;
-        const res = await fetch(reqUrl, { headers: { "X-Payment-Tx": tx.hash } });
-        const data = await res.json();
+        let res, data;
+        if (currentMode === "batch") {
+          res = await fetch(config.endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "X-Payment-Tx": tx.hash },
+            body: JSON.stringify({ urls: urlList, density: "standard" })
+          });
+        } else {
+          const reqUrl = `${config.endpoint}?url=${encodeURIComponent(rawInput)}`;
+          res = await fetch(reqUrl, { headers: { "X-Payment-Tx": tx.hash } });
+        }
+        data = await res.json();
 
         if (res.status === 200) {
           renderResult(data);
           showStatus(t.statusSuccess, "success");
         } else {
-          showStatus(t.statusFetchFail + (data.detail || data.message || "Error"), "error");
+          showStatus(t.statusFetchFail + (data.message || data.detail || "Error"), "error");
         }
       } catch (err) {
         showStatus(t.statusPayFail + (err.reason || err.message), "error");
@@ -900,14 +943,30 @@
       const statsBar = document.getElementById('statsBar');
       const isEn = currentLang === 'en';
 
-      if (currentMode === "web") {
+      if (currentMode === "batch") {
+        let md = `# 📦 Batch Cleaned Results (${data.successful_count}/${data.total_urls} Success)\n\n`;
+        (data.results || []).forEach(item => {
+          if (item.status === "success") {
+            md += `## 🌐 ${item.title || item.url}\n> **URL**: ${item.url}\n\n${item.markdown_content}\n\n---\n\n`;
+          } else {
+            md += `## ❌ Failed: ${item.url}\nError: ${item.error_message}\n\n---\n\n`;
+          }
+        });
+        output.innerText = md;
+        const analytics = data.total_token_analytics || {};
+        statsBar.innerHTML = `
+          <div class="stat-chip highlight">📦 ${isEn ? 'Total Processed' : '처리 완료'}: ${data.successful_count} URLs</div>
+          <div class="stat-chip">✨ ${isEn ? 'Tokens Saved' : '절감 토큰'}: ${analytics.total_tokens_saved || 0} tokens</div>
+          <div class="stat-chip highlight">⚡ Status: 200 OK</div>
+        `;
+      } else if (currentMode === "web") {
         output.innerText = data.markdown_content || "";
         const analytics = data.token_analytics || {};
         statsBar.innerHTML = `
           <div class="stat-chip highlight">✨ ${isEn ? 'Token Savings' : '토큰 절감'}: ${analytics.token_savings_percentage || "70%"}</div>
           <div class="stat-chip">📉 ${isEn ? 'Clean Tokens' : '정제 토큰'}: ${analytics.clean_markdown_estimated_tokens || 0} tokens</div>
           <div class="stat-chip highlight">💵 ${isEn ? 'Saved Cost' : '절약 비용'}: ${analytics.estimated_llm_cost_saved_usd || "$0.00"}</div>
-          <div class="stat-chip">⏱️ ${isEn ? 'Speed' : '처리 시간'}: ${data.processing_time_seconds || 0.5}s</div>
+          <div class="stat-chip">⚡ Cached: ${data.cached ? 'Yes (0ms)' : 'No'}</div>
         `;
       } else if (currentMode === "youtube") {
         output.innerText = data.markdown_transcript || "";
@@ -916,7 +975,7 @@
           <div class="stat-chip highlight">🎬 ${isEn ? 'Segments' : '자막 수'}: ${analytics.total_segments || 0}</div>
           <div class="stat-chip">📝 ${isEn ? 'Words' : '단어 수'}: ${analytics.word_count || 0} words</div>
           <div class="stat-chip">🤖 ${isEn ? 'Est. Tokens' : '예상 토큰'}: ${analytics.estimated_tokens || 0} tokens</div>
-          <div class="stat-chip">⏱️ ${isEn ? 'Speed' : '처리 시간'}: ${data.processing_time_seconds || 0.4}s</div>
+          <div class="stat-chip">⚡ Cached: ${data.cached ? 'Yes (0ms)' : 'No'}</div>
         `;
       } else if (currentMode === "pdf") {
         output.innerText = data.markdown_content || "";
@@ -925,14 +984,14 @@
           <div class="stat-chip highlight">📑 ${isEn ? 'Pages' : '총 페이지'}: ${analytics.total_pages || 0} pages</div>
           <div class="stat-chip">📝 ${isEn ? 'Words' : '단어 수'}: ${analytics.word_count || 0} words</div>
           <div class="stat-chip">🤖 ${isEn ? 'Est. Tokens' : '예상 토큰'}: ${analytics.estimated_tokens || 0} tokens</div>
-          <div class="stat-chip">⏱️ ${isEn ? 'Speed' : '처리 시간'}: ${data.processing_time_seconds || 0.8}s</div>
+          <div class="stat-chip">⚡ Cached: ${data.cached ? 'Yes (0ms)' : 'No'}</div>
         `;
       } else {
         output.innerText = data.plain_text || "";
         statsBar.innerHTML = `
           <div class="stat-chip highlight">📝 ${isEn ? 'Characters' : '글자 수'}: ${data.character_count || 0} chars</div>
           <div class="stat-chip">🤖 ${isEn ? 'Est. Tokens' : '예상 토큰'}: ${data.estimated_tokens || 0} tokens</div>
-          <div class="stat-chip">⏱️ ${isEn ? 'Speed' : '처리 시간'}: ${data.processing_time_seconds || 0.3}s</div>
+          <div class="stat-chip">⚡ Cached: ${data.cached ? 'Yes (0ms)' : 'No'}</div>
         `;
       }
     }
@@ -953,3 +1012,4 @@
   </script>
 </body>
 </html>
+
