@@ -41,29 +41,40 @@ Traditional web scraping and data extraction APIs force expensive **$49/month su
 
 ---
 
-## 🤖 Zero-Human Autonomous AI Agent Integration (Python SDK)
+## 🤖 Zero-Human Autonomous AI Agent Integration & Tools
 
-AI agents with a Polygon wallet (Private Key) can autonomously handle payment and data extraction with **zero human intervention**:
+AI agents with a Polygon wallet (Private Key) can autonomously handle payment and data extraction with **zero human intervention** and **built-in Budget Guard protection**:
+
+### 1. Ready-to-Use Agent Toolkit (CrewAI / smolagents / LangChain)
 
 ```python
-from autonomous_agent_client import AutonomousX402Agent
+from agent_tools import get_x402_agent_tools, X402AgentToolkit
 
-# 1. Initialize Autonomous Agent with Polygon Wallet
-agent = AutonomousX402Agent(private_key="0xYOUR_AGENT_PRIVATE_KEY")
+# 1. Initialize toolkit with spending limits
+toolkit = X402AgentToolkit(
+    private_key="0xYOUR_AGENT_PRIVATE_KEY",
+    max_daily_budget_usdc=1.0  # Budget Guard protects against infinite loops
+)
 
-# 2. Autonomous Clean Web Extraction (0.01 USDC)
-result = agent.clean_web("https://example.com/article")
-print("AI-Ready Markdown:\n", result["markdown_content"])
-print("Token Savings:", result["token_analytics"]["token_savings_percentage"])
+# 2. Get ready-to-use callable tools
+tools = toolkit.get_tools_list()
 
-# 3. Autonomous YouTube Transcript Extraction (0.02 USDC)
-yt_result = agent.clean_youtube("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
-print("YouTube Transcripts:\n", yt_result["markdown_transcript"])
+# 3. Direct execution
+web_data = toolkit.clean_web("https://example.com/article")
+yt_data = toolkit.clean_youtube("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+pdf_data = toolkit.clean_pdf("https://arxiv.org/pdf/2301.00001.pdf")
 
-# 4. Autonomous PDF Paper Extraction (0.05 USDC)
-pdf_result = agent.clean_pdf("https://arxiv.org/pdf/2301.00001.pdf")
-print("PDF Paper Markdown:\n", pdf_result["markdown_content"])
+# 4. Inspect spending report
+print(toolkit.get_spending_report())
 ```
+
+### 2. Machine-Readable Agent Discovery Protocol
+
+Autonomous agents and crawlers can discover services, pricing, and on-chain payment contracts dynamically:
+
+- **Agent Manifest**: `GET https://x402-cleanweb-agent.onrender.com/.well-known/agent.json`
+- **Real-time Pricing Catalog**: `GET https://x402-cleanweb-agent.onrender.com/api/v1/agent/pricing-catalog`
+
 
 ---
 

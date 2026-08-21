@@ -497,6 +497,103 @@ def clean_text_endpoint(
         "plain_text": plain_text
     }
 
+@app.get("/.well-known/agent.json")
+def agent_discovery_endpoint():
+    """
+    Standard AI Agent Discovery Metadata (Machine-Readable Manifest)
+    """
+    return {
+        "name": "Polygon x402 AI Data Agent",
+        "description": "Zero-human Web3 micropayment MCP agent for LLM-ready clean web scraping, YouTube transcripts, PDF paper extraction, and plain text on Polygon Mainnet.",
+        "version": "1.2.0",
+        "protocol": "x402-v1",
+        "supported_chains": [
+            {
+                "chain_id": CHAIN_ID,
+                "chain_name": "Polygon Mainnet (PoS)",
+                "currency": "USDC",
+                "token_contract": USDC_CONTRACT_ADDRESS,
+                "token_decimals": USDC_DECIMALS,
+                "recipient_wallet": RECIPIENT_WALLET,
+                "rpc_urls": POLYGON_RPC_URLS
+            }
+        ],
+        "services": [
+            {
+                "id": "clean_web",
+                "name": "Clean Web Markdown",
+                "endpoint": "/api/v1/clean-web",
+                "method": "GET",
+                "price_usdc": 0.01,
+                "description": "Removes noise, ads, banners, and returns AI-ready structured Markdown with token analytics."
+            },
+            {
+                "id": "clean_youtube",
+                "name": "YouTube Transcript Extractor",
+                "endpoint": "/api/v1/clean-youtube",
+                "method": "GET",
+                "price_usdc": 0.02,
+                "description": "Extracts timestamps and complete video transcripts into structured Markdown."
+            },
+            {
+                "id": "clean_pdf",
+                "name": "PDF Paper & Report Extractor",
+                "endpoint": "/api/v1/clean-pdf",
+                "method": "GET",
+                "price_usdc": 0.05,
+                "description": "Parses arXiv research papers and technical PDF reports into clean Markdown."
+            },
+            {
+                "id": "clean_text",
+                "name": "Pure Plain Text Extractor",
+                "endpoint": "/api/v1/clean-text",
+                "method": "GET",
+                "price_usdc": 0.005,
+                "description": "Ultra-lightweight raw plain text for vector embeddings and fast RAG search."
+            }
+        ],
+        "auth": {
+            "type": "http_402_onchain",
+            "header": "X-Payment-Tx",
+            "format": "0x<64_hex_polygon_tx_hash>"
+        },
+        "docs_url": "https://x402-cleanweb-agent.onrender.com/docs",
+        "github_url": "https://github.com/nohosa001-pixel/x402-cleanweb-agent"
+    }
+
+@app.get("/api/v1/agent/pricing-catalog")
+def agent_pricing_catalog_endpoint():
+    """
+    Real-time Machine-Readable Pricing Catalog with Gas Recommendations
+    """
+    return {
+        "status": "active",
+        "timestamp": os.getenv("SERVER_TIME", "2026-08-21T00:00:00Z"),
+        "chain_id": CHAIN_ID,
+        "payment_token": {
+            "symbol": "USDC",
+            "address": USDC_CONTRACT_ADDRESS,
+            "decimals": USDC_DECIMALS
+        },
+        "recipient_wallet": RECIPIENT_WALLET,
+        "pricing_table": {
+            "clean_web": {"price_usdc": 0.01, "price_raw": 10000},
+            "clean_youtube": {"price_usdc": 0.02, "price_raw": 20000},
+            "clean_pdf": {"price_usdc": 0.05, "price_raw": 50000},
+            "clean_text": {"price_usdc": 0.005, "price_raw": 5000}
+        },
+        "gas_recommendations": {
+            "recommended_gas_limit": 100000,
+            "polygon_fast_gas_gwei": "30-50 Gwei",
+            "estimated_gas_cost_usd": "< $0.003"
+        },
+        "agent_sdk": {
+            "pip_install": "pip install git+https://github.com/nohosa001-pixel/x402-cleanweb-agent.git",
+            "uvx_run": "uvx --from git+https://github.com/nohosa001-pixel/x402-cleanweb-agent x402-agent"
+        }
+    }
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+

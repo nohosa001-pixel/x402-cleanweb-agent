@@ -27,4 +27,5 @@ x402-agent = "mcp_server:main"
 x402-mcp = "mcp_server:main"
 
 [tool.setuptools]
-py-modules = ["mcp_server", "polygon_agent"]
+py-modules = ["mcp_server", "polygon_agent", "autonomous_agent_client", "agent_tools"]
+
