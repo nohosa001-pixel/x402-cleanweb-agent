@@ -5,12 +5,36 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "x402-cleanweb-agent"
 version = "1.2.0"
-description = "Web3 x402 Micropayment MCP Suite for Web, YouTube, PDF Papers & Plain Text on Polygon Mainnet"
+description = "Web3 x402 Micropayment MCP & AI Agent Tool Suite for LLM Data Extraction on Polygon Mainnet"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [
-    { name = "x402 Agent Developer" }
+    { name = "x402 AI Agent Team", email = "developer@x402.agent" }
+]
+keywords = [
+    "ai-agent",
+    "x402",
+    "mcp",
+    "polygon",
+    "web3",
+    "langchain",
+    "crewai",
+    "smolagents",
+    "micropayments",
+    "web-scraper",
+    "llm-ready"
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12"
 ]
 dependencies = [
     "mcp>=1.0.0",
@@ -22,10 +46,17 @@ dependencies = [
     "pypdf>=4.0.0",
 ]
 
+[project.urls]
+Homepage = "https://x402-cleanweb-agent.onrender.com"
+Documentation = "https://x402-cleanweb-agent.onrender.com/docs"
+Repository = "https://github.com/nohosa001-pixel/x402-cleanweb-agent"
+Issues = "https://github.com/nohosa001-pixel/x402-cleanweb-agent/issues"
+
 [project.scripts]
 x402-agent = "mcp_server:main"
 x402-mcp = "mcp_server:main"
 
 [tool.setuptools]
 py-modules = ["mcp_server", "polygon_agent", "autonomous_agent_client", "agent_tools"]
+
 
