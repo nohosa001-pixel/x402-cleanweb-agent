@@ -14,8 +14,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # 소스코드 복사
 COPY . .
 
-# 포트 개방
-EXPOSE 8000
+# 표준 입출력 버퍼링 방지
+ENV PYTHONUNBUFFERED=1
 
-# 서버 실행
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# MCP stdio 서버 실행 (Smithery / Docker MCP 실행용)
+CMD ["python", "-u", "mcp_server.py"]

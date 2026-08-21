@@ -1,11 +1,28 @@
 startCommand:
   type: stdio
-  config:
-    command: python
-    args:
-      - mcp_server.py
-    env:
-      POLYGON_RPC_URL: "https://polygon-bor-rpc.publicnode.com"
-      USDC_CONTRACT_ADDRESS: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359"
-      SERVER_WALLET_ADDRESS: "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf"
-      PAYMENT_AMOUNT_USDC: "0.01"
+  configSchema:
+    type: object
+    properties:
+      polygonRpcUrl:
+        type: string
+        description: "Polygon RPC URL"
+        default: "https://polygon-bor-rpc.publicnode.com"
+      serverWalletAddress:
+        type: string
+        description: "Polygon Wallet address to receive USDC payments"
+        default: "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf"
+      usdcContractAddress:
+        type: string
+        description: "Polygon Mainnet USDC Contract Address"
+        default: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359"
+  commandFunction: |-
+    (config) => ({
+      command: "python",
+      args: ["-u", "mcp_server.py"],
+      env: {
+        POLYGON_RPC_URL: config?.polygonRpcUrl || "https://polygon-bor-rpc.publicnode.com",
+        SERVER_WALLET_ADDRESS: config?.serverWalletAddress || "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf",
+        USDC_CONTRACT_ADDRESS: config?.usdcContractAddress || "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
+        PYTHONUNBUFFERED: "1"
+      }
+    })
