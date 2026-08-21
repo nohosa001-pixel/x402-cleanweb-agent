@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from fastapi import FastAPI, Header, Query, Body, HTTPException, status
 
-from fastapi.responses import JSONResponse, FileResponse
+from fastapi.responses import JSONResponse, FileResponse, PlainTextResponse
 from fastapi.middleware.cors import CORSMiddleware
 from web3 import Web3
 from bs4 import BeautifulSoup, Comment
@@ -904,8 +904,24 @@ def health_check():
         "pypi": "https://pypi.org/project/x402-cleanweb-agent/"
     }
 
+@app.get("/llms.txt", response_class=PlainTextResponse)
+
+def llms_txt_endpoint():
+    """Returns llms.txt standard machine documentation for AI crawlers & LLMs"""
+    llms_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "llms.txt")
+    if os.path.exists(llms_path):
+        with open(llms_path, "r", encoding="utf-8") as f:
+            return f.read()
+    return "# Polygon x402 AI Data Agent\nDocumentation: https://x402-cleanweb-agent.onrender.com/docs"
+
+@app.get("/robots.txt", response_class=PlainTextResponse)
+def robots_txt_endpoint():
+    """Allows AI crawlers and search bots to index discovery endpoints"""
+    return "User-agent: *\nAllow: /\nAllow: /llms.txt\nAllow: /.well-known/agent.json\nAllow: /api/v1/agent/pricing-catalog\n"
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+
 
 

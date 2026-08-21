@@ -1,0 +1,57 @@
+# Polygon x402 AI Data Agent (LLM-Ready Documentation)
+
+> Standardized HTTP 402 Web3 Micro-Payment Data Protocol for Autonomous AI Agents and LLMs on Polygon Mainnet.
+
+## Overview
+Polygon x402 AI Data Agent enables AI agents, LLMs, and multi-agent swarms (CrewAI, LangChain, smolagents) to autonomously extract noise-free, token-optimized Markdown from websites, YouTube transcripts, and PDF research papers without human intervention or API key signups. Payment is handled machine-to-machine via instant on-chain USDC micropayments on Polygon PoS.
+
+## Core Capabilities
+- **Web Clean Scraping (`/api/v1/clean-web`)**: Converts complex web pages into pure Markdown, stripping ads/trackers, saving 70-85% LLM tokens. Cost: 0.01 USDC.
+- **Batch Clean Scraping (`/api/v1/batch-clean`)**: Concurrently cleans up to 10 URLs in parallel in 1 transaction. Cost: 0.01 USDC per URL.
+- **YouTube Transcripts (`/api/v1/clean-youtube`)**: Extracts timestamped transcripts in Korean/English. Cost: 0.02 USDC.
+- **PDF Paper Extractor (`/api/v1/clean-pdf`)**: Converts arXiv papers and reports into clean Markdown. Cost: 0.05 USDC.
+- **Plain Text Extractor (`/api/v1/clean-text`)**: Ultra-fast raw text extractor for RAG embeddings. Cost: 0.005 USDC.
+
+## Machine Discovery Endpoints
+- Agent Manifest: `https://x402-cleanweb-agent.onrender.com/.well-known/agent.json`
+- Pricing Catalog: `https://x402-cleanweb-agent.onrender.com/api/v1/agent/pricing-catalog`
+- OpenAPI Specification: `https://x402-cleanweb-agent.onrender.com/openapi.json`
+- Swagger Interactive Docs: `https://x402-cleanweb-agent.onrender.com/docs`
+
+## HTTP 402 Protocol & Self-Healing Workflow
+1. Agent sends an unauthenticated request to any endpoint.
+2. Server returns `HTTP 402 Payment Required` with structured JSON:
+   - `actionable_fix.chain_id`: 137 (Polygon)
+   - `actionable_fix.token_contract`: `0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359` (USDC)
+   - `actionable_fix.recipient_wallet`: `0x255F9991233f86B29dB847c8d5b8CB9915e80dCf`
+   - `actionable_fix.amount_usdc`: e.g. 0.01
+3. Agent sends ERC20 transfer on Polygon using its private key.
+4. Agent retries request with header: `X-Payment-Tx: 0x<POLYGON_TX_HASH>`.
+5. Server verifies on-chain event and returns cleaned data in < 0.5s (or 0ms if cached).
+
+## Python SDK Installation & Usage
+```bash
+pip install x402-cleanweb-agent
+```
+
+```python
+from agent_tools import X402AgentToolkit
+
+toolkit = X402AgentToolkit(private_key="0xAGENT_POLYGON_PRIVATE_KEY")
+markdown = toolkit.clean_web("https://news.ycombinator.com")
+print(markdown)
+```
+
+## Model Context Protocol (MCP) Setup
+Add to Claude Desktop or Cursor config (`mcpServers`):
+```json
+{
+  "polygon-x402-cleanweb": {
+    "command": "uvx",
+    "args": ["x402-cleanweb-agent"],
+    "env": {
+      "POLYGON_RPC_URL": "https://polygon-bor-rpc.publicnode.com"
+    }
+  }
+}
+```

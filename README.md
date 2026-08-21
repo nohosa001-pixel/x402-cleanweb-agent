@@ -3,9 +3,10 @@
 > **Turn any messy webpage, YouTube video, or PDF paper into pure, LLM-ready clean Markdown on Polygon.**  
 > *Zero Sign-up. Zero Subscriptions. True Machine-to-Machine HTTP 402 Micropayments for Autonomous AI Agents.*
 
+[![PyPI version](https://img.shields.io/pypi/v/x402-cleanweb-agent?color=blue&label=PyPI%20Package)](https://pypi.org/project/x402-cleanweb-agent/)
+[![llms.txt](https://img.shields.io/badge/llms.txt-LLM%20Standard-brightgreen)](https://x402-cleanweb-agent.onrender.com/llms.txt)
 [![Live Web3 DApp](https://img.shields.io/badge/Live%20DApp-Online-00f2fe?style=for-the-badge&logo=polygon&logoColor=white)](https://x402-cleanweb-agent.onrender.com)
 [![Swagger API](https://img.shields.io/badge/API%20Docs-Swagger-8247e5?style=for-the-badge&logo=fastapi&logoColor=white)](https://x402-cleanweb-agent.onrender.com/docs)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/)
 [![Polygon Web3](https://img.shields.io/badge/Polygon-USDC_Mainnet-purple.svg)](https://polygonscan.com/token/0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -17,27 +18,32 @@ Traditional web scraping and data extraction APIs force expensive **$49/month su
 
 `x402-cleanweb-agent` solves this for autonomous AI agents, scrapers, and developers:
 
+- 📦 **PyPI Distributed**: `pip install x402-cleanweb-agent` or zero-install with `uvx x402-cleanweb-agent`.
 - ❌ **No Monthly Subscriptions**: Pay only for what you query ($0.005 ~ $0.05 per call in USDC).
 - ❌ **No Sign-ups or API Keys**: Native **HTTP 402 Payment Required** machine-to-machine protocol.
 - 🤖 **Zero-Human AI Agent Ready**: AI agents with a crypto wallet can autonomously buy data 24/7.
-- ⚡ **Sub-Second Speed**: Strips ads, tracking scripts, and clutter, returning pure, structured Markdown.
-- 🪙 **Ultra-Low Gas Fees**: Powered by **Polygon PoS** (< $0.005 network gas).
+- 🧠 **Self-Healing Error Handling**: Structured JSON actionable responses for automatic recovery on payment failure.
+- 📦 **Batch Multi-URL Scraping**: Concurrently scrape up to 10 URLs in 1 transaction.
+- ⚡ **0.01s LRU In-Memory Cache**: Zero latency on repeated queries.
 - 📊 **Token Savings Engine**: Calculates raw vs. cleaned token reduction (avg. 60~85% savings) and estimated LLM prompt cost savings ($).
 
 ---
 
 ## 🚀 Live Demo & Service Endpoints
 
+- 📦 **PyPI**: [https://pypi.org/project/x402-cleanweb-agent/](https://pypi.org/project/x402-cleanweb-agent/)
 - 🌐 **Web3 DApp UI**: [https://x402-cleanweb-agent.onrender.com](https://x402-cleanweb-agent.onrender.com)
+- 📑 **LLM Documentation**: [https://x402-cleanweb-agent.onrender.com/llms.txt](https://x402-cleanweb-agent.onrender.com/llms.txt)
 - 📚 **Swagger API Docs**: [https://x402-cleanweb-agent.onrender.com/docs](https://x402-cleanweb-agent.onrender.com/docs)
-- 📂 **GitHub Repo**: [https://github.com/nohosa001-pixel/x402-cleanweb-agent](https://github.com/nohosa001-pixel/x402-cleanweb-agent)
 
 | Service | Endpoint | Pricing | Output & Description |
 | :--- | :--- | :--- | :--- |
 | **🌐 Clean Web** | `GET /api/v1/clean-web` | **0.01 USDC** | Ad/Noise removal + AI-ready Markdown + **Token Savings Analytics** |
+| **📦 Batch Clean** | `POST /api/v1/batch-clean` | **0.01 / URL** | Up to 10 URLs parallel batch scraping in 1 on-chain transaction |
 | **🎬 YouTube Transcript** | `GET /api/v1/clean-youtube` | **0.02 USDC** | Full video **transcripts with timestamps** formatted in Markdown |
 | **📑 PDF Paper & Report** | `GET /api/v1/clean-pdf` | **0.05 USDC** | arXiv papers & earnings reports converted into **structured Markdown** |
 | **📝 Pure Plain Text** | `GET /api/v1/clean-text` | **0.005 USDC** | Ultra-lightweight raw text extraction for fast vector indexing |
+
 
 ---
 
@@ -193,9 +199,11 @@ Add directly to your `claude_desktop_config.json` or Cursor:
 
 - `get_payment_info()`: Retrieve pricing tiers and recipient address.
 - `fetch_clean_markdown(url, payment_tx_hash)`: Clean Web scraper (0.01 USDC).
+- `fetch_batch_clean_markdown(urls, payment_tx_hash)`: Concurrent Multi-URL batch scraper (0.01 USDC / URL).
 - `fetch_youtube_transcript(url, language, payment_tx_hash)`: YouTube transcript extractor (0.02 USDC).
 - `fetch_pdf_markdown(url, payment_tx_hash)`: PDF research paper converter (0.05 USDC).
 - `fetch_plain_text(url, payment_tx_hash)`: Lightweight text scraper (0.005 USDC).
+
 
 
 ---
