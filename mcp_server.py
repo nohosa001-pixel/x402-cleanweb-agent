@@ -290,5 +290,9 @@ To extract plain text for '{url}', a micropayment of {price_usdc} USDC on Polygo
     except Exception as e:
         return f"❌ [TEXT ERROR]: {str(e)}"
 
-if __name__ == "__main__":
+def main():
     mcp.run(transport="stdio")
+
+if __name__ == "__main__":
+    main()
+

@@ -130,14 +130,49 @@ curl -X GET "https://x402-cleanweb-agent.onrender.com/api/v1/clean-web?url=https
 
 ## 🔌 Model Context Protocol (MCP) Setup
 
-Seamlessly integrate into **Cursor**, **Claude Desktop**, and **Antigravity**:
+### Option 1: 1-Click Auto Installer (Recommended)
+Automatically configures Claude Desktop & Cursor without editing JSON files:
+
+```bash
+# Windows
+install_mcp.bat
+
+# macOS / Linux
+python install_mcp.py
+```
+
+---
+
+### Option 2: Run via `uvx` (No installation needed)
+Add directly to your `claude_desktop_config.json` or Cursor:
 
 ```json
 {
   "mcpServers": {
-    "polygon-x402-agent": {
+    "polygon-x402-cleanweb": {
+      "command": "uvx",
+      "args": ["--from", "git+https://github.com/nohosa001-pixel/x402-cleanweb-agent", "x402-agent"]
+    }
+  }
+}
+```
+
+---
+
+### Option 3: Manual Local Configuration
+
+```json
+{
+  "mcpServers": {
+    "polygon-x402-cleanweb": {
       "command": "python",
-      "args": ["/absolute/path/to/x402-micro-agent/mcp_server.py"]
+      "args": ["-u", "/absolute/path/to/x402-micro-agent/mcp_server.py"],
+      "env": {
+        "PYTHONUNBUFFERED": "1",
+        "POLYGON_RPC_URL": "https://polygon-bor-rpc.publicnode.com",
+        "SERVER_WALLET_ADDRESS": "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf",
+        "USDC_CONTRACT_ADDRESS": "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359"
+      }
     }
   }
 }
@@ -146,10 +181,11 @@ Seamlessly integrate into **Cursor**, **Claude Desktop**, and **Antigravity**:
 ### Exposed MCP Tools
 
 - `get_payment_info()`: Retrieve pricing tiers and recipient address.
-- `fetch_clean_web_content(url, payment_tx_hash)`: Clean Web scraper (0.01 USDC).
+- `fetch_clean_markdown(url, payment_tx_hash)`: Clean Web scraper (0.01 USDC).
 - `fetch_youtube_transcript(url, language, payment_tx_hash)`: YouTube transcript extractor (0.02 USDC).
 - `fetch_pdf_markdown(url, payment_tx_hash)`: PDF research paper converter (0.05 USDC).
 - `fetch_plain_text(url, payment_tx_hash)`: Lightweight text scraper (0.005 USDC).
+
 
 ---
 
