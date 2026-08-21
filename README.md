@@ -3,7 +3,8 @@
 > **Turn any messy webpage, YouTube video, or PDF paper into pure, LLM-ready clean Markdown on Polygon.**  
 > *Zero Sign-up. Zero Subscriptions. True Machine-to-Machine HTTP 402 Micropayments for Autonomous AI Agents.*
 
-[![PyPI version](https://img.shields.io/pypi/v/x402-cleanweb-agent?color=blue&label=PyPI%20Package)](https://pypi.org/project/x402-cleanweb-agent/)
+[![PyPI version](https://img.shields.io/pypi/v/x402-cleanweb-agent.svg?color=blue&label=PyPI%20Package)](https://pypi.org/project/x402-cleanweb-agent/)
+[![Python Versions](https://img.shields.io/pypi/pyversions/x402-cleanweb-agent.svg)](https://pypi.org/project/x402-cleanweb-agent/)
 [![llms.txt](https://img.shields.io/badge/llms.txt-LLM%20Standard-brightgreen)](https://x402-cleanweb-agent.onrender.com/llms.txt)
 [![Live Web3 DApp](https://img.shields.io/badge/Live%20DApp-Online-00f2fe?style=for-the-badge&logo=polygon&logoColor=white)](https://x402-cleanweb-agent.onrender.com)
 [![Swagger API](https://img.shields.io/badge/API%20Docs-Swagger-8247e5?style=for-the-badge&logo=fastapi&logoColor=white)](https://x402-cleanweb-agent.onrender.com/docs)
@@ -31,10 +32,11 @@ Traditional web scraping and data extraction APIs force expensive **$49/month su
 
 ## 🚀 Live Demo & Service Endpoints
 
-- 📦 **PyPI**: [https://pypi.org/project/x402-cleanweb-agent/](https://pypi.org/project/x402-cleanweb-agent/)
+- 📦 **PyPI Package**: [https://pypi.org/project/x402-cleanweb-agent/](https://pypi.org/project/x402-cleanweb-agent/)
 - 🌐 **Web3 DApp UI**: [https://x402-cleanweb-agent.onrender.com](https://x402-cleanweb-agent.onrender.com)
 - 📑 **LLM Documentation**: [https://x402-cleanweb-agent.onrender.com/llms.txt](https://x402-cleanweb-agent.onrender.com/llms.txt)
 - 📚 **Swagger API Docs**: [https://x402-cleanweb-agent.onrender.com/docs](https://x402-cleanweb-agent.onrender.com/docs)
+- 🤖 **Agent Manifest**: [https://x402-cleanweb-agent.onrender.com/.well-known/agent.json](https://x402-cleanweb-agent.onrender.com/.well-known/agent.json)
 
 | Service | Endpoint | Pricing | Output & Description |
 | :--- | :--- | :--- | :--- |
@@ -44,6 +46,17 @@ Traditional web scraping and data extraction APIs force expensive **$49/month su
 | **📑 PDF Paper & Report** | `GET /api/v1/clean-pdf` | **0.05 USDC** | arXiv papers & earnings reports converted into **structured Markdown** |
 | **📝 Pure Plain Text** | `GET /api/v1/clean-text` | **0.005 USDC** | Ultra-lightweight raw text extraction for fast vector indexing |
 
+---
+
+## 📦 Quick Installation
+
+```bash
+# Standard installation from PyPI
+pip install x402-cleanweb-agent
+
+# Or run instantly without installation via uvx
+uvx x402-cleanweb-agent
+```
 
 ---
 
@@ -51,36 +64,60 @@ Traditional web scraping and data extraction APIs force expensive **$49/month su
 
 AI agents with a Polygon wallet (Private Key) can autonomously handle payment and data extraction with **zero human intervention** and **built-in Budget Guard protection**:
 
-### 1. Ready-to-Use Agent Toolkit (CrewAI / smolagents / LangChain)
+### 1. Ready-to-Use Agent Toolkit
 
 ```python
-from agent_tools import get_x402_agent_tools, X402AgentToolkit
+from agent_tools import X402AgentToolkit
 
 # 1. Initialize toolkit with spending limits
 toolkit = X402AgentToolkit(
     private_key="0xYOUR_AGENT_PRIVATE_KEY",
-    max_daily_budget_usdc=1.0  # Budget Guard protects against infinite loops
+    max_daily_budget_usdc=1.0  # Budget Guard protects against runaway costs
 )
 
-# 2. Get ready-to-use callable tools
-tools = toolkit.get_tools_list()
+# 2. Clean single webpage
+web_data = toolkit.clean_web("https://news.ycombinator.com", density="compact")
 
-# 3. Direct execution
-web_data = toolkit.clean_web("https://example.com/article")
+# 3. Batch clean multiple URLs in parallel (1 transaction)
+batch_data = toolkit.batch_clean([
+    "https://polygon.technology",
+    "https://ethereum.org"
+])
+
+# 4. Extract YouTube transcript with timestamps
 yt_data = toolkit.clean_youtube("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+
+# 5. Extract PDF paper
 pdf_data = toolkit.clean_pdf("https://arxiv.org/pdf/2301.00001.pdf")
 
-# 4. Inspect spending report
+# 6. Check spending report
 print(toolkit.get_spending_report())
 ```
 
-### 2. Machine-Readable Agent Discovery Protocol
+### 2. Integration with AI Agent Frameworks
 
-Autonomous agents and crawlers can discover services, pricing, and on-chain payment contracts dynamically:
+#### CrewAI
+```python
+from crewai import Agent
+from agent_tools import get_x402_agent_tools
 
-- **Agent Manifest**: `GET https://x402-cleanweb-agent.onrender.com/.well-known/agent.json`
-- **Real-time Pricing Catalog**: `GET https://x402-cleanweb-agent.onrender.com/api/v1/agent/pricing-catalog`
+tools = get_x402_agent_tools(private_key="0xYOUR_AGENT_KEY")
+researcher = Agent(
+    role="Web Data Researcher",
+    goal="Extract token-optimized clean web data and transcripts autonomously with Polygon micropayments",
+    tools=tools,
+    verbose=True
+)
+```
 
+#### LangChain / smolagents / AutoGen
+```python
+from agent_tools import X402AgentToolkit
+
+toolkit = X402AgentToolkit(private_key="0xYOUR_AGENT_KEY")
+tools = toolkit.get_tools_list()  # Standard Python Callables
+openai_schemas = toolkit.get_openai_function_schemas()  # OpenAI Tool Call Schemas
+```
 
 ---
 
@@ -96,7 +133,7 @@ sequenceDiagram
 
     Agent->>Server: GET /api/v1/clean-web?url=https://example.com
     Note over Server: Check X-Payment-Tx header
-    Server-->>Agent: 402 Payment Required (Chain ID: 137, Recipient, Amount)
+    Server-->>Agent: 402 Payment Required (Actionable JSON Fix)
     
     Agent->>Polygon: Send USDC Transfer (e.g. 0.01 USDC)
     Polygon-->>Agent: Return Tx Hash (0xabc...123)
@@ -108,39 +145,6 @@ sequenceDiagram
     Server->>Scraper: Sanitize and Structure to Clean Markdown
     Scraper-->>Server: Return Clean Markdown + Token Analytics
     Server-->>Agent: 200 OK (Clean Markdown & Analytics JSON)
-```
-
----
-
-## ⚡ Direct cURL Quickstart
-
-```bash
-# Step 1: Query without payment to inspect 402 payment requirements
-curl -i -X GET "https://x402-cleanweb-agent.onrender.com/api/v1/clean-web?url=https://example.com"
-
-# Step 2: After sending USDC on Polygon, query with transaction hash
-curl -X GET "https://x402-cleanweb-agent.onrender.com/api/v1/clean-web?url=https://example.com" \
-  -H "X-Payment-Tx: 0x<YOUR_POLYGON_TX_HASH>"
-```
-
-### Sample Response
-
-```json
-{
-  "status": "success",
-  "service": "clean-web",
-  "source_url": "https://example.com",
-  "title": "Example Domain",
-  "markdown_content": "# Example Domain\n\nThis domain is for use in illustrative examples...",
-  "token_analytics": {
-    "raw_html_estimated_tokens": 1250,
-    "clean_markdown_estimated_tokens": 280,
-    "tokens_saved": 970,
-    "token_savings_percentage": "77.6%",
-    "estimated_llm_cost_saved_usd": "$0.0029"
-  },
-  "processing_time_seconds": 0.38
-}
 ```
 
 ---
@@ -161,34 +165,16 @@ python install_mcp.py
 ---
 
 ### Option 2: Run via `uvx` (No installation needed)
-Add directly to your `claude_desktop_config.json` or Cursor:
+Add directly to your `claude_desktop_config.json` or Cursor `mcp.json`:
 
 ```json
 {
   "mcpServers": {
     "polygon-x402-cleanweb": {
       "command": "uvx",
-      "args": ["--from", "git+https://github.com/nohosa001-pixel/x402-cleanweb-agent", "x402-agent"]
-    }
-  }
-}
-```
-
----
-
-### Option 3: Manual Local Configuration
-
-```json
-{
-  "mcpServers": {
-    "polygon-x402-cleanweb": {
-      "command": "python",
-      "args": ["-u", "/absolute/path/to/x402-micro-agent/mcp_server.py"],
+      "args": ["x402-cleanweb-agent"],
       "env": {
-        "PYTHONUNBUFFERED": "1",
-        "POLYGON_RPC_URL": "https://polygon-bor-rpc.publicnode.com",
-        "SERVER_WALLET_ADDRESS": "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf",
-        "USDC_CONTRACT_ADDRESS": "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359"
+        "POLYGON_RPC_URL": "https://polygon-bor-rpc.publicnode.com"
       }
     }
   }
@@ -203,29 +189,6 @@ Add directly to your `claude_desktop_config.json` or Cursor:
 - `fetch_youtube_transcript(url, language, payment_tx_hash)`: YouTube transcript extractor (0.02 USDC).
 - `fetch_pdf_markdown(url, payment_tx_hash)`: PDF research paper converter (0.05 USDC).
 - `fetch_plain_text(url, payment_tx_hash)`: Lightweight text scraper (0.005 USDC).
-
-
-
----
-
-## 🛠️ Local Development & Running
-
-```bash
-# 1. Clone repository
-git clone https://github.com/nohosa001-pixel/x402-cleanweb-agent.git
-cd x402-cleanweb-agent
-
-# 2. Setup virtual environment
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-
-# 3. Install dependencies
-pip install -r requirements.txt
-
-# 4. Start local server
-python main.py
-# Server running at: http://localhost:8000
-```
 
 ---
 
