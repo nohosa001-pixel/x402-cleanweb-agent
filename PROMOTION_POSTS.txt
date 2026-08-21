@@ -1,65 +1,95 @@
 ================================================================================
-🚀 [1] X (구 트위터) 홍보용 텍스트 (그대로 복사해서 트윗 작성창에 붙여넣기)
+🚀 [1] X (구 Twitter) 공식 런칭 트윗
 ================================================================================
 
-🚀 Built an AI Data Agent Suite with Web3 Micropayments via x402 on @0xPolygon!
+🚀 Excited to release x402-cleanweb-agent on PyPI & Polygon!
 
-🔹 Clean Web to Markdown: Strips ads/noise + token savings analytics (0.01 USDC)
-🔹 YouTube Transcript Extractor: Full timestamps & Markdown for any video (0.02 USDC)
-🔹 PDF Paper & Report Extractor: Structured Markdown for arXiv / finance reports (0.05 USDC)
-🔹 Pure Plain Text Extractor: Ultra-lightweight text scraper (0.005 USDC)
-🔹 Native MCP Tools for Claude Desktop, Cursor & Antigravity
-🔹 Zero-Human Autonomous AI Agent Python SDK Included!
+Turn any messy website, YouTube video, or PDF paper into token-optimized clean Markdown with instant on-chain USDC micropayments (HTTP 402).
 
-🌐 Web3 DApp: https://x402-cleanweb-agent.onrender.com
+📦 Zero sign-ups. Zero subscriptions. True M2M agent economy.
+
+⚡ Features:
+• Clean Web & Batch Scraping (0.01 USDC)
+• YouTube Timestamps & Transcripts (0.02 USDC)
+• PDF arXiv Paper Extractor (0.05 USDC)
+• Self-Healing 402 Error Recovery
+• Plugs into CrewAI, LangChain & Claude MCP
+
+📦 pip install x402-cleanweb-agent
+🌐 Live DApp: https://x402-cleanweb-agent.onrender.com
+📑 LLMs Guide: https://x402-cleanweb-agent.onrender.com/llms.txt
 📂 GitHub: https://github.com/nohosa001-pixel/x402-cleanweb-agent
 
-#Polygon #Web3 #AI #Claude #MCP #BuildInPublic #Crypto #Solidity #AIAgents
+#AI #MCP #Polygon #Web3 #CrewAI #LangChain #Python #PyPI #AIAgents @0xPolygon
 
 
 ================================================================================
-🌐 [2] 레딧(Reddit) 게시글 템플릿 (r/ClaudeAI, r/0xPolygon, r/LocalLLaMA)
+🌐 [2] Reddit 커뮤니티용 (r/mcp, r/ClaudeAI, r/LocalLLaMA, r/LangChain)
 ================================================================================
 
 [제목 (Title)]
-I built a Web3 Micropayment AI Data Agent Suite on Polygon (x402 protocol) for Web, YouTube & PDF
+Show Reddit: Autonomous Web3 x402 Data Gateway for AI Agents & Claude MCP (Published on PyPI)
 
-[본문 (Post Body)]
+[본문 (Body)]
 Hey everyone!
 
-I just released an open-source Web3 AI Data Agent and MCP Server suite on Polygon Mainnet:
+I just published `x402-cleanweb-agent` (v1.2.0 on PyPI) – an autonomous HTTP 402 micropayment gateway on Polygon that gives AI agents and LLMs the ability to scrape and clean web data without human accounts or $49/mo subscriptions.
 
-1. Clean Web Markdown (0.01 USDC): Removes ads and noise from articles while providing token savings analytics.
-2. YouTube Transcript Extractor (0.02 USDC): Extracts full timestamps and structured Markdown from any YouTube video.
-3. PDF Research Paper Extractor (0.05 USDC): Converts arXiv and financial PDF reports into page-by-page clean Markdown.
-4. Pure Plain Text (0.005 USDC): Ultra-fast raw text scraping.
-5. Autonomous AI Agent SDK: AI agents with private keys can pay on-chain and scrape data with zero human intervention.
-6. Model Context Protocol (MCP): Plugs directly into Claude Desktop, Cursor, and Antigravity.
-7. Web3 DApp UI: Connect MetaMask and test/pay in 1 click.
+### Why I built this:
+Autonomous agents (CrewAI, LangChain, Claude) can't sign up with credit cards or KYC. By using HTTP 402 on Polygon Mainnet, agents can autonomously send $0.01 USDC and receive clean, token-optimized Markdown in < 0.4s (saving 70-85% LLM tokens).
 
-Check out the live DApp & GitHub:
-- Web3 DApp: https://x402-cleanweb-agent.onrender.com
-- GitHub Repo: https://github.com/nohosa001-pixel/x402-cleanweb-agent
+### Key Highlights:
+1. **Clean Web & Batch Clean**: Strip ads and HTML noise for single or up to 10 URLs in parallel.
+2. **YouTube Transcript Extractor**: Timestamped transcripts in Markdown format (0.02 USDC).
+3. **PDF Research Paper Extractor**: arXiv papers and earnings reports converted to clean Markdown.
+4. **Self-Healing 402 Protocol**: If payment is short, returns structured JSON actionable instructions so the LLM automatically retries without human intervention.
+5. **Claude / Cursor MCP Native**: Zero-install via `uvx x402-cleanweb-agent` or 1-click installer (`install_mcp.bat`).
 
-Feedback is very welcome!
+### Links & Quickstart:
+- **PyPI Package**: `pip install x402-cleanweb-agent` (https://pypi.org/project/x402-cleanweb-agent/)
+- **Live Web3 DApp**: https://x402-cleanweb-agent.onrender.com
+- **LLM Docs**: https://x402-cleanweb-agent.onrender.com/llms.txt
+- **GitHub**: https://github.com/nohosa001-pixel/x402-cleanweb-agent
+
+Would love to get your feedback and see what multi-agent workflows you build with it!
 
 
 ================================================================================
-🤖 [3] AI 자율 에이전트 & Web3 빌더 타겟 특화 포스트 (X / Hacker News / Telegram)
+🔥 [3] Hacker News (Show HN) 제출용
 ================================================================================
 
-[제목/트윗]
-Give your Autonomous AI Agents the power to buy clean web data for $0.01 on Polygon without API keys or credit cards.
+[Title]
+Show HN: x402-cleanweb-agent – Pay-per-query clean web scraping for AI agents on Polygon
 
-Traditional web APIs force expensive $49/mo subscriptions.
-With HTTP 402 + Polygon USDC, autonomous AI agents can:
-1. Hit an endpoint
-2. Read 402 instructions
-3. Send 0.01 USDC on-chain
-4. Get token-optimized Markdown in 0.4s
+[URL or Text]
+https://github.com/nohosa001-pixel/x402-cleanweb-agent
 
-Zero humans in the loop. 
+[Text Body]
+Hi HN! We built `x402-cleanweb-agent`, an open-source HTTP 402 micropayment data gateway and MCP server on Polygon PoS.
 
-Try it now:
-- Web3 DApp: https://x402-cleanweb-agent.onrender.com
-- SDK & GitHub: https://github.com/nohosa001-pixel/x402-cleanweb-agent
+Existing scraping APIs (Firecrawl, Tavily) require credit card subscriptions and human API keys. We implemented native HTTP 402: an autonomous agent hits the endpoint, gets payment instructions, sends 0.01 USDC on Polygon, and receives token-optimized clean Markdown (averaging 70-85% token reduction vs raw HTML).
+
+It includes self-healing structured JSON responses for LLM error recovery, in-memory caching, parallel batch scraping, and native integrations for CrewAI, LangChain, and Claude Desktop MCP.
+
+Published on PyPI: `pip install x402-cleanweb-agent` or run via `uvx x402-cleanweb-agent`.
+Live DApp: https://x402-cleanweb-agent.onrender.com
+LLM Guide: https://x402-cleanweb-agent.onrender.com/llms.txt
+
+Feedback and questions are welcome!
+
+
+================================================================================
+💬 [4] Discord & Telegram AI 개발자 채널용 (CrewAI, LangChain, ElizaOS)
+================================================================================
+
+Hey builders! 👋 If you're building autonomous AI agents or multi-agent swarms that need clean web scraping, YouTube transcripts, or arXiv PDF extraction without hardcoding API keys or monthly subscriptions:
+
+Check out **x402-cleanweb-agent** (v1.2.0 on PyPI)!
+- Autonomous pay-per-call ($0.005 ~ $0.05 USDC on Polygon)
+- Budget Guard protection (caps daily agent spend)
+- 70-85% LLM token savings
+- Works out of the box with CrewAI, LangChain, and Claude MCP!
+
+👉 `pip install x402-cleanweb-agent`
+👉 GitHub: https://github.com/nohosa001-pixel/x402-cleanweb-agent
+👉 Live Demo: https://x402-cleanweb-agent.onrender.com
