@@ -874,10 +874,11 @@ def agent_pricing_catalog_endpoint():
         },
         "recipient_wallet": RECIPIENT_WALLET,
         "pricing_table": {
-            "clean_web": {"price_usdc": 0.01, "price_raw": 10000},
-            "clean_youtube": {"price_usdc": 0.02, "price_raw": 20000},
-            "clean_pdf": {"price_usdc": 0.05, "price_raw": 50000},
-            "clean_text": {"price_usdc": 0.005, "price_raw": 5000}
+            "clean_web": {"price_usdc": 0.01, "price_raw": 10000, "description": "Single URL web clean markdown"},
+            "batch_clean": {"price_usdc": "0.01 / URL", "price_raw_per_url": 10000, "description": "Multi-URL batch scraping (up to 10 URLs in 1 tx)"},
+            "clean_youtube": {"price_usdc": 0.02, "price_raw": 20000, "description": "YouTube full transcript and timestamps"},
+            "clean_pdf": {"price_usdc": 0.05, "price_raw": 50000, "description": "arXiv & research papers PDF extractor"},
+            "clean_text": {"price_usdc": 0.005, "price_raw": 5000, "description": "Ultra-fast raw text extractor for vector search"}
         },
         "gas_recommendations": {
             "recommended_gas_limit": 100000,
@@ -885,12 +886,26 @@ def agent_pricing_catalog_endpoint():
             "estimated_gas_cost_usd": "< $0.003"
         },
         "agent_sdk": {
-            "pip_install": "pip install git+https://github.com/nohosa001-pixel/x402-cleanweb-agent.git",
-            "uvx_run": "uvx --from git+https://github.com/nohosa001-pixel/x402-cleanweb-agent x402-agent"
+            "pypi_package": "x402-cleanweb-agent",
+            "pip_install": "pip install x402-cleanweb-agent",
+            "uvx_run": "uvx x402-cleanweb-agent",
+            "pypi_url": "https://pypi.org/project/x402-cleanweb-agent/"
         }
+    }
+
+@app.get("/health")
+def health_check():
+    """Service Health & Status Check"""
+    return {
+        "status": "healthy",
+        "version": "1.2.0",
+        "chain_id": CHAIN_ID,
+        "network": "Polygon Mainnet",
+        "pypi": "https://pypi.org/project/x402-cleanweb-agent/"
     }
 
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+
 
