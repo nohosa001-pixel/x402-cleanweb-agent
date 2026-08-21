@@ -22,7 +22,7 @@ load_dotenv(override=True)
 app = FastAPI(
     title="Polygon x402 Micro-Payment AI Data Agent Suite",
     description="Web3 x402 Micropayment gateway on Polygon for AI-ready Clean Web, YouTube Transcripts, PDF Papers & Plain Text.",
-    version="1.2.0"
+    version="1.2.1"
 )
 
 # CORS 설정
@@ -421,7 +421,7 @@ def read_root():
         return FileResponse(static_file_path)
     return {
         "service": "Polygon x402 Micro-Payment AI Data Agent Suite",
-        "version": "1.2.0",
+        "version": "1.2.1",
         "chain_id": CHAIN_ID,
         "token": "USDC",
         "recipient": RECIPIENT_WALLET,
@@ -802,7 +802,7 @@ def agent_discovery_endpoint():
     return {
         "name": "Polygon x402 AI Data Agent",
         "description": "Zero-human Web3 micropayment MCP agent for LLM-ready clean web scraping, YouTube transcripts, PDF paper extraction, and plain text on Polygon Mainnet.",
-        "version": "1.2.0",
+        "version": "1.2.1",
         "protocol": "x402-v1",
         "supported_chains": [
             {
@@ -898,7 +898,7 @@ def health_check():
     """Service Health & Status Check"""
     return {
         "status": "healthy",
-        "version": "1.2.0",
+        "version": "1.2.1",
         "chain_id": CHAIN_ID,
         "network": "Polygon Mainnet",
         "pypi": "https://pypi.org/project/x402-cleanweb-agent/"

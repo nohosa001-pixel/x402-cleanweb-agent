@@ -15,7 +15,7 @@ load_dotenv(override=True)
 # MCP Server 초기화
 mcp = MCPServer(
     name="Polygon-x402-AI-Data-Agent",
-    version="1.2.0",
+    version="1.2.1",
     description="Web3 x402 Micropayment MCP Suite for Web, YouTube, PDF Papers & Plain Text on Polygon Mainnet"
 )
 
@@ -39,18 +39,22 @@ RECIPIENT_WALLET = Web3.to_checksum_address(
 
 TRANSFER_EVENT_TOPIC = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
 processed_txs: Set[str] = set()
+_w3: Optional[Web3] = None
 
 def get_web3_instance() -> Web3:
+    global _w3
+    if _w3 is not None:
+        return _w3
     for rpc in POLYGON_RPC_URLS:
         try:
-            w3_inst = Web3(Web3.HTTPProvider(rpc, request_kwargs={"timeout": 10}))
+            w3_inst = Web3(Web3.HTTPProvider(rpc, request_kwargs={"timeout": 5}))
             if w3_inst.is_connected():
-                return w3_inst
+                _w3 = w3_inst
+                return _w3
         except Exception:
             continue
-    return Web3(Web3.HTTPProvider(POLYGON_RPC_URLS[0]))
-
-w3 = get_web3_instance()
+    _w3 = Web3(Web3.HTTPProvider(POLYGON_RPC_URLS[0]))
+    return _w3
 
 def verify_payment_tx(tx_hash: str, required_amount_usdc: float) -> tuple[bool, str]:
     if not tx_hash or not re.match(r"^0x[a-fA-F0-9]{64}$", tx_hash):
@@ -63,6 +67,7 @@ def verify_payment_tx(tx_hash: str, required_amount_usdc: float) -> tuple[bool, 
     required_raw_amount = int(required_amount_usdc * (10 ** USDC_DECIMALS))
 
     try:
+        w3 = get_web3_instance()
         receipt = w3.eth.get_transaction_receipt(tx_hash)
         if not receipt:
             return False, f"Transaction '{tx_hash}' not found on Polygon Mainnet."

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "x402-cleanweb-agent"
-version = "1.2.0"
+version = "1.2.1"
 description = "Web3 x402 Micropayment MCP & AI Agent Tool Suite for LLM Data Extraction on Polygon Mainnet"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -53,10 +53,12 @@ Repository = "https://github.com/nohosa001-pixel/x402-cleanweb-agent"
 Issues = "https://github.com/nohosa001-pixel/x402-cleanweb-agent/issues"
 
 [project.scripts]
+x402-cleanweb-agent = "mcp_server:main"
 x402-agent = "mcp_server:main"
 x402-mcp = "mcp_server:main"
 
 [tool.setuptools]
 py-modules = ["mcp_server", "polygon_agent", "autonomous_agent_client", "agent_tools"]
+
 
 
