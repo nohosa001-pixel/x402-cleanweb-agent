@@ -1,9 +1,9 @@
 {
   "mcpServers": {
     "polygon-x402-cleanweb": {
-      "command": "python",
+      "command": "uvx",
       "args": [
-        "c:/Users/nohos/OneDrive/바탕 화면/x402-micro-agent/mcp_server.py"
+        "x402-cleanweb-agent"
       ],
       "env": {
         "POLYGON_RPC_URL": "https://polygon-bor-rpc.publicnode.com",
@@ -14,3 +14,4 @@
     }
   }
 }
+

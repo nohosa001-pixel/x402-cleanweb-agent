@@ -96,9 +96,10 @@ def main():
     print("  Setup Complete!")
     print("  Please restart Claude Desktop to activate the tools:")
     print("    1. fetch_clean_markdown (Web Scraping)")
-    print("    2. fetch_youtube_transcript (YouTube Subtitles)")
-    print("    3. fetch_pdf_markdown (PDF Paper Extraction)")
-    print("    4. fetch_plain_text (Plain Text Extraction)")
+    print("    2. fetch_batch_clean_markdown (Batch Multi-URL Scraping)")
+    print("    3. fetch_youtube_transcript (YouTube Subtitles)")
+    print("    4. fetch_pdf_markdown (PDF Paper Extraction)")
+    print("    5. fetch_plain_text (Plain Text Extraction)")
     print("=" * 60)
 
 if __name__ == "__main__":
