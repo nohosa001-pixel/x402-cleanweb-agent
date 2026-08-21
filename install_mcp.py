@@ -44,10 +44,9 @@ def install_config(config_path: str, client_name: str, server_script_path: str) 
         python_exec = sys.executable
 
         config_data["mcpServers"]["polygon-x402-cleanweb"] = {
-            "command": python_exec,
+            "command": "uvx",
             "args": [
-                "-u",
-                os.path.abspath(server_script_path)
+                "x402-cleanweb-agent"
             ],
             "env": {
                 "PYTHONUNBUFFERED": "1",
@@ -56,6 +55,7 @@ def install_config(config_path: str, client_name: str, server_script_path: str) 
                 "USDC_CONTRACT_ADDRESS": "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359"
             }
         }
+
 
         with open(config_path, "w", encoding="utf-8") as f:
             json.dump(config_data, f, indent=2, ensure_ascii=False)
