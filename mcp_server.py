@@ -177,9 +177,10 @@ def get_payment_info() -> str:
 
 **Available Paid Tools**:
 1. `fetch_clean_web_content`: **0.01 USDC** (Clean webpage into AI Markdown)
-2. `fetch_youtube_transcript`: **0.02 USDC** (Full YouTube timestamps & transcript Markdown)
-3. `fetch_pdf_markdown`: **0.05 USDC** (PDF papers & corporate reports into structured Markdown)
-4. `fetch_plain_text`: **0.005 USDC** (Pure lightweight plain text extraction)
+2. `fetch_batch_clean_markdown`: **0.01 USDC / URL** (Parallel batch scraping up to 10 URLs)
+3. `fetch_youtube_transcript`: **0.02 USDC** (Full YouTube timestamps & transcript Markdown)
+4. `fetch_pdf_markdown`: **0.05 USDC** (PDF papers & corporate reports into structured Markdown)
+5. `fetch_plain_text`: **0.005 USDC** (Pure lightweight plain text extraction)
 """
 
 @mcp.tool(
