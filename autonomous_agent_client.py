@@ -116,11 +116,20 @@ class AutonomousX402Agent:
 
         return tx_hash
 
-    def _execute_x402_request(self, endpoint: str, params: Dict[str, Any]) -> Dict[str, Any]:
+    def _execute_x402_request(
+        self,
+        endpoint: str,
+        params: Optional[Dict[str, Any]] = None,
+        json_body: Optional[Dict[str, Any]] = None,
+        method: str = "GET"
+    ) -> Dict[str, Any]:
         url = f"{self.base_url}{endpoint}"
         
         # 1. Initial Request (Check if payment required)
-        res = requests.get(url, params=params)
+        if method == "POST":
+            res = requests.post(url, params=params, json=json_body)
+        else:
+            res = requests.get(url, params=params)
         
         if res.status_code == 200:
             return res.json()
@@ -128,24 +137,35 @@ class AutonomousX402Agent:
         if res.status_code == 402:
             data = res.json()
             x402_info = data.get("x402", {})
-            required_usdc = x402_info.get("amount", "0.01")
+            required_usdc = x402_info.get("amount", data.get("required_usdc", "0.01"))
+            suggested_action = data.get("suggested_action", "")
             
-            print(f"[🤖 x402 Agent] 402 Payment Required: {required_usdc} USDC on Polygon.")
-            print(f"[🤖 x402 Agent] Paying from agent wallet: {self.wallet_address}...")
+            print(f"[x402 Agent] 402 Payment Required: {required_usdc} USDC on Polygon.")
+            if suggested_action:
+                print(f"[x402 Agent Action]: {suggested_action}")
+            print(f"[x402 Agent] Paying from agent wallet: {self.wallet_address}...")
             
             # 2. Autonomous On-Chain Payment
             tx_hash = self._pay_and_get_tx_hash(x402_info)
-            print(f"[🤖 x402 Agent] On-chain payment confirmed! Tx: {tx_hash}")
+            print(f"[x402 Agent] On-chain payment confirmed! Tx: {tx_hash}")
             
             # 3. Re-request with X-Payment-Tx Header
-            paid_res = requests.get(
-                url,
-                params=params,
-                headers={"X-Payment-Tx": tx_hash}
-            )
+            if method == "POST":
+                paid_res = requests.post(
+                    url,
+                    params=params,
+                    json=json_body,
+                    headers={"X-Payment-Tx": tx_hash}
+                )
+            else:
+                paid_res = requests.get(
+                    url,
+                    params=params,
+                    headers={"X-Payment-Tx": tx_hash}
+                )
             
             if paid_res.status_code == 200:
-                print(f"[🤖 x402 Agent] Data successfully acquired.")
+                print(f"[x402 Agent] Data successfully acquired.")
                 return paid_res.json()
             else:
                 raise RuntimeError(f"Failed to fetch data after payment: {paid_res.text}")
@@ -155,21 +175,42 @@ class AutonomousX402Agent:
 
     # --- High-level Agent Tools ---
 
-    def clean_web(self, url: str) -> Dict[str, Any]:
+    def clean_web(
+        self,
+        url: str,
+        density: str = "standard",
+        max_tokens: Optional[int] = None
+    ) -> Dict[str, Any]:
         """Scrapes and converts messy HTML to clean Markdown with token savings (0.01 USDC)."""
-        return self._execute_x402_request("/api/v1/clean-web", {"url": url})
+        params: Dict[str, Any] = {"url": url, "density": density}
+        if max_tokens:
+            params["max_tokens"] = max_tokens
+        return self._execute_x402_request("/api/v1/clean-web", params=params)
 
-    def clean_youtube(self, url: str, language: str = "en") -> Dict[str, Any]:
+    def batch_clean(
+        self,
+        urls: List[str],
+        density: str = "standard",
+        max_tokens_per_url: Optional[int] = None
+    ) -> Dict[str, Any]:
+        """[Agent Swarm] Batch scrapes up to 10 URLs concurrently in 1 transaction (0.01 USDC per URL)."""
+        payload: Dict[str, Any] = {"urls": urls, "density": density}
+        if max_tokens_per_url:
+            payload["max_tokens_per_url"] = max_tokens_per_url
+        return self._execute_x402_request("/api/v1/batch-clean", json_body=payload, method="POST")
+
+    def clean_youtube(self, url: str, language: str = "ko,en") -> Dict[str, Any]:
         """Extracts complete YouTube video transcripts with timestamps (0.02 USDC)."""
-        return self._execute_x402_request("/api/v1/clean-youtube", {"url": url, "language": language})
+        return self._execute_x402_request("/api/v1/clean-youtube", params={"url": url, "language": language})
 
     def clean_pdf(self, url: str) -> Dict[str, Any]:
         """Converts research papers and reports from PDF to structured Markdown (0.05 USDC)."""
-        return self._execute_x402_request("/api/v1/clean-pdf", {"url": url})
+        return self._execute_x402_request("/api/v1/clean-pdf", params={"url": url})
 
     def clean_text(self, url: str) -> Dict[str, Any]:
         """Extracts ultra-lightweight raw text for embedding and vector indexing (0.005 USDC)."""
-        return self._execute_x402_request("/api/v1/clean-text", {"url": url})
+        return self._execute_x402_request("/api/v1/clean-text", params={"url": url})
+
 
 
 if __name__ == "__main__":

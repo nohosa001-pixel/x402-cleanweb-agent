@@ -62,20 +62,40 @@ class X402AgentToolkit:
         self.agent_client = AutonomousX402Agent(private_key=private_key, base_url=base_url)
         self.budget_guard = BudgetGuard(max_daily_budget_usdc=max_daily_budget_usdc)
 
-    def clean_web(self, url: str) -> str:
+    def clean_web(self, url: str, density: str = "standard", max_tokens: Optional[int] = None) -> str:
         """
         [0.01 USDC] Scrapes any website, strips ads & clutter, and returns clean, LLM-ready Markdown.
+        density: 'standard', 'compact', or 'tables_only'
         """
         price = 0.01
         if not self.budget_guard.can_spend(price):
             return f"[ERROR: Budget limit exceeded ({self.budget_guard.spent_usdc:.4f}/{self.budget_guard.max_daily_budget_usdc} USDC)]"
         
-        res = self.agent_client.clean_web(url)
+        res = self.agent_client.clean_web(url, density=density, max_tokens=max_tokens)
         self.budget_guard.record_spend(price, f"clean_web: {url}", res.get("payment", {}).get("tx_hash"))
         
         md = res.get("markdown_content", "")
         savings = res.get("token_analytics", {}).get("token_savings_percentage", "N/A")
         return f"### {res.get('title', 'Web Content')}\n\n{md}\n\n*(Token savings: {savings})*"
+
+    def batch_clean(self, urls: List[str], density: str = "standard", max_tokens_per_url: Optional[int] = None) -> str:
+        """
+        [0.01 USDC / URL] Scrapes up to 10 URLs in parallel in a single batch transaction.
+        """
+        total_price = round(len(urls) * 0.01, 4)
+        if not self.budget_guard.can_spend(total_price):
+            return f"[ERROR: Budget limit exceeded ({self.budget_guard.spent_usdc:.4f}/{self.budget_guard.max_daily_budget_usdc} USDC)]"
+        
+        res = self.agent_client.batch_clean(urls, density=density, max_tokens_per_url=max_tokens_per_url)
+        self.budget_guard.record_spend(total_price, f"batch_clean ({len(urls)} URLs)", res.get("payment", {}).get("tx_hash"))
+        
+        out = [f"# 📦 Batch Clean Results ({res.get('successful_count', 0)}/{len(urls)} Success)\n"]
+        for item in res.get("results", []):
+            if item.get("status") == "success":
+                out.append(f"## 🌐 {item.get('title', item.get('url'))}\n> URL: {item.get('url')}\n\n{item.get('markdown_content')}\n---")
+            else:
+                out.append(f"## ❌ Error: {item.get('url')}\n{item.get('error_message')}\n---")
+        return "\n\n".join(out)
 
     def clean_youtube(self, url: str, language: str = "ko,en") -> str:
         """
@@ -121,6 +141,7 @@ class X402AgentToolkit:
         """Returns standard Python callable tools (compatible with smolagents, CrewAI, AutoGen)."""
         return [
             self.clean_web,
+            self.batch_clean,
             self.clean_youtube,
             self.clean_pdf,
             self.clean_text,
@@ -138,9 +159,30 @@ class X402AgentToolkit:
                     "parameters": {
                         "type": "object",
                         "properties": {
-                            "url": {"type": "string", "description": "Target web page URL"}
+                            "url": {"type": "string", "description": "Target web page URL"},
+                            "density": {"type": "string", "enum": ["standard", "compact", "tables_only"], "description": "Extraction density mode"},
+                            "max_tokens": {"type": "integer", "description": "Optional max token limit for response"}
                         },
                         "required": ["url"]
+                    }
+                }
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "x402_batch_clean",
+                    "description": "Batch cleans up to 10 web URLs in parallel in 1 transaction (0.01 USDC per URL on Polygon).",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "urls": {
+                                "type": "array",
+                                "items": {"type": "string"},
+                                "description": "List of URLs to scrape and clean"
+                            },
+                            "density": {"type": "string", "enum": ["standard", "compact", "tables_only"], "description": "Density mode"}
+                        },
+                        "required": ["urls"]
                     }
                 }
             },
@@ -188,6 +230,7 @@ class X402AgentToolkit:
                 }
             }
         ]
+
 
 
 def get_x402_agent_tools(

@@ -36,16 +36,17 @@ def test_toolkit_schemas():
     print("\nTesting X402AgentToolkit schemas...")
     toolkit = X402AgentToolkit(private_key=None, max_daily_budget_usdc=1.0)
     tools = toolkit.get_tools_list()
-    assert len(tools) == 5
-    print(f"  [SUCCESS] {len(tools)} callable agent tools loaded.")
+    assert len(tools) == 6
+    print(f"  [SUCCESS] {len(tools)} callable agent tools loaded (including batch_clean).")
     
     schemas = toolkit.get_openai_function_schemas()
-    assert len(schemas) == 4
+    assert len(schemas) == 5
     for s in schemas:
         assert "name" in s["function"]
         assert "description" in s["function"]
         assert "parameters" in s["function"]
     print("  [SUCCESS] OpenAI/Anthropic Function Calling schemas verified.")
+
 
 if __name__ == "__main__":
     test_budget_guard()
