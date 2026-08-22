@@ -1,0 +1,8 @@
+{
+  "$schema": "https://glama.ai/mcp/schemas/server.json",
+  "name": "polygon-x402-cleanweb-agent",
+  "description": "Autonomous Web3 x402 Micropayment MCP agent on Polygon for clean web markdown, batch scraping, YouTube transcripts, and PDF research papers.",
+  "maintainers": [
+    "nohosa001-pixel"
+  ]
+}
