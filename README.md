@@ -97,6 +97,7 @@ print(toolkit.get_spending_report())
 ### 2. Integration with AI Agent Frameworks
 
 #### CrewAI
+
 ```python
 from crewai import Agent
 from agent_tools import get_x402_agent_tools
@@ -111,6 +112,7 @@ researcher = Agent(
 ```
 
 #### LangChain / smolagents / AutoGen
+
 ```python
 from agent_tools import X402AgentToolkit
 
@@ -152,6 +154,7 @@ sequenceDiagram
 ## 🔌 Model Context Protocol (MCP) Setup
 
 ### Option 1: 1-Click Auto Installer (Recommended)
+
 Automatically configures Claude Desktop & Cursor without editing JSON files:
 
 ```bash
@@ -165,6 +168,7 @@ python install_mcp.py
 ---
 
 ### Option 2: Run via `uvx` (No installation needed)
+
 Add directly to your `claude_desktop_config.json` or Cursor `mcp.json`:
 
 ```json
