@@ -794,6 +794,97 @@ def clean_text_endpoint(
     return result_data
 
 
+@app.get("/.well-known/mcp/server-card.json")
+@app.get("/.well-known/mcp.json")
+def mcp_server_card_endpoint():
+    """
+    Standard MCP Server Card (SEP-1649 / Smithery specification)
+    """
+    return {
+        "$schema": "https://static.modelcontextprotocol.io/schemas/mcp-server-card/v1.json",
+        "name": "polygon-x402-cleanweb-agent",
+        "version": "1.2.1",
+        "serverInfo": {
+            "name": "Polygon x402 AI Data Agent",
+            "description": "Zero-human Web3 micropayment MCP agent for LLM-ready clean web scraping, YouTube transcripts, PDF paper extraction, and plain text on Polygon Mainnet."
+        },
+        "transport": {
+            "type": "stdio",
+            "command": "uvx",
+            "args": ["x402-cleanweb-agent"]
+        },
+        "tools": [
+            {
+                "name": "clean_web",
+                "description": "Extracts clean Markdown and token analytics from any web page (0.01 USDC).",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "url": {"type": "string", "description": "Target web page URL"},
+                        "density": {"type": "string", "enum": ["standard", "compact", "tables_only"], "default": "standard"},
+                        "max_tokens": {"type": "integer", "description": "Optional token limit"}
+                    },
+                    "required": ["url"]
+                }
+            },
+            {
+                "name": "batch_clean",
+                "description": "Scrapes and cleans up to 10 web URLs concurrently in a single batch request (0.01 USDC per URL).",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "urls": {"type": "array", "items": {"type": "string"}, "description": "List of URLs to clean"},
+                        "density": {"type": "string", "enum": ["standard", "compact", "tables_only"], "default": "standard"}
+                    },
+                    "required": ["urls"]
+                }
+            },
+            {
+                "name": "clean_youtube",
+                "description": "Extracts complete transcripts with timestamps from YouTube videos (0.02 USDC).",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "url": {"type": "string", "description": "YouTube video URL"},
+                        "language": {"type": "string", "default": "ko,en"}
+                    },
+                    "required": ["url"]
+                }
+            },
+            {
+                "name": "clean_pdf",
+                "description": "Parses arXiv research papers and technical PDF reports into clean Markdown (0.05 USDC).",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "url": {"type": "string", "description": "Direct PDF URL"}
+                    },
+                    "required": ["url"]
+                }
+            },
+            {
+                "name": "clean_text",
+                "description": "Extracts ultra-lightweight raw plain text for vector search and fast embeddings (0.005 USDC).",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "url": {"type": "string", "description": "Target URL"}
+                    },
+                    "required": ["url"]
+                }
+            },
+            {
+                "name": "get_payment_info",
+                "description": "Get current Polygon Mainnet USDC pricing, gas recommendations, and payment recipient address.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {}
+                }
+            }
+        ]
+    }
+
+
 @app.get("/.well-known/agent.json")
 def agent_discovery_endpoint():
     """
