@@ -4,8 +4,8 @@
 > *Zero Sign-up. Zero Subscriptions. True Machine-to-Machine HTTP 402 Micropayments for Autonomous AI Agents.*
 
 [![PyPI version](https://img.shields.io/pypi/v/x402-cleanweb-agent.svg?color=blue&label=PyPI%20Package)](https://pypi.org/project/x402-cleanweb-agent/)
-[![Python Versions](https://img.shields.io/pypi/pyversions/x402-cleanweb-agent.svg)](https://pypi.org/project/x402-cleanweb-agent/)
-[![llms.txt](https://img.shields.io/badge/llms.txt-LLM%20Standard-brightgreen)](https://x402-cleanweb-agent.onrender.com/llms.txt)
+[![Glama.ai](https://img.shields.io/badge/Glama.ai-Listed-00ffcc?style=for-the-badge&logo=anthropic&logoColor=black)](https://glama.ai/mcp/servers/nohosa001-pixel/x402-cleanweb-agent)
+[![Smithery](https://img.shields.io/badge/Smithery-Verified-orange?style=for-the-badge&logo=server&logoColor=white)](https://smithery.ai/server/@nohosa001-pixel/x402-cleanweb-agent)
 [![Live Web3 DApp](https://img.shields.io/badge/Live%20DApp-Online-00f2fe?style=for-the-badge&logo=polygon&logoColor=white)](https://x402-cleanweb-agent.onrender.com)
 [![Swagger API](https://img.shields.io/badge/API%20Docs-Swagger-8247e5?style=for-the-badge&logo=fastapi&logoColor=white)](https://x402-cleanweb-agent.onrender.com/docs)
 [![Polygon Web3](https://img.shields.io/badge/Polygon-USDC_Mainnet-purple.svg)](https://polygonscan.com/token/0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359)
