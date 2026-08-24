@@ -1,25 +1,26 @@
 # 🤖 Reddit r/mcp 전용 게시글 템플릿
 
 === [Title (제목)] ===
-[Showcase] I built an autonomous Web3 x402 Micropayment MCP Suite on Polygon for Clean Web, YouTube Transcripts & arXiv Papers
+[Showcase] I built an autonomous Web3 x402 Micropayment MCP Suite on Polygon & GCP Cloud Run for Clean Web, YouTube & arXiv
 
 === [Post Body (본문)] ===
 Hey r/mcp! 👋
 
-One of the biggest bottlenecks I encountered while building autonomous AI agents is the **lack of native machine-to-machine payment**. If an agent needs to scrape a website or extract transcripts from a video, we are usually forced to subscribe to $49/month SaaS plans and manually manage API keys.
+One of the biggest bottlenecks I encountered while building autonomous AI agents is the **lack of native machine-to-machine payment**. If an agent needs to scrape a website, convert a research PDF, or extract video transcripts, we are usually forced to subscribe to $49/month SaaS plans and manually manage API keys.
 
-To solve this, I built **x402-cleanweb-agent**—an open-source MCP server powered by HTTP 402 on Polygon Mainnet (USDC).
+To solve this, I built and deployed **`x402-cleanweb-agent` (v1.2.1)**—an open-source MCP server powered by HTTP 402 on Polygon Mainnet (USDC) and hosted with high availability on **Google Cloud Run**.
 
 ---
 
 ### 💡 What it does
-Autonomous agents with a Polygon wallet can purchase LLM-ready clean data on a pay-per-query basis ($0.005 ~ $0.05 in USDC) with **zero human intervention**:
+Autonomous agents with a crypto wallet can purchase LLM-ready clean data on a pay-per-query basis ($0.005 ~ $0.05 in USDC) with **zero human intervention**:
 
 * 🌐 **Clean Web Markdown (`0.01 USDC`)**: Strips ads, trackers, and navigation clutter, saving 60~85% in LLM prompt tokens (includes built-in token savings analytics).
 * 📦 **Batch Web Scraping (`0.01 / URL`)**: Concurrently cleans up to 10 URLs in a single on-chain transaction.
 * 🎬 **YouTube Transcripts (`0.02 USDC`)**: Extracts full transcripts with timestamps formatted cleanly in Markdown.
-* 📑 **PDF & Research Papers (`0.05 USDC`)**: Converts arXiv papers and reports into structured Markdown.
+* 📑 **PDF & Research Papers (`0.05 USDC`)**: Converts arXiv papers and corporate reports into structured Markdown.
 * 📝 **Plain Text (`0.005 USDC`)**: Ultra-fast raw text extractor for vector search/RAG embeddings.
+* 🧠 **Self-Healing Error Recovery**: If an agent sends an unverified tx, the server returns actionable JSON instructions for automatic retry.
 
 ---
 
@@ -45,10 +46,11 @@ pip install x402-cleanweb-agent
 
 ---
 
-### 🔗 Links & Resources
-* **GitHub (MIT)**: https://github.com/nohosa001-pixel/x402-cleanweb-agent
-* **PyPI Package**: https://pypi.org/project/x402-cleanweb-agent/
-* **Glama.ai Listing**: https://glama.ai/mcp/servers/nohosa001-pixel/x402-cleanweb-agent
-* **Live DApp & Documentation**: https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app
+### 🔗 Live Production Links & Resources
+* 🌐 **Live GCP Cloud Run DApp**: https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app
+* 📑 **LLM Machine Documentation**: https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/llms.txt
+* 📦 **PyPI Package**: https://pypi.org/project/x402-cleanweb-agent/
+* 🦙 **Glama.ai Listing**: https://glama.ai/mcp/servers/nohosa001-pixel/x402-cleanweb-agent
+* 📂 **GitHub (MIT)**: https://github.com/nohosa001-pixel/x402-cleanweb-agent
 
 I'd love to hear your thoughts, feedback, or feature ideas from the r/mcp community!
