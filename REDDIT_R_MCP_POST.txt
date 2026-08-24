@@ -38,17 +38,17 @@ Add to your `claude_desktop_config.json` or Cursor `mcp.json`:
 }
 ```
 
-**Option 2: Install via Smithery CLI**
+**Option 2: Standard pip install**
 ```bash
-npx -y @smithery/cli install @nohosa001-pixel/x402-cleanweb-agent --client claude
+pip install x402-cleanweb-agent
 ```
 
 ---
 
 ### 🔗 Links & Resources
 * **GitHub (MIT)**: https://github.com/nohosa001-pixel/x402-cleanweb-agent
+* **PyPI Package**: https://pypi.org/project/x402-cleanweb-agent/
 * **Glama.ai Listing**: https://glama.ai/mcp/servers/nohosa001-pixel/x402-cleanweb-agent
-* **Smithery.ai Listing**: https://smithery.ai/server/@nohosa001-pixel/x402-cleanweb-agent
 * **Live DApp & Documentation**: https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app
 
 I'd love to hear your thoughts, feedback, or feature ideas from the r/mcp community!
