@@ -133,19 +133,61 @@ class X402AgentToolkit:
         self.budget_guard.record_spend(price, f"clean_text: {url}", res.get("payment", {}).get("tx_hash"))
         return res.get("plain_text", "")
 
+    def extract_json(self, url: str, schema_description: str, agent_pass: Optional[str] = None) -> str:
+        """
+        [0.03 USDC / 3 Credits] Extracts structured JSON schema data from any webpage.
+        """
+        price = 0.03
+        if not self.budget_guard.can_spend(price):
+            return f"[ERROR: Budget limit exceeded ({self.budget_guard.spent_usdc:.4f}/{self.budget_guard.max_daily_budget_usdc} USDC)]"
+
+        res = self.agent_client.extract_json(url, schema_description, agent_pass=agent_pass)
+        self.budget_guard.record_spend(price, f"extract_json: {url}")
+        return json.dumps(res.get("extracted_json", {}), indent=2, ensure_ascii=False)
+
+    def deep_research(self, query: str, max_sources: int = 3, agent_pass: Optional[str] = None) -> str:
+        """
+        [0.15 USDC / 15 Credits] Multi-source AI deep research and synthesized executive briefing.
+        """
+        price = 0.15
+        if not self.budget_guard.can_spend(price):
+            return f"[ERROR: Budget limit exceeded ({self.budget_guard.spent_usdc:.4f}/{self.budget_guard.max_daily_budget_usdc} USDC)]"
+
+        res = self.agent_client.deep_research(query, max_sources=max_sources, agent_pass=agent_pass)
+        self.budget_guard.record_spend(price, f"deep_research: {query}")
+        return res.get("research_brief_markdown", "No briefing generated.")
+
+    def mint_credit_pass(self, amount_usdc: float = 1.0) -> str:
+        """
+        [Zero-Latency Pass] Mints a reusable credit pass (1.0 USDC = 100 calls, 5.0 USDC = 600 calls).
+        """
+        if not self.budget_guard.can_spend(amount_usdc):
+            return f"[ERROR: Budget limit exceeded ({self.budget_guard.spent_usdc:.4f}/{self.budget_guard.max_daily_budget_usdc} USDC)]"
+
+        token = self.agent_client.mint_credit_pass(amount_usdc=amount_usdc)
+        self.budget_guard.record_spend(amount_usdc, f"mint_credit_pass: {amount_usdc} USDC")
+        return token
+
     def get_spending_report(self) -> str:
         """Returns the current spending and budget status for this agent."""
         return json.dumps(self.budget_guard.get_report(), indent=2)
 
+    def get_budget_status(self) -> str:
+        """Alias for get_spending_report."""
+        return self.get_spending_report()
+
     def get_tools_list(self) -> List[Callable]:
-        """Returns standard Python callable tools (compatible with smolagents, CrewAI, AutoGen)."""
+        """Returns a list of callables for LangChain/CrewAI/Smolagents."""
         return [
             self.clean_web,
             self.batch_clean,
             self.clean_youtube,
             self.clean_pdf,
             self.clean_text,
-            self.get_spending_report
+            self.extract_json,
+            self.deep_research,
+            self.mint_credit_pass,
+            self.get_budget_status
         ]
 
     def get_openai_function_schemas(self) -> List[Dict[str, Any]]:
@@ -155,13 +197,13 @@ class X402AgentToolkit:
                 "type": "function",
                 "function": {
                     "name": "x402_clean_web",
-                    "description": "Scrapes and converts any website into LLM-ready structured Markdown (0.01 USDC on Polygon).",
+                    "description": "Scrapes and converts any website into LLM-ready structured Markdown (0.01 USDC / 1 credit).",
                     "parameters": {
                         "type": "object",
                         "properties": {
                             "url": {"type": "string", "description": "Target web page URL"},
                             "density": {"type": "string", "enum": ["standard", "compact", "tables_only"], "description": "Extraction density mode"},
-                            "max_tokens": {"type": "integer", "description": "Optional max token limit for response"}
+                            "max_tokens": {"type": "integer", "description": "Optional max token limit"}
                         },
                         "required": ["url"]
                     }
@@ -171,16 +213,12 @@ class X402AgentToolkit:
                 "type": "function",
                 "function": {
                     "name": "x402_batch_clean",
-                    "description": "Batch cleans up to 10 web URLs in parallel in 1 transaction (0.01 USDC per URL on Polygon).",
+                    "description": "Batch cleans up to 10 web URLs in parallel in 1 transaction (0.01 USDC per URL).",
                     "parameters": {
                         "type": "object",
                         "properties": {
-                            "urls": {
-                                "type": "array",
-                                "items": {"type": "string"},
-                                "description": "List of URLs to scrape and clean"
-                            },
-                            "density": {"type": "string", "enum": ["standard", "compact", "tables_only"], "description": "Density mode"}
+                            "urls": {"type": "array", "items": {"type": "string"}, "description": "List of URLs to clean"},
+                            "density": {"type": "string", "enum": ["standard", "compact", "tables_only"]}
                         },
                         "required": ["urls"]
                     }
@@ -189,48 +227,34 @@ class X402AgentToolkit:
             {
                 "type": "function",
                 "function": {
-                    "name": "x402_clean_youtube",
-                    "description": "Extracts complete transcript with timestamps from any YouTube video (0.02 USDC on Polygon).",
+                    "name": "x402_extract_json",
+                    "description": "Extracts structured key-value JSON matching a schema description from any webpage (0.03 USDC / 3 credits).",
                     "parameters": {
                         "type": "object",
                         "properties": {
-                            "url": {"type": "string", "description": "YouTube video URL"},
-                            "language": {"type": "string", "description": "Comma separated languages (default: 'ko,en')"}
+                            "url": {"type": "string", "description": "Target webpage URL"},
+                            "schema_description": {"type": "string", "description": "Description of target data fields"}
                         },
-                        "required": ["url"]
+                        "required": ["url", "schema_description"]
                     }
                 }
             },
             {
                 "type": "function",
                 "function": {
-                    "name": "x402_clean_pdf",
-                    "description": "Extracts structured Markdown from PDF research papers (arXiv) and reports (0.05 USDC on Polygon).",
+                    "name": "x402_deep_research",
+                    "description": "Generates multi-source AI synthesized deep research briefings on any topic (0.15 USDC / 15 credits).",
                     "parameters": {
                         "type": "object",
                         "properties": {
-                            "url": {"type": "string", "description": "Direct PDF URL"}
+                            "query": {"type": "string", "description": "Research topic or search query"},
+                            "max_sources": {"type": "integer", "default": 3}
                         },
-                        "required": ["url"]
-                    }
-                }
-            },
-            {
-                "type": "function",
-                "function": {
-                    "name": "x402_clean_text",
-                    "description": "Extracts lightweight raw plain text for vector search (0.005 USDC on Polygon).",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "url": {"type": "string", "description": "Target URL"}
-                        },
-                        "required": ["url"]
+                        "required": ["query"]
                     }
                 }
             }
         ]
-
 
 
 def get_x402_agent_tools(

@@ -1,57 +1,73 @@
-# Polygon x402 AI Data Agent (LLM-Ready Documentation)
+# Polygon x402 AI Autonomous Agent Suite (LLM & Swarm Machine Standard)
 
-> Standardized HTTP 402 Web3 Micro-Payment Data Protocol for Autonomous AI Agents and LLMs on Polygon Mainnet.
+> Standardized Web3 x402 Micropayment Data Protocol for Autonomous AI Agents, Swarms & LLMs on Polygon Mainnet (PoS).
+> High Availability Gateway hosted on Google Cloud Run: `https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app`
 
 ## Overview
-Polygon x402 AI Data Agent enables AI agents, LLMs, and multi-agent swarms (CrewAI, LangChain, smolagents) to autonomously extract noise-free, token-optimized Markdown from websites, YouTube transcripts, and PDF research papers without human intervention or API key signups. Payment is handled machine-to-machine via instant on-chain USDC micropayments on Polygon PoS.
+Polygon x402 AI Agent Suite enables autonomous LLM agents (CrewAI, LangChain, AutoGen, Claude, ElizaOS) to autonomously discover, pay for, and ingest noise-free, token-optimized data without human KYC, credit cards, or API key subscriptions.
 
-## Core Capabilities
-- **Web Clean Scraping (`/api/v1/clean-web`)**: Converts complex web pages into pure Markdown, stripping ads/trackers, saving 70-85% LLM tokens. Cost: 0.01 USDC.
-- **Batch Clean Scraping (`/api/v1/batch-clean`)**: Concurrently cleans up to 10 URLs in parallel in 1 transaction. Cost: 0.01 USDC per URL.
-- **YouTube Transcripts (`/api/v1/clean-youtube`)**: Extracts timestamped transcripts in Korean/English. Cost: 0.02 USDC.
-- **PDF Paper Extractor (`/api/v1/clean-pdf`)**: Converts arXiv papers and reports into clean Markdown. Cost: 0.05 USDC.
-- **Plain Text Extractor (`/api/v1/clean-text`)**: Ultra-fast raw text extractor for RAG embeddings. Cost: 0.005 USDC.
+## ⚡ Dual Consumption Modes
 
-## Machine Discovery Endpoints
-- Agent Manifest: `https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/.well-known/agent.json`
-- Pricing Catalog: `https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/api/v1/agent/pricing-catalog`
-- OpenAPI Specification: `https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/openapi.json`
-- Swagger Interactive Docs: `https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/docs`
+### Mode 1: Instant Zero-Latency Prepaid Credit Pass (Recommended for Agents)
+- **Mint Endpoint**: `POST /api/v1/pass/mint`
+- **Pricing**:
+  - `1.0 USDC` = 100 API Calls (0ms latency, zero per-query gas fees)
+  - `5.0 USDC` = 600 API Calls (20% bonus credits)
+- **Usage**: Mint once, receive `pass_<token>`, attach header `X-Agent-Pass: <TOKEN>` on every request.
 
-## HTTP 402 Protocol & Self-Healing Workflow
-1. Agent sends an unauthenticated request to any endpoint.
-2. Server returns `HTTP 402 Payment Required` with structured JSON:
-   - `actionable_fix.chain_id`: 137 (Polygon)
-   - `actionable_fix.token_contract`: `0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359` (USDC)
-   - `actionable_fix.recipient_wallet`: `0x255F9991233f86B29dB847c8d5b8CB9915e80dCf`
-   - `actionable_fix.amount_usdc`: e.g. 0.01
-3. Agent sends ERC20 transfer on Polygon using its private key.
-4. Agent retries request with header: `X-Payment-Tx: 0x<POLYGON_TX_HASH>`.
-5. Server verifies on-chain event and returns cleaned data in < 0.5s (or 0ms if cached).
+### Mode 2: Pay-Per-Query On-Chain (HTTP 402 Self-Healing)
+- Request any endpoint without payment to receive a machine-readable `402 Payment Required` response.
+- Execute an ERC20 Transfer of USDC to `0x255F9991233f86B29dB847c8d5b8CB9915e80dCf` on Polygon Mainnet (Chain ID 137).
+- Retry with header `X-Payment-Tx: 0x<POLYGON_TX_HASH>`.
 
-## Python SDK Installation & Usage
-```bash
-pip install x402-cleanweb-agent
+---
+
+## 🛠️ Service Catalog & Endpoints
+
+| Service | Endpoint | Price (USDC) | Credits | Description |
+|---|---|---|---|---|
+| **🌐 Clean Web** | `GET /api/v1/clean-web?url=<URL>` | 0.01 USDC | 1 Credit | Strips ads/clutter, returns pure Markdown with 60-85% token savings |
+| **📦 Batch Clean** | `POST /api/v1/batch-clean` | 0.01 / URL | 1 Credit/URL | Scrapes up to 10 URLs concurrently in parallel |
+| **🎬 YouTube Transcript** | `GET /api/v1/clean-youtube?url=<URL>` | 0.02 USDC | 2 Credits | Timestamped full video transcripts formatted in Markdown |
+| **📑 PDF Paper Extractor** | `GET /api/v1/clean-pdf?url=<URL>` | 0.05 USDC | 5 Credits | Converts arXiv research papers and reports into clean Markdown |
+| **📝 Pure Text Extractor** | `GET /api/v1/clean-text?url=<URL>` | 0.005 USDC | 1 Credit | Ultra-lightweight raw text for vector/RAG embeddings |
+| **📊 Structured JSON** | `POST /api/v1/extract-json` | 0.03 USDC | 3 Credits | Extracts key-value structured JSON matching user-defined schema |
+| **🧠 Deep Research** | `GET /api/v1/deep-research?query=<TOPIC>`| 0.15 USDC | 15 Credits| Multi-source synthesized AI executive research briefing |
+
+---
+
+## 🤖 Autonomous Machine Discovery Standards
+- **A2A Agent Manifest**: `https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/.well-known/agent.json`
+- **AI Plugin Manifest**: `https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/.well-known/ai-plugin.json`
+- **MCP Server Card**: `https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/.well-known/mcp/server-card.json`
+- **Capabilities Reflection**: `https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/api/v1/agent/capabilities`
+- **Live Pricing Catalog**: `https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/api/v1/agent/pricing-catalog`
+- **OpenAPI Schema**: `https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/openapi.json`
+- **Swagger Interactive**: `https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/docs`
+
+---
+
+## 💻 1-Second Setup for Claude & Cursor (MCP)
+```json
+{
+  "mcpServers": {
+    "polygon-x402-cleanweb": {
+      "command": "uvx",
+      "args": ["x402-cleanweb-agent"]
+    }
+  }
+}
 ```
 
+## 📦 Python SDK Integration
 ```python
 from agent_tools import X402AgentToolkit
 
 toolkit = X402AgentToolkit(private_key="0xAGENT_POLYGON_PRIVATE_KEY")
-markdown = toolkit.clean_web("https://news.ycombinator.com")
-print(markdown)
-```
+# 1. Buy zero-latency credit pass
+pass_token = toolkit.mint_credit_pass(amount_usdc=1.0)
 
-## Model Context Protocol (MCP) Setup
-Add to Claude Desktop or Cursor config (`mcpServers`):
-```json
-{
-  "polygon-x402-cleanweb": {
-    "command": "uvx",
-    "args": ["x402-cleanweb-agent"],
-    "env": {
-      "POLYGON_RPC_URL": "https://polygon-bor-rpc.publicnode.com"
-    }
-  }
-}
+# 2. Query data with 0ms blockchain latency
+markdown = toolkit.clean_web("https://news.ycombinator.com", agent_pass=pass_token)
+print(markdown)
 ```

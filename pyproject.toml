@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "x402-cleanweb-agent"
-version = "1.2.1"
+version = "2.0.0"
 description = "Web3 x402 Micropayment MCP & AI Agent Tool Suite for LLM Data Extraction on Polygon Mainnet"
 readme = "README.md"
 requires-python = ">=3.10"
