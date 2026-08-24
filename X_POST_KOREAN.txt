@@ -22,11 +22,10 @@ Claude Desktop, Cursor에서 설치 없이 1초 실행:
 
 
 === [3번 트윗: 마켓플레이스 링크 & 마무리] ===
-글로벌 3대 MCP 디렉토리 및 PyPI에 정식 등록되었습니다 🚀
+글로벌 MCP 디렉토리, PyPI 및 Google Cloud Run에 정식 배포되었습니다 🚀
 
 🦙 Glama.ai: https://glama.ai/mcp/servers/nohosa001-pixel/x402-cleanweb-agent
-⚒️ Smithery.ai: https://smithery.ai/server/@nohosa001-pixel/x402-cleanweb-agent
-🌐 실시간 데모 & 문서: https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app
+🌐 GCP 라이브 데모 & 문서: https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app
 ⭐ 깃허브 저장소: https://github.com/nohosa001-pixel/x402-cleanweb-agent
 
-#ClaudeAI #AI에이전트 #MCP #오픈소스 #Web3 #Polygon (3/3)
+#ClaudeAI #AI에이전트 #MCP #오픈소스 #Web3 #Polygon #GCP (3/3)
