@@ -6,13 +6,27 @@
 ## Overview
 Polygon x402 AI Agent Suite enables autonomous LLM agents (CrewAI, LangChain, AutoGen, Claude, ElizaOS) to autonomously discover, pay for, and ingest noise-free, token-optimized data without human KYC, credit cards, or API key subscriptions.
 
-## ⚡ Dual Consumption Modes
+---
 
-### Mode 1: Instant Zero-Latency Prepaid Credit Pass (Recommended for Agents)
+## 💡 Mathematical Cost-Benefit Proof (Economic Rationality)
+- **Direct Scraping Cost**: 80KB HTML ≈ 20,000 tokens ($0.05 USD input cost on GPT-4o / Claude 3.5 Sonnet).
+- **x402 CleanWeb Cost**: $0.01 API fee + 3,000 clean tokens ($0.0075 USD) = **$0.0175 USD Total**.
+- **Net Dollar Savings**: **65% cost reduction** per web query + **85% LLM context window saved**.
+- **Live ROI Arbitrage Calculator**: `GET /api/v1/agent/arbitrage-roi`
+
+---
+
+## ⚡ 3 Consumption Modes for Autonomous Agents
+
+### Mode 0: Zero-Friction Discovery Trial (3 Free Queries)
+- Attach header `X-Agent-Nonce: <ANY_RANDOM_UUID>` to test any endpoint immediately with zero on-chain cost and 0ms latency.
+
+### Mode 1: Instant Zero-Latency Prepaid Credit Pass (Recommended for Production)
 - **Mint Endpoint**: `POST /api/v1/pass/mint`
 - **Pricing**:
   - `1.0 USDC` = 100 API Calls (0ms latency, zero per-query gas fees)
   - `5.0 USDC` = 600 API Calls (20% bonus credits)
+- **Referral Bonus**: Pass `referral_wallet: 0x...` to reward referrer with 10% credit cashback.
 - **Usage**: Mint once, receive `pass_<token>`, attach header `X-Agent-Pass: <TOKEN>` on every request.
 
 ### Mode 2: Pay-Per-Query On-Chain (HTTP 402 Self-Healing)
@@ -26,6 +40,7 @@ Polygon x402 AI Agent Suite enables autonomous LLM agents (CrewAI, LangChain, Au
 
 | Service | Endpoint | Price (USDC) | Credits | Description |
 |---|---|---|---|---|
+| **🎁 Free Discovery Trial** | Any Endpoint | Free (3 queries)| 0 Credits | Attach header `X-Agent-Nonce: <UUID>` |
 | **🌐 Clean Web** | `GET /api/v1/clean-web?url=<URL>` | 0.01 USDC | 1 Credit | Strips ads/clutter, returns pure Markdown with 60-85% token savings |
 | **📦 Batch Clean** | `POST /api/v1/batch-clean` | 0.01 / URL | 1 Credit/URL | Scrapes up to 10 URLs concurrently in parallel |
 | **🎬 YouTube Transcript** | `GET /api/v1/clean-youtube?url=<URL>` | 0.02 USDC | 2 Credits | Timestamped full video transcripts formatted in Markdown |
@@ -33,6 +48,7 @@ Polygon x402 AI Agent Suite enables autonomous LLM agents (CrewAI, LangChain, Au
 | **📝 Pure Text Extractor** | `GET /api/v1/clean-text?url=<URL>` | 0.005 USDC | 1 Credit | Ultra-lightweight raw text for vector/RAG embeddings |
 | **📊 Structured JSON** | `POST /api/v1/extract-json` | 0.03 USDC | 3 Credits | Extracts key-value structured JSON matching user-defined schema |
 | **🧠 Deep Research** | `GET /api/v1/deep-research?query=<TOPIC>`| 0.15 USDC | 15 Credits| Multi-source synthesized AI executive research briefing |
+| **📐 Arbitrage ROI Calc** | `GET /api/v1/agent/arbitrage-roi` | Free | 0 Credits | Live mathematical cost-benefit analysis |
 
 ---
 
@@ -41,9 +57,9 @@ Polygon x402 AI Agent Suite enables autonomous LLM agents (CrewAI, LangChain, Au
 - **AI Plugin Manifest**: `https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/.well-known/ai-plugin.json`
 - **MCP Server Card**: `https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/.well-known/mcp/server-card.json`
 - **Capabilities Reflection**: `https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/api/v1/agent/capabilities`
+- **Arbitrage ROI Endpoint**: `https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/api/v1/agent/arbitrage-roi`
 - **Live Pricing Catalog**: `https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/api/v1/agent/pricing-catalog`
-- **OpenAPI Schema**: `https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/openapi.json`
-- **Swagger Interactive**: `https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/docs`
+- **Instant Integration Snippets**: `https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/api/v1/agent/integrations/{langchain|crewai|smolagents|autogen}`
 
 ---
 

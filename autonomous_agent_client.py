@@ -123,12 +123,15 @@ class AutonomousX402Agent:
         params: Optional[Dict[str, Any]] = None,
         json_body: Optional[Dict[str, Any]] = None,
         method: str = "GET",
-        agent_pass: Optional[str] = None
+        agent_pass: Optional[str] = None,
+        agent_nonce: Optional[str] = None
     ) -> Dict[str, Any]:
         url = f"{self.base_url}{endpoint}"
         headers = {}
         if agent_pass:
             headers["X-Agent-Pass"] = agent_pass
+        if agent_nonce:
+            headers["X-Agent-Nonce"] = agent_nonce
 
         # 1. Initial Request
         if method == "POST":
@@ -172,7 +175,16 @@ class AutonomousX402Agent:
 
     # --- High-level Agent Tools ---
 
-    def mint_credit_pass(self, amount_usdc: float = 1.0) -> str:
+    def get_arbitrage_roi(self, url: Optional[str] = None) -> Dict[str, Any]:
+        """[Economic Rationality Proof] Calculates mathematical token savings and ROI."""
+        params = {}
+        if url:
+            params["url"] = url
+        res = requests.get(f"{self.base_url}/api/v1/agent/arbitrage-roi", params=params)
+        res.raise_for_status()
+        return res.json()
+
+    def mint_credit_pass(self, amount_usdc: float = 1.0, referral_wallet: Optional[str] = None) -> str:
         """
         [Zero-Latency Pass] Mints a reusable prepaid credit pass:
         - 1.0 USDC = 100 API Calls
@@ -188,10 +200,11 @@ class AutonomousX402Agent:
         print(f"[x402 Agent] Minting Prepaid Credit Pass for {amount_usdc} USDC...")
         tx_hash = self._pay_and_get_tx_hash(x402_info)
         
-        mint_res = requests.post(
-            f"{self.base_url}/api/v1/pass/mint",
-            json={"tx_hash": tx_hash, "amount_usdc": amount_usdc}
-        )
+        payload = {"tx_hash": tx_hash, "amount_usdc": amount_usdc}
+        if referral_wallet:
+            payload["referral_wallet"] = referral_wallet
+
+        mint_res = requests.post(f"{self.base_url}/api/v1/pass/mint", json=payload)
         mint_res.raise_for_status()
         data = mint_res.json()
         pass_token = data["pass_token"]
@@ -203,47 +216,49 @@ class AutonomousX402Agent:
         url: str,
         density: str = "standard",
         max_tokens: Optional[int] = None,
-        agent_pass: Optional[str] = None
+        agent_pass: Optional[str] = None,
+        agent_nonce: Optional[str] = None
     ) -> Dict[str, Any]:
         """Scrapes and converts messy HTML to clean Markdown with token savings (0.01 USDC / 1 credit)."""
         params: Dict[str, Any] = {"url": url, "density": density}
         if max_tokens:
             params["max_tokens"] = max_tokens
-        return self._execute_x402_request("/api/v1/clean-web", params=params, agent_pass=agent_pass)
+        return self._execute_x402_request("/api/v1/clean-web", params=params, agent_pass=agent_pass, agent_nonce=agent_nonce)
 
     def batch_clean(
         self,
         urls: List[str],
         density: str = "standard",
         max_tokens_per_url: Optional[int] = None,
-        agent_pass: Optional[str] = None
+        agent_pass: Optional[str] = None,
+        agent_nonce: Optional[str] = None
     ) -> Dict[str, Any]:
         """[Agent Swarm] Batch scrapes up to 10 URLs concurrently in 1 transaction (0.01 USDC / 1 credit per URL)."""
         payload: Dict[str, Any] = {"urls": urls, "density": density}
         if max_tokens_per_url:
             payload["max_tokens_per_url"] = max_tokens_per_url
-        return self._execute_x402_request("/api/v1/batch-clean", json_body=payload, method="POST", agent_pass=agent_pass)
+        return self._execute_x402_request("/api/v1/batch-clean", json_body=payload, method="POST", agent_pass=agent_pass, agent_nonce=agent_nonce)
 
-    def clean_youtube(self, url: str, language: str = "ko,en", agent_pass: Optional[str] = None) -> Dict[str, Any]:
+    def clean_youtube(self, url: str, language: str = "ko,en", agent_pass: Optional[str] = None, agent_nonce: Optional[str] = None) -> Dict[str, Any]:
         """Extracts complete YouTube video transcripts with timestamps (0.02 USDC / 2 credits)."""
-        return self._execute_x402_request("/api/v1/clean-youtube", params={"url": url, "language": language}, agent_pass=agent_pass)
+        return self._execute_x402_request("/api/v1/clean-youtube", params={"url": url, "language": language}, agent_pass=agent_pass, agent_nonce=agent_nonce)
 
-    def clean_pdf(self, url: str, agent_pass: Optional[str] = None) -> Dict[str, Any]:
+    def clean_pdf(self, url: str, agent_pass: Optional[str] = None, agent_nonce: Optional[str] = None) -> Dict[str, Any]:
         """Converts research papers and reports from PDF to structured Markdown (0.05 USDC / 5 credits)."""
-        return self._execute_x402_request("/api/v1/clean-pdf", params={"url": url}, agent_pass=agent_pass)
+        return self._execute_x402_request("/api/v1/clean-pdf", params={"url": url}, agent_pass=agent_pass, agent_nonce=agent_nonce)
 
-    def clean_text(self, url: str, agent_pass: Optional[str] = None) -> Dict[str, Any]:
+    def clean_text(self, url: str, agent_pass: Optional[str] = None, agent_nonce: Optional[str] = None) -> Dict[str, Any]:
         """Extracts ultra-lightweight raw text for embedding and vector indexing (0.005 USDC / 1 credit)."""
-        return self._execute_x402_request("/api/v1/clean-text", params={"url": url}, agent_pass=agent_pass)
+        return self._execute_x402_request("/api/v1/clean-text", params={"url": url}, agent_pass=agent_pass, agent_nonce=agent_nonce)
 
-    def extract_json(self, url: str, schema_description: str, agent_pass: Optional[str] = None) -> Dict[str, Any]:
+    def extract_json(self, url: str, schema_description: str, agent_pass: Optional[str] = None, agent_nonce: Optional[str] = None) -> Dict[str, Any]:
         """Extracts structured JSON schema data from any webpage (0.03 USDC / 3 credits)."""
         payload = {"url": url, "schema_description": schema_description}
-        return self._execute_x402_request("/api/v1/extract-json", json_body=payload, method="POST", agent_pass=agent_pass)
+        return self._execute_x402_request("/api/v1/extract-json", json_body=payload, method="POST", agent_pass=agent_pass, agent_nonce=agent_nonce)
 
-    def deep_research(self, query: str, max_sources: int = 3, agent_pass: Optional[str] = None) -> Dict[str, Any]:
+    def deep_research(self, query: str, max_sources: int = 3, agent_pass: Optional[str] = None, agent_nonce: Optional[str] = None) -> Dict[str, Any]:
         """Generates multi-source synthesized AI deep research briefings (0.15 USDC / 15 credits)."""
-        return self._execute_x402_request("/api/v1/deep-research", params={"query": query, "max_sources": max_sources}, agent_pass=agent_pass)
+        return self._execute_x402_request("/api/v1/deep-research", params={"query": query, "max_sources": max_sources}, agent_pass=agent_pass, agent_nonce=agent_nonce)
 
 
 if __name__ == "__main__":
