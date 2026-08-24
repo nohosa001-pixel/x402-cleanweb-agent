@@ -16,8 +16,8 @@ Turn any messy website, YouTube video, or PDF paper into token-optimized clean M
 • Plugs into CrewAI, LangChain & Claude MCP
 
 📦 pip install x402-cleanweb-agent
-🌐 Live DApp: https://x402-cleanweb-agent.onrender.com
-📑 LLMs Guide: https://x402-cleanweb-agent.onrender.com/llms.txt
+🌐 Live DApp: https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app
+📑 LLMs Guide: https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/llms.txt
 📂 GitHub: https://github.com/nohosa001-pixel/x402-cleanweb-agent
 
 #AI #MCP #Polygon #Web3 #CrewAI #LangChain #Python #PyPI #AIAgents @0xPolygon
@@ -47,8 +47,8 @@ Autonomous agents (CrewAI, LangChain, Claude) can't sign up with credit cards or
 
 ### Links & Quickstart:
 - **PyPI Package**: `pip install x402-cleanweb-agent` (https://pypi.org/project/x402-cleanweb-agent/)
-- **Live Web3 DApp**: https://x402-cleanweb-agent.onrender.com
-- **LLM Docs**: https://x402-cleanweb-agent.onrender.com/llms.txt
+- **Live Web3 DApp**: https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app
+- **LLM Docs**: https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/llms.txt
 - **GitHub**: https://github.com/nohosa001-pixel/x402-cleanweb-agent
 
 Would love to get your feedback and see what multi-agent workflows you build with it!
@@ -72,8 +72,8 @@ Existing scraping APIs (Firecrawl, Tavily) require credit card subscriptions and
 It includes self-healing structured JSON responses for LLM error recovery, in-memory caching, parallel batch scraping, and native integrations for CrewAI, LangChain, and Claude Desktop MCP.
 
 Published on PyPI: `pip install x402-cleanweb-agent` or run via `uvx x402-cleanweb-agent`.
-Live DApp: https://x402-cleanweb-agent.onrender.com
-LLM Guide: https://x402-cleanweb-agent.onrender.com/llms.txt
+Live DApp: https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app
+LLM Guide: https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/llms.txt
 
 Feedback and questions are welcome!
 
@@ -92,4 +92,4 @@ Check out **x402-cleanweb-agent** (v1.2.0 on PyPI)!
 
 👉 `pip install x402-cleanweb-agent`
 👉 GitHub: https://github.com/nohosa001-pixel/x402-cleanweb-agent
-👉 Live Demo: https://x402-cleanweb-agent.onrender.com
+👉 Live Demo: https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app

@@ -1,0 +1,32 @@
+# 🇰🇷 한국 AI & Web3 개발자 타겟 X(트위터) 스레드 템플릿
+
+=== [1번 트윗: 메인 훅 & 혁신성 소개] ===
+AI 에이전트한테 웹 검색/데이터 수집 시킬 때마다 비싼 월 $49 구독료나 API 키 관리로 고민하셨나요? 🛑
+
+인간의 개입 없이 AI 에이전트가 스스로 폴리곤 지갑(USDC)으로 1건당 7~70원씩 소액 결제하고 데이터를 사 오는 【x402 AI 자율 데이터 상점】을 배포했습니다! 🪙🤖
+
+🧵 스레드로 기능과 1초 실행법 정리👇 (1/3)
+
+
+=== [2번 트윗: 지원 기능 & 1초 설치] ===
+⚡ AI 에이전트가 지갑으로 즉시 구매할 수 있는 데이터:
+
+🌐 클린 웹 마크다운 (광고·노이즈 제거, 토큰 60~85% 절감)
+🎬 유튜브 타임스탬프 자막/스크립트 추출
+📑 arXiv 논문 및 기업 리포트 PDF 마크다운 변환
+
+Claude Desktop, Cursor에서 설치 없이 1초 실행:
+💻 uvx x402-cleanweb-agent
+
+(2/3)
+
+
+=== [3번 트윗: 마켓플레이스 링크 & 마무리] ===
+글로벌 3대 MCP 디렉토리 및 PyPI에 정식 등록되었습니다 🚀
+
+🦙 Glama.ai: https://glama.ai/mcp/servers/nohosa001-pixel/x402-cleanweb-agent
+⚒️ Smithery.ai: https://smithery.ai/server/@nohosa001-pixel/x402-cleanweb-agent
+🌐 실시간 데모 & 문서: https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app
+⭐ 깃허브 저장소: https://github.com/nohosa001-pixel/x402-cleanweb-agent
+
+#ClaudeAI #AI에이전트 #MCP #오픈소스 #Web3 #Polygon (3/3)

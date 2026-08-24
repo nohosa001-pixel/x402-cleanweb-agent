@@ -31,12 +31,14 @@ uvx x402-cleanweb-agent
 ## 3. 🤖 CrewAI / LangChain Community
 - **Package Name**: `x402-cleanweb-agent`
 - **Import**: `from agent_tools import get_x402_agent_tools, X402AgentToolkit`
-- **Docs**: `https://x402-cleanweb-agent.onrender.com/llms.txt`
+- **Docs**: `https://x402-cleanweb-agent-212942243360.asia-northeast3.run.app/llms.txt`
 
 ---
 
-## 4. 🌐 Machine Indexing Endpoints (Live)
-- **LLM Context**: `https://x402-cleanweb-agent.onrender.com/llms.txt`
-- **Agent Discovery**: `https://x402-cleanweb-agent.onrender.com/.well-known/agent.json`
-- **Pricing Catalog**: `https://x402-cleanweb-agent.onrender.com/api/v1/agent/pricing-catalog`
+## 4. 🌐 Machine Indexing Endpoints (Live GCP Cloud Run)
+- **Live Endpoint**: `https://x402-cleanweb-agent-212942243360.asia-northeast3.run.app`
+- **LLM Context (`/llms.txt`)**: `https://x402-cleanweb-agent-212942243360.asia-northeast3.run.app/llms.txt`
+- **MCP Server Card**: `https://x402-cleanweb-agent-212942243360.asia-northeast3.run.app/.well-known/mcp.json`
+- **Agent Discovery**: `https://x402-cleanweb-agent-212942243360.asia-northeast3.run.app/.well-known/agent.json`
+- **Pricing Catalog**: `https://x402-cleanweb-agent-212942243360.asia-northeast3.run.app/api/v1/agent/pricing-catalog`
 - **PyPI Package**: `https://pypi.org/project/x402-cleanweb-agent/`

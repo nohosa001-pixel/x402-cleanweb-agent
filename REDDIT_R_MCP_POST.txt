@@ -1,0 +1,54 @@
+# 🤖 Reddit r/mcp 전용 게시글 템플릿
+
+=== [Title (제목)] ===
+[Showcase] I built an autonomous Web3 x402 Micropayment MCP Suite on Polygon for Clean Web, YouTube Transcripts & arXiv Papers
+
+=== [Post Body (본문)] ===
+Hey r/mcp! 👋
+
+One of the biggest bottlenecks I encountered while building autonomous AI agents is the **lack of native machine-to-machine payment**. If an agent needs to scrape a website or extract transcripts from a video, we are usually forced to subscribe to $49/month SaaS plans and manually manage API keys.
+
+To solve this, I built **x402-cleanweb-agent**—an open-source MCP server powered by HTTP 402 on Polygon Mainnet (USDC).
+
+---
+
+### 💡 What it does
+Autonomous agents with a Polygon wallet can purchase LLM-ready clean data on a pay-per-query basis ($0.005 ~ $0.05 in USDC) with **zero human intervention**:
+
+* 🌐 **Clean Web Markdown (`0.01 USDC`)**: Strips ads, trackers, and navigation clutter, saving 60~85% in LLM prompt tokens (includes built-in token savings analytics).
+* 📦 **Batch Web Scraping (`0.01 / URL`)**: Concurrently cleans up to 10 URLs in a single on-chain transaction.
+* 🎬 **YouTube Transcripts (`0.02 USDC`)**: Extracts full transcripts with timestamps formatted cleanly in Markdown.
+* 📑 **PDF & Research Papers (`0.05 USDC`)**: Converts arXiv papers and reports into structured Markdown.
+* 📝 **Plain Text (`0.005 USDC`)**: Ultra-fast raw text extractor for vector search/RAG embeddings.
+
+---
+
+### ⚡ 1-Minute Setup
+
+**Option 1: Run instantly via `uvx` (No installation needed)**
+Add to your `claude_desktop_config.json` or Cursor `mcp.json`:
+```json
+{
+  "mcpServers": {
+    "polygon-x402-cleanweb": {
+      "command": "uvx",
+      "args": ["x402-cleanweb-agent"]
+    }
+  }
+}
+```
+
+**Option 2: Install via Smithery CLI**
+```bash
+npx -y @smithery/cli install @nohosa001-pixel/x402-cleanweb-agent --client claude
+```
+
+---
+
+### 🔗 Links & Resources
+* **GitHub (MIT)**: https://github.com/nohosa001-pixel/x402-cleanweb-agent
+* **Glama.ai Listing**: https://glama.ai/mcp/servers/nohosa001-pixel/x402-cleanweb-agent
+* **Smithery.ai Listing**: https://smithery.ai/server/@nohosa001-pixel/x402-cleanweb-agent
+* **Live DApp & Documentation**: https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app
+
+I'd love to hear your thoughts, feedback, or feature ideas from the r/mcp community!

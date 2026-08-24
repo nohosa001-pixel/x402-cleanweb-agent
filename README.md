@@ -6,8 +6,8 @@
 [![PyPI version](https://img.shields.io/pypi/v/x402-cleanweb-agent.svg?color=blue&label=PyPI%20Package)](https://pypi.org/project/x402-cleanweb-agent/)
 [![Glama.ai](https://img.shields.io/badge/Glama.ai-Listed-00ffcc?style=for-the-badge&logo=anthropic&logoColor=black)](https://glama.ai/mcp/servers/nohosa001-pixel/x402-cleanweb-agent)
 [![Smithery](https://img.shields.io/badge/Smithery-Verified-orange?style=for-the-badge&logo=server&logoColor=white)](https://smithery.ai/server/@nohosa001-pixel/x402-cleanweb-agent)
-[![Live Web3 DApp](https://img.shields.io/badge/Live%20DApp-Online-00f2fe?style=for-the-badge&logo=polygon&logoColor=white)](https://x402-cleanweb-agent.onrender.com)
-[![Swagger API](https://img.shields.io/badge/API%20Docs-Swagger-8247e5?style=for-the-badge&logo=fastapi&logoColor=white)](https://x402-cleanweb-agent.onrender.com/docs)
+[![Live Web3 DApp](https://img.shields.io/badge/Live%20DApp-Online-00f2fe?style=for-the-badge&logo=googlecloud&logoColor=white)](https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app)
+[![Swagger API](https://img.shields.io/badge/API%20Docs-Swagger-8247e5?style=for-the-badge&logo=fastapi&logoColor=white)](https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/docs)
 [![Polygon Web3](https://img.shields.io/badge/Polygon-USDC_Mainnet-purple.svg)](https://polygonscan.com/token/0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -33,10 +33,10 @@ Traditional web scraping and data extraction APIs force expensive **$49/month su
 ## 🚀 Live Demo & Service Endpoints
 
 - 📦 **PyPI Package**: [https://pypi.org/project/x402-cleanweb-agent/](https://pypi.org/project/x402-cleanweb-agent/)
-- 🌐 **Web3 DApp UI**: [https://x402-cleanweb-agent.onrender.com](https://x402-cleanweb-agent.onrender.com)
-- 📑 **LLM Documentation**: [https://x402-cleanweb-agent.onrender.com/llms.txt](https://x402-cleanweb-agent.onrender.com/llms.txt)
-- 📚 **Swagger API Docs**: [https://x402-cleanweb-agent.onrender.com/docs](https://x402-cleanweb-agent.onrender.com/docs)
-- 🤖 **Agent Manifest**: [https://x402-cleanweb-agent.onrender.com/.well-known/agent.json](https://x402-cleanweb-agent.onrender.com/.well-known/agent.json)
+- 🌐 **Web3 DApp UI**: [https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app](https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app)
+- 📑 **LLM Documentation**: [https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/llms.txt](https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/llms.txt)
+- 📚 **Swagger API Docs**: [https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/docs](https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/docs)
+- 🤖 **Agent Manifest**: [https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/.well-known/agent.json](https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/.well-known/agent.json)
 
 | Service | Endpoint | Pricing | Output & Description |
 | :--- | :--- | :--- | :--- |
@@ -205,9 +205,30 @@ Add directly to your `claude_desktop_config.json` or Cursor `mcp.json`:
 
 ---
 
+## ☁️ Cloud Deployment
+
+### Google Cloud Run (Recommended for Enterprise / Zero Idle Cost)
+
+Deploy in 1-click to Google Cloud Run (Scale to zero, Free tier friendly, automatic HTTPS):
+
+```bash
+# Windows
+deploy_gcp.bat
+
+# PowerShell
+.\deploy_gcp.ps1
+
+# Direct gcloud CLI
+gcloud run deploy x402-cleanweb-agent --source . --region asia-northeast3 --allow-unauthenticated
+```
+👉 See [GCP_DEPLOY_GUIDE.md](file:///GCP_DEPLOY_GUIDE.md) for full setup and environment variable instructions.
+
+---
+
 ## 🤝 Contributing & License
 
 Contributions and suggestions are welcome!  
 Feel free to open an issue or pull request on GitHub: [https://github.com/nohosa001-pixel/x402-cleanweb-agent/issues](https://github.com/nohosa001-pixel/x402-cleanweb-agent/issues)
 
 Distributed under the **MIT License**.
+

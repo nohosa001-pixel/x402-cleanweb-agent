@@ -13,10 +13,10 @@ Polygon x402 AI Data Agent enables AI agents, LLMs, and multi-agent swarms (Crew
 - **Plain Text Extractor (`/api/v1/clean-text`)**: Ultra-fast raw text extractor for RAG embeddings. Cost: 0.005 USDC.
 
 ## Machine Discovery Endpoints
-- Agent Manifest: `https://x402-cleanweb-agent.onrender.com/.well-known/agent.json`
-- Pricing Catalog: `https://x402-cleanweb-agent.onrender.com/api/v1/agent/pricing-catalog`
-- OpenAPI Specification: `https://x402-cleanweb-agent.onrender.com/openapi.json`
-- Swagger Interactive Docs: `https://x402-cleanweb-agent.onrender.com/docs`
+- Agent Manifest: `https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/.well-known/agent.json`
+- Pricing Catalog: `https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/api/v1/agent/pricing-catalog`
+- OpenAPI Specification: `https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/openapi.json`
+- Swagger Interactive Docs: `https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/docs`
 
 ## HTTP 402 Protocol & Self-Healing Workflow
 1. Agent sends an unauthenticated request to any endpoint.

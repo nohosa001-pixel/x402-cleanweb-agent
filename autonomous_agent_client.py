@@ -27,12 +27,13 @@ ERC20_ABI = [
     }
 ]
 
-DEFAULT_BASE_URL = "https://x402-cleanweb-agent.onrender.com"
+DEFAULT_BASE_URL = "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app"
 DEFAULT_RPC_URLS = [
     "https://polygon-bor-rpc.publicnode.com",
     "https://polygon.llamarpc.com",
     "https://1rpc.io/matic",
-    "https://polygon-rpc.com"
+    "https://rpc.ankr.com/polygon",
+    "https://polygon.drpc.org"
 ]
 
 class AutonomousX402Agent:

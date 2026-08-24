@@ -1,0 +1,15 @@
+.gcloudignore
+.git
+.gitignore
+.venv
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+.vscode/
+dist/
+build/
+*.egg-info/
+test_*.py
+.DS_Store

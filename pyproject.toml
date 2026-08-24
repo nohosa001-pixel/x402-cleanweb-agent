@@ -47,8 +47,8 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://x402-cleanweb-agent.onrender.com"
-Documentation = "https://x402-cleanweb-agent.onrender.com/docs"
+Homepage = "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app"
+Documentation = "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/docs"
 Repository = "https://github.com/nohosa001-pixel/x402-cleanweb-agent"
 Issues = "https://github.com/nohosa001-pixel/x402-cleanweb-agent/issues"
 

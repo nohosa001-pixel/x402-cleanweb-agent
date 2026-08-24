@@ -25,16 +25,27 @@ POLYGON_RPC_URLS = [
     POLYGON_RPC_URL,
     "https://polygon.llamarpc.com",
     "https://1rpc.io/matic",
-    "https://polygon-rpc.com"
+    "https://rpc.ankr.com/polygon",
+    "https://polygon.drpc.org"
 ]
+def safe_checksum_address(addr_str: Optional[str], default: str) -> str:
+    if not addr_str:
+        return Web3.to_checksum_address(default)
+    match = re.search(r"0x[a-fA-F0-9]{40}", str(addr_str))
+    if match:
+        return Web3.to_checksum_address(match.group(0))
+    return Web3.to_checksum_address(default)
+
 CHAIN_ID = 137
-USDC_CONTRACT_ADDRESS = Web3.to_checksum_address(
-    os.getenv("USDC_CONTRACT_ADDRESS", "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359")
+USDC_CONTRACT_ADDRESS = safe_checksum_address(
+    os.getenv("USDC_CONTRACT_ADDRESS"),
+    "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359"
 )
 USDC_DECIMALS = 6
 
-RECIPIENT_WALLET = Web3.to_checksum_address(
-    os.getenv("SERVER_WALLET_ADDRESS", "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf")
+RECIPIENT_WALLET = safe_checksum_address(
+    os.getenv("SERVER_WALLET_ADDRESS"),
+    "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf"
 )
 
 TRANSFER_EVENT_TOPIC = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"

@@ -662,7 +662,7 @@
         AI Agents can autonomously consume this API. Request any endpoint without payment to receive a <code>402 Payment Required</code> response with payment instructions, send USDC on Polygon, and attach <code>X-Payment-Tx: &lt;TX_HASH&gt;</code> to retrieve data.
       </div>
       <div class="dev-code">
-        curl -X GET "https://x402-cleanweb-agent.onrender.com/api/v1/clean-web?url=https://example.com" \<br>
+        curl -X GET "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/api/v1/clean-web?url=https://example.com" \<br>
         &nbsp;&nbsp;-H "X-Payment-Tx: 0x&lt;POLYGON_USDC_TX_HASH&gt;"
       </div>
     </div>

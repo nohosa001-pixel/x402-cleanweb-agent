@@ -40,20 +40,32 @@ POLYGON_RPC_URLS = [
     POLYGON_RPC_URL,
     "https://polygon.llamarpc.com",
     "https://1rpc.io/matic",
-    "https://polygon-rpc.com"
+    "https://rpc.ankr.com/polygon",
+    "https://polygon.drpc.org"
 ]
 CHAIN_ID = 137
 
+def safe_checksum_address(addr_str: Optional[str], default: str) -> str:
+    if not addr_str:
+        return Web3.to_checksum_address(default)
+    match = re.search(r"0x[a-fA-F0-9]{40}", str(addr_str))
+    if match:
+        return Web3.to_checksum_address(match.group(0))
+    return Web3.to_checksum_address(default)
+
 # Native USDC on Polygon Mainnet
-USDC_CONTRACT_ADDRESS = Web3.to_checksum_address(
-    os.getenv("USDC_CONTRACT_ADDRESS", "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359")
+USDC_CONTRACT_ADDRESS = safe_checksum_address(
+    os.getenv("USDC_CONTRACT_ADDRESS"),
+    "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359"
 )
 USDC_DECIMALS = 6
 
 # Server Recipient Wallet
-RECIPIENT_WALLET = Web3.to_checksum_address(
-    os.getenv("SERVER_WALLET_ADDRESS", "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf")
+RECIPIENT_WALLET = safe_checksum_address(
+    os.getenv("SERVER_WALLET_ADDRESS"),
+    "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf"
 )
+
 
 # Web3 연결 초기화 (Fallback RPC 적용)
 def get_web3_instance() -> Web3:
@@ -502,6 +514,27 @@ def clean_web_endpoint(
     set_to_cache(cache_key, result_data)
     return result_data
 
+class SingleCleanRequest(BaseModel):
+    url: str = Field(..., description="Target web page URL to clean for AI ingestion")
+    density: str = Field("standard", description="Extraction density: 'standard', 'compact', or 'tables_only'")
+    max_tokens: Optional[int] = Field(None, description="Optional maximum token budget")
+
+@app.post("/api/v1/clean-web")
+@app.post("/api/v1/clean-markdown")
+def clean_web_post_endpoint(
+    req: SingleCleanRequest,
+    x_payment_tx: Optional[str] = Header(None, alias="X-Payment-Tx", description="Polygon Tx Hash for 0.01 USDC payment")
+):
+    """
+    POST support for Clean Web / Clean Markdown with JSON body: {"url": "https://example.com"}
+    """
+    return clean_web_endpoint(
+        url=req.url,
+        density=req.density,
+        max_tokens=req.max_tokens,
+        x_payment_tx=x_payment_tx
+    )
+
 @app.post("/api/v1/batch-clean")
 def batch_clean_endpoint(
     req: BatchCleanRequest,
@@ -945,7 +978,7 @@ def agent_discovery_endpoint():
             "header": "X-Payment-Tx",
             "format": "0x<64_hex_polygon_tx_hash>"
         },
-        "docs_url": "https://x402-cleanweb-agent.onrender.com/docs",
+        "docs_url": "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/docs",
         "github_url": "https://github.com/nohosa001-pixel/x402-cleanweb-agent"
     }
 
@@ -996,14 +1029,13 @@ def health_check():
     }
 
 @app.get("/llms.txt", response_class=PlainTextResponse)
-
 def llms_txt_endpoint():
     """Returns llms.txt standard machine documentation for AI crawlers & LLMs"""
     llms_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "llms.txt")
     if os.path.exists(llms_path):
         with open(llms_path, "r", encoding="utf-8") as f:
             return f.read()
-    return "# Polygon x402 AI Data Agent\nDocumentation: https://x402-cleanweb-agent.onrender.com/docs"
+    return "# Polygon x402 AI Data Agent\nDocumentation: https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/docs"
 
 @app.get("/robots.txt", response_class=PlainTextResponse)
 def robots_txt_endpoint():
