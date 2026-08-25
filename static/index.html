@@ -633,9 +633,14 @@
           <span class="price-sub" id="priceSub">Micro-Payment Required</span>
           <div class="price-tag" id="priceTag">0.01 USDC (Polygon Mainnet)</div>
         </div>
-        <button class="pay-btn" id="payAndFetchBtn" onclick="payAndFetch()">
-          <span id="payBtnText">💳 Pay & Extract with AI</span>
-        </button>
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <button class="pay-btn" id="trialBtn" onclick="tryFreeInstant()" style="background: linear-gradient(135deg, #10b981, #059669); border: 1px solid rgba(16, 185, 129, 0.4); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);">
+            <span id="trialBtnText">⚡ Free Instant Test (No Wallet)</span>
+          </button>
+          <button class="pay-btn" id="payAndFetchBtn" onclick="payAndFetch()">
+            <span id="payBtnText">💳 Pay & Extract with AI</span>
+          </button>
+        </div>
       </div>
 
       <div class="status-msg" id="statusMsg"></div>
@@ -653,17 +658,26 @@
       </div>
     </div>
 
-    <!-- Developer Section -->
+    <!-- 1-Click MCP & Developer Integration Section -->
     <div class="dev-card">
       <div class="dev-title">
-        <span>🤖 AI Agent & Developer Integration (x402 Protocol)</span>
+        <span>🧩 1-Click AI Agent & MCP Integration (Claude / Cursor / LangChain)</span>
       </div>
       <div class="dev-desc" id="devDesc">
-        AI Agents can autonomously consume this API. Request any endpoint without payment to receive a <code>402 Payment Required</code> response with payment instructions, send USDC on Polygon, and attach <code>X-Payment-Tx: &lt;TX_HASH&gt;</code> to retrieve data.
+        Seamlessly install <code>x402-cleanweb-agent</code> into Claude Desktop, Cursor, or Windsurf. Instant 3 free trial queries included out of the box.
       </div>
-      <div class="dev-code">
-        curl -X GET "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/api/v1/clean-web?url=https://example.com" \<br>
-        &nbsp;&nbsp;-H "X-Payment-Tx: 0x&lt;POLYGON_USDC_TX_HASH&gt;"
+      
+      <!-- Integration Snippet Box -->
+      <div style="margin-top: 1rem;">
+        <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem; flex-wrap: wrap;">
+          <button class="lang-btn active" id="btnMcpTab" onclick="switchDevTab('mcp')">Claude Desktop / Cursor MCP</button>
+          <button class="lang-btn" id="btnPythonTab" onclick="switchDevTab('python')">Python SDK (LangChain/CrewAI)</button>
+          <button class="lang-btn" id="btnCurlTab" onclick="switchDevTab('curl')">cURL / HTTP</button>
+        </div>
+        <div class="dev-code" id="devCodeBox" style="position: relative;">
+          <pre id="devSnippetContent" style="margin: 0;"></pre>
+          <button class="copy-btn" onclick="copyDevSnippet()" style="position: absolute; top: 8px; right: 8px; padding: 0.25rem 0.6rem; font-size: 0.75rem;">📋 Copy</button>
+        </div>
       </div>
     </div>
 
@@ -1007,7 +1021,88 @@
       box.className = `status-msg ${type}`;
     }
 
-    // Initialize English view
+    let currentDevTab = "mcp";
+    const DEV_SNIPPETS = {
+      mcp: `// Claude Desktop: ~/Library/Application Support/Claude/claude_desktop_config.json
+// Cursor / Windsurf: .cursor/mcp.json
+{
+  "mcpServers": {
+    "polygon-x402-cleanweb": {
+      "command": "uvx",
+      "args": ["x402-cleanweb-agent"]
+    }
+  }
+}`,
+      python: `# Python SDK (LangChain & CrewAI Compatible)
+from agent_tools import X402AgentToolkit
+
+# 3 Free trial queries built-in out of the box
+toolkit = X402AgentToolkit()
+clean_md = toolkit.clean_web("https://news.ycombinator.com")
+print(clean_md)`,
+      curl: `# Instant cURL Call (3 Free Discovery Calls Included)
+curl -X POST "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/api/v1/clean-web" \\
+     -H "Content-Type: application/json" \\
+     -H "X-Agent-Nonce: instant-trial-$RANDOM" \\
+     -d '{"url": "https://news.ycombinator.com"}'`
+    };
+
+    function switchDevTab(tab) {
+      currentDevTab = tab;
+      ['mcp', 'python', 'curl'].forEach(t => {
+        const btn = document.getElementById(`btn${t.charAt(0).toUpperCase() + t.slice(1)}Tab`);
+        if (btn) btn.classList.toggle('active', t === tab);
+      });
+      document.getElementById('devSnippetContent').innerText = DEV_SNIPPETS[tab];
+    }
+
+    function copyDevSnippet() {
+      navigator.clipboard.writeText(DEV_SNIPPETS[currentDevTab]);
+      alert("✅ Snippet copied to clipboard!");
+    }
+
+    async function tryFreeInstant() {
+      const rawInput = document.getElementById('targetUrl').value.trim();
+      if (!rawInput) { alert(I18N[currentLang].alertEnterUrl); return; }
+
+      const config = I18N[currentLang][currentMode];
+      const btn = document.getElementById('trialBtn');
+      btn.disabled = true;
+      btn.innerHTML = `<span>⚡ Testing Free Preview...</span>`;
+      showStatus("⚡ Executing Free Instant Query (Zero-Friction Discovery Mode)...", "info");
+
+      try {
+        const nonce = "web-trial-" + Date.now() + "-" + Math.random().toString(36).substring(2, 7);
+        let res, data;
+        if (currentMode === "batch") {
+          const urlList = rawInput.split(/[\n,]+/).map(u => u.trim()).filter(u => u.startsWith("http"));
+          res = await fetch(config.endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "X-Agent-Nonce": nonce },
+            body: JSON.stringify({ urls: urlList.length > 0 ? urlList.slice(0, 3) : [rawInput], density: "standard" })
+          });
+        } else {
+          const reqUrl = `${config.endpoint}?url=${encodeURIComponent(rawInput)}`;
+          res = await fetch(reqUrl, { headers: { "X-Agent-Nonce": nonce } });
+        }
+        data = await res.json();
+
+        if (res.status === 200) {
+          renderResult(data);
+          showStatus("🎉 Free Trial Query Success! (3/3 Trial Credits Active). Want unlimited queries? Get a $1.00 USDC pass below!", "success");
+        } else {
+          showStatus("Trial call response: " + (data.message || data.detail || "Free trial limit reached. Please use on-chain pass."), "warning");
+        }
+      } catch (err) {
+        showStatus("Trial query error: " + err.message, "error");
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<span id="trialBtnText">⚡ Free Instant Test (No Wallet)</span>`;
+      }
+    }
+
+    // Initialize English view & Dev tab
+    switchDevTab('mcp');
     setLanguage('en');
   </script>
 </body>

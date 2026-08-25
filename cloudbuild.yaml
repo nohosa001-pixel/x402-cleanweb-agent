@@ -1,7 +1,7 @@
 steps:
   # 1. Docker 이미지 빌드
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/$PROJECT_ID/x402-cleanweb-agent:$COMMIT_SHA', '-t', 'gcr.io/$PROJECT_ID/x402-cleanweb-agent:latest', '.']
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/x402-cleanweb-agent:$BUILD_ID', '-t', 'gcr.io/$PROJECT_ID/x402-cleanweb-agent:latest', '.']
 
   # 2. Container Registry / Artifact Registry로 푸시
   - name: 'gcr.io/cloud-builders/docker'
@@ -32,4 +32,4 @@ steps:
 
 images:
   - 'gcr.io/$PROJECT_ID/x402-cleanweb-agent:latest'
-  - 'gcr.io/$PROJECT_ID/x402-cleanweb-agent:$COMMIT_SHA'
+  - 'gcr.io/$PROJECT_ID/x402-cleanweb-agent:$BUILD_ID'

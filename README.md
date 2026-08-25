@@ -51,7 +51,7 @@ Traditional web scraping and data extraction APIs force expensive **$49/month su
 | **📝 Pure Text Extractor** | `GET /api/v1/clean-text` | **0.005 USDC** | 1 Credit | Ultra-lightweight raw text for vector/RAG embeddings |
 | **📊 Structured JSON** | `POST /api/v1/extract-json` | **0.03 USDC** | 3 Credits | Extracts key-value structured JSON matching user-defined schema |
 | **🧠 Deep Research** | `GET /api/v1/deep-research` | **0.15 USDC** | 15 Credits | Multi-source synthesized AI executive research briefing |
-| **📐 Arbitrage ROI Calc** | `GET /api/v1/agent/arbitrage-roi`| **FREE** | 0 Credits | Mathematical cost-benefit ROI calculator |
+| **📐 Arbitrage ROI Calc** | `GET /api/v1/agent/arbitrage-roi` | **FREE** | 0 Credits | Mathematical cost-benefit ROI calculator |
 | **🎟️ Mint Credit Pass** | `POST /api/v1/pass/mint` | **1.0 / 5.0 USDC** | 100 / 600 | Zero-latency prepaid pass (20% bonus on 5 USDC) |
 
 ---
