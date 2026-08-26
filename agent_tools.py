@@ -227,6 +227,50 @@ class X402AgentToolkit:
             {
                 "type": "function",
                 "function": {
+                    "name": "x402_clean_youtube",
+                    "description": "Extracts full transcript and video chapters/timestamps from any YouTube video (0.02 USDC / 2 credits).",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "url": {"type": "string", "description": "YouTube video URL or Video ID"},
+                            "language": {"type": "string", "default": "ko,en", "description": "Preferred subtitle languages comma-separated"}
+                        },
+                        "required": ["url"]
+                    }
+                }
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "x402_clean_pdf",
+                    "description": "Parses online PDF research papers, arXiv docs, and financial filings into clean Markdown (0.05 USDC / 5 credits).",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "url": {"type": "string", "description": "Direct HTTP URL to PDF document"},
+                            "max_pages": {"type": "integer", "default": 20, "description": "Max pages to parse"}
+                        },
+                        "required": ["url"]
+                    }
+                }
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "x402_clean_text",
+                    "description": "Extracts ultra-pure raw text stripped of HTML tags for RAG vector embeddings (0.005 USDC / 1 credit).",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "url": {"type": "string", "description": "Target web page URL"}
+                        },
+                        "required": ["url"]
+                    }
+                }
+            },
+            {
+                "type": "function",
+                "function": {
                     "name": "x402_extract_json",
                     "description": "Extracts structured key-value JSON matching a schema description from any webpage (0.03 USDC / 3 credits).",
                     "parameters": {
@@ -251,6 +295,30 @@ class X402AgentToolkit:
                             "max_sources": {"type": "integer", "default": 3}
                         },
                         "required": ["query"]
+                    }
+                }
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "x402_mint_credit_pass",
+                    "description": "Mints a prepaid zero-latency agent credit pass (1.0 USDC = 100 calls, 5.0 USDC = 600 calls with +20% bonus).",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "amount_usdc": {"type": "number", "default": 1.0, "description": "Deposit amount in USDC"}
+                        }
+                    }
+                }
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "x402_get_budget_status",
+                    "description": "Retrieves the current agent spending, transaction history, and remaining budget limit.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {}
                     }
                 }
             }

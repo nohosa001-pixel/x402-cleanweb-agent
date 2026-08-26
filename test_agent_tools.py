@@ -36,19 +36,29 @@ def test_toolkit_schemas():
     print("\nTesting X402AgentToolkit schemas...")
     toolkit = X402AgentToolkit(private_key=None, max_daily_budget_usdc=1.0)
     tools = toolkit.get_tools_list()
-    assert len(tools) == 6
-    print(f"  [SUCCESS] {len(tools)} callable agent tools loaded (including batch_clean).")
+    assert len(tools) == 9, f"Expected 9 tools, got {len(tools)}"
+    print(f"  [SUCCESS] {len(tools)} callable agent tools loaded (clean_web, batch_clean, clean_youtube, clean_pdf, clean_text, extract_json, deep_research, mint_credit_pass, get_budget_status).")
     
     schemas = toolkit.get_openai_function_schemas()
-    assert len(schemas) == 5
+    assert len(schemas) == 9, f"Expected 9 schemas, got {len(schemas)}"
+    schema_names = [s["function"]["name"] for s in schemas]
+    expected_names = [
+        "x402_clean_web", "x402_batch_clean", "x402_clean_youtube", 
+        "x402_clean_pdf", "x402_clean_text", "x402_extract_json", 
+        "x402_deep_research", "x402_mint_credit_pass", "x402_get_budget_status"
+    ]
+    for exp in expected_names:
+        assert exp in schema_names, f"Missing schema for {exp}"
+
     for s in schemas:
         assert "name" in s["function"]
         assert "description" in s["function"]
         assert "parameters" in s["function"]
-    print("  [SUCCESS] OpenAI/Anthropic Function Calling schemas verified.")
+    print("  [SUCCESS] All 9 OpenAI/Anthropic Function Calling schemas verified.")
 
 
 if __name__ == "__main__":
     test_budget_guard()
     test_toolkit_schemas()
     print("\n[ALL TESTS PASSED SUCCESSFULLY]")
+

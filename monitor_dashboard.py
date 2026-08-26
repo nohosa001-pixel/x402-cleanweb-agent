@@ -4,6 +4,13 @@ import time
 import requests
 from web3 import Web3
 
+# Windows 콘솔 인코딩 대응
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
 # Configuration
 GCP_URL = "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app"
 RECIPIENT_WALLET = "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf"

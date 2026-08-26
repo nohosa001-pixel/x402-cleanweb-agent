@@ -1,137 +1,59 @@
 ================================================================================
-🚀 [1] X (구 Twitter) 공식 런칭 트윗 & 스레드
+🚀 [1] X (구 Twitter) 공식 런칭 트윗 & 스레드 (사용자 서비스 & UI 중심)
 ================================================================================
 
-🚀 Excited to announce x402-cleanweb-agent v1.2.1 — Live on Google Cloud Run & Polygon! 🪙🤖
+Tired of messy ads, unreadable websites, and expensive monthly subscriptions? 🛑
 
-Turn any messy website, YouTube video, or arXiv PDF paper into token-optimized clean Markdown with instant on-chain USDC micropayments (HTTP 402).
+Introducing our new Clean Web & Document Extraction Web App! 📄✨
+Turn any cluttered webpage, YouTube video, or PDF paper into clean, ready-to-read text in 1 second.
 
-📦 Zero human sign-ups. Zero monthly subscriptions. True M2M autonomous agent economy.
+No $49/mo subscriptions. Pay only when you use it (from $0.005).
 
-⚡ Key Capabilities:
-• 🌐 Clean Web & Parallel Batch Scraping (0.01 USDC)
-• 🎬 YouTube Transcripts with Timestamps (0.02 USDC)
-• 📑 arXiv PDF Paper & Financial Report Extractor (0.05 USDC)
-• 📝 Raw Text Extractor for Vector/RAG Embeddings (0.005 USDC)
-• 🧠 Self-Healing 402 Error Recovery (Auto retry on payment)
-• 📊 Built-in Token Savings Analytics (60~85% LLM prompt savings)
-
-💻 Run instantly with Claude Desktop / Cursor:
-uvx x402-cleanweb-agent
-
-🔗 Links:
-🌐 Live GCP Cloud Run DApp: https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app
-📑 LLM Machine Guide: https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/llms.txt
-📦 PyPI Package: https://pypi.org/project/x402-cleanweb-agent/
-🦙 Glama.ai Listing: https://glama.ai/mcp/servers/nohosa001-pixel/x402-cleanweb-agent
-📂 GitHub: https://github.com/nohosa001-pixel/x402-cleanweb-agent
-
-#AI #MCP #Polygon #GoogleCloud #Web3 #CrewAI #LangChain #ClaudeAI #Python #PyPI @0xPolygon
-
-
-================================================================================
-🌐 [2] Reddit 커뮤니티용 (r/mcp, r/ClaudeAI, r/LocalLLaMA, r/LangChain, r/web3)
-================================================================================
-
-[Title]
-[Showcase] x402-cleanweb-agent v1.2.1: Autonomous Web3 HTTP 402 Data Gateway on Polygon & GCP Cloud Run
-
-[Body]
-Hey builders! 👋
-
-One of the biggest friction points when building autonomous multi-agent swarms (CrewAI, LangChain, Claude Desktop) is that agents **cannot subscribe to $49/month SaaS tools with credit cards or manage KYC API keys**.
-
-To enable a true machine-to-machine economy, I built and deployed **`x402-cleanweb-agent` (v1.2.1 on PyPI & GCP Cloud Run)**.
+Try the live Web UI instantly 👇 (1/3)
+🌐 https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app
 
 ---
 
-### 💡 What it does:
-Agents equipped with a Polygon wallet can autonomously pay **$0.005 ~ $0.05 in USDC per query** and receive structured, token-optimized Markdown in < 0.4s (saving 60~85% in LLM prompt tokens).
+⚡ What you can do directly from the Web UI:
+• 🌐 Clean Web: Strip all ads, banners & clutter from any article (100% clean reading)
+• 🎬 YouTube Transcripts: Extract full timestamped video scripts in seconds
+• 📑 PDF & Papers: Convert dense PDF research into clean, digestible text
+• 📝 Pure Text: Copy-paste directly into your favorite AI tool or note app
 
-1. **🌐 Clean Web & Parallel Batch Scraping**: Clean single or up to 10 URLs in 1 on-chain transaction ($0.01 USDC).
-2. **🎬 YouTube Transcripts**: Clean Markdown transcripts with full timestamp navigation ($0.02 USDC).
-3. **📑 arXiv & PDF Extractor**: Converts complex scientific papers and reports into clean LLM markdown ($0.05 USDC).
-4. **📝 Plain Text Extractor**: Ultra-lightweight raw text for RAG vector embeddings ($0.005 USDC).
-5. **🧠 Self-Healing 402 Protocol**: If an agent hits an endpoint without payment or sends insufficient amount, the server responds with actionable structured JSON instructions so the LLM self-corrects and completes the purchase automatically.
-6. **🛡️ Agent BudgetGuard**: Local spend cap protection to prevent runaway loops.
+(2/3)
 
 ---
 
-### ⚡ 1-Second Setup (Claude Desktop & Cursor MCP)
-Run instantly without installing:
-```json
-{
-  "mcpServers": {
-    "polygon-x402-cleanweb": {
-      "command": "uvx",
-      "args": ["x402-cleanweb-agent"]
-    }
-  }
-}
-```
-Or via pip:
-```bash
-pip install x402-cleanweb-agent
-```
+✨ Experience the live interactive UI right now!
+👉 Click the [⚡ Free Instant Test] button on the website to see it in action without any login:
 
----
+🌐 Live Web App: https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app
+📦 Python Tool: https://pypi.org/project/x402-cleanweb-agent/
 
-### 🔗 Live Production Endpoints & Resources:
-* 🌐 **Live GCP Cloud Run DApp**: https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app
-* 📑 **LLM Machine Guide (`/llms.txt`)**: https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/llms.txt
-* 🤖 **Agent Discovery Manifest**: https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/.well-known/agent.json
-* 📊 **Pricing Catalog API**: https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/api/v1/agent/pricing-catalog
-* 📦 **PyPI Package**: https://pypi.org/project/x402-cleanweb-agent/
-* 🦙 **Glama.ai Listing**: https://glama.ai/mcp/servers/nohosa001-pixel/x402-cleanweb-agent
-* 📂 **GitHub (MIT Open Source)**: https://github.com/nohosa001-pixel/x402-cleanweb-agent
-
-Would love to get your feedback and see what autonomous workflows you build with it!
+#Productivity #WebTools #Summary #CleanWeb #AI (3/3)
 
 
 ================================================================================
-🔥 [3] Hacker News (Show HN) 제출용
+🌐 [2] 커뮤니티용 (Reddit / 네이버 카페 / 디스코드 등)
 ================================================================================
 
-[Title]
-Show HN: x402-cleanweb-agent – Autonomous pay-per-query data scraping on Polygon & GCP
+[제목]
+광고 많은 웹페이지, 유튜브 영상 대본, PDF 논문 깔끔하게 추출해주는 웹 서비스 만들었습니다 (무료 체험 UI)
 
-[URL]
+[본문]
+안녕하세요! 자료 조사나 리포트 작성할 때 광고 많은 웹페이지나 긴 유튜브 영상 자막, 두꺼운 PDF 때문에 번거로우셨던 분들을 위해 가볍고 깔끔한 웹 도구를 공개합니다.
+
+월 4~5만원씩 하는 비싼 정기 구독 없이, 브라우저 UI에서 필요할 때마다 몇 원 단위로 부담 없이 쓸 수 있도록 만들었습니다.
+
+📌 주요 기능 (웹 브라우저에서 바로 사용):
+1. 🌐 웹페이지 클린 정리: 복잡한 광고, 팝업, 사이드바를 전부 제거하고 읽기 편한 핵심 본문만 1초 만에 추출
+2. 🎬 유튜브 자막 추출: 영상 링크만 넣으면 타임스탬프와 함께 전체 대본을 깔끔하게 정리
+3. 📑 PDF/논문 변환: 복잡한 양식의 PDF 문서를 읽기 쉬운 텍스트로 바로 변환
+4. 📝 AI 입력용 텍스트: ChatGPT나 Claude에 바로 붙여넣기 좋게 군더더기 없는 텍스트 제공
+
+로그인이나 설치 없이 웹 UI에서 [⚡ 1초 무료 체험] 버튼으로 바로 결과를 보실 수 있습니다.
+
+🌐 웹 UI 무료 체험 링크:
 https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app
 
-[Text Body]
-Hi HN! We built and open-sourced `x402-cleanweb-agent`, an HTTP 402 micropayment data gateway and MCP server deployed on Google Cloud Run and Polygon Mainnet.
-
-Traditional scraping and web data APIs (Firecrawl, Tavily) require human credit card subscriptions and static API keys. We implemented native HTTP 402 on Polygon:
-1. Autonomous agent makes a request to the GCP Cloud Run gateway.
-2. Server returns `402 Payment Required` with machine-readable payment instructions.
-3. Agent sends 0.01 USDC on Polygon PoS and retries with the tx hash header.
-4. Server verifies the on-chain transfer and returns noise-free, token-optimized Markdown in < 0.4s (60-85% token reduction vs raw HTML).
-
-Includes built-in self-healing recovery, in-memory LRU caching, batch processing, and full support for Claude Desktop MCP, Cursor, LangChain, and CrewAI.
-
-- Live GCP Cloud Run Gateway: https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app
-- LLM Machine Documentation: https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/llms.txt
-- PyPI Package: https://pypi.org/project/x402-cleanweb-agent/
-- GitHub: https://github.com/nohosa001-pixel/x402-cleanweb-agent
-
-Feedback and discussion are welcome!
-
-
-================================================================================
-💬 [4] Discord & Telegram AI 개발자 채널용 (CrewAI, LangChain, ElizaOS, Claude)
-================================================================================
-
-Hey builders! 👋 If you're building autonomous AI agents or multi-agent swarms that need web scraping, YouTube transcripts, or arXiv PDF extraction without human credit card subscriptions:
-
-Check out **x402-cleanweb-agent v1.2.1** (Live on GCP Cloud Run & Polygon)!
-• ⚡ Instant pay-per-call ($0.005 ~ $0.05 USDC on Polygon Mainnet)
-• 🌐 High availability & sub-second response on Google Cloud Run
-• 📊 60-85% LLM prompt token reduction analytics
-• 🛡️ BudgetGuard protection (caps daily agent crypto spend)
-• 🤖 Works out of the box with Claude MCP, Cursor, CrewAI & LangChain!
-
-💻 Run instantly: `uvx x402-cleanweb-agent`
-🌐 Live GCP DApp: https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app
-📑 LLMs Guide: https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/llms.txt
-📦 PyPI: https://pypi.org/project/x402-cleanweb-agent/
-📂 GitHub: https://github.com/nohosa001-pixel/x402-cleanweb-agent
+의견이나 피드백 주시면 서비스 개선에 적극 반영하겠습니다! 감사합니다.

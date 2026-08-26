@@ -22,7 +22,7 @@ load_dotenv(override=True)
 app = FastAPI(
     title="Polygon x402 Micro-Payment AI Data Agent Suite",
     description="Web3 x402 Micropayment gateway on Polygon for AI-ready Clean Web, YouTube Transcripts, PDF Papers & Plain Text.",
-    version="1.2.1"
+    version="2.1.0"
 )
 
 # CORS 설정
@@ -1296,7 +1296,7 @@ def agent_capabilities_endpoint():
 def agent_pricing_catalog_endpoint():
     return {
         "status": "active",
-        "version": "2.0.0",
+        "version": "2.1.0",
         "timestamp": os.getenv("SERVER_TIME", "2026-08-24T00:00:00Z"),
         "chain_id": CHAIN_ID,
         "payment_token": {
@@ -1328,7 +1328,7 @@ def agent_pricing_catalog_endpoint():
 def health_check():
     return {
         "status": "healthy",
-        "version": "2.0.0",
+        "version": "2.1.0",
         "protocol": "x402-v2",
         "chain_id": CHAIN_ID,
         "network": "Polygon Mainnet",
