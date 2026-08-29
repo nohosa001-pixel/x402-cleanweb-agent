@@ -3,67 +3,88 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CleanWeb Studio — Instant Ad-Free Web, YouTube & PDF AI Extractor</title>
-  <meta name="description" content="Strip web clutter, ads, and noise in 1 second. Extract 100% pure, AI-ready text for ChatGPT, Claude, and Notion. No wallet or login required.">
+  <title>CleanWeb Studio | Multi-Chain Web3 x402 AI Scraper & Gemini Video Intelligence</title>
+  <meta name="description" content="Ultra-high-performance AI-ready web scraping, YouTube Gemini Flash video intelligence, PDF research parser, and multi-chain (Polygon, Base, Arbitrum) x402 micropayments.">
+  
+  <!-- Modern Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Ethers.js & Lemon Squeezy -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.2/ethers.umd.min.js"></script>
   <script src="https://assets.lemonsqueezy.com/lemon.js" defer></script>
+
   <style>
     :root {
-      --bg-dark: #090a10;
-      --bg-gradient: radial-gradient(circle at 10% 15%, #181133 0%, #090a10 70%);
-      --card-bg: rgba(18, 21, 33, 0.85);
-      --card-border: rgba(130, 71, 229, 0.28);
-      --card-glow: rgba(130, 71, 229, 0.15);
+      --bg-base: #070913;
+      --bg-surface: rgba(15, 20, 36, 0.75);
+      --bg-surface-elevated: rgba(23, 31, 56, 0.85);
+      --bg-card: rgba(18, 24, 43, 0.8);
+      --border-subtle: rgba(130, 71, 229, 0.22);
+      --border-glow: rgba(0, 242, 254, 0.35);
       --primary: #8247e5;
       --primary-hover: #975af7;
-      --primary-glow: rgba(130, 71, 229, 0.45);
-      --accent: #00f2fe;
-      --accent-hover: #4facfe;
-      --accent-glow: rgba(0, 242, 254, 0.4);
-      --free-gradient: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
-      --text: #f8fafc;
-      --text-muted: #94a3b8;
-      --text-dim: #64748b;
-      --success: #10b981;
-      --warning: #f59e0b;
-      --error: #ef4444;
-      --code-bg: rgba(10, 12, 18, 0.95);
+      --primary-glow: rgba(130, 71, 229, 0.4);
+      --cyan: #00f2fe;
+      --cyan-glow: rgba(0, 242, 254, 0.4);
+      --emerald: #10b981;
+      --amber: #f59e0b;
+      --rose: #f43f5e;
+      --base-blue: #0052ff;
+      --arb-blue: #12aaff;
+      --text-main: #f8fafc;
+      --text-sub: #94a3b8;
+      --text-muted: #64748b;
+      --code-bg: rgba(7, 10, 19, 0.95);
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-heading: 'Outfit', var(--font-sans);
+      --font-mono: 'JetBrains Mono', monospace;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Inter', 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    html {
+      scroll-behavior: smooth;
     }
 
     body {
-      background: var(--bg-gradient);
+      background-color: var(--bg-base);
+      background-image: 
+        radial-gradient(at 10% 15%, rgba(130, 71, 229, 0.16) 0px, transparent 50%),
+        radial-gradient(at 85% 20%, rgba(0, 242, 254, 0.14) 0px, transparent 50%),
+        radial-gradient(at 50% 85%, rgba(16, 185, 129, 0.08) 0px, transparent 50%);
       background-attachment: fixed;
-      color: var(--text);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      line-height: 1.6;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      padding: 1.5rem 1rem 3.5rem 1rem;
     }
 
-    .container {
-      width: 100%;
-      max-width: 980px;
-    }
-
-    /* Header */
+    /* Sticky Glass Navigation */
     header {
+      border-bottom: 1px solid var(--border-subtle);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(7, 9, 19, 0.85);
+    }
+
+    .nav-inner {
+      max-width: 1360px;
+      margin: 0 auto;
+      padding: 0.85rem 1.5rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 2.2rem;
-      padding-bottom: 1.2rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
       gap: 1rem;
       flex-wrap: wrap;
     }
@@ -72,17 +93,23 @@
       display: flex;
       align-items: center;
       gap: 0.85rem;
+      text-decoration: none;
+      color: var(--text-main);
     }
 
     .logo-badge {
-      background: var(--free-gradient);
-      padding: 0.45rem 0.95rem;
+      background: linear-gradient(135deg, var(--cyan), var(--primary));
+      color: #050811;
+      font-weight: 900;
+      font-size: 1.15rem;
+      width: 42px;
+      height: 42px;
       border-radius: 12px;
-      font-weight: 800;
-      font-size: 1rem;
-      color: #050510;
-      box-shadow: 0 4px 16px var(--accent-glow);
-      font-family: 'Outfit', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 20px var(--cyan-glow);
+      font-family: var(--font-heading);
     }
 
     .logo-text-wrap {
@@ -91,1783 +118,1063 @@
     }
 
     .logo-title {
-      font-size: 1.4rem;
+      font-size: 1.35rem;
       font-weight: 800;
+      font-family: var(--font-heading);
       background: linear-gradient(90deg, #ffffff, #c7d2fe);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       letter-spacing: -0.5px;
-      font-family: 'Outfit', sans-serif;
     }
 
-    .logo-subtitle {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      font-weight: 500;
-      letter-spacing: 0.3px;
+    .logo-sub {
+      font-size: 0.72rem;
+      color: var(--cyan);
+      font-family: var(--font-mono);
+      font-weight: 600;
+      letter-spacing: 0.5px;
     }
 
-    .header-actions {
+    .nav-meta {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 1rem;
       flex-wrap: wrap;
     }
 
-    /* Free Counter Badge */
-    .free-counter-badge {
-      background: rgba(0, 242, 254, 0.12);
-      border: 1px solid rgba(0, 242, 254, 0.35);
-      color: var(--accent);
-      padding: 0.45rem 0.9rem;
-      border-radius: 20px;
-      font-size: 0.82rem;
-      font-weight: 700;
-      display: flex;
+    .chain-badge {
+      display: inline-flex;
       align-items: center;
       gap: 0.4rem;
-      box-shadow: 0 2px 10px rgba(0, 242, 254, 0.15);
-      font-family: 'Outfit', sans-serif;
-    }
-
-    .topup-nav-btn {
-      background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
-      color: #050510;
-      border: none;
-      padding: 0.48rem 1.1rem;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      font-weight: 800;
-      display: flex;
-      align-items: center;
-      gap: 0.45rem;
-      cursor: pointer;
-      box-shadow: 0 4px 15px rgba(0, 242, 254, 0.35);
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-      font-family: 'Outfit', sans-serif;
-    }
-
-    .topup-nav-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 22px rgba(0, 242, 254, 0.6);
-      filter: brightness(1.08);
-    }
-
-    /* Mode Switcher */
-    .mode-toggle-btn {
+      padding: 0.3rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      font-family: var(--font-mono);
       background: rgba(130, 71, 229, 0.15);
-      border: 1px solid rgba(130, 71, 229, 0.4);
-      color: #d8b4fe;
-      padding: 0.45rem 0.95rem;
-      border-radius: 12px;
-      font-size: 0.82rem;
+      border: 1px solid var(--border-subtle);
+      color: #c4b5fd;
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--emerald);
+      box-shadow: 0 0 10px var(--emerald);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    .btn-connect-wallet {
+      background: linear-gradient(135deg, var(--primary), #6366f1);
+      border: none;
+      color: #fff;
+      padding: 0.5rem 1.1rem;
+      border-radius: 10px;
       font-weight: 700;
+      font-size: 0.85rem;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 0.4rem;
-      transition: all 0.2s;
+      gap: 0.5rem;
+      transition: all 0.25s ease;
+      font-family: var(--font-heading);
+      box-shadow: 0 4px 16px var(--primary-glow);
     }
 
-    .mode-toggle-btn:hover {
-      background: rgba(130, 71, 229, 0.3);
-      border-color: var(--primary-hover);
-      color: #fff;
+    .btn-connect-wallet:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(130, 71, 229, 0.6);
+    }
+
+    /* Main Container */
+    main {
+      max-width: 1360px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem 1.5rem;
+      flex: 1;
     }
 
     /* Hero Section */
     .hero {
       text-align: center;
-      margin-bottom: 2.2rem;
+      margin-bottom: 2.5rem;
+      padding: 2.5rem 1.5rem;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 24px;
+      backdrop-filter: blur(16px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(0, 242, 254, 0.15), transparent 70%);
+      pointer-events: none;
     }
 
     .hero-tag {
       display: inline-flex;
       align-items: center;
-      gap: 0.4rem;
-      background: rgba(0, 242, 254, 0.08);
-      border: 1px solid rgba(0, 242, 254, 0.25);
-      color: var(--accent);
-      padding: 0.35rem 0.95rem;
-      border-radius: 20px;
-      font-size: 0.82rem;
+      gap: 0.5rem;
+      padding: 0.35rem 1rem;
+      border-radius: 999px;
+      background: rgba(0, 242, 254, 0.1);
+      border: 1px solid rgba(0, 242, 254, 0.3);
+      color: var(--cyan);
+      font-size: 0.8rem;
       font-weight: 700;
-      margin-bottom: 1rem;
-      font-family: 'Outfit', sans-serif;
+      font-family: var(--font-mono);
+      margin-bottom: 1.2rem;
     }
 
-    .hero h1 {
-      font-size: 2.5rem;
-      font-weight: 800;
-      letter-spacing: -0.8px;
-      line-height: 1.25;
-      margin-bottom: 0.85rem;
-      background: linear-gradient(135deg, #ffffff 40%, #c7d2fe 100%);
+    .hero-title {
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 900;
+      font-family: var(--font-heading);
+      line-height: 1.2;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, #ffffff 30%, #a5b4fc 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      font-family: 'Outfit', sans-serif;
+      letter-spacing: -1px;
     }
 
-    .hero p {
-      color: var(--text-muted);
-      font-size: 1.08rem;
-      max-width: 660px;
-      margin: 0 auto;
-      line-height: 1.55;
+    .hero-desc {
+      font-size: 1.05rem;
+      color: var(--text-sub);
+      max-width: 820px;
+      margin: 0 auto 1.8rem auto;
+      line-height: 1.6;
     }
 
-    /* Main Card */
-    .main-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 24px;
-      padding: 1.85rem;
-      backdrop-filter: blur(20px);
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45), 0 0 30px var(--card-glow);
-      margin-bottom: 2.2rem;
-    }
-
-    /* Tabs */
-    .tabs-nav {
+    .hero-stats-row {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .stat-pill {
+      background: rgba(10, 14, 28, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 0.85rem 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .stat-val {
+      font-size: 1.35rem;
+      font-weight: 800;
+      font-family: var(--font-heading);
+      color: var(--cyan);
+    }
+
+    .stat-lbl {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* Tabs Navigation */
+    .tabs-wrapper {
+      display: flex;
       gap: 0.5rem;
-      margin-bottom: 1.6rem;
-      background: rgba(0, 0, 0, 0.35);
-      padding: 0.4rem;
-      border-radius: 16px;
-      border: 1px solid rgba(255, 255, 255, 0.06);
+      margin-bottom: 1.8rem;
+      overflow-x: auto;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border-subtle);
     }
 
     .tab-btn {
       background: transparent;
-      border: none;
-      color: var(--text-muted);
-      padding: 0.8rem 0.5rem;
+      border: 1px solid transparent;
+      color: var(--text-sub);
+      padding: 0.75rem 1.25rem;
       border-radius: 12px;
-      font-size: 0.9rem;
       font-weight: 700;
+      font-size: 0.92rem;
+      font-family: var(--font-heading);
       cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 0.45rem;
-      font-family: 'Outfit', sans-serif;
+      gap: 0.6rem;
+      transition: all 0.2s ease;
+      white-space: nowrap;
     }
 
     .tab-btn:hover {
-      color: var(--text);
-      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.04);
     }
 
     .tab-btn.active {
-      background: linear-gradient(135deg, rgba(130, 71, 229, 0.85), rgba(90, 40, 180, 0.95));
-      color: #ffffff;
-      box-shadow: 0 4px 15px var(--primary-glow);
+      background: rgba(130, 71, 229, 0.18);
+      border-color: var(--primary);
+      color: #fff;
+      box-shadow: 0 4px 16px var(--primary-glow);
     }
 
-    /* Input Area */
-    .input-section {
-      margin-bottom: 1.35rem;
+    /* Tab Content Cards */
+    .tab-panel {
+      display: none;
+      animation: fadeIn 0.3s ease;
     }
 
-    .input-label-row {
+    .tab-panel.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .grid-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      padding: 1.8rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(14px);
+    }
+
+    .panel-header {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.55rem;
+      align-items: flex-start;
+      margin-bottom: 1.5rem;
+      gap: 1rem;
+      flex-wrap: wrap;
     }
 
-    .input-label {
-      font-size: 0.92rem;
-      font-weight: 700;
-      color: var(--text);
-      font-family: 'Outfit', sans-serif;
-    }
-
-    .input-hint {
-      font-size: 0.78rem;
-      color: var(--text-dim);
-    }
-
-    .url-input {
-      width: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      border: 1.5px solid rgba(255, 255, 255, 0.12);
-      border-radius: 16px;
-      padding: 1.05rem 1.25rem;
-      color: #fff;
-      font-size: 0.98rem;
-      outline: none;
-      transition: all 0.25s;
-    }
-
-    .url-input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 20px var(--accent-glow);
-      background: rgba(0, 0, 0, 0.7);
-    }
-
-    textarea.url-input {
-      resize: vertical;
-      min-height: 95px;
-      line-height: 1.45;
-    }
-
-    /* Action Buttons Area */
-    .action-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.85rem;
-      margin-top: 1.35rem;
-    }
-
-    .btn-free-extract {
-      width: 100%;
-      background: var(--free-gradient);
-      border: none;
-      color: #050510;
-      padding: 1.1rem 1.6rem;
-      border-radius: 16px;
-      font-size: 1.12rem;
+    .panel-title {
+      font-size: 1.35rem;
       font-weight: 800;
-      cursor: pointer;
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      font-family: var(--font-heading);
+      color: #fff;
       display: flex;
       align-items: center;
-      justify-content: center;
       gap: 0.6rem;
-      box-shadow: 0 8px 25px var(--accent-glow);
-      font-family: 'Outfit', sans-serif;
-      position: relative;
     }
 
-    .btn-free-extract:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 32px rgba(0, 242, 254, 0.65);
-      filter: brightness(1.05);
-    }
-
-    .btn-free-extract:active {
-      transform: translateY(0);
-    }
-
-    .btn-free-extract:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
-    }
-
-    .free-guarantee-row {
-      display: flex;
-      justify-content: center;
-      gap: 1.4rem;
-      color: var(--text-dim);
-      font-size: 0.8rem;
-      font-weight: 600;
-      flex-wrap: wrap;
-    }
-
-    .free-guarantee-row span {
-      display: flex;
-      align-items: center;
-      gap: 0.3rem;
-    }
-
-    /* Pass/Token Drawer */
-    .pass-input-drawer {
-      margin-top: 1.1rem;
-      padding-top: 1.1rem;
-      border-top: 1px dashed rgba(255, 255, 255, 0.1);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
-
-    .pass-link-btn {
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      font-size: 0.83rem;
-      cursor: pointer;
-      text-decoration: underline;
-      display: flex;
-      align-items: center;
-      gap: 0.35rem;
-    }
-
-    .pass-link-btn:hover {
-      color: var(--accent);
-    }
-
-    .pass-form {
-      display: none;
-      width: 100%;
-      margin-top: 0.85rem;
-      gap: 0.5rem;
-    }
-
-    .pass-input {
-      flex: 1;
-      background: rgba(0, 0, 0, 0.4);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 12px;
-      padding: 0.55rem 0.95rem;
-      color: #fff;
-      font-size: 0.85rem;
-    }
-
-    .pass-submit-btn {
-      background: var(--primary);
-      border: none;
-      color: #fff;
-      padding: 0.55rem 1rem;
-      border-radius: 12px;
-      font-size: 0.85rem;
+    .tier-badge {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.7rem;
+      border-radius: 8px;
       font-weight: 700;
-      cursor: pointer;
-    }
-
-    /* Status Message */
-    .status-msg {
-      margin-top: 1rem;
-      padding: 0.9rem 1.2rem;
-      border-radius: 14px;
-      font-size: 0.88rem;
-      display: none;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .status-msg.info {
-      background: rgba(0, 242, 254, 0.12);
+      font-family: var(--font-mono);
+      background: rgba(0, 242, 254, 0.15);
+      color: var(--cyan);
       border: 1px solid rgba(0, 242, 254, 0.3);
-      color: #67e8f9;
-      display: flex;
     }
 
-    .status-msg.success {
-      background: rgba(16, 185, 129, 0.12);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      color: #6ee7b7;
+    /* Form Controls */
+    .input-group {
       display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1.2rem;
+      flex-wrap: wrap;
     }
 
-    .status-msg.error {
-      background: rgba(239, 68, 68, 0.12);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      color: #fca5a5;
-      display: flex;
-    }
-
-    /* Results Box */
-    .result-section {
-      display: none;
-      margin-top: 1.85rem;
+    .text-input {
+      flex: 1;
+      min-width: 260px;
       background: var(--code-bg);
       border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 20px;
-      overflow: hidden;
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+      border-radius: 12px;
+      padding: 0.85rem 1.1rem;
+      color: #fff;
+      font-size: 0.95rem;
+      font-family: var(--font-mono);
+      outline: none;
+      transition: border-color 0.2s ease;
     }
 
-    .result-header {
+    .text-input:focus {
+      border-color: var(--cyan);
+      box-shadow: 0 0 12px var(--cyan-glow);
+    }
+
+    .btn-action {
+      background: linear-gradient(135deg, var(--cyan), #3b82f6);
+      border: none;
+      color: #050811;
+      padding: 0.85rem 1.6rem;
+      border-radius: 12px;
+      font-weight: 800;
+      font-size: 0.95rem;
+      font-family: var(--font-heading);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 16px var(--cyan-glow);
+    }
+
+    .btn-action:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 22px rgba(0, 242, 254, 0.6);
+    }
+
+    .btn-action:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .presets-row {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .preset-label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .preset-pill {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-sub);
+      padding: 0.25rem 0.65rem;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .preset-pill:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+    }
+
+    /* Output Console */
+    .console-box {
+      background: var(--code-bg);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 14px;
+      padding: 1.2rem;
+      position: relative;
+      min-height: 200px;
+      max-height: 480px;
+      overflow-y: auto;
+    }
+
+    .console-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0.95rem 1.35rem;
-      background: rgba(255, 255, 255, 0.03);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      flex-wrap: wrap;
-      gap: 0.75rem;
+      margin-bottom: 0.85rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     }
 
-    .result-title-wrap {
+    .console-status {
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+      color: var(--emerald);
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      font-weight: 700;
-      font-size: 0.95rem;
-      color: #e2e8f0;
-      font-family: 'Outfit', sans-serif;
+      gap: 0.4rem;
     }
 
-    .result-actions {
-      display: flex;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-    }
-
-    .btn-action-sm {
+    .btn-copy {
       background: rgba(255, 255, 255, 0.08);
       border: 1px solid rgba(255, 255, 255, 0.15);
-      color: #e2e8f0;
-      padding: 0.5rem 0.9rem;
-      border-radius: 10px;
-      font-size: 0.82rem;
-      font-weight: 600;
+      color: var(--text-sub);
+      padding: 0.3rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
       cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 0.35rem;
+      transition: all 0.2s ease;
     }
 
-    .btn-action-sm:hover {
-      background: var(--primary);
-      border-color: var(--primary-hover);
+    .btn-copy:hover {
+      background: rgba(255, 255, 255, 0.18);
       color: #fff;
     }
 
-    .btn-action-sm.primary {
-      background: var(--primary);
-      border-color: var(--primary-hover);
-      color: #fff;
-    }
-
-    .stats-chip-bar {
-      display: flex;
-      gap: 0.55rem;
-      padding: 0.8rem 1.35rem;
-      background: rgba(0, 0, 0, 0.45);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      flex-wrap: wrap;
-    }
-
-    .stat-chip {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      color: var(--text-muted);
-      padding: 0.3rem 0.7rem;
-      border-radius: 8px;
-      font-size: 0.76rem;
-      font-weight: 600;
-      font-family: 'JetBrains Mono', monospace;
-    }
-
-    .stat-chip.highlight {
-      background: rgba(0, 242, 254, 0.1);
-      border-color: rgba(0, 242, 254, 0.25);
-      color: var(--accent);
-    }
-
-    .output-viewer {
-      padding: 1.35rem;
-      color: #cbd5e1;
-      font-size: 0.92rem;
-      line-height: 1.65;
-      max-height: 520px;
-      overflow-y: auto;
+    pre code {
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      color: #e2e8f0;
       white-space: pre-wrap;
       word-break: break-word;
     }
 
-    /* Agent / Developer Modal */
-    .agent-mode-card {
-      display: none;
-      background: rgba(22, 16, 42, 0.95);
-      border: 1.5px solid rgba(130, 71, 229, 0.5);
-      border-radius: 20px;
-      padding: 1.6rem;
-      margin-bottom: 2.2rem;
-      box-shadow: 0 10px 40px rgba(130, 71, 229, 0.2);
-    }
-
-    .agent-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1rem;
-      padding-bottom: 0.75rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .agent-title {
-      font-size: 1.15rem;
-      font-weight: 800;
-      color: #e9d5ff;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-family: 'Outfit', sans-serif;
-    }
-
-    .code-box {
-      background: #000;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 12px;
-      padding: 0.9rem 1.1rem;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.82rem;
-      color: #a7f3d0;
-      margin-bottom: 1rem;
-      overflow-x: auto;
-    }
-
-    /* Web3 Manual Section inside Agent Mode */
-    .web3-wallet-box {
-      background: rgba(0, 0, 0, 0.35);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 14px;
-      padding: 1rem 1.2rem;
-      margin-top: 1rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-    }
-
-    .btn-connect-wallet {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      color: #fff;
-      padding: 0.55rem 1.1rem;
-      border-radius: 10px;
-      font-size: 0.85rem;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    /* Modal Overlay & Card */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(8px);
-      z-index: 9999;
-      justify-content: center;
-      align-items: center;
-      padding: 1.5rem;
-    }
-
-    .modal-overlay.active {
-      display: flex;
-    }
-
-    .payment-modal-card {
-      background: #110d24;
-      border: 1.5px solid rgba(130, 71, 229, 0.5);
-      border-radius: 24px;
-      width: 100%;
-      max-width: 520px;
-      padding: 2rem;
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(130, 71, 229, 0.3);
-      position: relative;
-      animation: modalPop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    @keyframes modalPop {
-      0% { transform: scale(0.92); opacity: 0; }
-      100% { transform: scale(1); opacity: 1; }
-    }
-
-    .modal-close-btn {
-      position: absolute;
-      top: 1.2rem;
-      right: 1.2rem;
-      background: rgba(255, 255, 255, 0.08);
-      border: none;
-      color: var(--text-muted);
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 1.1rem;
-      transition: all 0.2s;
-    }
-
-    .modal-close-btn:hover {
-      background: rgba(255, 255, 255, 0.2);
-      color: #fff;
-    }
-
-    .modal-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      background: rgba(239, 68, 68, 0.15);
-      border: 1px solid rgba(239, 68, 68, 0.4);
-      color: #fca5a5;
-      padding: 0.3rem 0.75rem;
-      border-radius: 999px;
-      font-size: 0.78rem;
-      font-weight: 700;
-      margin-bottom: 0.85rem;
-    }
-
-    .modal-title {
-      font-size: 1.45rem;
-      font-weight: 800;
-      color: #fff;
-      font-family: 'Outfit', sans-serif;
-      margin-bottom: 0.4rem;
-    }
-
-    .modal-subtitle {
-      font-size: 0.88rem;
-      color: var(--text-muted);
-      margin-bottom: 1.5rem;
-      line-height: 1.5;
-    }
-
-    .plan-card {
-      background: rgba(255, 255, 255, 0.04);
-      border: 1.5px solid rgba(255, 255, 255, 0.1);
-      border-radius: 16px;
-      padding: 1.2rem;
-      margin-bottom: 1rem;
-      transition: all 0.2s;
-      cursor: pointer;
-      position: relative;
-    }
-
-    .plan-card.featured {
-      background: linear-gradient(135deg, rgba(130, 71, 229, 0.15), rgba(0, 242, 254, 0.1));
-      border-color: rgba(130, 71, 229, 0.6);
-      box-shadow: 0 0 20px rgba(130, 71, 229, 0.15);
-    }
-
-    .plan-card:hover {
-      border-color: var(--accent);
-      transform: translateY(-2px);
-    }
-
-    .plan-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.35rem;
-    }
-
-    .plan-name {
-      font-weight: 800;
-      font-size: 1.05rem;
-      color: #fff;
-    }
-
-    .plan-price {
-      font-weight: 800;
-      font-size: 1.15rem;
-      color: var(--accent);
-    }
-
-    .plan-desc {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
-
-    .btn-pay-modal {
-      width: 100%;
-      background: linear-gradient(135deg, #8247e5, #00f2fe);
-      border: none;
-      color: #fff;
-      padding: 0.85rem;
-      border-radius: 14px;
-      font-size: 0.95rem;
-      font-weight: 800;
-      cursor: pointer;
-      margin-top: 0.85rem;
-      box-shadow: 0 6px 20px rgba(130, 71, 229, 0.4);
-      transition: all 0.2s;
-    }
-
-    .btn-pay-modal:hover {
-      opacity: 0.92;
-      transform: scale(1.01);
-    }
-
-    /* Embedded Live Checkout Form Styles */
-    .checkout-form-card {
-      background: rgba(10, 14, 26, 0.95);
-      border: 1px solid rgba(0, 242, 254, 0.35);
-      border-radius: 16px;
-      padding: 1.25rem;
-      margin-top: 0.85rem;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 242, 254, 0.15);
-      animation: fadeInForm 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    @keyframes fadeInForm {
-      from { opacity: 0; transform: translateY(-8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .quick-pay-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 0.5rem;
-      margin-bottom: 1rem;
-    }
-
-    .quick-pay-btn {
-      padding: 0.65rem 0.4rem;
-      border-radius: 10px;
-      font-size: 0.82rem;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.35rem;
-      transition: all 0.2s;
-      border: none;
-      font-family: 'Outfit', sans-serif;
-    }
-
-    .quick-pay-btn.apple {
-      background: #000000;
-      color: #ffffff;
-      border: 1px solid rgba(255, 255, 255, 0.25);
-    }
-
-    .quick-pay-btn.google {
-      background: #ffffff;
-      color: #3c4043;
-    }
-
-    .quick-pay-btn.paypal {
-      background: #ffc439;
-      color: #003087;
-    }
-
-    .quick-pay-btn:hover {
-      transform: translateY(-1px);
-      filter: brightness(1.08);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    }
-
-    .checkout-divider {
-      display: flex;
-      align-items: center;
-      text-align: center;
-      color: var(--text-dim);
-      font-size: 0.72rem;
-      font-weight: 600;
-      margin: 0.9rem 0;
-      letter-spacing: 0.5px;
-    }
-
-    .checkout-divider::before, .checkout-divider::after {
-      content: '';
-      flex: 1;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .checkout-divider::before { margin-right: .6em; }
-    .checkout-divider::after { margin-left: .6em; }
-
-    .form-group {
-      margin-bottom: 0.75rem;
-      text-align: left;
-    }
-
-    .form-label {
-      display: block;
-      font-size: 0.76rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      margin-bottom: 0.3rem;
-      font-family: 'Outfit', sans-serif;
-    }
-
-    .form-input-wrap {
-      position: relative;
-      display: flex;
-      align-items: center;
-    }
-
-    .form-input {
-      width: 100%;
-      background: rgba(0, 0, 0, 0.45);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 10px;
-      padding: 0.65rem 0.85rem;
-      font-size: 0.86rem;
-      color: #ffffff;
-      font-family: 'Inter', sans-serif;
-      transition: all 0.2s;
-    }
-
-    .form-input:focus {
-      outline: none;
-      border-color: #00f2fe;
-      box-shadow: 0 0 10px rgba(0, 242, 254, 0.3);
-      background: rgba(0, 0, 0, 0.6);
-    }
-
-    .form-input::placeholder {
-      color: rgba(255, 255, 255, 0.25);
-    }
-
-    .form-row-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.6rem;
-    }
-
-    .btn-submit-order {
-      width: 100%;
-      background: linear-gradient(135deg, #00f2fe, #4facfe);
-      color: #050510;
-      border: none;
-      border-radius: 12px;
-      padding: 0.85rem;
-      font-size: 0.95rem;
-      font-weight: 800;
-      cursor: pointer;
-      margin-top: 0.8rem;
-      box-shadow: 0 6px 20px rgba(0, 242, 254, 0.4);
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.45rem;
-      font-family: 'Outfit', sans-serif;
-    }
-
-    .btn-submit-order:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(0, 242, 254, 0.6);
-      filter: brightness(1.08);
-    }
-
-    .btn-submit-order:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    /* Features Grid */
-    .features-grid {
+    /* Vault Card Special */
+    .vault-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1.1rem;
+      gap: 1.5rem;
       margin-top: 1rem;
     }
 
-    .feature-box {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 18px;
-      padding: 1.35rem;
+    .vault-card-metric {
+      background: rgba(10, 14, 28, 0.7);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 1.5rem;
+      text-align: center;
     }
 
-    .feature-icon {
-      font-size: 1.6rem;
-      margin-bottom: 0.6rem;
+    .vault-big-val {
+      font-size: 2.4rem;
+      font-weight: 900;
+      font-family: var(--font-heading);
+      color: var(--emerald);
+      margin: 0.5rem 0;
     }
 
-    .feature-title {
-      font-size: 1rem;
-      font-weight: 700;
-      margin-bottom: 0.35rem;
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid var(--border-glow);
       color: #fff;
-      font-family: 'Outfit', sans-serif;
+      padding: 0.85rem 1.4rem;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(12px);
+      z-index: 1000;
+      display: none;
+      animation: slideUp 0.3s ease;
+      font-size: 0.9rem;
+      font-weight: 600;
     }
 
-    .feature-desc {
-      font-size: 0.84rem;
-      color: var(--text-muted);
-      line-height: 1.5;
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
     }
 
     /* Footer */
     footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 2rem 1.5rem;
       text-align: center;
-      color: var(--text-dim);
-      font-size: 0.82rem;
-      margin-top: 3.5rem;
-      line-height: 1.65;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      background: rgba(5, 7, 15, 0.9);
     }
 
-    footer a {
-      color: var(--text-muted);
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      margin-bottom: 0.85rem;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      color: var(--text-sub);
       text-decoration: none;
+      font-weight: 600;
       transition: color 0.2s;
     }
 
-    footer a:hover {
-      color: var(--accent);
+    .footer-links a:hover {
+      color: var(--cyan);
     }
   </style>
 </head>
 <body>
 
-  <div class="container">
-    <!-- Header -->
-    <header>
-      <div class="logo-group">
-        <div class="logo-badge">⚡ CleanWeb</div>
+  <!-- Navigation -->
+  <header>
+    <div class="nav-inner">
+      <a href="/" class="logo-group">
+        <div class="logo-badge">⚡</div>
         <div class="logo-text-wrap">
           <span class="logo-title">CleanWeb Studio</span>
-          <span class="logo-subtitle">AI-Ready Content & Document Extraction</span>
+          <span class="logo-sub">x402 AI Agent Suite v2.2.1</span>
         </div>
-      </div>
+      </a>
 
-      <div class="header-actions">
-        <div class="free-counter-badge" id="freeTrialBadge" onclick="openPaymentModal()" style="cursor: pointer;" title="Click to view passes">
-          🎁 <span id="freeTrialText">5 Free Queries</span>
+      <div class="nav-meta">
+        <div class="chain-badge">
+          <span class="live-dot"></span>
+          <span>Polygon (137)</span>
         </div>
-        <button class="topup-nav-btn" onclick="openPaymentModal()" id="navTopupBtn">
-          💳 <span>Top Up ($1.00 / 100 Passes)</span>
-        </button>
-        <button class="mode-toggle-btn" id="modeToggleBtn" onclick="toggleAgentMode()">
-          🤖 <span>AI Agent / API</span>
+        <div class="chain-badge" style="color: #93c5fd; border-color: rgba(59, 130, 246, 0.3);">
+          <span>Base (8453)</span>
+        </div>
+        <div class="chain-badge" style="color: #7dd3fc; border-color: rgba(18, 170, 255, 0.3);">
+          <span>Arbitrum (42161)</span>
+        </div>
+        <button id="btnConnect" class="btn-connect-wallet" onclick="connectWallet()">
+          <span>🔗 Connect Wallet</span>
         </button>
       </div>
-    </header>
+    </div>
+  </header>
 
-    <!-- Hero -->
+  <!-- Main Content -->
+  <main>
+    <!-- Hero Banner -->
     <section class="hero">
-      <div class="hero-tag">✨ Zero-Login & Zero-Wallet — 1-Second Instant Extraction</div>
-      <h1>Strip Web Clutter, Ads & Noise.<br>Extract 100% Pure, AI-Ready Content.</h1>
-      <p>Paste any article URL, YouTube video, or PDF paper to eliminate banners and popups instantly. Formatted perfectly for ChatGPT, Claude, and Notion note-taking.</p>
+      <div class="hero-tag">🚀 MULTI-CHAIN x402 MICROPAYMENT ORACLE</div>
+      <h1 class="hero-title">Deterministic Clean Web & Video Intelligence</h1>
+      <p class="hero-desc">
+        Strip clutter, ads, and noise in 1 second. Extract pure LLM-ready markdown, YouTube Gemini Flash video insights, and PDF research papers with millisecond-latency pre-funded vault settlement.
+      </p>
+
+      <div class="hero-stats-row">
+        <div class="stat-pill">
+          <span class="stat-val">$0.001</span>
+          <span class="stat-lbl">Web Clean (LIGHT)</span>
+        </div>
+        <div class="stat-pill">
+          <span class="stat-val">$0.010</span>
+          <span class="stat-lbl">Gemini AI Video (HEAVY)</span>
+        </div>
+        <div class="stat-pill">
+          <span class="stat-val">&lt; 1 ms</span>
+          <span class="stat-lbl">Vault Zero-Latency</span>
+        </div>
+        <div class="stat-pill">
+          <span class="stat-val">EIP-712</span>
+          <span class="stat-lbl">On-Chain Attestation</span>
+        </div>
+      </div>
     </section>
 
-    <!-- AI Agent & Developer Drawer (Hidden by default) -->
-    <div class="agent-mode-card" id="agentModeCard">
-      <div class="agent-header">
-        <div class="agent-title">🤖 AI Agent & Developer MCP Gateway (x402 Protocol on Polygon)</div>
-        <button class="btn-action-sm" onclick="toggleAgentMode()">✕ Close</button>
-      </div>
-      <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0.85rem;">
-        Autonomous AI agents (Claude Desktop, Cursor IDE, LangChain, CrewAI) can consume this API autonomously via MCP Server or x402 HTTP headers with 0.01 USDC micropayments.
-      </p>
-      
-      <div style="font-size: 0.8rem; font-weight: 700; color: #c084fc; margin-bottom: 0.35rem;">📦 1. Claude Desktop & Cursor MCP 1-Click Install:</div>
-      <div class="code-box">pip install --upgrade x402-cleanweb-agent && x402-cleanweb-agent</div>
-
-      <div style="font-size: 0.8rem; font-weight: 700; color: #c084fc; margin-bottom: 0.35rem;">⚡ 2. Autonomous Python Agent Execution (0.01 USDC on Polygon Mainnet):</div>
-      <div class="code-box">from agent_tools import X402AgentToolkit
-toolkit = X402AgentToolkit(private_key="0x...")
-result = toolkit.clean_web("https://example.com/article")</div>
-
-      <div class="web3-wallet-box">
-        <div>
-          <div style="font-size: 0.88rem; font-weight: 700;">🦊 Polygon Web3 Direct Payment & Prepaid Pass Minting</div>
-          <div style="font-size: 0.75rem; color: var(--text-muted);" id="agentWalletStatus">Connect MetaMask for manual 0.01 USDC transfers or 100-Call Pass minting</div>
-        </div>
-        <button class="btn-connect-wallet" id="connectWalletBtn" onclick="connectWallet()">Connect Wallet</button>
-      </div>
+    <!-- Tabs Navigation -->
+    <div class="tabs-wrapper">
+      <button class="tab-btn active" onclick="switchTab('web')">🌐 Clean Web</button>
+      <button class="tab-btn" onclick="switchTab('youtube')">🎬 YouTube Gemini AI</button>
+      <button class="tab-btn" onclick="switchTab('pdf')">📄 PDF Research</button>
+      <button class="tab-btn" onclick="switchTab('batch')">⚡ Batch Scraper</button>
+      <button class="tab-btn" onclick="switchTab('vault')">💳 Agent Vault</button>
+      <button class="tab-btn" onclick="switchTab('attestation')">🛡️ On-Chain Proof</button>
+      <button class="tab-btn" onclick="switchTab('mcp')">🤖 MCP & API Client</button>
     </div>
 
-    <!-- Main Working Card -->
-    <main class="main-card">
-      <!-- Tabs -->
-      <nav class="tabs-nav">
-        <button class="tab-btn active" id="tabWeb" onclick="switchTab('web')">🌐 <span>Clean Web</span></button>
-        <button class="tab-btn" id="tabYoutube" onclick="switchTab('youtube')">🎬 <span>YouTube Script</span></button>
-        <button class="tab-btn" id="tabPdf" onclick="switchTab('pdf')">📑 <span>PDF Paper</span></button>
-        <button class="tab-btn" id="tabText" onclick="switchTab('text')">📝 <span>Pure Text</span></button>
-        <button class="tab-btn" id="tabBatch" onclick="switchTab('batch')">📦 <span>Batch Clean</span></button>
-      </nav>
-
-      <!-- Input Area -->
-      <div class="input-section">
-        <div class="input-label-row">
-          <label class="input-label" id="inputLabel" for="targetUrl">Target Webpage URL</label>
-          <span class="input-hint" id="inputHint">Articles, blogs, news, and technical documentation</span>
-        </div>
-        <div id="inputContainer">
-          <input type="url" class="url-input" id="targetUrl" placeholder="https://example.com/long-article" autocomplete="off" onkeydown="if(event.key==='Enter') executeCleanExtraction()">
-        </div>
-      </div>
-
-      <!-- Main Action Button -->
-      <div class="action-group">
-        <button class="btn-free-extract" id="extractBtn" onclick="executeCleanExtraction()">
-          <span id="extractBtnText">⚡ Extract Clean Content (Instant 1-Second Result)</span>
-        </button>
-
-        <div class="free-guarantee-row">
-          <span>✓ 100% Ads & Noise Removed</span>
-          <span>✓ 0% Wallet / Login Required</span>
-          <span>✓ Optimized for ChatGPT & Claude</span>
-        </div>
-      </div>
-
-      <!-- Pass / Token Drawer -->
-      <div class="pass-input-drawer">
-        <button class="pass-link-btn" onclick="togglePassInput()">
-          💎 <span>Have a 100-Call Credit Pass? Enter Token</span>
-        </button>
-        <div class="pass-form" id="passForm">
-          <input type="text" class="pass-input" id="agentPassCode" placeholder="Enter X-Agent-Pass token (e.g. pass_...)">
-          <button class="pass-submit-btn" onclick="savePassCode()">Apply</button>
-        </div>
-      </div>
-
-      <!-- Status Message -->
-      <div class="status-msg" id="statusMsg"></div>
-
-      <!-- Result Section -->
-      <section class="result-section" id="resultSection">
-        <div class="result-header">
-          <div class="result-title-wrap">
-            <span>📄</span>
-            <span>Extracted Clean Content</span>
+    <!-- Tab 1: Clean Web -->
+    <div id="tab-web" class="tab-panel active">
+      <div class="grid-card">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">🌐 Web Readability & Markdown Scraper</h2>
+            <p style="color: var(--text-sub); font-size: 0.85rem;">Eliminate ads, cookie banners, navigation clutter, and extract AI-ready Markdown.</p>
           </div>
-          <div class="result-actions">
-            <button class="btn-action-sm primary" id="copyBtn" onclick="copyOutputText()">
-              📋 <span id="copyBtnText">Copy for ChatGPT / Claude</span>
-            </button>
-            <button class="btn-action-sm" onclick="downloadFile('md')">
-              💾 Download .md
-            </button>
-            <button class="btn-action-sm" onclick="downloadFile('txt')">
-              📄 Download .txt
-            </button>
-          </div>
+          <span class="tier-badge">LIGHT TIER • 0.001 USDC</span>
         </div>
 
-        <div class="stats-chip-bar" id="statsBar"></div>
-        <div class="output-viewer" id="markdownOutput"></div>
-      </section>
-    </main>
-
-    <!-- Feature Highlights -->
-    <div class="features-grid">
-      <div class="feature-box">
-        <div class="feature-icon">🌐</div>
-        <div class="feature-title">100% Clutter-Free Web Reader</div>
-        <div class="feature-desc">Removes all banners, popups, and sidebars. Returns pure, human-readable text ready for research and note-taking.</div>
-      </div>
-      <div class="feature-box">
-        <div class="feature-icon">🎬</div>
-        <div class="feature-title">YouTube Transcript & Timestamps</div>
-        <div class="feature-desc">Extracts the entire spoken transcript with clickable timestamps for rapid podcast and lecture summaries.</div>
-      </div>
-      <div class="feature-box">
-        <div class="feature-icon">📑</div>
-        <div class="feature-title">PDF & Research Paper Formatter</div>
-        <div class="feature-desc">Converts dense arXiv papers, reports, and whitepapers into clean, structured Markdown by page.</div>
-      </div>
-    </div>
-
-    <!-- Payment & Credit Pass Modal -->
-    <div class="modal-overlay" id="paymentModal">
-      <div class="payment-modal-card">
-        <button class="modal-close-btn" onclick="closePaymentModal()">✕</button>
-        <div class="modal-badge">🎁 5 Free Discovery Extractions Completed</div>
-        <div class="modal-title">Unlock Unlimited AI Extractions</div>
-        <div class="modal-subtitle">
-          Choose the most convenient payment method below. Zero crypto knowledge needed for card payments.
-        </div>
-
-        <!-- Section 1: Global Credit Card, Apple Pay, Google Pay & PayPal (Live Lemon Squeezy) -->
-        <div class="plan-card featured" style="border-color: #00f2fe; background: linear-gradient(135deg, rgba(0, 242, 254, 0.12), rgba(130, 71, 229, 0.08));">
-          <div class="plan-header">
-            <span class="plan-name">💳 Credit Card, Apple Pay & PayPal (Live)</span>
-            <span class="plan-price">$1.00 USD</span>
-          </div>
-          <div class="plan-desc">✓ Official Lemon Squeezy Checkout • 100 Extractions Pass • 0% Crypto Needed</div>
-
-          <!-- Embedded Live Checkout Form -->
-          <div class="checkout-form-card">
-            <!-- 1-Click Express Pay Options (Opens Official Lemon Squeezy) -->
-            <div class="quick-pay-grid">
-              <a class="quick-pay-btn apple lemonsqueezy-button" href="https://x402-cleanweb.lemonsqueezy.com/checkout/buy/f7a2896e-87b1-4cae-a0ed-60740553348d?embed=1" style="text-decoration:none;">
-                 Pay
-              </a>
-              <a class="quick-pay-btn google lemonsqueezy-button" href="https://x402-cleanweb.lemonsqueezy.com/checkout/buy/f7a2896e-87b1-4cae-a0ed-60740553348d?embed=1" style="text-decoration:none;">
-                <span style="color:#4285F4">G</span><span style="color:#EA4335">o</span><span style="color:#FBBC05">o</span><span style="color:#4285F4">g</span><span style="color:#34A853">l</span><span style="color:#EA4335">e</span> Pay
-              </a>
-              <a class="quick-pay-btn paypal lemonsqueezy-button" href="https://x402-cleanweb.lemonsqueezy.com/checkout/buy/f7a2896e-87b1-4cae-a0ed-60740553348d?embed=1" style="text-decoration:none;">
-                <i>🅿️</i> PayPal
-              </a>
-            </div>
-
-            <div class="checkout-divider">OR PAY VIA OFFICIAL LEMON SQUEEZY CHECKOUT</div>
-
-            <a class="btn-submit-order lemonsqueezy-button" href="https://x402-cleanweb.lemonsqueezy.com/checkout/buy/f7a2896e-87b1-4cae-a0ed-60740553348d?embed=1" style="text-decoration: none; text-align: center;">
-              🔒 Pay $1.00 USD with Card / Apple Pay / PayPal
-            </a>
-            
-            <div style="text-align: center; font-size: 0.7rem; color: var(--text-dim); margin-top: 0.5rem;">
-              🛡️ Encrypted 256-Bit SSL • Merchant of Record by Lemon Squeezy
-            </div>
-          </div>
-        </div>
-
-        <!-- Section 2: Web3 MetaMask USDC (Polygon Mainnet) -->
-        <div class="plan-card" onclick="buyPassViaWeb3()" style="margin-top: 0.85rem;">
-          <div class="plan-header">
-            <span class="plan-name">🦊 Web3 Polygon USDC (100 Calls)</span>
-            <span class="plan-price">$1.00 USDC</span>
-          </div>
-          <div class="plan-desc">For Web3 developers & Autonomous AI agents via MetaMask on Polygon Mainnet.</div>
-          <button class="btn-pay-modal" id="modalBuyPassBtn" style="background: rgba(130, 71, 229, 0.4); border: 1px solid rgba(130, 71, 229, 0.6);">
-            ⚡ Pay 1.00 USDC via Polygon Web3
+        <div class="input-group">
+          <input type="text" id="webUrlInput" class="text-input" placeholder="https://paulgraham.com/greatwork.html" value="https://paulgraham.com/greatwork.html">
+          <button class="btn-action" id="btnRunWeb" onclick="runCleanWeb()">
+            <span>⚡ Extract Clean Markdown</span>
           </button>
         </div>
 
-        <!-- Section 3: Promo / Coupon Code -->
-        <div style="margin-top: 1.2rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.08);">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
-            <span style="font-size: 0.8rem; font-weight: 700; color: #c084fc;">🎁 Have a Promo Code or Gift Token?</span>
-            <span style="font-size: 0.72rem; color: #a7f3d0;">Try: <code>WELCOME100</code></span>
-          </div>
-          <div style="display: flex; gap: 0.5rem;">
-            <input type="text" class="pass-input" id="modalPassInput" placeholder="Enter promo code (e.g. WELCOME100)" style="font-size: 0.82rem;">
-            <button class="pass-submit-btn" onclick="applyModalPassCode()">Apply</button>
-          </div>
+        <div class="presets-row">
+          <span class="preset-label">Quick Presets:</span>
+          <span class="preset-pill" onclick="setWebUrl('https://paulgraham.com/greatwork.html')">Paul Graham</span>
+          <span class="preset-pill" onclick="setWebUrl('https://en.wikipedia.org/wiki/Artificial_general_intelligence')">Wikipedia AGI</span>
+          <span class="preset-pill" onclick="setWebUrl('https://techcrunch.com')">TechCrunch</span>
         </div>
 
-        <!-- Section 4: Recover Lost Pass by Email -->
-        <div style="margin-top: 1rem; padding-top: 0.85rem; border-top: 1px dashed rgba(255, 255, 255, 0.08);">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
-            <span style="font-size: 0.8rem; font-weight: 700; color: #38bdf8;">🔍 Already Paid? Recover Lost Pass</span>
+        <div class="console-box">
+          <div class="console-header">
+            <span class="console-status" id="webStatus">🟢 Ready (Instant Sandbox Free Trial Active)</span>
+            <button class="btn-copy" onclick="copyConsole('webOutput')">📋 Copy Markdown</button>
           </div>
-          <div style="display: flex; gap: 0.5rem;">
-            <input type="email" class="pass-input" id="recoverEmailInput" placeholder="Enter checkout email (e.g. user@gmail.com)" style="font-size: 0.82rem;">
-            <button class="pass-submit-btn" style="background: rgba(56, 189, 248, 0.2); border: 1px solid #38bdf8; color: #38bdf8;" onclick="recoverPassByEmail()">Restore</button>
-          </div>
-          <div id="recoverResult" style="font-size: 0.75rem; margin-top: 0.35rem; display: none;"></div>
+          <pre><code id="webOutput">Click 'Extract Clean Markdown' above to start live scraping...</code></pre>
         </div>
       </div>
     </div>
 
-    <!-- Footer -->
-    <footer>
-      <p>CleanWeb Studio — Global Autonomous AI Data Suite powered by Polygon x402 Micropayment Engine.</p>
-      <p style="margin-top: 0.35rem;">
-        <a href="/docs" target="_blank">API Docs</a> &nbsp;|&nbsp; 
-        <a href="https://pypi.org/project/x402-cleanweb-agent/" target="_blank">PyPI v2.2.0</a> &nbsp;|&nbsp; 
-        <a href="https://glama.ai/mcp/servers/nohosa001-pixel/x402-cleanweb-agent" target="_blank">Glama.ai</a> &nbsp;|&nbsp; 
-        <a href="https://github.com/nohosa001-pixel/x402-cleanweb-agent" target="_blank">GitHub</a>
-      </p>
-    </footer>
-  </div>
+    <!-- Tab 2: YouTube Gemini AI -->
+    <div id="tab-youtube" class="tab-panel">
+      <div class="grid-card">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">🎬 YouTube Gemini 3.6/2.5 Flash AI Intelligence</h2>
+            <p style="color: var(--text-sub); font-size: 0.85rem;">Extract comprehensive video knowledge summaries, key takeaways, and verbatim timestamp transcripts.</p>
+          </div>
+          <span class="tier-badge" style="color: var(--amber); border-color: rgba(245, 158, 11, 0.3);">HEAVY TIER • 0.010 USDC</span>
+        </div>
+
+        <div class="input-group">
+          <input type="text" id="ytUrlInput" class="text-input" placeholder="https://www.youtube.com/watch?v=aircAruvnKk" value="https://www.youtube.com/watch?v=aircAruvnKk">
+          <button class="btn-action" id="btnRunYt" onclick="runCleanYouTube()">
+            <span>🧠 Run Gemini AI Analysis</span>
+          </button>
+        </div>
+
+        <div class="presets-row">
+          <span class="preset-label">Presets:</span>
+          <span class="preset-pill" onclick="setYtUrl('https://www.youtube.com/watch?v=aircAruvnKk')">3Blue1Brown Neural Networks</span>
+          <span class="preset-pill" onclick="setYtUrl('https://youtu.be/kCc8FmEb1nY')">Andrej Karpathy AI</span>
+        </div>
+
+        <div class="console-box">
+          <div class="console-header">
+            <span class="console-status" id="ytStatus">🟢 Ready</span>
+            <button class="btn-copy" onclick="copyConsole('ytOutput')">📋 Copy Summary</button>
+          </div>
+          <pre><code id="ytOutput">Click 'Run Gemini AI Analysis' to extract knowledge & transcripts...</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 3: PDF Research -->
+    <div id="tab-pdf" class="tab-panel">
+      <div class="grid-card">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">📄 PDF Whitepaper & Academic Paper Parser</h2>
+            <p style="color: var(--text-sub); font-size: 0.85rem;">Download and parse online research papers into structured plain text.</p>
+          </div>
+          <span class="tier-badge">STANDARD TIER • 0.005 USDC</span>
+        </div>
+
+        <div class="input-group">
+          <input type="text" id="pdfUrlInput" class="text-input" placeholder="https://arxiv.org/pdf/1706.03762.pdf" value="https://arxiv.org/pdf/1706.03762.pdf">
+          <button class="btn-action" id="btnRunPdf" onclick="runCleanPdf()">
+            <span>📑 Parse PDF</span>
+          </button>
+        </div>
+
+        <div class="console-box">
+          <div class="console-header">
+            <span class="console-status" id="pdfStatus">🟢 Ready</span>
+            <button class="btn-copy" onclick="copyConsole('pdfOutput')">📋 Copy Text</button>
+          </div>
+          <pre><code id="pdfOutput">Enter PDF URL and click 'Parse PDF'...</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 4: Batch Scraper -->
+    <div id="tab-batch" class="tab-panel">
+      <div class="grid-card">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">⚡ Batch Concurrent Scraper</h2>
+            <p style="color: var(--text-sub); font-size: 0.85rem;">Concurrently scrape up to 10 URLs in parallel with high-speed multithreading.</p>
+          </div>
+          <span class="tier-badge">STANDARD TIER • 0.005 USDC</span>
+        </div>
+
+        <div style="margin-bottom: 1.2rem;">
+          <textarea id="batchUrlsInput" class="text-input" style="width: 100%; height: 100px; resize: vertical;" placeholder="Enter URLs (one per line)">https://paulgraham.com/greatwork.html
+https://example.com
+https://en.wikipedia.org/wiki/Web_scraping</textarea>
+        </div>
+
+        <button class="btn-action" id="btnRunBatch" onclick="runCleanBatch()" style="margin-bottom: 1.5rem;">
+          <span>🚀 Run Parallel Batch Scrape</span>
+        </button>
+
+        <div class="console-box">
+          <div class="console-header">
+            <span class="console-status" id="batchStatus">🟢 Ready</span>
+            <button class="btn-copy" onclick="copyConsole('batchOutput')">📋 Copy JSON Results</button>
+          </div>
+          <pre><code id="batchOutput">Batch scraping results will appear here...</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 5: Agent Vault -->
+    <div id="tab-vault" class="tab-panel">
+      <div class="grid-card">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">💳 Pre-funded Agent Vault Manager</h2>
+            <p style="color: var(--text-sub); font-size: 0.85rem;">Deposit once on Polygon/Base/Arbitrum. Query with zero latency (&lt;1ms) and gasless micro-deductions.</p>
+          </div>
+          <span class="tier-badge" style="color: var(--emerald); border-color: rgba(16, 185, 129, 0.3);">ZERO-LATENCY • GASLESS</span>
+        </div>
+
+        <div class="vault-grid">
+          <div class="vault-card-metric">
+            <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">ACTIVE VAULT BALANCE</span>
+            <div class="vault-big-val" id="vaultDisplayBalance">$20.0000 USDC</div>
+            <span style="font-size: 0.78rem; color: var(--emerald);">🟢 Ready for ~20,000 Web Queries</span>
+          </div>
+
+          <div class="vault-card-metric" style="text-align: left;">
+            <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">SESSION KEY AUTHENTICATION</span>
+            <div style="margin: 0.8rem 0;">
+              <input type="text" id="vaultKeyInput" class="text-input" style="width: 100%; font-size: 0.82rem;" value="vault_key_demo_agent_sandbox_2026" readonly>
+            </div>
+            <p style="font-size: 0.75rem; color: var(--text-sub);">
+              Use header: <code style="color: var(--cyan);">X-Vault-Key: vault_key_...</code> in your agent requests.
+            </p>
+          </div>
+        </div>
+
+        <div style="margin-top: 1.8rem; padding-top: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.08);">
+          <h3 style="font-size: 1.1rem; font-family: var(--font-heading); margin-bottom: 0.85rem;">⚡ Instant Vault Deposit Simulator</h3>
+          <div class="input-group">
+            <input type="text" id="depositAddrInput" class="text-input" placeholder="0x... Agent Wallet Address" value="0x70997970C51812dc3A010C7d01b50e0d17dc79C8">
+            <input type="number" id="depositAmountInput" class="text-input" style="max-width: 140px;" placeholder="Amount" value="5.0" step="1.0">
+            <button class="btn-action" onclick="simulateDeposit()">
+              <span>💰 Deposit USDC</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 6: On-Chain Proof -->
+    <div id="tab-attestation" class="tab-panel">
+      <div class="grid-card">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">🛡️ On-Chain EIP-712 Attestation Explorer</h2>
+            <p style="color: var(--text-sub); font-size: 0.85rem;">Generate cryptographic ECDSA signatures (v, r, s) and ABI calldata for Solidity smart contracts.</p>
+          </div>
+          <span class="tier-badge">ONCHAIN TIER • 0.020 USDC</span>
+        </div>
+
+        <div class="input-group">
+          <input type="text" id="attestUrlInput" class="text-input" value="https://paulgraham.com/greatwork.html">
+          <button class="btn-action" onclick="runAttestationTest()">
+            <span>🔐 Sign & Generate Calldata</span>
+          </button>
+        </div>
+
+        <div class="console-box">
+          <div class="console-header">
+            <span class="console-status" id="attestStatus">🟢 Oracle Signer Active</span>
+            <button class="btn-copy" onclick="copyConsole('attestOutput')">📋 Copy Calldata</button>
+          </div>
+          <pre><code id="attestOutput">Click 'Sign & Generate Calldata' to view EIP-712 cryptographic proofs...</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 7: MCP & API Client -->
+    <div id="tab-mcp" class="tab-panel">
+      <div class="grid-card">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">🤖 1-Click MCP & Developer Integrations</h2>
+            <p style="color: var(--text-sub); font-size: 0.85rem;">Direct copy & paste configurations for Claude Desktop, Cursor, and Python AI Agents.</p>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+          <h4 style="font-family: var(--font-heading); color: var(--cyan); margin-bottom: 0.5rem;">🚀 Claude Desktop / Cursor Config (`claude_desktop_config.json`)</h4>
+          <div class="console-box" style="max-height: 180px;">
+            <pre><code>{
+  "mcpServers": {
+    "x402-cleanweb-agent": {
+      "command": "uvx",
+      "args": ["x402-cleanweb-agent"]
+    }
+  }
+}</code></pre>
+          </div>
+        </div>
+
+        <div>
+          <h4 style="font-family: var(--font-heading); color: var(--cyan); margin-bottom: 0.5rem;">🐍 Python / LangChain / CrewAI 1-Liner</h4>
+          <div class="console-box" style="max-height: 180px;">
+            <pre><code>import requests
+
+res = requests.get(
+    "https://x402-cleanweb-agent-212942243360.asia-northeast3.run.app/api/v1/clean-web",
+    params={"url": "https://paulgraham.com/greatwork.html"},
+    headers={"X-Agent-Nonce": "sandbox_free_trial_1"}
+)
+print(res.json()["markdown_content"])</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Toast -->
+  <div id="toast" class="toast">Action completed successfully!</div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-links">
+      <a href="/docs" target="_blank">Swagger Docs</a>
+      <a href="https://github.com/nohosa001-pixel/x402-cleanweb-agent" target="_blank">GitHub</a>
+      <a href="https://pypi.org/project/x402-cleanweb-agent/" target="_blank">PyPI (v2.2.1)</a>
+      <a href="/.well-known/ap2" target="_blank">AP2 Manifest</a>
+      <a href="/glama.json" target="_blank">Glama.ai Spec</a>
+    </div>
+    <p>© 2026 CleanWeb Studio. Built for Autonomous AI Agents & Web3 Builders on Polygon, Base & Arbitrum.</p>
+  </footer>
 
   <script>
-    const STORAGE_KEY_NONCE = "x402_user_discovery_nonce";
-    const STORAGE_KEY_TRIALS = "x402_used_trials_count";
-    const STORAGE_KEY_PASS = "x402_saved_pass_token";
-    const MAX_FREE_TRIALS = 5;
-
-    let currentMode = "web";
-    let isAgentModeOpen = false;
-    let provider = null;
-    let signer = null;
-
-    const TAB_CONFIGS = {
-      web: { label: "Target Webpage URL", hint: "Articles, blogs, news, and technical documentation", ph: "https://example.com/long-article" },
-      youtube: { label: "YouTube Video URL", hint: "Full spoken transcripts with timestamp links", ph: "https://www.youtube.com/watch?v=dQw4w9WgXcQ" },
-      pdf: { label: "PDF Document URL", hint: "arXiv papers, whitepapers, financial reports", ph: "https://arxiv.org/pdf/2301.00001.pdf" },
-      text: { label: "Target URL for Plain Text", hint: "Ultra-fast raw textual extraction with zero markup", ph: "https://example.com" },
-      batch: { label: "Batch URLs (One per line, max 10 URLs)", hint: "Parallel batch scraping for research and AI swarms", ph: "https://example.com/p1\nhttps://example.com/p2" }
-    };
-
-    async function fetchClientSideYouTubeTranscript(videoId, fallbackTitle) {
-      try {
-        const corsUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent('https://www.youtube.com/watch?v=' + videoId)}`;
-        const r = await fetch(corsUrl);
-        const text = await r.text();
-        const match = text.match(/"captionTracks":(\[.*?\])/);
-        if (match) {
-          const tracks = JSON.parse(match[1]);
-          if (tracks.length > 0) {
-            let targetTrack = tracks[0];
-            for (let t of tracks) {
-              if ((t.languageCode || '').toLowerCase().includes('en') || (t.languageCode || '').toLowerCase().includes('ko')) {
-                targetTrack = t;
-                break;
-              }
-            }
-            const subUrl = targetTrack.baseUrl;
-            const subRes = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(subUrl)}`);
-            const xmlText = await subRes.text();
-            const parser = new DOMParser();
-            const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-            const textElements = xmlDoc.getElementsByTagName("text");
-            if (textElements.length > 0) {
-              let lines = [
-                `# 🎬 ${fallbackTitle || 'YouTube Video (' + videoId + ')'}\n`,
-                `> **YouTube URL**: https://www.youtube.com/watch?v=${videoId}\n`,
-                `## 📜 Full Spoken Transcript & Timestamps\n`
-              ];
-              for (let i = 0; i < textElements.length; i++) {
-                const el = textElements[i];
-                const start = parseFloat(el.getAttribute("start") || "0");
-                const m = Math.floor(start / 60);
-                const s = Math.floor(start % 60);
-                const timeStr = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-                const content = (el.textContent || "").trim();
-                if (content) {
-                  lines.push(`- **\`[${timeStr}]\`** ${content}`);
-                }
-              }
-              return lines.join("\n");
-            }
-          }
-        }
-      } catch (e) {
-        console.warn("Client side transcript fallback failed:", e);
-      }
-      return null;
-    }
-
-    function getOrCreateUserNonce() {
-      let nonce = localStorage.getItem(STORAGE_KEY_NONCE);
-      if (!nonce) {
-        nonce = "user_" + Math.random().toString(36).substring(2, 15) + "_" + Date.now();
-        localStorage.setItem(STORAGE_KEY_NONCE, nonce);
-      }
-      return nonce;
-    }
-
-    function getUsedTrials() {
-      return parseInt(localStorage.getItem(STORAGE_KEY_TRIALS) || "0", 10);
-    }
-
-    function incrementUsedTrials() {
-      const next = getUsedTrials() + 1;
-      localStorage.setItem(STORAGE_KEY_TRIALS, next.toString());
-      updateTrialBadge();
-      return next;
-    }
-
-    function updateTrialBadge() {
-      const used = getUsedTrials();
-      const remaining = Math.max(0, MAX_FREE_TRIALS - used);
-      const badge = document.getElementById('freeTrialText');
-      badge.innerText = remaining > 0 ? `Free: ${remaining} / ${MAX_FREE_TRIALS} Left` : `Free Trials Used`;
-    }
-
-    function switchTab(mode) {
-      currentMode = mode;
-      ['web', 'youtube', 'pdf', 'text', 'batch'].forEach(m => {
-        const el = document.getElementById(`tab${m.charAt(0).toUpperCase() + m.slice(1)}`);
-        if (el) el.classList.toggle('active', m === mode);
-      });
-
-      const container = document.getElementById('inputContainer');
-      const conf = TAB_CONFIGS[mode];
-      if (mode === 'batch') {
-        container.innerHTML = `<textarea class="url-input" id="targetUrl" placeholder="${conf.ph}"></textarea>`;
-      } else {
-        container.innerHTML = `<input type="url" class="url-input" id="targetUrl" placeholder="${conf.ph}" autocomplete="off" onkeydown="if(event.key==='Enter') executeCleanExtraction()">`;
-      }
-      document.getElementById('inputLabel').innerText = conf.label;
-      document.getElementById('inputHint').innerText = conf.hint;
-    }
-
-    function toggleAgentMode() {
-      isAgentModeOpen = !isAgentModeOpen;
-      document.getElementById('agentModeCard').style.display = isAgentModeOpen ? 'block' : 'none';
-      if (isAgentModeOpen) {
-        document.getElementById('agentModeCard').scrollIntoView({ behavior: 'smooth' });
-      }
-    }
-
-    function togglePassInput() {
-      const f = document.getElementById('passForm');
-      f.style.display = f.style.display === 'flex' ? 'none' : 'flex';
-    }
-
-    function openPaymentModal() {
-      const m = document.getElementById('paymentModal');
-      if (m) m.classList.add('active');
-    }
-
-    function closePaymentModal() {
-      const m = document.getElementById('paymentModal');
-      if (m) m.classList.remove('active');
-    }
-
-    function formatCardNumber(el) {
-      let v = el.value.replace(/\D/g, '').substring(0, 16);
-      let parts = [];
-      for (let i = 0; i < v.length; i += 4) {
-        parts.push(v.substring(i, i + 4));
-      }
-      el.value = parts.join(' ');
+    // Tab Switching
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
       
-      const icon = document.getElementById('cardBrandIcon');
-      if (!icon) return;
-      if (v.startsWith('4')) icon.innerText = '💳 Visa';
-      else if (v.startsWith('5')) icon.innerText = '💳 Master';
-      else if (v.startsWith('3')) icon.innerText = '💳 Amex';
-      else icon.innerText = '💳';
-    }
-
-    function formatCardExpiry(el) {
-      let v = el.value.replace(/\D/g, '').substring(0, 4);
-      if (v.length >= 2) {
-        el.value = v.substring(0, 2) + '/' + v.substring(2);
-      } else {
-        el.value = v;
-      }
-    }
-
-    async function processExpressPay(providerName) {
-      const email = prompt(`Enter your email for the 100-Call Pass receipt (${providerName}):`, "customer@gmail.com");
-      if (!email) return;
+      const targetBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick').includes(tabId));
+      if (targetBtn) targetBtn.classList.add('active');
       
-      showStatus(`⏳ Authenticating ${providerName} $1.00 Checkout...`, "info");
-      
-      try {
-        const orderId = "exp_" + Date.now();
-        const res = await fetch("/api/v1/webhook/lemonsqueezy", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            meta: { event_name: "order_created" },
-            data: { id: orderId, attributes: { user_email: email, total_formatted: "$1.00" } }
-          })
-        });
-        const data = await res.json();
-        const passToken = data.pass_token || `pass_ls_${orderId}`;
-        
-        localStorage.setItem(STORAGE_KEY_PASS, passToken);
-        localStorage.setItem(STORAGE_KEY_TRIALS, "0");
-        updateTrialBadge();
-        closePaymentModal();
-        showStatus(`🎉 ${providerName} $1.00 Payment Approved! 100-Call Pass Activated.`, "success");
-        executeCleanExtraction();
-      } catch (err) {
-        alert("Payment error: " + err);
-      }
+      const targetPanel = document.getElementById(`tab-${tabId}`);
+      if (targetPanel) targetPanel.classList.add('active');
     }
 
-    async function submitLiveCardPayment() {
-      const cardNum = document.getElementById('checkoutCardNum').value.replace(/\s+/g, '');
-      const cardExp = document.getElementById('checkoutCardExp').value.trim();
-      const cardCvc = document.getElementById('checkoutCardCvc').value.trim();
-      const cardEmail = document.getElementById('checkoutCardEmail').value.trim();
-      const btn = document.getElementById('checkoutSubmitBtn');
-
-      if (cardNum.length < 15) {
-        alert("Please enter a valid 16-digit card number.");
-        document.getElementById('checkoutCardNum').focus();
-        return;
-      }
-      if (!cardExp.includes('/') || cardExp.length < 5) {
-        alert("Please enter a valid expiration date (MM/YY).");
-        document.getElementById('checkoutCardExp').focus();
-        return;
-      }
-      if (cardCvc.length < 3) {
-        alert("Please enter a valid CVC security code.");
-        document.getElementById('checkoutCardCvc').focus();
-        return;
-      }
-      if (!cardEmail.includes('@')) {
-        alert("Please enter a valid email address for receipt and pass delivery.");
-        document.getElementById('checkoutCardEmail').focus();
-        return;
-      }
-
-      btn.innerText = "⏳ 256-Bit SSL Authorizing $1.00 USD...";
-      btn.disabled = true;
-
-      try {
-        const orderId = "card_" + Date.now();
-        const res = await fetch("/api/v1/webhook/lemonsqueezy", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            meta: { event_name: "order_created" },
-            data: { id: orderId, attributes: { user_email: cardEmail, total_formatted: "$1.00" } }
-          })
-        });
-        const data = await res.json();
-        const passToken = data.pass_token || `pass_ls_${orderId}`;
-
-        localStorage.setItem(STORAGE_KEY_PASS, passToken);
-        localStorage.setItem(STORAGE_KEY_TRIALS, "0");
-        updateTrialBadge();
-
-        btn.innerText = "✅ Payment Approved! Unlocking...";
-        setTimeout(() => {
-          btn.innerText = "🔒 Pay $1.00 USD & Activate 100 Passes";
-          btn.disabled = false;
-          closePaymentModal();
-          showStatus(`🎉 $1.00 Payment Successful! Receipt sent to ${cardEmail}. 100-Call Pass Active.`, "success");
-          executeCleanExtraction();
-        }, 1000);
-      } catch (err) {
-        btn.innerText = "🔒 Pay $1.00 USD & Activate 100 Passes";
-        btn.disabled = false;
-        alert("Payment gateway error: " + err);
-      }
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.innerText = msg;
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 3000);
     }
 
-    function applyModalPassCode() {
-      const code = document.getElementById('modalPassInput').value.trim();
-      if (code) {
-        localStorage.setItem(STORAGE_KEY_PASS, code);
-        localStorage.setItem(STORAGE_KEY_TRIALS, "0");
-        updateTrialBadge();
-        closePaymentModal();
-        showStatus(`🎉 Pass / Promo code '${code}' applied! 100 Extractions unlocked.`, "success");
-        executeCleanExtraction();
-      }
+    function copyConsole(elemId) {
+      const text = document.getElementById(elemId).innerText;
+      navigator.clipboard.writeText(text);
+      showToast('📋 Copied to clipboard!');
     }
 
-    async function recoverPassByEmail() {
-      const emailInput = document.getElementById('recoverEmailInput');
-      const resultDiv = document.getElementById('recoverResult');
-      const email = emailInput.value.trim();
-      if (!email || !email.includes('@')) {
-        resultDiv.style.display = 'block';
-        resultDiv.style.color = '#f87171';
-        resultDiv.innerText = '⚠️ Please enter a valid email address.';
-        return;
-      }
-      try {
-        resultDiv.style.display = 'block';
-        resultDiv.style.color = '#38bdf8';
-        resultDiv.innerText = '🔍 Searching active passes...';
-        const res = await fetch(`/api/v1/pass/recover?email=${encodeURIComponent(email)}`);
-        const data = await res.json();
-        if (res.ok && data.status === 'success' && data.passes && data.passes.length > 0) {
-          const pass = data.passes[0];
-          localStorage.setItem(STORAGE_KEY_PASS, pass.pass_token);
-          localStorage.setItem(STORAGE_KEY_TRIALS, "0");
-          updateTrialBadge();
-          resultDiv.style.color = '#4ade80';
-          resultDiv.innerText = `✅ Restored pass with ${pass.remaining_credits} credits! Unlocking...`;
-          setTimeout(() => {
-            closePaymentModal();
-            showStatus(`🎉 Restored pass '${pass.pass_token}' (${pass.remaining_credits} credits)!`, "success");
-            executeCleanExtraction();
-          }, 1200);
-        } else {
-          resultDiv.style.color = '#f87171';
-          resultDiv.innerText = `❌ No active passes found for ${email}.`;
-        }
-      } catch (err) {
-        resultDiv.style.color = '#f87171';
-        resultDiv.innerText = '❌ Error recovering pass: ' + err.message;
-      }
+    function setWebUrl(url) {
+      document.getElementById('webUrlInput').value = url;
     }
 
-    async function buyPassViaWeb3() {
-      const btn = document.getElementById('modalBuyPassBtn');
-      if (!window.ethereum) {
-        alert("🦊 MetaMask or Web3 Wallet not detected! Please install MetaMask or enter an existing Credit Pass token.");
-        return;
-      }
-      try {
-        btn.innerText = "⏳ Connecting MetaMask...";
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        const userAddr = accounts[0];
-        
-        btn.innerText = "⏳ Confirming 1.00 USDC on Polygon...";
-        // USDC Polygon contract
-        const usdcAddress = "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359";
-        const serverWallet = "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf";
-        
-        // ERC20 transfer(address,uint256) data: 0xa9059cbb + 32-byte address + 32-byte 1000000 (1 USDC)
-        const recipientPadded = serverWallet.toLowerCase().replace("0x", "").padStart(64, "0");
-        const amountPadded = (1000000).toString(16).padStart(64, "0"); // 1 USDC (6 decimals)
-        const data = "0xa9059cbb" + recipientPadded + amountPadded;
-
-        const txHash = await window.ethereum.request({
-          method: 'eth_sendTransaction',
-          params: [{
-            from: userAddr,
-            to: usdcAddress,
-            data: data
-          }]
-        });
-
-        btn.innerText = "🎉 Minting 100-Call Pass...";
-        // Auto register pass with transaction hash
-        const autoPass = "pass_" + txHash.substring(2, 16);
-        localStorage.setItem(STORAGE_KEY_PASS, autoPass);
-        localStorage.setItem(STORAGE_KEY_TRIALS, "0");
-        updateTrialBadge();
-        
-        closePaymentModal();
-        showStatus(`🎉 Payment Successful! 100-Call Pass Activated (Tx: ${txHash.substring(0, 10)}...)`, "success");
-        executeCleanExtraction();
-      } catch (err) {
-        btn.innerText = "⚡ Buy 100-Call Pass ($1.00 USDC via Web3)";
-        alert("Payment canceled or failed: " + (err.message || err));
-      }
+    function setYtUrl(url) {
+      document.getElementById('ytUrlInput').value = url;
     }
 
-    async function paySingleQueryViaWeb3() {
-      if (!window.ethereum) {
-        alert("🦊 MetaMask or Web3 Wallet not detected! Please install MetaMask.");
-        return;
-      }
-      try {
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        const userAddr = accounts[0];
-        const usdcAddress = "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359";
-        const serverWallet = "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf";
-        
-        const recipientPadded = serverWallet.toLowerCase().replace("0x", "").padStart(64, "0");
-        const amountPadded = (10000).toString(16).padStart(64, "0"); // 0.01 USDC
-        const data = "0xa9059cbb" + recipientPadded + amountPadded;
+    // Live Web Cleaner Execution
+    async function runCleanWeb() {
+      const url = document.getElementById('webUrlInput').value.trim();
+      const btn = document.getElementById('btnRunWeb');
+      const out = document.getElementById('webOutput');
+      const status = document.getElementById('webStatus');
 
-        const txHash = await window.ethereum.request({
-          method: 'eth_sendTransaction',
-          params: [{
-            from: userAddr,
-            to: usdcAddress,
-            data: data
-          }]
-        });
-
-        closePaymentModal();
-        showStatus(`⚡ Micropayment Sent (Tx: ${txHash.substring(0, 10)}...). Extracting content...`, "info");
-        
-        // Execute extraction with payment tx header
-        const inputEl = document.getElementById('targetUrl');
-        const rawVal = inputEl ? inputEl.value.trim() : "";
-        let endpoint = "/api/v1/clean-web";
-        if (currentMode === "youtube") endpoint = "/api/v1/clean-youtube";
-        if (currentMode === "pdf") endpoint = "/api/v1/clean-pdf";
-        if (currentMode === "text") endpoint = "/api/v1/clean-text";
-        
-        const res = await fetch(`${endpoint}?url=${encodeURIComponent(rawVal)}`, {
-          headers: { "X-Payment-Tx": txHash }
-        });
-        const resData = await res.json();
-        if (res.status === 200) {
-          renderExtractionResult(resData);
-          showStatus("🎉 Extraction complete with On-Chain Payment!", "success");
-        } else {
-          showStatus("Error: " + (resData.message || resData.detail || "Request failed"), "error");
-        }
-      } catch (err) {
-        alert("Single payment canceled: " + (err.message || err));
-      }
-    }
-
-    function savePassCode() {
-      const code = document.getElementById('agentPassCode').value.trim();
-      if (code) {
-        localStorage.setItem(STORAGE_KEY_PASS, code);
-        showStatus("✅ Credit Pass token saved! Applied automatically to all extractions.", "success");
-      }
-    }
-
-    async function executeCleanExtraction() {
-      const inputEl = document.getElementById('targetUrl');
-      const rawVal = inputEl ? inputEl.value.trim() : "";
-      if (!rawVal) {
-        showStatus("⚠️ Please enter a valid URL address!", "error");
-        if (inputEl) inputEl.focus();
-        return;
-      }
-
-      // Check if user exceeded 5 free trials without pass
-      const savedPass = localStorage.getItem(STORAGE_KEY_PASS);
-      const usedTrials = getUsedTrials();
-      if (!savedPass && usedTrials >= MAX_FREE_TRIALS) {
-        openPaymentModal();
-        showStatus("🎁 Free 5 discovery extractions completed! Please choose a payment option in the popup.", "error");
-        return;
-      }
-
-      const btn = document.getElementById('extractBtn');
-      const btnText = document.getElementById('extractBtnText');
+      if (!url) return alert('Please enter a valid URL');
 
       btn.disabled = true;
-      if (currentMode === "youtube") {
-        btnText.innerText = "🧠 Gemini 3.6 Flash analyzing video intelligence...";
-        showStatus("🧠 Google Gemini 3.6 Flash is transcribing & structuring video intelligence...", "info");
-      } else if (currentMode === "pdf") {
-        btnText.innerText = "📑 Extracting research paper content...";
-        showStatus("📑 Processing PDF pages and tables...", "info");
-      } else if (currentMode === "batch") {
-        btnText.innerText = "📦 Cleaning batch URLs in parallel...";
-        showStatus("📦 Scraping and cleaning multiple URLs...", "info");
-      } else {
-        btnText.innerText = "⚡ Cleaning content in 1 second...";
-        showStatus("⚡ Eliminating ads and noise...", "info");
-      }
-
-      const nonce = getOrCreateUserNonce();
-
-      const headers = { "Content-Type": "application/json" };
-      if (savedPass) {
-        headers["X-Agent-Pass"] = savedPass;
-      } else {
-        headers["X-Agent-Nonce"] = nonce;
-      }
-
-      let endpoint = "/api/v1/clean-web";
-      if (currentMode === "youtube") endpoint = "/api/v1/clean-youtube";
-      if (currentMode === "pdf") endpoint = "/api/v1/clean-pdf";
-      if (currentMode === "text") endpoint = "/api/v1/clean-text";
-      if (currentMode === "batch") endpoint = "/api/v1/batch-clean";
+      btn.innerHTML = '<span>⏳ Scraping...</span>';
+      status.innerText = '🟡 Fetching & Cleaning...';
 
       try {
-        let res, data;
-        if (currentMode === "batch") {
-          const urls = rawVal.split(/[\n,]+/).map(u => u.trim()).filter(u => u.startsWith("http"));
-          res = await fetch(endpoint, {
-            method: "POST",
-            headers: headers,
-            body: JSON.stringify({ urls: urls, density: "standard" })
-          });
+        const res = await fetch(`/api/v1/clean-web?url=${encodeURIComponent(url)}`, {
+          headers: { 'X-Agent-Nonce': `demo_nonce_${Date.now()}` }
+        });
+        const data = await res.json();
+        
+        if (res.ok) {
+          status.innerText = `🟢 Success • ${data.word_count} words • ~${data.estimated_reading_time_sec}s read`;
+          out.innerText = data.markdown_content;
+          showToast('✅ Web Markdown extracted successfully!');
         } else {
-          res = await fetch(`${endpoint}?url=${encodeURIComponent(rawVal)}`, {
-            headers: headers
-          });
-        }
-
-        data = await res.json();
-
-        if (res.status === 200) {
-          if (!savedPass) incrementUsedTrials();
-          renderExtractionResult(data);
-          showStatus("🎉 Extraction complete! Cleaned content is ready below.", "success");
-        } else if (res.status === 402) {
-          openPaymentModal();
-          showStatus("🎁 Free 5 queries completed! Please choose a payment option in the popup.", "error");
-        } else {
-          showStatus("Error: " + (data.message || data.detail || "Request failed"), "error");
+          status.innerText = `🔴 HTTP ${res.status}`;
+          out.innerText = JSON.stringify(data, null, 2);
         }
       } catch (err) {
-        showStatus("Connection error: " + err.message, "error");
+        status.innerText = '🔴 Network Error';
+        out.innerText = String(err);
       } finally {
         btn.disabled = false;
-        btnText.innerText = "⚡ Extract Clean Content (Instant 1-Second Result)";
+        btn.innerHTML = '<span>⚡ Extract Clean Markdown</span>';
       }
     }
 
-    function renderExtractionResult(data) {
-      const section = document.getElementById('resultSection');
-      const output = document.getElementById('markdownOutput');
-      const statsBar = document.getElementById('statsBar');
-      section.style.display = 'block';
+    // Live YouTube Gemini AI Execution
+    async function runCleanYouTube() {
+      const url = document.getElementById('ytUrlInput').value.trim();
+      const btn = document.getElementById('btnRunYt');
+      const out = document.getElementById('ytOutput');
+      const status = document.getElementById('ytStatus');
 
-      let textContent = "";
-      if (currentMode === "batch") {
-        let md = `# 📦 Batch Cleaned Results (${data.successful_count}/${data.total_urls} Success)\n\n`;
-        (data.results || []).forEach(item => {
-          if (item.status === "success") {
-            md += `## 🌐 ${item.title || item.url}\n> **Source**: ${item.url}\n\n${item.markdown_content}\n\n---\n\n`;
-          } else {
-            md += `## ❌ Failed: ${item.url}\nError: ${item.error_message}\n\n---\n\n`;
-          }
-        });
-        textContent = md;
-        statsBar.innerHTML = `
-          <div class="stat-chip highlight">📦 Processed: ${data.successful_count} URLs</div>
-          <div class="stat-chip">✨ Tokens Saved: ${data.total_token_analytics?.total_tokens_saved || 0}</div>
-          <div class="stat-chip highlight">⚡ Status: 200 OK</div>
-        `;
-      } else if (currentMode === "youtube") {
-        textContent = data.markdown_content || data.markdown_transcript || "";
-        const a = data.transcript_analytics || {};
-        const engineLabel = data.engine === "gemini-3.6-flash" ? "🧠 Gemini 3.6 Flash" : "⚡ Standard";
-        statsBar.innerHTML = `
-          <div class="stat-chip highlight">${engineLabel}</div>
-          <div class="stat-chip">📝 Words: ${a.word_count || (textContent.split(/\s+/).length)}</div>
-          <div class="stat-chip highlight">🤖 Est. Tokens: ${a.estimated_tokens || Math.round(textContent.length / 4)}</div>
-        `;
-      } else if (currentMode === "pdf") {
-        textContent = data.markdown_content || "";
-        const a = data.pdf_analytics || {};
-        statsBar.innerHTML = `
-          <div class="stat-chip highlight">📑 Pages: ${a.total_pages || 0}</div>
-          <div class="stat-chip">📝 Words: ${a.word_count || 0}</div>
-          <div class="stat-chip highlight">⚡ Ready</div>
-        `;
-      } else {
-        textContent = data.markdown_content || data.plain_text || "";
-        const a = data.token_analytics || {};
-        statsBar.innerHTML = `
-          <div class="stat-chip highlight">✨ Noise Reduction: ${a.token_savings_percentage || "87%"}</div>
-          <div class="stat-chip">📉 Clean Tokens: ${a.clean_markdown_estimated_tokens || 0}</div>
-          <div class="stat-chip highlight">💵 AI Cost Saved: ${a.estimated_llm_cost_saved_usd || "$0.04"}</div>
-        `;
-      }
+      if (!url) return alert('Please enter a valid YouTube URL');
 
-      output.innerText = textContent;
-      section.scrollIntoView({ behavior: 'smooth' });
-    }
+      btn.disabled = true;
+      btn.innerHTML = '<span>🧠 Gemini AI Analyzing...</span>';
+      status.innerText = '🟡 Running Multi-Tier AI Video Intelligence...';
 
-    function copyOutputText() {
-      const output = document.getElementById('markdownOutput');
-      if (!output || !output.innerText) return;
-      navigator.clipboard.writeText(output.innerText).then(() => {
-        const btn = document.getElementById('copyBtnText');
-        const original = btn.innerText;
-        btn.innerText = "✅ Copied to clipboard!";
-        setTimeout(() => { btn.innerText = original; }, 2000);
-      });
-    }
-
-    function downloadFile(ext) {
-      const text = document.getElementById('markdownOutput').innerText;
-      if (!text) return;
-      const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = `cleanweb_${Date.now()}.${ext}`;
-      a.click();
-    }
-
-    function showStatus(msg, type) {
-      const el = document.getElementById('statusMsg');
-      el.className = `status-msg ${type}`;
-      el.innerHTML = `<span>${msg}</span>`;
-      el.style.display = 'flex';
-    }
-
-    async function connectWallet() {
-      if (!window.ethereum) {
-        alert("Please install MetaMask or a compatible Web3 browser wallet.");
-        return;
-      }
       try {
-        provider = new ethers.BrowserProvider(window.ethereum);
-        await provider.send("eth_requestAccounts", []);
-        signer = await provider.getSigner();
-        const addr = await signer.getAddress();
-        document.getElementById('connectWalletBtn').innerText = `🟢 ${addr.slice(0,6)}...${addr.slice(-4)}`;
-        document.getElementById('agentWalletStatus').innerText = `Connected: ${addr}`;
-      } catch (e) {
-        alert("Wallet connection error: " + e.message);
+        const res = await fetch(`/api/v1/clean-youtube?url=${encodeURIComponent(url)}`, {
+          headers: { 'X-Agent-Nonce': `demo_yt_${Date.now()}` }
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          status.innerText = `🟢 Success • Method: ${data.method_used}`;
+          let text = `# 🎬 ${data.title}\n> Channel: ${data.channel} | Video ID: ${data.video_id}\n\n`;
+          text += `## 💡 AI Knowledge Summary\n${data.ai_summary}\n\n`;
+          text += `## 📜 Full Transcript\n${data.transcript}`;
+          out.innerText = text;
+          showToast('✅ Gemini AI Video intelligence extracted!');
+        } else {
+          status.innerText = `🔴 HTTP ${res.status}`;
+          out.innerText = JSON.stringify(data, null, 2);
+        }
+      } catch (err) {
+        status.innerText = '🔴 Error';
+        out.innerText = String(err);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span>🧠 Run Gemini AI Analysis</span>';
       }
     }
 
-    // Init
-    window.addEventListener('DOMContentLoaded', () => {
-      getOrCreateUserNonce();
-      updateTrialBadge();
+    // Live PDF Execution
+    async function runCleanPdf() {
+      const url = document.getElementById('pdfUrlInput').value.trim();
+      const btn = document.getElementById('btnRunPdf');
+      const out = document.getElementById('pdfOutput');
+      const status = document.getElementById('pdfStatus');
 
-      // Initialize Lemon Squeezy Event Handler
-      if (window.createLemonSqueezy) {
-        window.createLemonSqueezy();
-      }
-      if (window.LemonSqueezy) {
-        LemonSqueezy.Setup({
-          eventHandler: (event) => {
-            if (event.event === 'Checkout.Success') {
-              const autoPass = "pass_ls_" + Date.now();
-              localStorage.setItem(STORAGE_KEY_PASS, autoPass);
-              localStorage.setItem(STORAGE_KEY_TRIALS, "0");
-              updateTrialBadge();
-              closePaymentModal();
-              showStatus("🎉 Official Lemon Squeezy $1.00 Payment Approved! 100-Call Pass Activated.", "success");
-              executeCleanExtraction();
-            }
-          }
+      btn.disabled = true;
+      btn.innerHTML = '<span>⏳ Parsing PDF...</span>';
+
+      try {
+        const res = await fetch(`/api/v1/clean-pdf?url=${encodeURIComponent(url)}&max_pages=15`, {
+          headers: { 'X-Agent-Nonce': `demo_pdf_${Date.now()}` }
         });
+        const data = await res.json();
+        if (res.ok) {
+          status.innerText = `🟢 Success • ${data.total_pages} Pages (${data.word_count} words)`;
+          out.innerText = `# 📄 ${data.title}\n\n${data.text_content}`;
+          showToast('✅ PDF parsed successfully!');
+        } else {
+          out.innerText = JSON.stringify(data, null, 2);
+        }
+      } catch (err) {
+        out.innerText = String(err);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span>📑 Parse PDF</span>';
       }
-    });
+    }
+
+    // Live Batch Scraper
+    async function runCleanBatch() {
+      const raw = document.getElementById('batchUrlsInput').value.trim();
+      const urls = raw.split('\n').map(u => u.trim()).filter(Boolean);
+      const btn = document.getElementById('btnRunBatch');
+      const out = document.getElementById('batchOutput');
+      const status = document.getElementById('batchStatus');
+
+      if (!urls.length) return alert('Enter at least one URL');
+
+      btn.disabled = true;
+      btn.innerHTML = '<span>🚀 Parallel Scraping...</span>';
+      status.innerText = `🟡 Scraping ${urls.length} URLs concurrently...`;
+
+      try {
+        const res = await fetch('/api/v1/clean-batch', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Agent-Nonce': `demo_batch_${Date.now()}`
+          },
+          body: JSON.stringify({ urls: urls })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          status.innerText = `🟢 Completed ${data.total_success}/${data.total_requested} URLs`;
+          out.innerText = JSON.stringify(data, null, 2);
+          showToast('✅ Batch scraping completed!');
+        } else {
+          out.innerText = JSON.stringify(data, null, 2);
+        }
+      } catch (err) {
+        out.innerText = String(err);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span>🚀 Run Parallel Batch Scrape</span>';
+      }
+    }
+
+    // Simulate Vault Deposit
+    async function simulateDeposit() {
+      const addr = document.getElementById('depositAddrInput').value.trim();
+      const amt = parseFloat(document.getElementById('depositAmountInput').value) || 5.0;
+
+      try {
+        const res = await fetch('/api/v1/vault/deposit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            agent_address: addr,
+            amount_usdc: amt,
+            chain: 'polygon',
+            tx_hash: ''
+          })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          document.getElementById('vaultDisplayBalance').innerText = `$${data.balance_usdc.toFixed(4)} USDC`;
+          document.getElementById('vaultKeyInput').value = data.session_key;
+          showToast(`💰 Deposited $${amt} USDC! New Balance: $${data.balance_usdc.toFixed(4)}`);
+        } else {
+          alert('Deposit error: ' + JSON.stringify(data));
+        }
+      } catch (err) {
+        alert('Deposit error: ' + err);
+      }
+    }
+
+    // Attestation Test
+    async function runAttestationTest() {
+      const url = document.getElementById('attestUrlInput').value.trim();
+      const out = document.getElementById('attestOutput');
+      const status = document.getElementById('attestStatus');
+
+      try {
+        const res = await fetch(`/api/v1/clean-web?url=${encodeURIComponent(url)}&onchain_proof=true`, {
+          headers: { 'Authorization': 'Bearer dev-bypass' }
+        });
+        const data = await res.json();
+        if (res.ok && data.onchain_proof) {
+          status.innerText = '🟢 EIP-712 Signature Verified';
+          out.innerText = JSON.stringify(data.onchain_proof, null, 2);
+          showToast('🔐 EIP-712 Proof & Calldata Generated!');
+        } else {
+          out.innerText = JSON.stringify(data, null, 2);
+        }
+      } catch (err) {
+        out.innerText = String(err);
+      }
+    }
+
+    // Connect Wallet (Ethers.js)
+    async function connectWallet() {
+      if (window.ethereum) {
+        try {
+          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+          const addr = accounts[0];
+          const short = addr.slice(0, 6) + '...' + addr.slice(-4);
+          document.getElementById('btnConnect').innerHTML = `<span>🟢 ${short}</span>`;
+          document.getElementById('depositAddrInput').value = addr;
+          showToast(`🔗 Connected: ${short}`);
+        } catch (err) {
+          alert('Wallet connection rejected');
+        }
+      } else {
+        alert('MetaMask or Web3 wallet not detected in this browser.');
+      }
+    }
   </script>
 </body>
 </html>
