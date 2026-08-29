@@ -1,0 +1,51 @@
+{
+  "ap2_version": "2.0.0",
+  "name": "x402-cleanweb-agent",
+  "description": "Deterministic Web3 x402 Micropayment MCP & AI Agent Tool Suite with Gemini 3.6 Flash Video Intelligence on Polygon, Base, and Arbitrum",
+  "provider": {
+    "name": "x402 AI Agent Team",
+    "url": "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app"
+  },
+  "settlement": {
+    "type": "x402",
+    "networks": [
+      {
+        "chain": "polygon",
+        "chain_id": 137,
+        "token": "USDC",
+        "token_address": "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
+        "recipient_wallet": "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf"
+      },
+      {
+        "chain": "base",
+        "chain_id": 8453,
+        "token": "USDC",
+        "token_address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "recipient_wallet": "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf"
+      },
+      {
+        "chain": "arbitrum",
+        "chain_id": 42161,
+        "token": "USDC",
+        "token_address": "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
+        "recipient_wallet": "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf"
+      }
+    ],
+    "pricing_tiers": {
+      "LIGHT": { "amount_usdc": "0.001", "description": "Single web clean markdown" },
+      "STANDARD": { "amount_usdc": "0.005", "description": "PDF paper / batch clean" },
+      "HEAVY": { "amount_usdc": "0.010", "description": "Gemini AI YouTube audio analysis" },
+      "ONCHAIN": { "amount_usdc": "0.020", "description": "EIP-712 Signed attestation" }
+    }
+  },
+  "endpoints": {
+    "clean_web": "/api/v1/clean-web",
+    "clean_youtube": "/api/v1/clean-youtube",
+    "clean_pdf": "/api/v1/clean-pdf",
+    "clean_batch": "/api/v1/clean-batch",
+    "vault_deposit": "/api/v1/vault/deposit",
+    "vault_balance": "/api/v1/vault/balance",
+    "pass_status": "/api/v1/pass-status",
+    "mcp_tools": "/mcp/tools"
+  }
+}

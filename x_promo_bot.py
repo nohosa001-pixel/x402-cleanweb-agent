@@ -22,8 +22,8 @@ if hasattr(sys.stdout, "reconfigure"):
 load_dotenv(override=True)
 
 # Configuration & Links
-GCP_URL = "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app"
-PYPI_URL = "https://pypi.org/project/x402-cleanweb-agent/"
+GCP_URL = "https://x402-cleanweb-agent-212942243360.asia-northeast3.run.app"
+PYPI_URL = "https://pypi.org/project/x402-cleanweb-agent/2.2.1/"
 GITHUB_URL = "https://github.com/nohosa001-pixel/x402-cleanweb-agent"
 
 # X API Credentials (from .env)

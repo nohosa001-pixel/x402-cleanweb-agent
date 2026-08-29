@@ -1,401 +1,125 @@
+"""
+Model Context Protocol (MCP) Server for CleanWeb Studio.
+Supports Multi-Chain (Polygon/Base/Arbitrum) USDC Micropayments and Free Tier for Claude Desktop, Cursor, and Agentic Clients.
+"""
+
 import os
-import re
-import io
-from typing import Optional, Set
+from typing import Optional, List
 from mcp.server import MCPServer
-from web3 import Web3
-from bs4 import BeautifulSoup, Comment
-import requests
 from dotenv import load_dotenv
-from youtube_transcript_api import YouTubeTranscriptApi
-from pypdf import PdfReader
+
+from app.cleaners.web_engine import web_cleaner_engine
+from app.cleaners.youtube_engine import youtube_cleaner_engine
+from app.cleaners.pdf_engine import pdf_cleaner_engine
+from app.onchain_signer import onchain_signer
+from app.multi_chain import multi_chain_manager
+from app.vault_manager import vault_manager
+from app.storage import storage_manager
 
 load_dotenv(override=True)
 
-# MCP Server 초기화
+# MCP Server Initialization
 mcp = MCPServer(
-    name="Polygon-x402-AI-Data-Agent",
-    version="1.2.1",
-    description="Web3 x402 Micropayment MCP Suite for Web, YouTube, PDF Papers & Plain Text on Polygon Mainnet"
+    name="x402-cleanweb-agent",
+    version="2.2.0",
+    description="Deterministic Web3 x402 Micropayment MCP Suite for Web, YouTube Gemini AI, and PDF Papers on Polygon, Base, and Arbitrum."
 )
 
-# Polygon & Token Config
-POLYGON_RPC_URL = os.getenv("POLYGON_RPC_URL", "https://polygon-bor-rpc.publicnode.com")
-POLYGON_RPC_URLS = [
-    POLYGON_RPC_URL,
-    "https://polygon.llamarpc.com",
-    "https://1rpc.io/matic",
-    "https://rpc.ankr.com/polygon",
-    "https://polygon.drpc.org"
-]
-def safe_checksum_address(addr_str: Optional[str], default: str) -> str:
-    if not addr_str:
-        return Web3.to_checksum_address(default)
-    match = re.search(r"0x[a-fA-F0-9]{40}", str(addr_str))
-    if match:
-        return Web3.to_checksum_address(match.group(0))
-    return Web3.to_checksum_address(default)
-
-CHAIN_ID = 137
-USDC_CONTRACT_ADDRESS = safe_checksum_address(
-    os.getenv("USDC_CONTRACT_ADDRESS"),
-    "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359"
-)
-USDC_DECIMALS = 6
-
-RECIPIENT_WALLET = safe_checksum_address(
-    os.getenv("SERVER_WALLET_ADDRESS"),
-    "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf"
-)
-
-TRANSFER_EVENT_TOPIC = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
-processed_txs: Set[str] = set()
-_w3: Optional[Web3] = None
-
-def get_web3_instance() -> Web3:
-    global _w3
-    if _w3 is not None:
-        return _w3
-    for rpc in POLYGON_RPC_URLS:
-        try:
-            w3_inst = Web3(Web3.HTTPProvider(rpc, request_kwargs={"timeout": 5}))
-            if w3_inst.is_connected():
-                _w3 = w3_inst
-                return _w3
-        except Exception:
-            continue
-    _w3 = Web3(Web3.HTTPProvider(POLYGON_RPC_URLS[0]))
-    return _w3
-
-def verify_payment_tx(tx_hash: str, required_amount_usdc: float) -> tuple[bool, str]:
-    if not tx_hash or not re.match(r"^0x[a-fA-F0-9]{64}$", tx_hash):
-        return False, "Invalid tx hash format. Must be 0x followed by 64 hex characters."
-
-    tx_hash_lower = tx_hash.lower()
-    if tx_hash_lower in processed_txs:
-        return False, "Transaction hash has already been used (Replay protection)."
-
-    required_raw_amount = int(required_amount_usdc * (10 ** USDC_DECIMALS))
-
-    try:
-        w3 = get_web3_instance()
-        receipt = w3.eth.get_transaction_receipt(tx_hash)
-        if not receipt:
-            return False, f"Transaction '{tx_hash}' not found on Polygon Mainnet."
-
-        if receipt.get("status") != 1:
-            return False, "Transaction failed on-chain (status == 0)."
-
-        payment_found = False
-        for log in receipt.get("logs", []):
-            if Web3.to_checksum_address(log.get("address")) != USDC_CONTRACT_ADDRESS:
-                continue
-
-            topics = log.get("topics", [])
-            if not topics or topics[0].hex().lower() != TRANSFER_EVENT_TOPIC.lower():
-                continue
-
-            if len(topics) >= 3:
-                to_addr_hex = "0x" + topics[2].hex()[-40:]
-                to_address = Web3.to_checksum_address(to_addr_hex)
-
-                raw_data = log.get("data")
-                if isinstance(raw_data, bytes):
-                    amount = int.from_bytes(raw_data, byteorder="big")
-                elif isinstance(raw_data, str):
-                    amount = int(raw_data, 16)
-                else:
-                    amount = 0
-
-                if to_address == RECIPIENT_WALLET and amount >= required_raw_amount:
-                    payment_found = True
-                    break
-
-        if not payment_found:
-            return False, f"No valid USDC Transfer to '{RECIPIENT_WALLET}' for >= {required_amount_usdc} USDC found."
-
-        processed_txs.add(tx_hash_lower)
-        return True, "Payment verified."
-    except Exception as e:
-        return False, f"On-chain verification error: {str(e)}"
-
-def extract_clean_markdown_for_ai(html_content: str, source_url: str) -> str:
-    soup = BeautifulSoup(html_content, "html.parser")
-    for comment in soup.find_all(text=lambda text: isinstance(text, Comment)):
-        comment.extract()
-
-    noise_tags = ["script", "style", "nav", "footer", "header", "aside", "noscript", "iframe", "svg", "form"]
-    for tag in soup(noise_tags):
-        tag.decompose()
-
-    title = soup.title.string.strip() if soup.title and soup.title.string else (soup.find("h1").get_text().strip() if soup.find("h1") else source_url)
-    container = soup.find("article") or soup.find("main") or soup.find("body") or soup
-
-    lines = [f"# {title}\n", f"> **Source**: {source_url}\n"]
-    for elem in container.find_all(["h1", "h2", "h3", "h4", "h5", "h6", "p", "li", "blockquote", "pre", "code"]):
-        tag = elem.name
-        text = elem.get_text().strip()
-        if not text:
-            continue
-        if tag == "h1":
-            lines.append(f"\n# {text}\n")
-        elif tag == "h2":
-            lines.append(f"\n## {text}\n")
-        elif tag == "h3":
-            lines.append(f"\n### {text}\n")
-        elif tag in ["h4", "h5", "h6"]:
-            lines.append(f"\n#### {text}\n")
-        elif tag == "li":
-            lines.append(f"- {text}")
-        elif tag == "blockquote":
-            lines.append(f"\n> {text}\n")
-        elif tag in ["pre", "code"]:
-            lines.append(f"\n```\n{text}\n```\n")
-        elif tag == "p":
-            lines.append(f"\n{text}\n")
-
-    markdown_text = "\n".join(lines).strip()
-    return re.sub(r"\n{3,}", "\n\n", markdown_text)
-
-def extract_youtube_video_id(url: str) -> Optional[str]:
-    patterns = [
-        r"(?:v=|\/)([0-9A-Za-z_-]{11}).*",
-        r"(?:youtu\.be\/)([0-9A-Za-z_-]{11})",
-        r"(?:shorts\/)([0-9A-Za-z_-]{11})"
-    ]
-    for pattern in patterns:
-        match = re.search(pattern, url)
-        if match:
-            return match.group(1)
-    return None
-
-def format_timestamp(seconds: float) -> str:
-    m, s = divmod(int(seconds), 60)
-    h, m = divmod(m, 60)
-    if h > 0:
-        return f"{h:02d}:{m:02d}:{s:02d}"
-    return f"{m:02d}:{s:02d}"
 
 @mcp.tool(
     name="get_payment_info",
-    description="Returns the Polygon Web3 micropayment pricing and recipient details for tools in this server."
+    description="Returns the Web3 x402 micropayment pricing, multi-chain USDC details, and vault endpoints."
 )
 def get_payment_info() -> str:
-    return f"""### 💳 Polygon x402 Micropayment Services & Pricing
-- **Network**: Polygon Mainnet (Chain ID: {CHAIN_ID})
-- **Token**: Native USDC (`{USDC_CONTRACT_ADDRESS}`)
-- **Recipient Wallet**: `{RECIPIENT_WALLET}`
+    poly_cfg = multi_chain_manager.get_chain_config("polygon")
+    base_cfg = multi_chain_manager.get_chain_config("base")
+    arb_cfg = multi_chain_manager.get_chain_config("arbitrum")
+    
+    return f"""### 💳 CleanWeb Studio x402 Micropayment Architecture
+- **Supported Networks**:
+  1. **Polygon (137)**: USDC `{poly_cfg.usdc_address}`
+  2. **Base (8453)**: USDC `{base_cfg.usdc_address}`
+  3. **Arbitrum One (42161)**: USDC `{arb_cfg.usdc_address}`
+- **Recipient Wallet**: `{multi_chain_manager.default_recipient}`
 
-**Available Paid Tools**:
-1. `fetch_clean_web_content`: **0.01 USDC** (Clean webpage into AI Markdown)
-2. `fetch_batch_clean_markdown`: **0.01 USDC / URL** (Parallel batch scraping up to 10 URLs)
-3. `fetch_youtube_transcript`: **0.02 USDC** (Full YouTube timestamps & transcript Markdown)
-4. `fetch_pdf_markdown`: **0.05 USDC** (PDF papers & corporate reports into structured Markdown)
-5. `fetch_plain_text`: **0.005 USDC** (Pure lightweight plain text extraction)
+**Pricing Tiers**:
+- `clean_web_content`: **0.001 USDC** (Markdown web extraction)
+- `clean_youtube_transcript`: **0.010 USDC** (Gemini AI intelligence & full transcript)
+- `clean_pdf_research`: **0.005 USDC** (PDF papers & whitepapers)
+- `clean_batch_scrape`: **0.005 USDC** (Parallel batch scrape)
+- `Pre-funded Vault`: Deposit once, execute queries with zero latency (<1ms)
 """
 
+
 @mcp.tool(
-    name="fetch_clean_web_content",
-    description="Fetches and transforms any webpage into AI-ready clean Markdown. Requires 0.01 USDC on Polygon."
+    name="clean_web_content",
+    description="Scrapes and converts any raw web page into clean, LLM-ready markdown, eliminating ads, navbars, and noise."
 )
-def fetch_clean_web_content(url: str, payment_tx_hash: Optional[str] = None) -> str:
-    price_usdc = 0.01
-    if not payment_tx_hash:
-        return f"""⚠️ [HTTP 402 - PAYMENT REQUIRED]
-To access clean web content for '{url}', a micropayment of {price_usdc} USDC on Polygon Mainnet is required.
-👉 Recipient Wallet: `{RECIPIENT_WALLET}` (Chain ID: {CHAIN_ID})"""
-
-    is_valid, reason = verify_payment_tx(payment_tx_hash, price_usdc)
-    if not is_valid:
-        return f"❌ [PAYMENT VERIFICATION FAILED]: {reason}"
-
+def clean_web_content(url: str, auth_token_or_tx: Optional[str] = None) -> str:
     try:
-        headers = {"User-Agent": "Mozilla/5.0"}
-        res = requests.get(url, headers=headers, timeout=15)
-        res.raise_for_status()
-        markdown = extract_clean_markdown_for_ai(res.text, url)
-        return f"✅ [PAYMENT VERIFIED (Tx: {payment_tx_hash})]\n\n{markdown}"
+        data = web_cleaner_engine.fetch_and_clean(url)
+        return f"✅ [CLEAN WEB SUCCESS]\n\n# {data['title']}\n\n{data['markdown_content']}"
     except Exception as e:
         return f"❌ [FETCH ERROR]: {str(e)}"
 
+
 @mcp.tool(
-    name="fetch_youtube_transcript",
-    description="Extracts full transcript and timestamps from any YouTube video into AI-ready Markdown. Requires 0.02 USDC on Polygon."
+    name="clean_youtube_transcript",
+    description="Extracts high-precision subtitles, transcripts, or AI-powered comprehensive summaries for any YouTube video using Gemini AI."
 )
-def fetch_youtube_transcript(url: str, language: str = "ko,en", payment_tx_hash: Optional[str] = None) -> str:
-    price_usdc = 0.02
-    if not payment_tx_hash:
-        return f"""⚠️ [HTTP 402 - PAYMENT REQUIRED]
-To extract YouTube transcript for '{url}', a micropayment of {price_usdc} USDC on Polygon Mainnet is required.
-👉 Recipient Wallet: `{RECIPIENT_WALLET}` (Chain ID: {CHAIN_ID})"""
-
-    is_valid, reason = verify_payment_tx(payment_tx_hash, price_usdc)
-    if not is_valid:
-        return f"❌ [PAYMENT VERIFICATION FAILED]: {reason}"
-
-    video_id = extract_youtube_video_id(url)
-    if not video_id:
-        return "❌ [INVALID URL]: Could not parse YouTube video ID."
-
+def clean_youtube_transcript(url: str, lang: str = "ko,en", auth_token_or_tx: Optional[str] = None) -> str:
     try:
-        pref_langs = [l.strip() for l in language.split(",") if l.strip()]
-        try:
-            transcript_list = YouTubeTranscriptApi.get_transcript(video_id, languages=pref_langs)
-        except Exception:
-            transcript_list = YouTubeTranscriptApi.get_transcript(video_id)
-
-        lines = [f"# 🎬 YouTube Transcript ({video_id})\n", f"> **Source**: https://www.youtube.com/watch?v={video_id}\n", "## 📜 Transcript & Timestamps\n"]
-        for item in transcript_list:
-            start_sec = item.get("start", 0)
-            lines.append(f"- **`[{format_timestamp(start_sec)}]`** {item.get('text', '').strip()}")
-
-        return f"✅ [PAYMENT VERIFIED (Tx: {payment_tx_hash})]\n\n" + "\n".join(lines)
+        data = youtube_cleaner_engine.clean_youtube(url, lang=lang)
+        return (
+            f"✅ [YOUTUBE CLEAN SUCCESS - Method: {data['method_used']}]\n\n"
+            f"# 🎬 {data['title']}\n"
+            f"> Channel: {data['channel']} | URL: {data['url']}\n\n"
+            f"## 💡 AI Knowledge Summary\n{data['ai_summary']}\n\n"
+            f"## 📜 Transcript\n{data['transcript'][:4000]}"
+        )
     except Exception as e:
-        return f"❌ [TRANSCRIPT ERROR]: {str(e)}"
+        return f"❌ [YOUTUBE ERROR]: {str(e)}"
+
 
 @mcp.tool(
-    name="fetch_pdf_markdown",
-    description="Extracts structured Markdown from PDF research papers and reports. Requires 0.05 USDC on Polygon."
+    name="clean_pdf_research",
+    description="Parses and extracts structured plain text and metadata from online PDF whitepapers and academic research papers."
 )
-def fetch_pdf_markdown(url: str, payment_tx_hash: Optional[str] = None) -> str:
-    price_usdc = 0.05
-    if not payment_tx_hash:
-        return f"""⚠️ [HTTP 402 - PAYMENT REQUIRED]
-To extract PDF document for '{url}', a micropayment of {price_usdc} USDC on Polygon Mainnet is required.
-👉 Recipient Wallet: `{RECIPIENT_WALLET}` (Chain ID: {CHAIN_ID})"""
-
-    is_valid, reason = verify_payment_tx(payment_tx_hash, price_usdc)
-    if not is_valid:
-        return f"❌ [PAYMENT VERIFICATION FAILED]: {reason}"
-
+def clean_pdf_research(url: str, max_pages: int = 30, auth_token_or_tx: Optional[str] = None) -> str:
     try:
-        res = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=25)
-        res.raise_for_status()
-        reader = PdfReader(io.BytesIO(res.content))
-        lines = [f"# 📑 PDF Document ({url.split('/')[-1]})\n", f"> **Pages**: {len(reader.pages)}\n"]
-        for idx, page in enumerate(reader.pages):
-            text = (page.extract_text() or "").strip()
-            if text:
-                lines.append(f"\n## 📄 Page {idx + 1}\n{text}")
-        return f"✅ [PAYMENT VERIFIED (Tx: {payment_tx_hash})]\n\n" + "\n".join(lines)
+        data = pdf_cleaner_engine.clean_pdf(url, max_pages=max_pages)
+        return (
+            f"✅ [PDF CLEAN SUCCESS]\n\n"
+            f"# 📄 {data['title']}\n"
+            f"> Total Pages: {data['total_pages']} (Parsed: {data['parsed_pages']}) | Word Count: {data['word_count']}\n\n"
+            f"{data['text_content'][:5000]}"
+        )
     except Exception as e:
         return f"❌ [PDF ERROR]: {str(e)}"
 
-@mcp.tool(
-    name="fetch_plain_text",
-    description="Extracts ultra-lightweight pure plain text from any web page. Requires 0.005 USDC on Polygon."
-)
-def fetch_plain_text(url: str, payment_tx_hash: Optional[str] = None) -> str:
-    price_usdc = 0.005
-    if not payment_tx_hash:
-        return f"""⚠️ [HTTP 402 - PAYMENT REQUIRED]
-To extract plain text for '{url}', a micropayment of {price_usdc} USDC on Polygon Mainnet is required.
-👉 Recipient Wallet: `{RECIPIENT_WALLET}` (Chain ID: {CHAIN_ID})"""
-
-    is_valid, reason = verify_payment_tx(payment_tx_hash, price_usdc)
-    if not is_valid:
-        return f"❌ [PAYMENT VERIFICATION FAILED]: {reason}"
-
-    try:
-        res = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=15)
-        res.raise_for_status()
-        soup = BeautifulSoup(res.text, "html.parser")
-        for tag in soup(["script", "style", "nav", "footer", "header", "aside", "noscript", "svg"]):
-            tag.decompose()
-        plain_text = re.sub(r"\s+", " ", soup.get_text()).strip()
-        return f"✅ [PAYMENT VERIFIED (Tx: {payment_tx_hash})]\n\n{plain_text}"
-    except Exception as e:
-        return f"❌ [TEXT ERROR]: {str(e)}"
 
 @mcp.tool(
-    name="fetch_batch_clean_markdown",
-    description="Batch scrapes and cleans up to 10 web URLs concurrently into AI-ready Markdown in a single transaction. Requires 0.01 USDC per URL on Polygon."
+    name="get_vault_balance",
+    description="Checks the remaining pre-funded USDC balance and session status for an agent wallet address or session key."
 )
-def fetch_batch_clean_markdown(urls: str, payment_tx_hash: Optional[str] = None) -> str:
-    url_list = [u.strip() for u in urls.split(",") if u.strip()]
-    if not url_list:
-        return "❌ [INVALID REQUEST]: Please provide comma-separated URLs."
-    if len(url_list) > 10:
-        return "❌ [LIMIT EXCEEDED]: Maximum 10 URLs per batch."
+def get_vault_balance(agent_address_or_key: str) -> str:
+    acc = vault_manager.get_balance(agent_address_or_key)
+    if not acc:
+        return f"⚠️ Vault account not found for '{agent_address_or_key}'. You can create one via POST /api/v1/vault/deposit"
+    return (
+        f"💳 [VAULT BALANCE REPORT]\n"
+        f"- **Agent Address**: `{acc['agent_address']}`\n"
+        f"- **Available Balance**: **${acc['balance_usdc']:.4f} USDC**\n"
+        f"- **Total Deposited**: ${acc['total_deposited']:.4f} USDC\n"
+        f"- **Total Consumed**: ${acc['total_consumed']:.4f} USDC\n"
+        f"- **Queries Handled**: {acc.get('query_count', 0)}\n"
+        f"- **Session Key**: `{acc.get('session_key')}`"
+    )
 
-    price_usdc = round(len(url_list) * 0.01, 4)
-    if not payment_tx_hash:
-        return f"""⚠️ [HTTP 402 - PAYMENT REQUIRED]
-To batch clean {len(url_list)} URLs, a micropayment of {price_usdc} USDC on Polygon Mainnet is required.
-👉 Recipient Wallet: `{RECIPIENT_WALLET}` (Chain ID: {CHAIN_ID})"""
-
-    is_valid, reason = verify_payment_tx(payment_tx_hash, price_usdc)
-    if not is_valid:
-        return f"❌ [PAYMENT VERIFICATION FAILED]: {reason}"
-
-    outputs = [f"✅ [PAYMENT VERIFIED (Tx: {payment_tx_hash})]\n# 📦 Batch Cleaned Results ({len(url_list)} URLs)\n"]
-    for u in url_list:
-        try:
-            res = requests.get(u, headers={"User-Agent": "Mozilla/5.0"}, timeout=12)
-            res.raise_for_status()
-            md = extract_clean_markdown_for_ai(res.text, u)
-            outputs.append(f"## 🌐 {u}\n\n{md}\n\n---")
-        except Exception as e:
-            outputs.append(f"## ❌ {u}\nError: {str(e)}\n\n---")
-    return "\n\n".join(outputs)
-
-@mcp.tool(
-    name="extract_json_schema",
-    description="Extracts structured JSON schema data from any webpage for tool calling and databases. Requires 0.03 USDC on Polygon."
-)
-def extract_json_schema(url: str, schema_description: str, payment_tx_hash: Optional[str] = None) -> str:
-    price_usdc = 0.03
-    if not payment_tx_hash:
-        return f"""⚠️ [HTTP 402 - PAYMENT REQUIRED]
-To extract structured JSON for '{url}', a micropayment of {price_usdc} USDC on Polygon Mainnet is required.
-👉 Recipient Wallet: `{RECIPIENT_WALLET}` (Chain ID: {CHAIN_ID})"""
-
-    is_valid, reason = verify_payment_tx(payment_tx_hash, price_usdc)
-    if not is_valid:
-        return f"❌ [PAYMENT VERIFICATION FAILED]: {reason}"
-
-    try:
-        res = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=15)
-        res.raise_for_status()
-        md = extract_clean_markdown_for_ai(res.text, url)
-        lines = md.split("\n")
-        data = {
-            "url": url,
-            "schema_target": schema_description,
-            "extracted_points": [line.strip("- *# ") for line in lines if line.startswith(("-", "*", "##")) and len(line) > 5][:10]
-        }
-        return f"✅ [PAYMENT VERIFIED (Tx: {payment_tx_hash})]\n\n" + json.dumps(data, indent=2, ensure_ascii=False)
-    except Exception as e:
-        return f"❌ [EXTRACTION ERROR]: {str(e)}"
-
-@mcp.tool(
-    name="deep_research_briefing",
-    description="Generates a multi-source AI synthesized deep research briefing on any topic. Requires 0.15 USDC on Polygon."
-)
-def deep_research_briefing(query: str, max_sources: int = 3, payment_tx_hash: Optional[str] = None) -> str:
-    price_usdc = 0.15
-    if not payment_tx_hash:
-        return f"""⚠️ [HTTP 402 - PAYMENT REQUIRED]
-To generate deep research briefing for '{query}', a micropayment of {price_usdc} USDC on Polygon Mainnet is required.
-👉 Recipient Wallet: `{RECIPIENT_WALLET}` (Chain ID: {CHAIN_ID})"""
-
-    is_valid, reason = verify_payment_tx(payment_tx_hash, price_usdc)
-    if not is_valid:
-        return f"❌ [PAYMENT VERIFICATION FAILED]: {reason}"
-
-    brief = f"""# 🧠 Deep Research Briefing: {query}
-> **Generated via Polygon x402 Micropayment Protocol**
-> **Sources Analyzed**: {max_sources} cross-verified web streams
-
-## 📌 Executive Summary
-Synthesized cross-source intelligence for **'{query}'**. All fluff/noise stripped for immediate context ingestion.
-"""
-    return f"✅ [PAYMENT VERIFIED (Tx: {payment_tx_hash})]\n\n{brief}"
 
 def main():
-    mcp.run(transport="stdio")
+    mcp.run()
 
 
 if __name__ == "__main__":
     main()
-

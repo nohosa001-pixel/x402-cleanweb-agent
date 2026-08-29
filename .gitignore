@@ -7,4 +7,7 @@ __pycache__/
 dist/
 build/
 *.egg-info/
-
+.pytest_cache/
+data/*.db
+data/
+*.log

@@ -4,11 +4,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "x402-cleanweb-agent"
-version = "2.0.0"
-description = "Web3 x402 Micropayment MCP & AI Agent Tool Suite for LLM Data Extraction on Polygon Mainnet"
+version = "2.2.1"
+description = "Deterministic Web3 x402 Micropayment MCP & AI Agent Tool Suite with Gemini 3.6 Flash Video Intelligence on Polygon, Base, and Arbitrum"
 readme = "README.md"
 requires-python = ">=3.10"
-license = { text = "MIT" }
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [
     { name = "x402 AI Agent Team", email = "developer@x402.agent" }
 ]
@@ -17,38 +18,50 @@ keywords = [
     "x402",
     "mcp",
     "polygon",
+    "base",
+    "arbitrum",
     "web3",
-    "langchain",
-    "crewai",
-    "smolagents",
     "micropayments",
     "web-scraper",
-    "llm-ready"
+    "gemini-ai",
+    "youtube-transcript",
+    "pdf-parser"
 ]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
-    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12"
 ]
 dependencies = [
+    "fastapi>=0.110.0",
+    "uvicorn>=0.28.0",
+    "pydantic>=2.6.0",
     "mcp>=1.0.0",
     "web3>=6.0.0",
+    "eth-account>=0.11.0",
     "beautifulsoup4>=4.12.0",
     "requests>=2.31.0",
     "python-dotenv>=1.0.0",
     "youtube-transcript-api>=0.6.2",
+    "yt-dlp>=2024.0.0",
     "pypdf>=4.0.0",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "httpx>=0.27.0"
+]
+
 [project.urls]
-Homepage = "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app"
-Documentation = "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/docs"
+Homepage = "https://x402-cleanweb-agent-212942243360.asia-northeast3.run.app"
+Documentation = "https://x402-cleanweb-agent-212942243360.asia-northeast3.run.app/docs"
 Repository = "https://github.com/nohosa001-pixel/x402-cleanweb-agent"
 Issues = "https://github.com/nohosa001-pixel/x402-cleanweb-agent/issues"
 
@@ -56,9 +69,16 @@ Issues = "https://github.com/nohosa001-pixel/x402-cleanweb-agent/issues"
 x402-cleanweb-agent = "mcp_server:main"
 x402-agent = "mcp_server:main"
 x402-mcp = "mcp_server:main"
+x402-server = "main:main"
+x402-tester = "test_interactive:main"
 
 [tool.setuptools]
-py-modules = ["mcp_server", "polygon_agent", "autonomous_agent_client", "agent_tools"]
+py-modules = ["main", "mcp_server", "test_interactive", "polygon_agent", "autonomous_agent_client", "agent_tools", "monitor_dashboard"]
 
+[tool.setuptools.package-data]
+"*" = ["*.json", "*.txt", ".well-known/*", "contracts/*"]
 
-
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["app*"]
+exclude = ["app.__pycache__*", "tests*", "*.pyc"]

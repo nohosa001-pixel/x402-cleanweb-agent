@@ -1,30 +1,29 @@
 {
-  "$schema": "https://glama.ai/mcp/schemas/server.json",
-  "name": "polygon-x402-cleanweb-agent",
-  "description": "Deterministic Web3 x402 Micropayment MCP & AI Agent Tool Suite with Gemini 3.6 Flash Video Intelligence, Readability Web Cleaner, and Multi-Chain USDC Settlement (Polygon, Base, Arbitrum).",
-  "homepage": "https://github.com/nohosa001-pixel/x402-cleanweb-agent",
-  "maintainers": [
-    "nohosa001-pixel"
-  ],
-  "tags": [
-    "x402",
-    "mcp",
-    "web3",
-    "polygon",
-    "base",
-    "arbitrum",
-    "web-scraper",
-    "youtube-transcript",
-    "gemini-ai",
-    "pdf-research",
-    "micropayments"
-  ],
-  "license": "MIT",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "name": "x402-cleanweb-agent",
+  "version": "2.2.0",
+  "protocol": "mcp-2024-11-05",
+  "payment": {
+    "protocol": "x402",
+    "network": "Polygon, Base, Arbitrum",
+    "supported_currencies": ["USDC"],
+    "pricing_tiers": {
+      "LIGHT": "0.001 USDC (Single Web Clean)",
+      "STANDARD": "0.005 USDC (PDF / Batch Scrape)",
+      "HEAVY": "0.010 USDC (Gemini AI YouTube Full Audio Summary)",
+      "ONCHAIN": "0.020 USDC (EIP-712 Signed Attestation Calldata)"
+    },
+    "free_trial": {
+      "enabled": true,
+      "quota": 2,
+      "type": "instant_sandbox"
+    }
+  },
   "tools": [
     {
       "name": "clean_web_content",
       "description": "Scrapes and converts any raw web page into clean, LLM-ready markdown, eliminating ads, navigation bars, cookie banners, and CSS noise.",
-      "inputSchema": {
+      "parameters": {
         "type": "object",
         "properties": {
           "url": {
@@ -38,12 +37,12 @@
     {
       "name": "clean_youtube_transcript",
       "description": "Extracts high-precision subtitles, transcripts, or AI-powered comprehensive summaries for any YouTube video using Google Gemini Flash intelligence.",
-      "inputSchema": {
+      "parameters": {
         "type": "object",
         "properties": {
           "url": {
             "type": "string",
-            "description": "YouTube video URL (e.g. https://www.youtube.com/watch?v=... or https://youtu.be/...)."
+            "description": "YouTube video URL."
           },
           "lang": {
             "type": "string",
@@ -57,7 +56,7 @@
     {
       "name": "clean_pdf_research",
       "description": "Parses and extracts structured plain text and metadata from online PDF whitepapers and academic research papers.",
-      "inputSchema": {
+      "parameters": {
         "type": "object",
         "properties": {
           "url": {
@@ -76,7 +75,7 @@
     {
       "name": "clean_batch_scrape",
       "description": "Concurrently scrapes and extracts markdown from multiple URLs in a single high-speed batch operation.",
-      "inputSchema": {
+      "parameters": {
         "type": "object",
         "properties": {
           "urls": {
@@ -93,7 +92,7 @@
     {
       "name": "get_pass_status",
       "description": "Checks the active status, remaining queries, and validity period for an agent wallet address or pass token.",
-      "inputSchema": {
+      "parameters": {
         "type": "object",
         "properties": {
           "agent_wallet": {
