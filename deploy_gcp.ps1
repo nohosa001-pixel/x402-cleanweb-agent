@@ -37,8 +37,9 @@ gcloud run deploy x402-cleanweb-agent `
     --cpu 1 `
     --min-instances 0 `
     --max-instances 10 `
-    --set-env-vars="SERVER_WALLET_ADDRESS=0x255F9991233f86B29dB847c8d5b8CB9915e80dCf,PAYMENT_AMOUNT_USDC=0.01,POLYGON_RPC_URL=https://polygon-bor-rpc.publicnode.com,LEMONSQUEEZY_WEBHOOK_SECRET=cleanweb-wh-secret-2026" `
+    --set-env-vars="SERVER_WALLET_ADDRESS=0x255F9991233f86B29dB847c8d5b8CB9915e80dCf,PAYMENT_AMOUNT_USDC=0.01,POLYGON_RPC_URL=https://polygon-bor-rpc.publicnode.com,GEMINI_API_KEY=$($env:GEMINI_API_KEY),GEMINI_MODEL=gemini-3.6-flash" `
     --quiet
+
 
 
 if ($LASTEXITCODE -eq 0) {

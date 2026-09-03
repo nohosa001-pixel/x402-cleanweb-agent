@@ -21,7 +21,7 @@ load_dotenv(override=True)
 # MCP Server Initialization
 mcp = MCPServer(
     name="x402-cleanweb-agent",
-    version="2.2.0",
+    version="2.4.0",
     description="Deterministic Web3 x402 Micropayment MCP Suite for Web, YouTube Gemini AI, and PDF Papers on Polygon, Base, and Arbitrum."
 )
 

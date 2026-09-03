@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "x402-cleanweb-agent"
-version = "2.2.1"
+version = "2.4.0"
 description = "Deterministic Web3 x402 Micropayment MCP & AI Agent Tool Suite with Gemini 3.6 Flash Video Intelligence on Polygon, Base, and Arbitrum"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -50,6 +50,7 @@ dependencies = [
     "youtube-transcript-api>=0.6.2",
     "yt-dlp>=2024.0.0",
     "pypdf>=4.0.0",
+    "stripe>=8.0.0",
 ]
 
 [project.optional-dependencies]
@@ -60,8 +61,8 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://x402-cleanweb-agent-212942243360.asia-northeast3.run.app"
-Documentation = "https://x402-cleanweb-agent-212942243360.asia-northeast3.run.app/docs"
+Homepage = "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app"
+Documentation = "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/docs"
 Repository = "https://github.com/nohosa001-pixel/x402-cleanweb-agent"
 Issues = "https://github.com/nohosa001-pixel/x402-cleanweb-agent/issues"
 

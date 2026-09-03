@@ -6,14 +6,14 @@
   <title>CleanWeb Studio | Multi-Chain Web3 x402 AI Scraper & Gemini Video Intelligence</title>
   <meta name="description" content="Ultra-high-performance AI-ready web scraping, YouTube Gemini Flash video intelligence, PDF research parser, and multi-chain (Polygon, Base, Arbitrum) x402 micropayments.">
   
-  <!-- Modern Fonts -->
+  <!-- Modern Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   
-  <!-- Ethers.js & Lemon Squeezy -->
+  <!-- Ethers.js, Marked.js (Markdown Renderer) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.2/ethers.umd.min.js"></script>
-  <script src="https://assets.lemonsqueezy.com/lemon.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
   <style>
     :root {
@@ -29,7 +29,9 @@
       --cyan: #00f2fe;
       --cyan-glow: rgba(0, 242, 254, 0.4);
       --emerald: #10b981;
+      --emerald-glow: rgba(16, 185, 129, 0.4);
       --amber: #f59e0b;
+      --amber-glow: rgba(245, 158, 11, 0.4);
       --rose: #f43f5e;
       --base-blue: #0052ff;
       --arb-blue: #12aaff;
@@ -220,6 +222,52 @@
       50% { opacity: 0.4; transform: scale(0.85); }
     }
 
+    /* Pass Badge in Header */
+    .pass-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: #6ee7b7;
+      padding: 0.4rem 0.9rem;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .pass-badge:hover {
+      background: rgba(16, 185, 129, 0.22);
+      box-shadow: 0 0 14px var(--emerald-glow);
+      transform: translateY(-1px);
+    }
+
+    /* Buy Pass Button */
+    .btn-buy-pass {
+      background: linear-gradient(135deg, #f59e0b, #ec4899);
+      border: none;
+      color: #fff;
+      padding: 0.5rem 1.15rem;
+      border-radius: 10px;
+      font-weight: 800;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.25s ease;
+      font-family: var(--font-heading);
+      box-shadow: 0 4px 16px rgba(245, 158, 11, 0.35);
+    }
+
+    .btn-buy-pass:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 22px rgba(236, 72, 153, 0.55);
+    }
+
     .btn-connect-wallet {
       background: linear-gradient(135deg, var(--primary), #6366f1);
       border: none;
@@ -378,6 +426,18 @@
       border-color: var(--primary);
       color: #fff;
       box-shadow: 0 4px 16px var(--primary-glow);
+    }
+
+    .tab-btn.highlight-tab {
+      color: #fde047;
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      background: rgba(245, 158, 11, 0.1);
+    }
+
+    .tab-btn.highlight-tab.active {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(236, 72, 153, 0.25));
+      border-color: #f59e0b;
+      box-shadow: 0 4px 18px var(--amber-glow);
     }
 
     /* Tab Content Cards */
@@ -573,6 +633,209 @@
       word-break: break-word;
     }
 
+    /* Pricing & Checkout Section Styles */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .pricing-card {
+      background: rgba(13, 18, 34, 0.85);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      padding: 1.8rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(12px);
+    }
+
+    .pricing-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(0, 242, 254, 0.18);
+      border-color: var(--cyan);
+    }
+
+    .pricing-card.popular {
+      border-color: #f59e0b;
+      background: linear-gradient(180deg, rgba(245, 158, 11, 0.08), rgba(18, 24, 43, 0.9));
+      box-shadow: 0 8px 30px rgba(245, 158, 11, 0.2);
+    }
+
+    .popular-tag {
+      position: absolute;
+      top: -12px;
+      right: 24px;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #050811;
+      font-size: 0.72rem;
+      font-weight: 900;
+      padding: 0.25rem 0.8rem;
+      border-radius: 999px;
+      font-family: var(--font-heading);
+      letter-spacing: 0.5px;
+    }
+
+    .plan-title {
+      font-size: 1.3rem;
+      font-weight: 800;
+      font-family: var(--font-heading);
+      color: #fff;
+      margin-bottom: 0.3rem;
+    }
+
+    .plan-desc {
+      font-size: 0.82rem;
+      color: var(--text-sub);
+      margin-bottom: 1.2rem;
+    }
+
+    .plan-price-wrap {
+      display: flex;
+      align-items: baseline;
+      gap: 0.4rem;
+      margin-bottom: 1.4rem;
+    }
+
+    .plan-price {
+      font-size: 2.3rem;
+      font-weight: 900;
+      font-family: var(--font-heading);
+      color: #fff;
+    }
+
+    .plan-period {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .plan-features {
+      list-style: none;
+      margin-bottom: 1.8rem;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .plan-features li {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .plan-features li span.icon {
+      color: var(--emerald);
+      font-weight: 800;
+    }
+
+    .btn-checkout-ls {
+      display: block;
+      width: 100%;
+      text-align: center;
+      text-decoration: none;
+      background: linear-gradient(135deg, #ffc400, #ff9100);
+      color: #050811;
+      padding: 0.85rem;
+      border-radius: 12px;
+      font-weight: 800;
+      font-size: 0.92rem;
+      font-family: var(--font-heading);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 16px rgba(255, 145, 0, 0.3);
+      border: none;
+    }
+
+    .btn-checkout-ls:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 22px rgba(255, 145, 0, 0.5);
+    }
+
+    .btn-checkout-crypto {
+      display: block;
+      width: 100%;
+      text-align: center;
+      background: linear-gradient(135deg, var(--primary), #6366f1);
+      color: #fff;
+      padding: 0.85rem;
+      border-radius: 12px;
+      font-weight: 800;
+      font-size: 0.92rem;
+      font-family: var(--font-heading);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 16px var(--primary-glow);
+      border: none;
+    }
+
+    .btn-checkout-crypto:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 22px rgba(130, 71, 229, 0.6);
+    }
+
+    /* Modal / Paywall Dialog */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(3, 5, 12, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      z-index: 999999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      animation: modalFadeIn 0.25s ease;
+    }
+
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: scale(0.96); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .modal-container {
+      background: rgba(15, 20, 38, 0.98);
+      border: 1px solid var(--border-glow);
+      border-radius: 24px;
+      max-width: 620px;
+      width: 100%;
+      padding: 2.2rem;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(0, 242, 254, 0.2);
+      position: relative;
+    }
+
+    .modal-close-btn {
+      position: absolute;
+      top: 1.2rem;
+      right: 1.4rem;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: var(--text-sub);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .modal-close-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+    }
+
     /* Multi-Chain Hub Styles */
     .chain-cards-grid {
       display: grid;
@@ -740,6 +1003,277 @@
     .footer-links a:hover {
       color: var(--cyan);
     }
+
+    /* =========================================================================
+       📝 Markdown Formatted Result Viewer & Toolbar Styles
+       ========================================================================= */
+    .console-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.85rem;
+      padding-bottom: 0.6rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      flex-wrap: wrap;
+    }
+
+    .viewer-mode-tabs {
+      display: flex;
+      gap: 0.35rem;
+      background: rgba(255, 255, 255, 0.04);
+      padding: 0.2rem;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .btn-view-mode {
+      background: transparent;
+      border: none;
+      color: var(--text-sub);
+      padding: 0.28rem 0.65rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-view-mode.active {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 2px 8px var(--primary-glow);
+    }
+
+    .viewer-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .btn-action-tool {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text-sub);
+      padding: 0.3rem 0.65rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.2s;
+    }
+
+    .btn-action-tool:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+    }
+
+    .markdown-rendered {
+      color: #f1f5f9;
+      font-size: 0.92rem;
+      line-height: 1.7;
+      word-break: break-word;
+    }
+
+    .markdown-rendered h1, .markdown-rendered h2, .markdown-rendered h3, .markdown-rendered h4 {
+      color: #fff;
+      font-family: var(--font-heading);
+      margin-top: 1.2rem;
+      margin-bottom: 0.6rem;
+      font-weight: 800;
+    }
+
+    .markdown-rendered h1 { font-size: 1.45rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 0.3rem; }
+    .markdown-rendered h2 { font-size: 1.22rem; }
+    .markdown-rendered h3 { font-size: 1.05rem; color: #7dd3fc; }
+
+    .markdown-rendered p {
+      margin-bottom: 0.85rem;
+    }
+
+    .markdown-rendered ul, .markdown-rendered ol {
+      margin-left: 1.4rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .markdown-rendered li {
+      margin-bottom: 0.3rem;
+    }
+
+    .markdown-rendered blockquote {
+      border-left: 3px solid var(--cyan);
+      padding: 0.4rem 0.85rem;
+      background: rgba(0, 242, 254, 0.05);
+      border-radius: 0 8px 8px 0;
+      color: #cbd5e1;
+      margin-bottom: 0.85rem;
+      font-style: italic;
+    }
+
+    .markdown-rendered code {
+      font-family: var(--font-mono);
+      background: rgba(255, 255, 255, 0.08);
+      color: #38bdf8;
+      padding: 0.15rem 0.35rem;
+      border-radius: 4px;
+      font-size: 0.85rem;
+    }
+
+    .markdown-rendered pre {
+      background: rgba(5, 8, 16, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 1rem;
+      overflow-x: auto;
+      margin-bottom: 1rem;
+    }
+
+    .markdown-rendered pre code {
+      background: transparent;
+      color: #e2e8f0;
+      padding: 0;
+    }
+
+    .markdown-rendered a {
+      color: var(--cyan);
+      text-decoration: underline;
+    }
+
+    /* =========================================================================
+       📱 100% Responsive Media Queries (Mobile & Tablet Optimization)
+       ========================================================================= */
+    @media (max-width: 1024px) {
+      .chain-cards-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+      }
+      .pricing-grid {
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)) !important;
+      }
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .ticker-bar {
+        padding: 0.35rem 0.85rem;
+        font-size: 0.7rem;
+        gap: 0.85rem;
+      }
+      .ticker-items {
+        gap: 0.85rem;
+      }
+
+      .nav-inner {
+        padding: 0.75rem 1rem;
+        gap: 0.8rem;
+      }
+      .nav-actions {
+        width: 100%;
+        justify-content: flex-end;
+        gap: 0.5rem;
+      }
+
+      .hero {
+        padding: 2.5rem 1rem 1.8rem;
+      }
+      .hero h1 {
+        font-size: 1.85rem !important;
+        line-height: 1.25;
+      }
+      .hero p {
+        font-size: 0.92rem !important;
+      }
+
+      /* Horizontal Scrollable Tabs */
+      .tabs-nav {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        white-space: nowrap !important;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        gap: 0.45rem !important;
+        padding-bottom: 0.5rem;
+        margin-bottom: 1.2rem;
+      }
+      .tabs-nav::-webkit-scrollbar {
+        display: none;
+      }
+
+      .tab-btn {
+        flex: 0 0 auto !important;
+        font-size: 0.8rem !important;
+        padding: 0.5rem 0.85rem !important;
+        border-radius: 10px !important;
+      }
+
+      .tab-panel {
+        padding: 1.2rem !important;
+        border-radius: 16px !important;
+      }
+
+      .chain-cards-grid {
+        grid-template-columns: 1fr !important;
+      }
+      .pricing-grid {
+        grid-template-columns: 1fr !important;
+      }
+      .vault-grid {
+        grid-template-columns: 1fr !important;
+      }
+      .stats-grid {
+        grid-template-columns: 1fr !important;
+      }
+
+      .input-row {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.6rem !important;
+      }
+      .input-row input {
+        width: 100% !important;
+      }
+      .btn-primary {
+        width: 100% !important;
+        justify-content: center;
+      }
+
+      .console-box {
+        padding: 0.9rem !important;
+        max-height: 380px !important;
+      }
+
+      .modal-card {
+        width: 95% !important;
+        max-height: 88vh !important;
+        overflow-y: auto !important;
+        padding: 1.3rem !important;
+        border-radius: 18px !important;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .logo-title {
+        font-size: 1.05rem !important;
+      }
+      .logo-badge {
+        width: 36px !important;
+        height: 36px !important;
+        font-size: 1rem !important;
+      }
+      .btn-connect {
+        font-size: 0.72rem !important;
+        padding: 0.35rem 0.65rem !important;
+      }
+      .header-pass-badge {
+        font-size: 0.7rem !important;
+        padding: 0.3rem 0.6rem !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -764,7 +1298,7 @@
       </div>
     </div>
     <div style="color: var(--text-muted); font-size: 0.72rem;">
-      <span>x402 Treasury: <code style="color: var(--cyan);">0x255F...0dCf</code></span>
+      <span>x402 Treasury: <code style="color: var(--cyan);">0x255F9991233f86B29dB847c8d5b8CB9915e80dCf</code></span>
     </div>
   </div>
 
@@ -775,23 +1309,22 @@
         <div class="logo-badge">⚡</div>
         <div class="logo-text-wrap">
           <span class="logo-title">CleanWeb Studio</span>
-          <span class="logo-sub">Multi-Chain x402 Suite v2.2.1</span>
+          <span class="logo-sub">x402 Agent Suite v2.4.0</span>
         </div>
       </a>
 
       <div class="nav-meta">
-        <div class="chain-badge poly" onclick="switchTab('multichain')">
+        <!-- Live Pass / Credit Status Indicator -->
+        <div id="headerPassBadge" class="pass-badge" onclick="switchTab('pricing')">
           <span class="live-dot"></span>
-          <span>Polygon (137)</span>
+          <span id="headerPassText">🎟️ Checking Pass...</span>
         </div>
-        <div class="chain-badge base" onclick="switchTab('multichain')">
-          <span class="live-dot" style="background:#3b82f6;"></span>
-          <span>Base (8453)</span>
-        </div>
-        <div class="chain-badge arb" onclick="switchTab('multichain')">
-          <span class="live-dot" style="background:#0284c7;"></span>
-          <span>Arbitrum (42161)</span>
-        </div>
+
+        <!-- Direct Buy Pass Modal Button -->
+        <button class="btn-buy-pass" id="btnHeaderBuyPass" onclick="openPaymentModal()">
+          <span>💼 볼트 충전 (2 ~ 1,000 USDC)</span>
+        </button>
+        
         <button id="btnConnect" class="btn-connect-wallet" onclick="connectWallet()">
           <span>🔗 Connect Wallet</span>
         </button>
@@ -801,44 +1334,56 @@
 
   <!-- Main Content -->
   <main>
-    <!-- Hero Banner -->
-    <section class="hero">
-      <div class="hero-tag">🚀 MULTI-CHAIN x402 MICROPAYMENT ORACLE</div>
-      <h1 class="hero-title">Deterministic Clean Web & Video Intelligence</h1>
-      <p class="hero-desc">
-        Strip clutter, ads, and noise in 1 second. Extract pure LLM-ready markdown, YouTube Gemini Flash video insights, and PDF research papers with millisecond-latency multi-chain USDC settlements.
+    <!-- Hero Banner (Clean & Focused) -->
+    <section class="hero" style="padding: 2.2rem 1.5rem 1.8rem; margin-bottom: 1.8rem;">
+      <div class="hero-tag" style="background: rgba(0,242,254,0.08); border-color: rgba(0,242,254,0.25); color: var(--cyan); font-weight: 700; font-size: 0.8rem; margin-bottom: 0.8rem;">
+        ⚡ PURE B2A AUTONOMOUS AGENT DATA ORACLE
+      </div>
+      <h1 class="hero-title" style="font-size: clamp(1.8rem, 3.2vw, 2.7rem); font-weight: 900; margin-bottom: 0.6rem; letter-spacing: -0.5px;">
+        웹과 비디오의 모든 노이즈를 1초 만에 청정 마크다운으로
+      </h1>
+      <p class="hero-desc" style="font-size: 0.98rem; max-width: 720px; color: var(--text-sub); margin: 0 auto 1.4rem auto; line-height: 1.6;">
+        광고, 쿠키 배너, 장식용 스크립트를 완벽히 제거하여 LLM 입력 토큰을 최대 99% 절감합니다.<br>
+        유튜브 Gemini 3.6 Flash 지능형 분석 및 Polygon · Base · Arbitrum 가스비 0원 볼트 결제를 지원합니다.
       </p>
 
-      <div class="hero-stats-row">
-        <div class="stat-pill">
-          <span class="stat-val">$0.001</span>
-          <span class="stat-lbl">Web Clean (LIGHT)</span>
-        </div>
-        <div class="stat-pill">
-          <span class="stat-val">$0.010</span>
-          <span class="stat-lbl">Gemini AI Video (HEAVY)</span>
-        </div>
-        <div class="stat-pill">
-          <span class="stat-val">3 EVM Chains</span>
-          <span class="stat-lbl">Polygon • Base • Arbitrum</span>
-        </div>
-        <div class="stat-pill">
-          <span class="stat-val">EIP-712</span>
-          <span class="stat-lbl">On-Chain Attestation</span>
-        </div>
+      <div style="display: flex; justify-content: center; gap: 0.75rem; flex-wrap: wrap;">
+        <span style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); padding: 0.4rem 0.9rem; border-radius: 999px; font-size: 0.82rem; color: #cbd5e1;">
+          ⚡ <strong>1초 완성</strong> (평균 95% 토큰 절감)
+        </span>
+        <span style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25); padding: 0.4rem 0.9rem; border-radius: 999px; font-size: 0.82rem; color: #fde047;">
+          🎬 <strong>Gemini 3.6 Flash</strong> 비디오 요약
+        </span>
+        <span style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.25); padding: 0.4rem 0.9rem; border-radius: 999px; font-size: 0.82rem; color: #6ee7b7;">
+          💼 <strong>볼트 예치</strong>: 최저 2.0 ~ 최고 1,000.0 USDC
+        </span>
+        <span style="background: rgba(130,71,229,0.08); border: 1px solid rgba(130,71,229,0.25); padding: 0.4rem 0.9rem; border-radius: 999px; font-size: 0.82rem; color: #c4b5fd;">
+          💰 국고: <strong id="heroTreasuryTotal">$0.00 USDC</strong>
+        </span>
       </div>
     </section>
 
-    <!-- Tabs Navigation -->
-    <div class="tabs-wrapper">
-      <button class="tab-btn active" onclick="switchTab('web')">🌐 Clean Web</button>
-      <button class="tab-btn" onclick="switchTab('youtube')">🎬 YouTube Gemini AI</button>
-      <button class="tab-btn" onclick="switchTab('pdf')">📄 PDF Research</button>
-      <button class="tab-btn" onclick="switchTab('batch')">⚡ Batch Scraper</button>
-      <button class="tab-btn" onclick="switchTab('multichain')">⛓️ Multi-Chain Hub</button>
-      <button class="tab-btn" onclick="switchTab('vault')">💳 Agent Vault</button>
-      <button class="tab-btn" onclick="switchTab('attestation')">🛡️ On-Chain Proof</button>
-      <button class="tab-btn" onclick="switchTab('mcp')">🤖 MCP & API Client</button>
+    <!-- Intuitive Navigation Tabs -->
+    <div style="margin-bottom: 1.5rem;">
+      <!-- Primary Core Service Tabs -->
+      <div class="tabs-wrapper" style="border-bottom: none; margin-bottom: 0.6rem; padding-bottom: 0;">
+        <button class="tab-btn active" onclick="switchTab('web')">🌐 웹 문서 (Web)</button>
+        <button class="tab-btn" onclick="switchTab('youtube')">🎬 유튜브 AI (YouTube)</button>
+        <button class="tab-btn" onclick="switchTab('pdf')">📄 PDF 논문 (PDF)</button>
+        <button class="tab-btn" onclick="switchTab('batch')">⚡ 일괄 수집 (Batch)</button>
+        <button class="tab-btn highlight-tab" style="background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.35); color: #fde047;" onclick="switchTab('pricing')">💼 볼트 충전 (2 ~ 1000 USDC)</button>
+      </div>
+
+      <!-- Secondary Developer & On-Chain Tools (Sub-bar) -->
+      <div style="display: flex; align-items: center; gap: 0.4rem; overflow-x: auto; padding: 0.4rem 0.6rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; font-size: 0.78rem;">
+        <span style="color: var(--text-muted); font-weight: 700; padding: 0 0.4rem; white-space: nowrap;">⚙️ 개발자 & 에이전트 도구:</span>
+        <button class="tab-btn highlight-tab" style="padding: 0.3rem 0.75rem; font-size: 0.78rem; border-radius: 8px; background: rgba(0,242,254,0.12); border-color: rgba(0,242,254,0.35); color: var(--cyan);" onclick="switchTab('oracle')">🔮 Web3 오라클 피드</button>
+        <button class="tab-btn" style="padding: 0.3rem 0.75rem; font-size: 0.78rem; border-radius: 8px;" onclick="switchTab('treasury')">💰 국고 모니터</button>
+        <button class="tab-btn" style="padding: 0.3rem 0.75rem; font-size: 0.78rem; border-radius: 8px;" onclick="switchTab('vault')">💼 에이전트 금고</button>
+        <button class="tab-btn" style="padding: 0.3rem 0.75rem; font-size: 0.78rem; border-radius: 8px;" onclick="switchTab('multichain')">⛓️ 3-Chain RPC</button>
+        <button class="tab-btn" style="padding: 0.3rem 0.75rem; font-size: 0.78rem; border-radius: 8px;" onclick="switchTab('attestation')">🛡️ EIP-712 증명</button>
+        <button class="tab-btn" style="padding: 0.3rem 0.75rem; font-size: 0.78rem; border-radius: 8px;" onclick="switchTab('mcp')">🤖 MCP 연동 규격</button>
+      </div>
     </div>
 
     <!-- Tab 1: Clean Web -->
@@ -846,32 +1391,44 @@
       <div class="grid-card">
         <div class="panel-header">
           <div>
-            <h2 class="panel-title">🌐 Web Readability & Markdown Scraper</h2>
-            <p style="color: var(--text-sub); font-size: 0.85rem;">Eliminate ads, cookie banners, navigation clutter, and extract AI-ready Markdown.</p>
+            <h2 class="panel-title">🌐 웹 문서 청정 추출 (Clean Web)</h2>
+            <p style="color: var(--text-sub); font-size: 0.88rem; margin-top: 0.25rem;">
+              광고, 팝업, 불필요한 태그를 완벽히 제거하고 LLM이 읽기 가장 좋은 고밀도 마크다운을 1초 만에 추출합니다.
+            </p>
           </div>
-          <span class="tier-badge">LIGHT TIER • 0.001 USDC</span>
+          <span class="tier-badge" style="font-size: 0.78rem;">0.001 USDC (약 1.3원 / 1회)</span>
         </div>
 
         <div class="input-group">
-          <input type="text" id="webUrlInput" class="text-input" placeholder="https://paulgraham.com/greatwork.html" value="https://paulgraham.com/greatwork.html">
+          <input type="text" id="webUrlInput" class="text-input" placeholder="추출할 웹페이지 URL 입력 (예: https://paulgraham.com/greatwork.html)" value="https://paulgraham.com/greatwork.html">
           <button class="btn-action" id="btnRunWeb" onclick="runCleanWeb()">
-            <span>⚡ Extract Clean Markdown</span>
+            <span>⚡ 청정 마크다운 추출</span>
           </button>
         </div>
 
         <div class="presets-row">
-          <span class="preset-label">Quick Presets:</span>
-          <span class="preset-pill" onclick="setWebUrl('https://paulgraham.com/greatwork.html')">Paul Graham</span>
-          <span class="preset-pill" onclick="setWebUrl('https://en.wikipedia.org/wiki/Artificial_general_intelligence')">Wikipedia AGI</span>
-          <span class="preset-pill" onclick="setWebUrl('https://techcrunch.com')">TechCrunch</span>
+          <span class="preset-label">💡 원클릭 체험:</span>
+          <span class="preset-pill" onclick="setWebUrl('https://paulgraham.com/greatwork.html')">폴 그레이엄 에세이</span>
+          <span class="preset-pill" onclick="setWebUrl('https://en.wikipedia.org/wiki/Artificial_general_intelligence')">위키백과 AGI</span>
+          <span class="preset-pill" onclick="setWebUrl('https://techcrunch.com')">테크크런치 뉴스</span>
         </div>
 
         <div class="console-box">
-          <div class="console-header">
-            <span class="console-status" id="webStatus">🟢 Ready (Instant Sandbox Free Trial Active)</span>
-            <button class="btn-copy" onclick="copyConsole('webOutput')">📋 Copy Markdown</button>
+          <div class="console-toolbar">
+            <div style="display: flex; align-items: center; gap: 0.6rem;">
+              <span class="console-status" id="webStatus">🟢 준비 완료</span>
+              <div class="viewer-mode-tabs">
+                <button class="btn-view-mode active" id="btnModeRenderWeb" onclick="toggleViewerMode('web', 'render')">👁️ 서식 뷰</button>
+                <button class="btn-view-mode" id="btnModeRawWeb" onclick="toggleViewerMode('web', 'raw')">📝 마크다운 원본</button>
+              </div>
+            </div>
+            <div class="viewer-actions">
+              <button class="btn-action-tool" onclick="downloadMarkdown('web')">💾 .md 저장</button>
+              <button class="btn-action-tool" onclick="copyConsole('webOutputRaw')">📋 복사</button>
+            </div>
           </div>
-          <pre><code id="webOutput">Click 'Extract Clean Markdown' above to start live scraping...</code></pre>
+          <div id="webRendered" class="markdown-rendered">'청정 마크다운 추출' 버튼을 누르면 정제된 결과가 여기에 즉시 표시됩니다.</div>
+          <pre id="webRawWrap" style="display: none;"><code id="webOutputRaw">'청정 마크다운 추출' 버튼을 누르면 정제된 결과가 여기에 즉시 표시됩니다.</code></pre>
         </div>
       </div>
     </div>
@@ -881,31 +1438,43 @@
       <div class="grid-card">
         <div class="panel-header">
           <div>
-            <h2 class="panel-title">🎬 YouTube Gemini 3.6/2.5 Flash AI Intelligence</h2>
-            <p style="color: var(--text-sub); font-size: 0.85rem;">Extract comprehensive video knowledge summaries, key takeaways, and verbatim timestamp transcripts.</p>
+            <h2 class="panel-title">🎬 유튜브 Gemini 3.6 Flash 비디오 지능 (YouTube AI)</h2>
+            <p style="color: var(--text-sub); font-size: 0.88rem; margin-top: 0.25rem;">
+              영상 링크를 입력하면 전체 자막을 추출하고, Gemini 3.6 Flash AI가 핵심 통찰과 타임스탬프 요약을 작성합니다.
+            </p>
           </div>
-          <span class="tier-badge" style="color: var(--amber); border-color: rgba(245, 158, 11, 0.3);">HEAVY TIER • 0.010 USDC</span>
+          <span class="tier-badge" style="color: var(--amber); border-color: rgba(245, 158, 11, 0.3); font-size: 0.78rem;">0.010 USDC (약 13원 / 1회)</span>
         </div>
 
         <div class="input-group">
-          <input type="text" id="ytUrlInput" class="text-input" placeholder="https://www.youtube.com/watch?v=aircAruvnKk" value="https://www.youtube.com/watch?v=aircAruvnKk">
+          <input type="text" id="ytUrlInput" class="text-input" placeholder="유튜브 영상 URL 입력 (예: https://www.youtube.com/watch?v=aircAruvnKk)" value="https://www.youtube.com/watch?v=aircAruvnKk">
           <button class="btn-action" id="btnRunYt" onclick="runCleanYouTube()">
-            <span>🧠 Run Gemini AI Analysis</span>
+            <span>🧠 Gemini 비디오 AI 분석</span>
           </button>
         </div>
 
         <div class="presets-row">
-          <span class="preset-label">Presets:</span>
-          <span class="preset-pill" onclick="setYtUrl('https://www.youtube.com/watch?v=aircAruvnKk')">3Blue1Brown Neural Networks</span>
-          <span class="preset-pill" onclick="setYtUrl('https://youtu.be/kCc8FmEb1nY')">Andrej Karpathy AI</span>
+          <span class="preset-label">💡 원클릭 체험:</span>
+          <span class="preset-pill" onclick="setYtUrl('https://www.youtube.com/watch?v=aircAruvnKk')">3Blue1Brown 신경망 원리</span>
+          <span class="preset-pill" onclick="setYtUrl('https://youtu.be/kCc8FmEb1nY')">안드레이 카파시 LLM 강의</span>
         </div>
 
         <div class="console-box">
-          <div class="console-header">
-            <span class="console-status" id="ytStatus">🟢 Ready</span>
-            <button class="btn-copy" onclick="copyConsole('ytOutput')">📋 Copy Summary</button>
+          <div class="console-toolbar">
+            <div style="display: flex; align-items: center; gap: 0.6rem;">
+              <span class="console-status" id="ytStatus">🟢 준비 완료</span>
+              <div class="viewer-mode-tabs">
+                <button class="btn-view-mode active" id="btnModeRenderYt" onclick="toggleViewerMode('yt', 'render')">👁️ 서식 뷰</button>
+                <button class="btn-view-mode" id="btnModeRawYt" onclick="toggleViewerMode('yt', 'raw')">📝 마크다운 원본</button>
+              </div>
+            </div>
+            <div class="viewer-actions">
+              <button class="btn-action-tool" onclick="downloadMarkdown('yt')">💾 .md 저장</button>
+              <button class="btn-action-tool" onclick="copyConsole('ytOutputRaw')">📋 복사</button>
+            </div>
           </div>
-          <pre><code id="ytOutput">Click 'Run Gemini AI Analysis' to extract knowledge & transcripts...</code></pre>
+          <div id="ytRendered" class="markdown-rendered">'Gemini 비디오 AI 분석' 버튼을 누르면 AI 요약과 타임스탬프 자막이 생성됩니다.</div>
+          <pre id="ytRawWrap" style="display: none;"><code id="ytOutputRaw">'Gemini 비디오 AI 분석' 버튼을 누르면 AI 요약과 타임스탬프 자막이 생성됩니다.</code></pre>
         </div>
       </div>
     </div>
@@ -915,25 +1484,43 @@
       <div class="grid-card">
         <div class="panel-header">
           <div>
-            <h2 class="panel-title">📄 PDF Whitepaper & Academic Paper Parser</h2>
-            <p style="color: var(--text-sub); font-size: 0.85rem;">Download and parse online research papers into structured plain text.</p>
+            <h2 class="panel-title">📄 PDF 학술 논문 & 백서 분석 (PDF Research)</h2>
+            <p style="color: var(--text-sub); font-size: 0.88rem; margin-top: 0.25rem;">
+              arXiv 논문이나 백서 PDF 링크를 1초 만에 LLM용 청정 구조화 마크다운으로 변환합니다.
+            </p>
           </div>
-          <span class="tier-badge">STANDARD TIER • 0.005 USDC</span>
+          <span class="tier-badge" style="font-size: 0.78rem;">0.005 USDC (약 6.5원 / 1회)</span>
         </div>
 
         <div class="input-group">
-          <input type="text" id="pdfUrlInput" class="text-input" placeholder="https://arxiv.org/pdf/1706.03762.pdf" value="https://arxiv.org/pdf/1706.03762.pdf">
+          <input type="text" id="pdfUrlInput" class="text-input" placeholder="온라인 PDF URL 입력 (예: https://arxiv.org/pdf/1706.03762.pdf)" value="https://arxiv.org/pdf/1706.03762.pdf">
           <button class="btn-action" id="btnRunPdf" onclick="runCleanPdf()">
-            <span>📑 Parse PDF</span>
+            <span>📑 PDF 마크다운 변환</span>
           </button>
         </div>
 
+        <div class="presets-row">
+          <span class="preset-label">💡 원클릭 체험:</span>
+          <span class="preset-pill" onclick="setPdfUrl('https://bitcoin.org/bitcoin.pdf')">비트코인 백서 (Satoshi)</span>
+          <span class="preset-pill" onclick="setPdfUrl('https://arxiv.org/pdf/1706.03762.pdf')">트랜스포머 원문 논문 (Attention Is All You Need)</span>
+        </div>
+
         <div class="console-box">
-          <div class="console-header">
-            <span class="console-status" id="pdfStatus">🟢 Ready</span>
-            <button class="btn-copy" onclick="copyConsole('pdfOutput')">📋 Copy Text</button>
+          <div class="console-toolbar">
+            <div style="display: flex; align-items: center; gap: 0.6rem;">
+              <span class="console-status" id="pdfStatus">🟢 준비 완료</span>
+              <div class="viewer-mode-tabs">
+                <button class="btn-view-mode active" id="btnModeRenderPdf" onclick="toggleViewerMode('pdf', 'render')">👁️ 서식 뷰</button>
+                <button class="btn-view-mode" id="btnModeRawPdf" onclick="toggleViewerMode('pdf', 'raw')">📝 마크다운 원본</button>
+              </div>
+            </div>
+            <div class="viewer-actions">
+              <button class="btn-action-tool" onclick="downloadMarkdown('pdf')">💾 .md 저장</button>
+              <button class="btn-action-tool" onclick="copyConsole('pdfOutputRaw')">📋 복사</button>
+            </div>
           </div>
-          <pre><code id="pdfOutput">Enter PDF URL and click 'Parse PDF'...</code></pre>
+          <div id="pdfRendered" class="markdown-rendered">PDF 링크를 입력하고 변환 버튼을 누르면 청정 텍스트가 표시됩니다.</div>
+          <pre id="pdfRawWrap" style="display: none;"><code id="pdfOutputRaw">PDF 링크를 입력하고 변환 버튼을 누르면 청정 텍스트가 표시됩니다.</code></pre>
         </div>
       </div>
     </div>
@@ -943,41 +1530,298 @@
       <div class="grid-card">
         <div class="panel-header">
           <div>
-            <h2 class="panel-title">⚡ Batch Concurrent Scraper</h2>
-            <p style="color: var(--text-sub); font-size: 0.85rem;">Concurrently scrape up to 10 URLs in parallel with high-speed multithreading.</p>
+            <h2 class="panel-title">⚡ 고속 일괄 병렬 스크래핑 (Batch Scraper)</h2>
+            <p style="color: var(--text-sub); font-size: 0.88rem; margin-top: 0.25rem;">
+              최대 10개의 웹사이트 URL을 동시에 멀티스레드로 수집하여 하나의 깔끔한 JSON/마크다운 데이터로 결합합니다.
+            </p>
           </div>
-          <span class="tier-badge">STANDARD TIER • 0.005 USDC</span>
+          <span class="tier-badge" style="font-size: 0.78rem;">0.005 USDC (약 6.5원 / 전체)</span>
         </div>
 
         <div style="margin-bottom: 1.2rem;">
-          <textarea id="batchUrlsInput" class="text-input" style="width: 100%; height: 100px; resize: vertical;" placeholder="Enter URLs (one per line)">https://paulgraham.com/greatwork.html
+          <textarea id="batchUrlsInput" class="text-input" style="width: 100%; height: 95px; resize: vertical; line-height: 1.5;" placeholder="수집할 URL을 한 줄에 하나씩 입력하세요">https://paulgraham.com/greatwork.html
 https://example.com
 https://en.wikipedia.org/wiki/Web_scraping</textarea>
         </div>
 
         <button class="btn-action" id="btnRunBatch" onclick="runCleanBatch()" style="margin-bottom: 1.5rem;">
-          <span>🚀 Run Parallel Batch Scrape</span>
+          <span>🚀 일괄 병렬 스크래핑 실행</span>
         </button>
 
         <div class="console-box">
           <div class="console-header">
-            <span class="console-status" id="batchStatus">🟢 Ready</span>
-            <button class="btn-copy" onclick="copyConsole('batchOutput')">📋 Copy JSON Results</button>
+            <span class="console-status" id="batchStatus">🟢 준비 완료</span>
+            <button class="btn-copy" onclick="copyConsole('batchOutput')">📋 JSON 결과 복사</button>
           </div>
-          <pre><code id="batchOutput">Batch scraping results will appear here...</code></pre>
+          <pre><code id="batchOutput">일괄 스크래핑 결과가 여기에 JSON 포맷으로 표시됩니다...</code></pre>
         </div>
       </div>
     </div>
 
-    <!-- Tab 5: Multi-Chain Network Hub -->
+    <!-- Tab 5: Dedicated B2A Agent Vault Top-up Hub -->
+    <div id="tab-pricing" class="tab-panel">
+      <div class="grid-card">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">💼 자율 에이전트 볼트 충전소 (Agent Vault Top-up)</h2>
+            <p style="color: var(--text-sub); font-size: 0.88rem; margin-top: 0.25rem;">
+              수수료 0원, 가스비 0원. 1회 온체인 예치(최저 2.0 ~ 최고 1,000.0 USDC)로 수천~수백만 건의 고속 무인 쿼리를 가스비 마찰 없이 실행하세요.
+            </p>
+          </div>
+          <span class="tier-badge" style="color: var(--emerald); border-color: rgba(16, 185, 129, 0.3); font-size: 0.78rem;">온체인 즉시 적립 (가스비 0원 차감)</span>
+        </div>
+
+        <!-- 3-Tier B2A Vault Deposit Cards Grid -->
+        <div class="pricing-grid">
+          <!-- Starter Vault (2.0 USDC - Minimum) -->
+          <div class="pricing-card">
+            <div>
+              <span style="font-size: 0.72rem; font-weight: 700; color: var(--emerald); background: rgba(16,185,129,0.15); padding: 0.2rem 0.5rem; border-radius: 6px;">최저 충전선</span>
+              <h3 class="plan-title" style="margin-top: 0.4rem;">🌱 스타터 볼트 (Starter)</h3>
+              <p class="plan-desc">개인 에이전트 프로토타입 및 개발 테스트용</p>
+              <div class="plan-price-wrap">
+                <span class="plan-price">2.0</span>
+                <span class="plan-period">USDC</span>
+              </div>
+              <ul class="plan-features">
+                <li><span class="icon">✓</span> 웹 문서 & PDF 약 <strong>2,000회</strong> 정밀 추출</li>
+                <li><span class="icon">✓</span> 유튜브 Gemini 3.6 Flash 비디오 약 <strong>200회</strong></li>
+                <li><span class="icon">✓</span> 가스비 0원 무지연 차감 (&lt;5ms)</li>
+                <li><span class="icon">✓</span> 세션 키 자동 발급 및 영구 잔액 보존</li>
+              </ul>
+            </div>
+            <div>
+              <button class="btn-checkout-crypto" style="width: 100%; border: none; cursor: pointer; padding: 0.85rem; font-weight: 800; background: linear-gradient(135deg, #10b981, #00f2fe);" onclick="depositVaultUSDC(2.0)">
+                🦊 2.0 USDC 메타마스크 예치
+              </button>
+            </div>
+          </div>
+
+          <!-- Pro Agent Pool (20.0 USDC - Recommended) -->
+          <div class="pricing-card popular">
+            <div class="popular-tag">추천 패키지</div>
+            <div>
+              <h3 class="plan-title">⚡ 프로 에이전트 풀 (Pro Pool)</h3>
+              <p class="plan-desc">상시 가동 자율 에이전트 및 집중 리서치 작업</p>
+              <div class="plan-price-wrap">
+                <span class="plan-price">20.0</span>
+                <span class="plan-period">USDC</span>
+              </div>
+              <ul class="plan-features">
+                <li><span class="icon">✓</span> 웹 문서 & PDF 약 <strong>20,000회</strong> 고속 추출</li>
+                <li><span class="icon">✓</span> 유튜브 Gemini 3.6 Flash 비디오 약 <strong>2,000회</strong></li>
+                <li><span class="icon">✓</span> 최대 20개 동시 병렬 스크래핑 허용</li>
+                <li><span class="icon">✓</span> EIP-712 온체인 암호학적 서명 오라클 연동</li>
+              </ul>
+            </div>
+            <div>
+              <button class="btn-checkout-crypto" style="width: 100%; border: none; cursor: pointer; padding: 0.85rem; font-weight: 800; background: linear-gradient(135deg, #00f2fe, #8247e5);" onclick="depositVaultUSDC(20.0)">
+                🦊 20.0 USDC 메타마스크 예치
+              </button>
+            </div>
+          </div>
+
+          <!-- Enterprise Max Cap (1000.0 USDC - Maximum) -->
+          <div class="pricing-card">
+            <div>
+              <span style="font-size: 0.72rem; font-weight: 700; color: #fde047; background: rgba(245,158,11,0.15); padding: 0.2rem 0.5rem; border-radius: 6px;">최고 선불 한도</span>
+              <h3 class="plan-title" style="margin-top: 0.4rem;">👑 엔터프라이즈 풀 (Max Cap)</h3>
+              <p class="plan-desc">대규모 AI 에이전트 클러스터 및 기업 데이터 파이프라인</p>
+              <div class="plan-price-wrap">
+                <span class="plan-price">1,000.0</span>
+                <span class="plan-period">USDC</span>
+              </div>
+              <ul class="plan-features">
+                <li><span class="icon">✓</span> 웹 문서 약 <strong>1,000,000회</strong> 대규모 무인 수집</li>
+                <li><span class="icon">✓</span> 유튜브 Gemini 3.6 Flash 비디오 <strong>100,000회</strong></li>
+                <li><span class="icon">✓</span> 전용 초고속 프록시 및 최고 우선순위 컴퓨팅 할당</li>
+                <li><span class="icon">✓</span> 초당 50 req/s 고용량 대역폭 보장</li>
+              </ul>
+            </div>
+            <div>
+              <button class="btn-checkout-crypto" style="width: 100%; border: none; cursor: pointer; padding: 0.85rem; font-weight: 800; background: linear-gradient(135deg, #f59e0b, #ec4899);" onclick="depositVaultUSDC(1000.0)">
+                👑 1,000.0 USDC 메타마스크 예치
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Custom Amount Deposit Box (Between 2.0 and 1,000.0 USDC) -->
+        <div style="margin-top: 1.8rem; padding: 1.6rem; background: rgba(10, 14, 28, 0.75); border: 1px solid rgba(0, 242, 254, 0.35); border-radius: 16px;">
+          <h3 style="font-size: 1.05rem; font-family: var(--font-heading); color: var(--cyan); margin-bottom: 0.4rem;">
+            🎯 직접 입력 볼트 예치 (최저 2.0 ~ 최고 1,000.0 USDC)
+          </h3>
+          <p style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 1rem;">
+            원하는 예치 금액을 직접 지정하여 연결된 메타마스크 지갑(Polygon / Base / Arbitrum)에서 1클릭으로 즉시 충전합니다.
+          </p>
+          <div class="input-group">
+            <input type="number" id="customVaultAmtInput" class="text-input" min="2" max="1000" step="1" placeholder="예치 금액 (2 ~ 1000 USDC)" value="10.0">
+            <button class="btn-action" onclick="depositCustomVaultUSDC()">
+              <span>💰 메타마스크 직접 예치</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Pass Token & Promo Code Activation Box -->
+        <div style="margin-top: 2rem; padding: 1.6rem; background: rgba(10, 14, 28, 0.7); border: 1px solid var(--border-subtle); border-radius: 16px;">
+          <h3 style="font-size: 1.1rem; font-family: var(--font-heading); color: var(--cyan); margin-bottom: 0.4rem;">
+            🎟️ 패스 토큰 또는 VIP 프로모 코드 등록
+          </h3>
+          <p style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 1rem;">
+            발급받은 패스 토큰이나 특별 프로모 코드(예: <code style="color:#fde047; font-weight:700;">WELCOME100</code>)를 입력하면 즉시 무료 크레딧이 충전됩니다.
+          </p>
+
+          <div class="input-group">
+            <input type="text" id="passTokenInput" class="text-input" placeholder="패스 토큰 입력 (예: pass_xxx 또는 WELCOME100)" value="WELCOME100">
+            <button class="btn-action" onclick="saveAndActivatePass('passTokenInput')">
+              <span>⚡ 패스 활성화</span>
+            </button>
+            <button class="btn-copy" style="padding: 0.85rem 1.2rem; font-weight: 700;" onclick="checkPassStatus()">
+              <span>🔍 잔여 크레딧 조회</span>
+            </button>
+          </div>
+
+          <div id="passStatusResult" style="margin-top: 0.8rem; font-size: 0.85rem; font-family: var(--font-mono); color: var(--emerald);"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Live Treasury & Earnings Tracker -->
+    <div id="tab-treasury" class="tab-panel">
+      <div class="grid-card">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">💰 실시간 온체인 국고 & 정산 모니터 (Treasury)</h2>
+            <p style="color: var(--text-sub); font-size: 0.88rem; margin-top: 0.25rem;">
+              Polygon, Base, Arbitrum 3개 체인에 실시간으로 수납된 온체인 USDC 잔액과 누적 정산 현황입니다.
+            </p>
+          </div>
+          <div style="display: flex; gap: 0.6rem; align-items: center;">
+            <button class="btn-copy" style="padding: 0.4rem 0.9rem; font-weight: 700; color: var(--emerald);" onclick="fetchTreasuryStatus()">
+              🔄 새로고침
+            </button>
+            <span class="tier-badge" style="color: var(--emerald); border-color: rgba(16, 185, 129, 0.3); font-size: 0.78rem;">온체인 실시간 동기화</span>
+          </div>
+        </div>
+
+        <!-- Overall Revenue Banner -->
+        <div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(0, 242, 254, 0.08)); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 18px; padding: 1.6rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <span style="font-size: 0.82rem; color: var(--text-muted); font-weight: 600; font-family: var(--font-mono); text-transform: uppercase;">Total On-Chain Treasury Balance</span>
+            <div style="font-size: 2.8rem; font-weight: 900; font-family: var(--font-heading); color: #fff; margin-top: 0.2rem;">
+              <span id="treasuryTotalDisplay">$0.0000</span> <span style="font-size: 1.3rem; color: var(--emerald);">USDC</span>
+            </div>
+            <p style="font-size: 0.78rem; color: var(--text-sub); margin-top: 0.2rem;">
+              공식 수납 지갑 주소: <code style="color: var(--cyan);">0x255F9991233f86B29dB847c8d5b8CB9915e80dCf</code>
+            </p>
+          </div>
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <div class="stat-pill" style="min-width: 140px; background: rgba(5, 8, 18, 0.7);">
+              <span class="stat-val" id="treasuryTxCount" style="color: #fde047;">0</span>
+              <span class="stat-lbl">정산 완료 트랜잭션</span>
+            </div>
+            <div class="stat-pill" style="min-width: 140px; background: rgba(5, 8, 18, 0.7);">
+              <span class="stat-val" id="treasuryVaultAccounts" style="color: var(--cyan);">1</span>
+              <span class="stat-lbl">활성 에이전트 볼트</span>
+            </div>
+            <div class="stat-pill" style="min-width: 140px; background: rgba(5, 8, 18, 0.7);">
+              <span class="stat-val" id="treasuryPassCount" style="color: #c4b5fd;">3</span>
+              <span class="stat-lbl">발급된 패스 토큰</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3-Chain Balance Cards Grid -->
+        <div class="chain-cards-grid">
+          <!-- Polygon Treasury Card -->
+          <div class="chain-card" style="border-color: rgba(130, 71, 229, 0.4);">
+            <div>
+              <div class="chain-header">
+                <span class="chain-name" style="color: #c4b5fd;">🟣 Polygon Mainnet</span>
+                <span class="chain-ping">Chain ID: 137</span>
+              </div>
+              <div class="chain-detail-row">
+                <span class="chain-detail-label">USDC 잔액</span>
+                <span class="chain-detail-val" id="polyUsdcBal" style="color: var(--emerald); font-size: 1.1rem;">0.0000 USDC</span>
+              </div>
+              <div class="chain-detail-row">
+                <span class="chain-detail-label">네이티브 MATIC/POL</span>
+                <span class="chain-detail-val" id="polyNativeBal">0.0000 POL</span>
+              </div>
+              <div class="chain-detail-row">
+                <span class="chain-detail-label">컨트랙트</span>
+                <span class="chain-detail-val" style="font-size:0.75rem;">0x3c49...3359</span>
+              </div>
+            </div>
+            <a href="https://polygonscan.com/address/0x255F9991233f86B29dB847c8d5b8CB9915e80dCf" target="_blank" class="btn-switch-network" style="text-align: center; text-decoration: none; display: block;">
+              🔍 PolygonScan 익스플로러 ↗
+            </a>
+          </div>
+
+          <!-- Base Treasury Card -->
+          <div class="chain-card" style="border-color: rgba(0, 82, 255, 0.4);">
+            <div>
+              <div class="chain-header">
+                <span class="chain-name" style="color: #93c5fd;">🔵 Base (Coinbase L2)</span>
+                <span class="chain-ping">Chain ID: 8453</span>
+              </div>
+              <div class="chain-detail-row">
+                <span class="chain-detail-label">USDC 잔액</span>
+                <span class="chain-detail-val" id="baseUsdcBal" style="color: var(--emerald); font-size: 1.1rem;">0.0000 USDC</span>
+              </div>
+              <div class="chain-detail-row">
+                <span class="chain-detail-label">네이티브 ETH</span>
+                <span class="chain-detail-val" id="baseNativeBal">0.0000 ETH</span>
+              </div>
+              <div class="chain-detail-row">
+                <span class="chain-detail-label">컨트랙트</span>
+                <span class="chain-detail-val" style="font-size:0.75rem;">0x8335...2913</span>
+              </div>
+            </div>
+            <a href="https://basescan.org/address/0x255F9991233f86B29dB847c8d5b8CB9915e80dCf" target="_blank" class="btn-switch-network" style="text-align: center; text-decoration: none; display: block;">
+              🔍 BaseScan 익스플로러 ↗
+            </a>
+          </div>
+
+          <!-- Arbitrum Treasury Card -->
+          <div class="chain-card" style="border-color: rgba(18, 170, 255, 0.4);">
+            <div>
+              <div class="chain-header">
+                <span class="chain-name" style="color: #7dd3fc;">🔷 Arbitrum One</span>
+                <span class="chain-ping">Chain ID: 42161</span>
+              </div>
+              <div class="chain-detail-row">
+                <span class="chain-detail-label">USDC 잔액</span>
+                <span class="chain-detail-val" id="arbUsdcBal" style="color: var(--emerald); font-size: 1.1rem;">0.0000 USDC</span>
+              </div>
+              <div class="chain-detail-row">
+                <span class="chain-detail-label">네이티브 ETH</span>
+                <span class="chain-detail-val" id="arbNativeBal">0.0000 ETH</span>
+              </div>
+              <div class="chain-detail-row">
+                <span class="chain-detail-label">컨트랙트</span>
+                <span class="chain-detail-val" style="font-size:0.75rem;">0xaf88...5831</span>
+              </div>
+            </div>
+            <a href="https://arbiscan.io/address/0x255F9991233f86B29dB847c8d5b8CB9915e80dCf" target="_blank" class="btn-switch-network" style="text-align: center; text-decoration: none; display: block;">
+              🔍 Arbiscan 익스플로러 ↗
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 6: Multi-Chain Network Hub -->
     <div id="tab-multichain" class="tab-panel">
       <div class="grid-card">
         <div class="panel-header">
           <div>
-            <h2 class="panel-title">⛓️ Real-Time Multi-Chain Network Hub</h2>
-            <p style="color: var(--text-sub); font-size: 0.85rem;">Direct live RPC connectivity, Native USDC smart contracts, and 1-click MetaMask network switching across Polygon, Base, and Arbitrum.</p>
+            <h2 class="panel-title">⛓️ 멀티체인 실시간 RPC 네트워크 허브 (Multi-Chain Hub)</h2>
+            <p style="color: var(--text-sub); font-size: 0.88rem; margin-top: 0.25rem;">
+              각 블록체인의 실시간 응답 속도와 블록 높이를 확인하고, 메타마스크 네트워크를 1클릭으로 전환할 수 있습니다.
+            </p>
           </div>
-          <span class="tier-badge" style="color: var(--cyan); border-color: rgba(0, 242, 254, 0.3);">3 NETWORKS ACTIVE</span>
+          <span class="tier-badge" style="color: var(--cyan); border-color: rgba(0, 242, 254, 0.3); font-size: 0.78rem;">3개 네트워크 정상 가동</span>
         </div>
 
         <div class="chain-cards-grid">
@@ -997,16 +1841,16 @@ https://en.wikipedia.org/wiki/Web_scraping</textarea>
                 <span class="chain-detail-val" style="font-size:0.75rem;">0x3c499c542cEF...3359</span>
               </div>
               <div class="chain-detail-row">
-                <span class="chain-detail-label">Avg Block Time</span>
-                <span class="chain-detail-val">~2.1 sec</span>
+                <span class="chain-detail-label">평균 블록 타임</span>
+                <span class="chain-detail-val">~2.1초</span>
               </div>
               <div class="chain-detail-row">
-                <span class="chain-detail-label">Permit2 Gasless</span>
-                <span class="chain-detail-val" style="color: var(--emerald);">✅ Supported</span>
+                <span class="chain-detail-label">Permit2 가스리스</span>
+                <span class="chain-detail-val" style="color: var(--emerald);">✅ 지원</span>
               </div>
             </div>
             <button class="btn-switch-network" onclick="switchMetamaskChain(137, 'Polygon Mainnet', 'https://polygon-bor-rpc.publicnode.com', 'MATIC', 18, 'https://polygonscan.com')">
-              🟣 Switch to Polygon
+              🟣 메타마스크 Polygon 전환
             </button>
           </div>
 
@@ -1026,16 +1870,16 @@ https://en.wikipedia.org/wiki/Web_scraping</textarea>
                 <span class="chain-detail-val" style="font-size:0.75rem;">0x833589fCD6eD...2913</span>
               </div>
               <div class="chain-detail-row">
-                <span class="chain-detail-label">Avg Block Time</span>
-                <span class="chain-detail-val">~2.0 sec</span>
+                <span class="chain-detail-label">평균 블록 타임</span>
+                <span class="chain-detail-val">~2.0초</span>
               </div>
               <div class="chain-detail-row">
-                <span class="chain-detail-label">Permit2 Gasless</span>
-                <span class="chain-detail-val" style="color: var(--emerald);">✅ Supported</span>
+                <span class="chain-detail-label">Permit2 가스리스</span>
+                <span class="chain-detail-val" style="color: var(--emerald);">✅ 지원</span>
               </div>
             </div>
             <button class="btn-switch-network" onclick="switchMetamaskChain(8453, 'Base', 'https://mainnet.base.org', 'ETH', 18, 'https://basescan.org')">
-              🔵 Switch to Base
+              🔵 메타마스크 Base 전환
             </button>
           </div>
 
@@ -1055,104 +1899,176 @@ https://en.wikipedia.org/wiki/Web_scraping</textarea>
                 <span class="chain-detail-val" style="font-size:0.75rem;">0xaf88d065e77c...5831</span>
               </div>
               <div class="chain-detail-row">
-                <span class="chain-detail-label">Avg Block Time</span>
-                <span class="chain-detail-val">~0.25 sec</span>
+                <span class="chain-detail-label">평균 블록 타임</span>
+                <span class="chain-detail-val">~0.25초</span>
               </div>
               <div class="chain-detail-row">
-                <span class="chain-detail-label">Permit2 Gasless</span>
-                <span class="chain-detail-val" style="color: var(--emerald);">✅ Supported</span>
+                <span class="chain-detail-label">Permit2 가스리스</span>
+                <span class="chain-detail-val" style="color: var(--emerald);">✅ 지원</span>
               </div>
             </div>
             <button class="btn-switch-network" onclick="switchMetamaskChain(42161, 'Arbitrum One', 'https://arb1.arbitrum.io/rpc', 'ETH', 18, 'https://arbiscan.io')">
-              🔷 Switch to Arbitrum
+              🔷 메타마스크 Arbitrum 전환
             </button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Tab 6: Agent Vault -->
+    <!-- Tab 7: Agent Vault -->
     <div id="tab-vault" class="tab-panel">
       <div class="grid-card">
         <div class="panel-header">
           <div>
-            <h2 class="panel-title">💳 Pre-funded Agent Vault Manager</h2>
-            <p style="color: var(--text-sub); font-size: 0.85rem;">Deposit once on Polygon/Base/Arbitrum. Query with zero latency (&lt;1ms) and gasless micro-deductions.</p>
+            <h2 class="panel-title">💼 자율 에이전트 사전 예치금 금고 (Agent Vault)</h2>
+            <p style="color: var(--text-sub); font-size: 0.88rem; margin-top: 0.25rem;">
+              온체인에 한 번 예치하면, 세션 키를 통해 가스비 0원 및 1ms 미만의 초고속 무인 정산이 가능합니다.
+            </p>
           </div>
-          <span class="tier-badge" style="color: var(--emerald); border-color: rgba(16, 185, 129, 0.3);">ZERO-LATENCY • GASLESS</span>
+          <span class="tier-badge" style="color: var(--emerald); border-color: rgba(16, 185, 129, 0.3); font-size: 0.78rem;">가스비 0원 • 무지연 정산</span>
         </div>
 
         <div class="vault-grid">
           <div class="vault-card-metric">
-            <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">ACTIVE VAULT BALANCE</span>
+            <span style="font-size: 0.82rem; color: var(--text-muted); font-weight: 600;">ACTIVE VAULT BALANCE</span>
             <div class="vault-big-val" id="vaultDisplayBalance">$20.0000 USDC</div>
-            <span style="font-size: 0.78rem; color: var(--emerald);">🟢 Ready for ~20,000 Web Queries</span>
+            <span style="font-size: 0.8rem; color: var(--emerald);">🟢 약 20,000회 웹 스크래핑 가능</span>
           </div>
 
           <div class="vault-card-metric" style="text-align: left;">
-            <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">SESSION KEY AUTHENTICATION</span>
-            <div style="margin: 0.8rem 0;">
+            <span style="font-size: 0.82rem; color: var(--text-muted); font-weight: 600;">SESSION KEY AUTHENTICATION</span>
+            <div style="margin: 0.6rem 0;">
               <input type="text" id="vaultKeyInput" class="text-input" style="width: 100%; font-size: 0.82rem;" value="vault_key_demo_agent_sandbox_2026" readonly>
             </div>
-            <p style="font-size: 0.75rem; color: var(--text-sub);">
-              Use header: <code style="color: var(--cyan);">X-Vault-Key: vault_key_...</code> in your agent requests.
+            <p style="font-size: 0.78rem; color: var(--text-sub);">
+              에이전트 요청 시 헤더에 <code style="color: var(--cyan);">X-Vault-Key: vault_key_...</code>를 전송하면 잔액에서 자동 차감됩니다.
             </p>
           </div>
         </div>
 
         <div style="margin-top: 1.8rem; padding-top: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.08);">
-          <h3 style="font-size: 1.1rem; font-family: var(--font-heading); margin-bottom: 0.85rem;">⚡ Instant Vault Deposit Simulator</h3>
+          <h3 style="font-size: 1.05rem; font-family: var(--font-heading); margin-bottom: 0.6rem;">⚡ 에이전트 볼트 예치 시뮬레이터</h3>
           <div class="input-group">
-            <input type="text" id="depositAddrInput" class="text-input" placeholder="0x... Agent Wallet Address" value="0x70997970C51812dc3A010C7d01b50e0d17dc79C8">
-            <input type="number" id="depositAmountInput" class="text-input" style="max-width: 140px;" placeholder="Amount" value="5.0" step="1.0">
+            <input type="text" id="depositAddrInput" class="text-input" placeholder="0x... 에이전트 지갑 주소" value="0x70997970C51812dc3A010C7d01b50e0d17dc79C8">
+            <input type="number" id="depositAmountInput" class="text-input" style="max-width: 140px;" placeholder="금액 (USDC)" value="5.0" step="1.0">
             <button class="btn-action" onclick="simulateDeposit()">
-              <span>💰 Deposit USDC</span>
+              <span>💰 USDC 예치 실행</span>
             </button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Tab 7: On-Chain Proof -->
+    <!-- Tab 8: On-Chain Proof -->
     <div id="tab-attestation" class="tab-panel">
       <div class="grid-card">
         <div class="panel-header">
           <div>
-            <h2 class="panel-title">🛡️ On-Chain EIP-712 Attestation Explorer</h2>
-            <p style="color: var(--text-sub); font-size: 0.85rem;">Generate cryptographic ECDSA signatures (v, r, s) and ABI calldata for Solidity smart contracts.</p>
+            <h2 class="panel-title">🛡️ EIP-712 온체인 암호학적 서명 오라클 (On-Chain Proof)</h2>
+            <p style="color: var(--text-sub); font-size: 0.88rem; margin-top: 0.25rem;">
+              추출된 데이터의 SHA-256 해시와 메타데이터를 서버 개인키로 서명하여 스마트 컨트랙트에서 위변조를 검증할 수 있는 Calldata를 생성합니다.
+            </p>
           </div>
-          <span class="tier-badge">ONCHAIN TIER • 0.020 USDC</span>
+          <span class="tier-badge" style="font-size: 0.78rem;">0.020 USDC (오라클 서명 포함)</span>
         </div>
 
         <div class="input-group">
           <input type="text" id="attestUrlInput" class="text-input" value="https://paulgraham.com/greatwork.html">
           <button class="btn-action" onclick="runAttestationTest()">
-            <span>🔐 Sign & Generate Calldata</span>
+            <span>🔐 서명 및 Calldata 생성</span>
           </button>
         </div>
 
         <div class="console-box">
           <div class="console-header">
-            <span class="console-status" id="attestStatus">🟢 Oracle Signer Active</span>
-            <button class="btn-copy" onclick="copyConsole('attestOutput')">📋 Copy Calldata</button>
+            <span class="console-status" id="attestStatus">🟢 오라클 서명기 준비 완료</span>
+            <button class="btn-copy" onclick="copyConsole('attestOutput')">📋 Calldata 복사</button>
           </div>
-          <pre><code id="attestOutput">Click 'Sign & Generate Calldata' to view EIP-712 cryptographic proofs...</code></pre>
+          <pre><code id="attestOutput">'서명 및 Calldata 생성' 버튼을 누르면 EIP-712 ECDSA 암호학적 증명이 여기에 생성됩니다...</code></pre>
         </div>
       </div>
     </div>
 
-    <!-- Tab 8: MCP & API Client -->
+    <!-- Tab 8.5: Web3 Signed Oracle Grounding Pipeline Hub -->
+    <div id="tab-oracle" class="tab-panel">
+      <div class="grid-card">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">🔮 B2A Web3 실시간 오라클 그라운딩 (Oracle Grounding)</h2>
+            <p style="color: var(--text-sub); font-size: 0.88rem; margin-top: 0.25rem;">
+              실시간 웹 검색 ➡️ 노이즈 제거 ➡️ Gemini 구조화 JSON ➡️ EIP-712 블록체인 암호학적 공증 서명을 1초 만에 원샷 발급합니다.
+            </p>
+          </div>
+          <span class="tier-badge" style="color: var(--cyan); border-color: rgba(0, 242, 254, 0.4); font-size: 0.78rem;">단가: 0.035 USDC (선불 볼트 자동 차감)</span>
+        </div>
+
+        <div class="input-group">
+          <input type="text" id="oracleQueryInput" class="text-input" placeholder="에이전트가 탐색할 자연어 질의어 입력 (예: 미국 연준 최신 금리 결정 및 시장 영향)" value="US Federal Reserve interest rate decision latest">
+          <button class="btn-action" id="btnRunOracle" onclick="runOracleGrounding()">
+            <span>🔮 오라클 그라운딩 실행</span>
+          </button>
+        </div>
+
+        <div class="presets-row">
+          <span class="preset-label">💡 원클릭 쿼리:</span>
+          <span class="preset-pill" onclick="setOracleQuery('US Federal Reserve interest rate decision latest')">🏛️ 연준 금리 결정</span>
+          <span class="preset-pill" onclick="setOracleQuery('Bitcoin halving schedule and block reward history')">⚡ 비트코인 반감기</span>
+          <span class="preset-pill" onclick="setOracleQuery('NVIDIA latest quarterly AI datacenter revenue report')">🤖 엔비디아 AI 실적</span>
+          <span class="preset-pill" onclick="setOracleQuery('Polymarket 2026 election prediction market odds')">📊 예측시장 여론</span>
+        </div>
+
+        <!-- 2-Column Split: Synthesized Briefing vs. Structured JSON & Signature -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 1.2rem; margin-top: 1.5rem;">
+          <!-- Left Column: Synthesized Markdown Briefing -->
+          <div style="background: rgba(10, 14, 28, 0.7); border: 1px solid var(--border-subtle); border-radius: 14px; padding: 1.2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
+              <span style="font-weight: 700; color: var(--cyan); font-size: 0.95rem;">📝 팩트 기반 요약 브리핑 & 출처</span>
+              <span id="oracleSourcesCount" style="font-size: 0.75rem; color: var(--text-muted);">출처: 0개</span>
+            </div>
+            <div id="oracleBriefingText" style="min-height: 220px; font-size: 0.88rem; line-height: 1.6; color: #cbd5e1; max-height: 380px; overflow-y: auto;">
+              질의어를 입력하고 [오라클 그라운딩 실행]을 누르면 실시간 웹 검색 및 정제된 요약 결과가 여기에 표시됩니다.
+            </div>
+          </div>
+
+          <!-- Right Column: Structured JSON & EIP-712 Attestation -->
+          <div style="background: rgba(10, 14, 28, 0.7); border: 1px solid rgba(0, 242, 254, 0.35); border-radius: 14px; padding: 1.2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
+              <span style="font-weight: 700; color: #fde047; font-size: 0.95rem;">🛡️ EIP-712 블록체인 공증 서명</span>
+              <button class="btn-copy" onclick="copyConsole('oracleJsonOutput')">📋 JSON 복사</button>
+            </div>
+            <div class="console-box" style="max-height: 380px; margin-bottom: 0;">
+              <pre><code id="oracleJsonOutput">// EIP-712 전자서명(v, r, s, data_hash, oracle_signer)이 여기에 출력됩니다.</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Solidity Contract Integration Guide -->
+        <div style="margin-top: 1.5rem; padding: 1.2rem; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;">
+            <span style="font-weight: 700; font-size: 0.85rem; color: #c4b5fd;">⛓️ 온체인 스마트 컨트랙트 1줄 검증 (Solidity ecrecover)</span>
+            <span style="font-size: 0.75rem; color: var(--emerald);">가스비 0원 오라클 검증</span>
+          </div>
+          <p style="font-size: 0.78rem; color: var(--text-sub); margin-bottom: 0.6rem;">
+            DeFi, 예측시장(Polymarket), DAO 컨트랙트에서 위 발급된 서명을 <code style="color:var(--cyan);">verifyAttestation(query, dataHash, timestamp, v, r, s)</code>로 1초 만에 위변조 여부를 무인 검증할 수 있습니다.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 9: MCP & API Client -->
     <div id="tab-mcp" class="tab-panel">
       <div class="grid-card">
         <div class="panel-header">
           <div>
-            <h2 class="panel-title">🤖 1-Click MCP & Developer Integrations</h2>
-            <p style="color: var(--text-sub); font-size: 0.85rem;">Direct copy & paste configurations for Claude Desktop, Cursor, and Python AI Agents.</p>
+            <h2 class="panel-title">🤖 1클릭 MCP 및 개발자 API 연동 명세 (Agent Integrations)</h2>
+            <p style="color: var(--text-sub); font-size: 0.88rem; margin-top: 0.25rem;">
+              Claude Desktop, Cursor, 또는 Python 자율 에이전트 프레임워크(LangChain, CrewAI)에 바로 복사하여 연동할 수 있는 설정 코드입니다.
+            </p>
           </div>
         </div>
 
         <div style="margin-bottom: 1.5rem;">
-          <h4 style="font-family: var(--font-heading); color: var(--cyan); margin-bottom: 0.5rem;">🚀 Claude Desktop / Cursor Config (`claude_desktop_config.json`)</h4>
+          <h4 style="font-family: var(--font-heading); color: var(--cyan); margin-bottom: 0.5rem;">🚀 Claude Desktop / Cursor 연동 설정 (`claude_desktop_config.json`)</h4>
           <div class="console-box" style="max-height: 180px;">
             <pre><code>{
   "mcpServers": {
@@ -1166,14 +2082,14 @@ https://en.wikipedia.org/wiki/Web_scraping</textarea>
         </div>
 
         <div>
-          <h4 style="font-family: var(--font-heading); color: var(--cyan); margin-bottom: 0.5rem;">🐍 Python / LangChain / CrewAI 1-Liner</h4>
+          <h4 style="font-family: var(--font-heading); color: var(--cyan); margin-bottom: 0.5rem;">🐍 Python / LangChain / CrewAI 1줄 호출 코드</h4>
           <div class="console-box" style="max-height: 180px;">
             <pre><code>import requests
 
 res = requests.get(
-    "https://x402-cleanweb-agent-212942243360.asia-northeast3.run.app/api/v1/clean-web",
+    "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/api/v1/clean-web",
     params={"url": "https://paulgraham.com/greatwork.html"},
-    headers={"X-Agent-Nonce": "sandbox_free_trial_1"}
+    headers={"X-Agent-Pass": "WELCOME100"}
 )
 print(res.json()["markdown_content"])</code></pre>
           </div>
@@ -1183,6 +2099,66 @@ print(res.json()["markdown_content"])</code></pre>
 
   </main>
 
+  <!-- Interactive 402 Paywall Modal -->
+  <div id="paymentModal" class="modal-overlay" style="display: none;">
+    <div class="modal-container">
+      <button class="modal-close-btn" onclick="closePaymentModal()">✕</button>
+      
+      <div style="text-align: center; margin-bottom: 1.5rem;">
+        <span style="font-size: 2.2rem;">💳</span>
+        <h2 style="font-size: 1.45rem; font-weight: 800; font-family: var(--font-heading); color: #fff; margin-top: 0.3rem;">
+          CleanWeb 패스 & 즉시 결제 허브
+        </h2>
+        <p id="modalSubMsg" style="font-size: 0.88rem; color: var(--text-sub); margin-top: 0.2rem;">
+          원하시는 결제 방식을 선택하거나 패스 토큰을 입력하여 즉시 데이터 추출을 시작하세요.
+        </p>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 1rem;">
+        <!-- Option 1: Pre-fund Agent Vault (2.0 USDC Minimum) -->
+        <div style="background: rgba(10, 14, 28, 0.85); border: 1px solid rgba(0, 242, 254, 0.4); border-radius: 14px; padding: 1.2rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;">
+            <span style="font-weight: 800; color: var(--cyan); font-size: 0.95rem;">💼 에이전트 볼트 선불 예치 (가스비 0원)</span>
+            <span style="font-size: 0.8rem; background: rgba(0,242,254,0.15); color: var(--cyan); padding: 0.15rem 0.5rem; border-radius: 6px; font-weight: 700;">최저 2.0 USDC</span>
+          </div>
+          <p style="font-size: 0.82rem; color: var(--text-sub); margin-bottom: 0.85rem;">
+            한 번 예치하면 약 2,000회 웹/PDF 마크다운을 가스비 0원 및 &lt;5ms 속도로 무인 소진합니다.
+          </p>
+          <button class="btn-checkout-ls" style="width: 100%; border: none; cursor: pointer; background: linear-gradient(135deg, #10b981, #00f2fe);" onclick="depositVaultUSDC(2.0)">
+            🦊 메타마스크로 2.0 USDC 볼트 즉시 예치
+          </button>
+        </div>
+
+        <!-- Option 2: Web3 MetaMask 1-Click USDC -->
+        <div style="background: rgba(10, 14, 28, 0.85); border: 1px solid var(--border-subtle); border-radius: 14px; padding: 1.2rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;">
+            <span style="font-weight: 800; color: var(--cyan); font-size: 0.95rem;">⛓️ Web3 온체인 USDC 결제 (Polygon / Base / Arb)</span>
+            <span style="font-size: 0.8rem; background: rgba(0,242,254,0.15); color: var(--cyan); padding: 0.15rem 0.5rem; border-radius: 6px; font-weight: 700;">0.001 ~ 0.010 USDC</span>
+          </div>
+          <p style="font-size: 0.82rem; color: var(--text-sub); margin-bottom: 0.85rem;">
+            연결된 메타마스크 지갑에서 국고 컨트랙트로 실시간 소액 결제를 전송합니다.
+          </p>
+          <button class="btn-checkout-crypto" onclick="payCryptoUSDC('LIGHT', 0.001)">
+            🦊 메타마스크로 0.001 USDC 즉시 결제
+          </button>
+        </div>
+
+        <!-- Option 3: Enter Pass Token or Promo Code -->
+        <div style="background: rgba(10, 14, 28, 0.85); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px; padding: 1.2rem;">
+          <span style="font-weight: 800; color: #fff; font-size: 0.9rem; display: block; margin-bottom: 0.4rem;">
+            🎟️ 기존 패스 토큰 또는 프로모 코드 입력
+          </span>
+          <div class="input-group" style="margin-bottom: 0;">
+            <input type="text" id="modalPassInput" class="text-input" placeholder="예: WELCOME100" value="WELCOME100">
+            <button class="btn-action" onclick="saveAndActivatePass('modalPassInput')">
+              <span>적용</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast -->
   <div id="toast" class="toast">Action completed successfully!</div>
 
@@ -1191,7 +2167,7 @@ print(res.json()["markdown_content"])</code></pre>
     <div class="footer-links">
       <a href="/docs" target="_blank">Swagger Docs</a>
       <a href="https://github.com/nohosa001-pixel/x402-cleanweb-agent" target="_blank">GitHub</a>
-      <a href="https://pypi.org/project/x402-cleanweb-agent/" target="_blank">PyPI (v2.2.1)</a>
+      <a href="https://pypi.org/project/x402-cleanweb-agent/" target="_blank">PyPI (v2.3.0)</a>
       <a href="/.well-known/ap2" target="_blank">AP2 Manifest</a>
       <a href="/glama.json" target="_blank">Glama.ai Spec</a>
     </div>
@@ -1199,12 +2175,17 @@ print(res.json()["markdown_content"])</code></pre>
   </footer>
 
   <script>
+    // State Variables
+    let activePassToken = localStorage.getItem('x_agent_pass') || 'WELCOME100';
+    let lastFailedCall = null;
+    const TREASURY_WALLET = "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf";
+
     // Tab Switching
     function switchTab(tabId) {
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
       document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
       
-      const targetBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick').includes(tabId));
+      const targetBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick') && b.getAttribute('onclick').includes(tabId));
       if (targetBtn) targetBtn.classList.add('active');
       
       const targetPanel = document.getElementById(`tab-${tabId}`);
@@ -1215,7 +2196,7 @@ print(res.json()["markdown_content"])</code></pre>
       const toast = document.getElementById('toast');
       toast.innerText = msg;
       toast.style.display = 'block';
-      setTimeout(() => { toast.style.display = 'none'; }, 3000);
+      setTimeout(() => { toast.style.display = 'none'; }, 3500);
     }
 
     function copyConsole(elemId) {
@@ -1232,11 +2213,296 @@ print(res.json()["markdown_content"])</code></pre>
       document.getElementById('ytUrlInput').value = url;
     }
 
+    // Modal Controls
+    function openPaymentModal(detail = null, retryCallback = null) {
+      if (detail && detail.message) {
+        document.getElementById('modalSubMsg').innerText = detail.message;
+      }
+      if (retryCallback) {
+        lastFailedCall = retryCallback;
+      }
+      const modal = document.getElementById('paymentModal');
+      if (modal) {
+        modal.style.display = 'flex';
+      }
+    }
+
+    function closePaymentModal() {
+      const modal = document.getElementById('paymentModal');
+      if (modal) {
+        modal.style.display = 'none';
+      }
+    }
+
+    // Lemon Squeezy Checkout Handler
+    function openLemonCheckout(e, checkoutUrl) {
+      if (e) {
+        try { e.preventDefault(); } catch(err) {}
+      }
+      if (window.LemonSqueezy && window.LemonSqueezy.Url && typeof window.LemonSqueezy.Url.Open === 'function') {
+        try {
+          window.LemonSqueezy.Url.Open(checkoutUrl);
+          return false;
+        } catch (err) {
+          console.warn('LemonSqueezy overlay error, fallback to window.open:', err);
+        }
+      }
+      window.open(checkoutUrl, '_blank', 'noopener,noreferrer');
+      return false;
+    }
+
+    // Pass and Credit Management
+    async function saveAndActivatePass(elemId = 'passTokenInput') {
+      const input = document.getElementById(elemId);
+      const token = input ? input.value.trim() : '';
+      if (!token) return alert('Please enter a valid pass token or promo code');
+
+      activePassToken = token;
+      localStorage.setItem('x_agent_pass', token);
+      
+      try {
+        const res = await fetch(`/api/v1/pass-status?agent_wallet=${encodeURIComponent(token)}`);
+        const data = await res.json();
+        
+        if (res.ok && data.has_active_pass) {
+          const creditsText = data.remaining_credits !== undefined && data.remaining_credits !== null 
+            ? `${data.remaining_credits} Credits` 
+            : 'Active Pass';
+          document.getElementById('headerPassText').innerText = `🎟️ ${creditsText}`;
+          showToast(`✅ Pass '${token}' activated successfully! (${creditsText})`);
+          closePaymentModal();
+          
+          if (lastFailedCall) {
+            const fn = lastFailedCall;
+            lastFailedCall = null;
+            fn();
+          }
+        } else {
+          document.getElementById('headerPassText').innerText = `🎟️ Token: ${token.slice(0, 10)}...`;
+          showToast(`✅ Saved pass '${token}'. Ready for requests.`);
+          closePaymentModal();
+        }
+      } catch (e) {
+        showToast(`✅ Pass '${token}' saved.`);
+        closePaymentModal();
+      }
+    }
+
+    async function checkPassStatus() {
+      const token = document.getElementById('passTokenInput').value.trim();
+      const resBox = document.getElementById('passStatusResult');
+      resBox.innerText = 'Checking status...';
+
+      try {
+        const res = await fetch(`/api/v1/pass-status?agent_wallet=${encodeURIComponent(token)}`);
+        const data = await res.json();
+        if (data.has_active_pass) {
+          resBox.innerText = `🟢 ACTIVE: Type=${data.pass_type}, Remaining Credits=${data.remaining_credits ?? 'Unlimited'}, Expiry=${data.expires_at_utc || 'None'}`;
+        } else {
+          resBox.innerText = `🔴 INACTIVE or Expired: No valid pass found for '${token}'`;
+        }
+      } catch (err) {
+        resBox.innerText = `⚠️ Error checking pass: ${err}`;
+      }
+    }
+
+    // State Variables & Outputs
+    const currentOutputs = {
+      web: '',
+      yt: '',
+      pdf: ''
+    };
+
+    function setPdfUrl(url) {
+      document.getElementById('pdfUrlInput').value = url;
+    }
+
+    // Markdown Result Setter & Formatter
+    function setMarkdownResult(type, content) {
+      currentOutputs[type] = content;
+      const rawElem = document.getElementById(`${type}OutputRaw`);
+      const renderedElem = document.getElementById(`${type}Rendered`);
+      if (rawElem) rawElem.innerText = content;
+      if (renderedElem) {
+        if (window.marked && typeof window.marked.parse === 'function') {
+          renderedElem.innerHTML = marked.parse(content);
+        } else {
+          renderedElem.innerText = content;
+        }
+      }
+    }
+
+    // Toggle between Formatted Rendered View and Raw Markdown View
+    function toggleViewerMode(type, mode) {
+      const capType = type.charAt(0).toUpperCase() + type.slice(1);
+      const renderBtn = document.getElementById(`btnModeRender${capType}`);
+      const rawBtn = document.getElementById(`btnModeRaw${capType}`);
+      const renderedElem = document.getElementById(`${type}Rendered`);
+      const rawWrap = document.getElementById(`${type}RawWrap`);
+
+      if (mode === 'render') {
+        if (renderBtn) renderBtn.classList.add('active');
+        if (rawBtn) rawBtn.classList.remove('active');
+        if (renderedElem) renderedElem.style.display = 'block';
+        if (rawWrap) rawWrap.style.display = 'none';
+      } else {
+        if (renderBtn) renderBtn.classList.remove('active');
+        if (rawBtn) rawBtn.classList.add('active');
+        if (renderedElem) renderedElem.style.display = 'none';
+        if (rawWrap) rawWrap.style.display = 'block';
+      }
+    }
+
+    // Download Markdown File (.md)
+    function downloadMarkdown(type) {
+      const content = currentOutputs[type] || '';
+      if (!content) return showToast('⚠️ No content to download.');
+      const blob = new Blob([content], { type: 'text/markdown;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `cleanweb_${type}_${Date.now()}.md`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast(`💾 Downloaded ${type}.md successfully!`);
+    }
+
+    // B2A Agent Vault Top-up Handler (Enforcing Min 2.0 and Max 1000.0 USDC)
+    async function depositVaultUSDC(amountUsdc) {
+      amountUsdc = Number(amountUsdc);
+      if (isNaN(amountUsdc) || amountUsdc < 2.0 || amountUsdc > 1000.0) {
+        return alert('⚠️ 볼트 충전 금액은 최저 2.0 USDC에서 최고 1,000.0 USDC 사이여야 합니다.');
+      }
+      if (!window.ethereum) {
+        return alert('MetaMask or Web3 wallet not detected. Please install a Web3 wallet.');
+      }
+
+      try {
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        const userAddress = await signer.getAddress();
+        const network = await provider.getNetwork();
+        const chainId = Number(network.chainId);
+
+        const USDC_ADDRESSES = {
+          137: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359", // Polygon
+          8453: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // Base
+          42161: "0xaf88d065e77c8cC2239327C5EDb3A432268e5831" // Arbitrum
+        };
+
+        const usdcAddr = USDC_ADDRESSES[chainId];
+        if (!usdcAddr) {
+          alert(`Current chain (${chainId}) is not supported for USDC deposit. Please switch to Polygon (137), Base (8453), or Arbitrum (42161).`);
+          return;
+        }
+
+        const ERC20_ABI = [
+          "function transfer(address to, uint256 amount) returns (bool)",
+          "function decimals() view returns (uint8)"
+        ];
+        const usdcContract = new ethers.Contract(usdcAddr, ERC20_ABI, signer);
+        const rawAmount = BigInt(Math.round(amountUsdc * 1_000_000));
+
+        showToast(`🔗 Initiating ${amountUsdc} USDC transfer on Chain ID ${chainId}...`);
+        const tx = await usdcContract.transfer(TREASURY_WALLET, rawAmount);
+        showToast(`⏳ Transaction Broadcast: ${tx.hash.slice(0, 10)}... Confirming.`);
+
+        await tx.wait();
+        showToast(`🎉 On-Chain Deposit Confirmed! Crediting Vault...`);
+
+        const chainName = chainId === 137 ? "polygon" : (chainId === 8453 ? "base" : "arbitrum");
+        const depRes = await fetch('/api/v1/vault/deposit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            agent_address: userAddress,
+            amount_usdc: amountUsdc,
+            chain: chainName,
+            tx_hash: tx.hash
+          })
+        });
+
+        const depData = await depRes.json();
+        if (depRes.ok) {
+          if (depData.session_key) {
+            localStorage.setItem('x_agent_vault_key', depData.session_key);
+            localStorage.setItem('x_agent_pass', depData.session_key);
+            activePassToken = depData.session_key;
+          }
+          document.getElementById('headerPassText').innerText = `💼 $${depData.balance_usdc} USDC`;
+          showToast(`✅ Agent Vault Funded! New Balance: $${depData.balance_usdc} USDC`);
+          closePaymentModal();
+          fetchTreasuryStatus();
+        } else {
+          alert(`Vault Credit Error: ${depData.detail || 'Failed to update vault'}`);
+        }
+      } catch (err) {
+        alert('Vault deposit cancelled or failed: ' + err.message);
+      }
+    }
+
+    function depositCustomVaultUSDC() {
+      const input = document.getElementById('customVaultAmtInput');
+      const val = parseFloat(input.value);
+      depositVaultUSDC(val);
+    }
+
+    // Web3 Real USDC ERC-20 1-Click Pay
+    async function payCryptoUSDC(tier, amountUsdc) {
+      if (!window.ethereum) {
+        return alert('MetaMask or Web3 wallet not detected.');
+      }
+      try {
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        const network = await provider.getNetwork();
+        const chainId = Number(network.chainId);
+
+        const USDC_ADDRESSES = {
+          137: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359", // Polygon
+          8453: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // Base
+          42161: "0xaf88d065e77c8cC2239327C5EDb3A432268e5831" // Arbitrum
+        };
+
+        const usdcAddr = USDC_ADDRESSES[chainId];
+        if (!usdcAddr) {
+          alert(`Current chain (${chainId}) is not supported for USDC settlement. Please switch to Polygon (137), Base (8453), or Arbitrum (42161).`);
+          return;
+        }
+
+        const ERC20_ABI = [
+          "function transfer(address to, uint256 amount) returns (bool)",
+          "function decimals() view returns (uint8)"
+        ];
+        const usdcContract = new ethers.Contract(usdcAddr, ERC20_ABI, signer);
+        const rawAmount = BigInt(Math.round(amountUsdc * 1_000_000));
+
+        showToast(`🔗 Initiating ${amountUsdc} USDC transfer on Chain ID ${chainId}...`);
+        
+        const tx = await usdcContract.transfer(TREASURY_WALLET, rawAmount);
+        showToast(`⏳ Transaction Broadcast: ${tx.hash.slice(0, 10)}... Waiting for confirmation.`);
+        
+        await tx.wait();
+        localStorage.setItem('x_payment_tx', tx.hash);
+        showToast(`🎉 On-Chain Payment Confirmed! Tx: ${tx.hash.slice(0, 10)}...`);
+        closePaymentModal();
+        
+        if (lastFailedCall) {
+          const fn = lastFailedCall;
+          lastFailedCall = null;
+          fn();
+        }
+      } catch (err) {
+        alert('Web3 USDC payment cancelled or failed: ' + err.message);
+      }
+    }
+
     // Live Web Cleaner Execution
     async function runCleanWeb() {
       const url = document.getElementById('webUrlInput').value.trim();
       const btn = document.getElementById('btnRunWeb');
-      const out = document.getElementById('webOutput');
       const status = document.getElementById('webStatus');
 
       if (!url) return alert('Please enter a valid URL');
@@ -1245,23 +2511,34 @@ print(res.json()["markdown_content"])</code></pre>
       btn.innerHTML = '<span>⏳ Scraping...</span>';
       status.innerText = '🟡 Fetching & Cleaning...';
 
+      const headers = { 'X-Agent-Nonce': `demo_nonce_${Date.now()}` };
+      if (activePassToken) headers['X-Agent-Pass'] = activePassToken;
+      const lastTx = localStorage.getItem('x_payment_tx');
+      if (lastTx) headers['X-Payment-Tx'] = lastTx;
+
       try {
-        const res = await fetch(`/api/v1/clean-web?url=${encodeURIComponent(url)}`, {
-          headers: { 'X-Agent-Nonce': `demo_nonce_${Date.now()}` }
-        });
+        const res = await fetch(`/api/v1/clean-web?url=${encodeURIComponent(url)}`, { headers });
         const data = await res.json();
         
         if (res.ok) {
           status.innerText = `🟢 Success • ${data.word_count} words • ~${data.estimated_reading_time_sec}s read`;
-          out.innerText = data.markdown_content;
+          setMarkdownResult('web', data.markdown_content || '');
+          
+          if (data.auth && data.auth.remaining_credits !== undefined) {
+            document.getElementById('headerPassText').innerText = `🎟️ ${data.auth.remaining_credits} Credits`;
+          }
           showToast('✅ Web Markdown extracted successfully!');
+        } else if (res.status === 402) {
+          status.innerText = `🔴 HTTP 402 Payment Required`;
+          setMarkdownResult('web', JSON.stringify(data, null, 2));
+          openPaymentModal(data, runCleanWeb);
         } else {
           status.innerText = `🔴 HTTP ${res.status}`;
-          out.innerText = JSON.stringify(data, null, 2);
+          setMarkdownResult('web', JSON.stringify(data, null, 2));
         }
       } catch (err) {
         status.innerText = '🔴 Network Error';
-        out.innerText = String(err);
+        setMarkdownResult('web', String(err));
       } finally {
         btn.disabled = false;
         btn.innerHTML = '<span>⚡ Extract Clean Markdown</span>';
@@ -1272,7 +2549,6 @@ print(res.json()["markdown_content"])</code></pre>
     async function runCleanYouTube() {
       const url = document.getElementById('ytUrlInput').value.trim();
       const btn = document.getElementById('btnRunYt');
-      const out = document.getElementById('ytOutput');
       const status = document.getElementById('ytStatus');
 
       if (!url) return alert('Please enter a valid YouTube URL');
@@ -1281,26 +2557,37 @@ print(res.json()["markdown_content"])</code></pre>
       btn.innerHTML = '<span>🧠 Gemini AI Analyzing...</span>';
       status.innerText = '🟡 Running Multi-Tier AI Video Intelligence...';
 
+      const headers = { 'X-Agent-Nonce': `demo_yt_${Date.now()}` };
+      if (activePassToken) headers['X-Agent-Pass'] = activePassToken;
+      const lastTx = localStorage.getItem('x_payment_tx');
+      if (lastTx) headers['X-Payment-Tx'] = lastTx;
+
       try {
-        const res = await fetch(`/api/v1/clean-youtube?url=${encodeURIComponent(url)}`, {
-          headers: { 'X-Agent-Nonce': `demo_yt_${Date.now()}` }
-        });
+        const res = await fetch(`/api/v1/clean-youtube?url=${encodeURIComponent(url)}`, { headers });
         const data = await res.json();
 
         if (res.ok) {
           status.innerText = `🟢 Success • Method: ${data.method_used}`;
           let text = `# 🎬 ${data.title}\n> Channel: ${data.channel} | Video ID: ${data.video_id}\n\n`;
-          text += `## 💡 AI Knowledge Summary\n${data.ai_summary}\n\n`;
-          text += `## 📜 Full Transcript\n${data.transcript}`;
-          out.innerText = text;
+          text += `## 💡 AI Knowledge Summary\n${data.ai_summary || ''}\n\n`;
+          text += `## 📜 Full Transcript\n${data.transcript || ''}`;
+          setMarkdownResult('yt', text);
+          
+          if (data.auth && data.auth.remaining_credits !== undefined) {
+            document.getElementById('headerPassText').innerText = `🎟️ ${data.auth.remaining_credits} Credits`;
+          }
           showToast('✅ Gemini AI Video intelligence extracted!');
+        } else if (res.status === 402) {
+          status.innerText = `🔴 HTTP 402 Payment Required`;
+          setMarkdownResult('yt', JSON.stringify(data, null, 2));
+          openPaymentModal(data, runCleanYouTube);
         } else {
           status.innerText = `🔴 HTTP ${res.status}`;
-          out.innerText = JSON.stringify(data, null, 2);
+          setMarkdownResult('yt', JSON.stringify(data, null, 2));
         }
       } catch (err) {
         status.innerText = '🔴 Error';
-        out.innerText = String(err);
+        setMarkdownResult('yt', String(err));
       } finally {
         btn.disabled = false;
         btn.innerHTML = '<span>🧠 Run Gemini AI Analysis</span>';
@@ -1311,26 +2598,36 @@ print(res.json()["markdown_content"])</code></pre>
     async function runCleanPdf() {
       const url = document.getElementById('pdfUrlInput').value.trim();
       const btn = document.getElementById('btnRunPdf');
-      const out = document.getElementById('pdfOutput');
       const status = document.getElementById('pdfStatus');
 
       btn.disabled = true;
       btn.innerHTML = '<span>⏳ Parsing PDF...</span>';
 
+      const headers = { 'X-Agent-Nonce': `demo_pdf_${Date.now()}` };
+      if (activePassToken) headers['X-Agent-Pass'] = activePassToken;
+      const lastTx = localStorage.getItem('x_payment_tx');
+      if (lastTx) headers['X-Payment-Tx'] = lastTx;
+
       try {
-        const res = await fetch(`/api/v1/clean-pdf?url=${encodeURIComponent(url)}&max_pages=15`, {
-          headers: { 'X-Agent-Nonce': `demo_pdf_${Date.now()}` }
-        });
+        const res = await fetch(`/api/v1/clean-pdf?url=${encodeURIComponent(url)}&max_pages=15`, { headers });
         const data = await res.json();
         if (res.ok) {
           status.innerText = `🟢 Success • ${data.total_pages} Pages (${data.word_count} words)`;
-          out.innerText = `# 📄 ${data.title}\n\n${data.text_content}`;
+          const text = `# 📄 ${data.title}\n\n${data.text_content}`;
+          setMarkdownResult('pdf', text);
+          if (data.auth && data.auth.remaining_credits !== undefined) {
+            document.getElementById('headerPassText').innerText = `🎟️ ${data.auth.remaining_credits} Credits`;
+          }
           showToast('✅ PDF parsed successfully!');
+        } else if (res.status === 402) {
+          status.innerText = `🔴 HTTP 402 Payment Required`;
+          setMarkdownResult('pdf', JSON.stringify(data, null, 2));
+          openPaymentModal(data, runCleanPdf);
         } else {
-          out.innerText = JSON.stringify(data, null, 2);
+          setMarkdownResult('pdf', JSON.stringify(data, null, 2));
         }
       } catch (err) {
-        out.innerText = String(err);
+        setMarkdownResult('pdf', String(err));
       } finally {
         btn.disabled = false;
         btn.innerHTML = '<span>📑 Parse PDF</span>';
@@ -1351,20 +2648,30 @@ print(res.json()["markdown_content"])</code></pre>
       btn.innerHTML = '<span>🚀 Parallel Scraping...</span>';
       status.innerText = `🟡 Scraping ${urls.length} URLs concurrently...`;
 
+      const headers = {
+        'Content-Type': 'application/json',
+        'X-Agent-Nonce': `demo_batch_${Date.now()}`
+      };
+      if (activePassToken) headers['X-Agent-Pass'] = activePassToken;
+
       try {
         const res = await fetch('/api/v1/clean-batch', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Agent-Nonce': `demo_batch_${Date.now()}`
-          },
+          headers: headers,
           body: JSON.stringify({ urls: urls })
         });
         const data = await res.json();
         if (res.ok) {
           status.innerText = `🟢 Completed ${data.total_success}/${data.total_requested} URLs`;
           out.innerText = JSON.stringify(data, null, 2);
+          if (data.auth && data.auth.remaining_credits !== undefined) {
+            document.getElementById('headerPassText').innerText = `🎟️ ${data.auth.remaining_credits} Credits`;
+          }
           showToast('✅ Batch scraping completed!');
+        } else if (res.status === 402) {
+          status.innerText = `🔴 HTTP 402 Payment Required`;
+          out.innerText = JSON.stringify(data, null, 2);
+          openPaymentModal(data, runCleanBatch);
         } else {
           out.innerText = JSON.stringify(data, null, 2);
         }
@@ -1519,10 +2826,145 @@ print(res.json()["markdown_content"])</code></pre>
       }
     }
 
-    // Run block ping on load and every 10 seconds
+    // Live On-Chain Treasury Status Fetcher
+    async function fetchTreasuryStatus() {
+      try {
+        const res = await fetch('/api/v1/treasury/status');
+        const data = await res.json();
+        if (res.ok && data.onchain_balances) {
+          const total = data.total_usdc_onchain !== undefined ? data.total_usdc_onchain.toFixed(4) : "0.0000";
+          const displayStr = `$${total} USDC`;
+          
+          if (document.getElementById('heroTreasuryTotal')) {
+            document.getElementById('heroTreasuryTotal').innerText = displayStr;
+          }
+          if (document.getElementById('treasuryTotalDisplay')) {
+            document.getElementById('treasuryTotalDisplay').innerText = `$${total}`;
+          }
+
+          if (data.db_stats) {
+            if (document.getElementById('treasuryTxCount')) {
+              document.getElementById('treasuryTxCount').innerText = data.db_stats.total_settled_transactions || 0;
+            }
+            if (document.getElementById('treasuryVaultAccounts')) {
+              document.getElementById('treasuryVaultAccounts').innerText = data.db_stats.active_vault_accounts || 1;
+            }
+            if (document.getElementById('treasuryPassCount')) {
+              document.getElementById('treasuryPassCount').innerText = data.db_stats.active_passes_issued || 3;
+            }
+          }
+
+          const nets = data.onchain_balances.networks || {};
+          if (nets.polygon && document.getElementById('polyUsdcBal')) {
+            document.getElementById('polyUsdcBal').innerText = `${nets.polygon.usdc_balance.toFixed(4)} USDC`;
+            document.getElementById('polyNativeBal').innerText = `${nets.polygon.native_balance.toFixed(4)} POL`;
+          }
+          if (nets.base && document.getElementById('baseUsdcBal')) {
+            document.getElementById('baseUsdcBal').innerText = `${nets.base.usdc_balance.toFixed(4)} USDC`;
+            document.getElementById('baseNativeBal').innerText = `${nets.base.native_balance.toFixed(4)} ETH`;
+          }
+          if (nets.arbitrum && document.getElementById('arbUsdcBal')) {
+            document.getElementById('arbUsdcBal').innerText = `${nets.arbitrum.usdc_balance.toFixed(4)} USDC`;
+            document.getElementById('arbNativeBal').innerText = `${nets.arbitrum.native_balance.toFixed(4)} ETH`;
+          }
+        }
+      } catch (err) {
+        console.warn('Treasury status fetch error:', err);
+      }
+    }
+
+    function setOracleQuery(q) {
+      document.getElementById('oracleQueryInput').value = q;
+    }
+
+    async function runOracleGrounding() {
+      const q = document.getElementById('oracleQueryInput').value.trim();
+      const btn = document.getElementById('btnRunOracle');
+      const briefingEl = document.getElementById('oracleBriefingText');
+      const jsonEl = document.getElementById('oracleJsonOutput');
+      const countEl = document.getElementById('oracleSourcesCount');
+
+      if (!q) return alert('Please enter a research or event query.');
+
+      btn.disabled = true;
+      btn.innerHTML = '<span>⏳ Synthesizing & Signing...</span>';
+      briefingEl.innerHTML = '<p style="color:var(--cyan);">🔮 실시간 웹 검색 및 노이즈 제거 진행 중... (약 1~2초)</p>';
+      jsonEl.innerText = '// EIP-712 블록체인 서명 생성 중...';
+
+      const headers = { 'Content-Type': 'application/json' };
+      if (activePassToken) headers['X-Agent-Pass'] = activePassToken;
+      const lastTx = localStorage.getItem('x_payment_tx');
+      if (lastTx) headers['X-Payment-Tx'] = lastTx;
+
+      try {
+        const res = await fetch('/api/v1/oracle/grounding', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ query: q, max_sources: 3 })
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          if (window.marked && data.summary_markdown) {
+            briefingEl.innerHTML = marked.parse(data.summary_markdown);
+          } else {
+            briefingEl.innerText = data.summary_markdown || 'No summary returned';
+          }
+          if (data.source_urls) {
+            countEl.innerText = `출처: ${data.source_urls.length}개 웹 소스`;
+          }
+          jsonEl.innerText = JSON.stringify({
+            structured_data: data.structured_data,
+            oracle_attestation: data.oracle_attestation
+          }, null, 2);
+
+          showToast('🔮 Web3 Oracle Grounding & EIP-712 Signed!');
+        } else if (res.status === 402) {
+          briefingEl.innerHTML = '<p style="color: #ef4444;">🔴 HTTP 402 Payment Required: 볼트 잔액이 부족합니다 (0.035 USDC 필요).</p>';
+          jsonEl.innerText = JSON.stringify(data, null, 2);
+          openPaymentModal(data, runOracleGrounding);
+        } else {
+          briefingEl.innerHTML = `<p style="color: #ef4444;">🔴 Error: ${data.detail || 'Request failed'}</p>`;
+          jsonEl.innerText = JSON.stringify(data, null, 2);
+        }
+      } catch (err) {
+        briefingEl.innerHTML = `<p style="color: #ef4444;">🔴 Network Error: ${err.message}</p>`;
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span>🔮 오라클 그라운딩 실행</span>';
+      }
+    }
+
+    // Run on load
     window.addEventListener('DOMContentLoaded', () => {
       pingBlockchains();
       setInterval(pingBlockchains, 10000);
+
+      fetchTreasuryStatus();
+      setInterval(fetchTreasuryStatus, 15000);
+      
+      // Check for Stripe Checkout success in query param
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('payment') === 'success') {
+        showToast('🎉 Stripe payment confirmed! Pass activated successfully.');
+      }
+      
+      // Auto-check initial pass token
+      if (activePassToken) {
+        fetch(`/api/v1/pass-status?agent_wallet=${encodeURIComponent(activePassToken)}`)
+          .then(r => r.json())
+          .then(d => {
+            if (d.has_active_pass) {
+              const cr = d.remaining_credits !== undefined && d.remaining_credits !== null ? `${d.remaining_credits} Credits` : 'Active Pass';
+              document.getElementById('headerPassText').innerText = `🎟️ ${cr}`;
+            } else {
+              document.getElementById('headerPassText').innerText = `🎟️ Free Trial Active`;
+            }
+          })
+          .catch(() => {
+            document.getElementById('headerPassText').innerText = `🎟️ Free Trial Active`;
+          });
+      }
     });
   </script>
 </body>

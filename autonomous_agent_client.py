@@ -144,8 +144,17 @@ class AutonomousX402Agent:
 
         if res.status_code == 402:
             data = res.json()
-            x402_info = data.get("x402", {})
-            required_usdc = x402_info.get("amount", data.get("required_usdc", "0.01"))
+            x402_info = data.get("x402") or data.get("challenge") or {}
+            if "token_address" in x402_info and "token_contract" not in x402_info:
+                x402_info["token_contract"] = x402_info["token_address"]
+            if "recipient_wallet" in x402_info and "recipient" not in x402_info:
+                x402_info["recipient"] = x402_info["recipient_wallet"]
+            if "amount_usdc" in x402_info and "amount" not in x402_info:
+                x402_info["amount"] = x402_info["amount_usdc"]
+            if "amount" in x402_info and "amount_raw" not in x402_info:
+                x402_info["amount_raw"] = str(int(float(x402_info["amount"]) * 1_000_000))
+
+            required_usdc = x402_info.get("amount", data.get("required_usdc", "0.001"))
             suggested_action = data.get("suggested_action", "")
 
             print(f"[x402 Agent] 402 Payment Required: {required_usdc} USDC on Polygon.")

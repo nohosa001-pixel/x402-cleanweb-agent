@@ -18,6 +18,9 @@ from app.multi_chain import multi_chain_manager
 class VaultManager:
     """Thread-safe and SQLite-backed manager for pre-funded agent payment vault accounts."""
 
+    MIN_DEPOSIT_USDC = float(os.getenv("MIN_DEPOSIT_USDC", "2.0"))
+    MAX_DEPOSIT_USDC = float(os.getenv("MAX_DEPOSIT_USDC", "1000.0"))
+
     def __init__(self):
         self._lock = threading.Lock()
         self._seed_demo_account()
@@ -30,9 +33,11 @@ class VaultManager:
             storage_manager.deposit_vault(demo_addr, 20.00, demo_key)
 
     def deposit(self, agent_address: str, amount_usdc: float, chain: str = "polygon", tx_hash: Optional[str] = None) -> Dict[str, Any]:
-        """Deposits USDC into an agent's pre-funded vault balance."""
-        if amount_usdc <= 0:
-            raise ValueError("Deposit amount must be positive.")
+        """Deposits USDC into an agent's pre-funded vault balance. Enforces Min $2.0 and Max $1,000.0 limits."""
+        if amount_usdc < self.MIN_DEPOSIT_USDC:
+            raise ValueError(f"Deposit amount must be at least {self.MIN_DEPOSIT_USDC} USDC.")
+        if amount_usdc > self.MAX_DEPOSIT_USDC:
+            raise ValueError(f"Deposit amount cannot exceed {self.MAX_DEPOSIT_USDC} USDC.")
 
         checksum_addr = Web3.to_checksum_address(agent_address)
         

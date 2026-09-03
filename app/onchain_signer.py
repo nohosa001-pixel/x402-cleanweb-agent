@@ -131,5 +131,103 @@ class OnChainCleanWebSigner:
             abi_calldata=abi_calldata,
         )
 
+    def sign_oracle_grounding(
+        self,
+        query: str,
+        data_hash: str,
+        timestamp: Optional[int] = None,
+    ):
+        """
+        Signs an EIP-712 CleanWebOracleFeed typed message for autonomous AI agents.
+        """
+        from app.schemas import OracleAttestation
+        ts = timestamp or int(time.time())
+        clean_hash = ("0x" + data_hash) if not data_hash.startswith("0x") else data_hash
+        hash_bytes = bytes.fromhex(clean_hash.replace("0x", "").zfill(64))
+
+        structured_data = {
+            "types": {
+                "EIP712Domain": [
+                    {"name": "name", "type": "string"},
+                    {"name": "version", "type": "string"},
+                    {"name": "chainId", "type": "uint256"},
+                    {"name": "verifyingContract", "type": "address"},
+                ],
+                "CleanWebOracleFeed": [
+                    {"name": "query", "type": "string"},
+                    {"name": "dataHash", "type": "bytes32"},
+                    {"name": "timestamp", "type": "uint256"},
+                ],
+            },
+            "primaryType": "CleanWebOracleFeed",
+            "domain": self.get_domain_data(),
+            "message": {
+                "query": query,
+                "dataHash": hash_bytes,
+                "timestamp": ts,
+            },
+        }
+
+        encoded_message = encode_typed_data(full_message=structured_data)
+        signed = self.account.sign_message(encoded_message)
+
+        return OracleAttestation(
+            query=query,
+            data_hash=clean_hash,
+            timestamp=ts,
+            oracle_signer=self.signer_address,
+            v=signed.v,
+            r=hex(signed.r),
+            s=hex(signed.s),
+            signature="0x" + signed.signature.hex(),
+            domain_chain_id=self.chain_id,
+        )
+
+    def verify_oracle_grounding(
+        self,
+        query: str,
+        data_hash: str,
+        timestamp: int,
+        signature: str,
+    ) -> Tuple[bool, str]:
+        """
+        Verifies an EIP-712 signature against the Oracle signer address.
+        """
+        try:
+            clean_hash = ("0x" + data_hash) if not data_hash.startswith("0x") else data_hash
+            hash_bytes = bytes.fromhex(clean_hash.replace("0x", "").zfill(64))
+
+            structured_data = {
+                "types": {
+                    "EIP712Domain": [
+                        {"name": "name", "type": "string"},
+                        {"name": "version", "type": "string"},
+                        {"name": "chainId", "type": "uint256"},
+                        {"name": "verifyingContract", "type": "address"},
+                    ],
+                    "CleanWebOracleFeed": [
+                        {"name": "query", "type": "string"},
+                        {"name": "dataHash", "type": "bytes32"},
+                        {"name": "timestamp", "type": "uint256"},
+                    ],
+                },
+                "primaryType": "CleanWebOracleFeed",
+                "domain": self.get_domain_data(),
+                "message": {
+                    "query": query,
+                    "dataHash": hash_bytes,
+                    "timestamp": timestamp,
+                },
+            }
+
+            encoded_message = encode_typed_data(full_message=structured_data)
+            sig_bytes = bytes.fromhex(signature.replace("0x", ""))
+            recovered = Account.recover_message(encoded_message, signature=sig_bytes)
+            is_valid = recovered.lower() == self.signer_address.lower()
+            return is_valid, recovered
+        except Exception:
+            return False, ""
+
 
 onchain_signer = OnChainCleanWebSigner()
+

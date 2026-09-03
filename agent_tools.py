@@ -64,10 +64,10 @@ class X402AgentToolkit:
 
     def clean_web(self, url: str, density: str = "standard", max_tokens: Optional[int] = None) -> str:
         """
-        [0.01 USDC] Scrapes any website, strips ads & clutter, and returns clean, LLM-ready Markdown.
+        [0.001 USDC] Scrapes any website, strips ads & clutter, and returns clean, LLM-ready Markdown.
         density: 'standard', 'compact', or 'tables_only'
         """
-        price = 0.01
+        price = 0.001
         if not self.budget_guard.can_spend(price):
             return f"[ERROR: Budget limit exceeded ({self.budget_guard.spent_usdc:.4f}/{self.budget_guard.max_daily_budget_usdc} USDC)]"
         
@@ -80,9 +80,9 @@ class X402AgentToolkit:
 
     def batch_clean(self, urls: List[str], density: str = "standard", max_tokens_per_url: Optional[int] = None) -> str:
         """
-        [0.01 USDC / URL] Scrapes up to 10 URLs in parallel in a single batch transaction.
+        [0.005 USDC] Scrapes up to 10 URLs in parallel in a single batch transaction.
         """
-        total_price = round(len(urls) * 0.01, 4)
+        total_price = 0.005
         if not self.budget_guard.can_spend(total_price):
             return f"[ERROR: Budget limit exceeded ({self.budget_guard.spent_usdc:.4f}/{self.budget_guard.max_daily_budget_usdc} USDC)]"
         
@@ -99,9 +99,9 @@ class X402AgentToolkit:
 
     def clean_youtube(self, url: str, language: str = "ko,en") -> str:
         """
-        [0.02 USDC] Extracts full video transcript and timestamped segments from YouTube in Markdown.
+        [0.010 USDC] Extracts full video transcript and timestamped segments from YouTube in Markdown with Gemini Flash.
         """
-        price = 0.02
+        price = 0.010
         if not self.budget_guard.can_spend(price):
             return f"[ERROR: Budget limit exceeded ({self.budget_guard.spent_usdc:.4f}/{self.budget_guard.max_daily_budget_usdc} USDC)]"
         
@@ -111,9 +111,9 @@ class X402AgentToolkit:
 
     def clean_pdf(self, url: str) -> str:
         """
-        [0.05 USDC] Extracts research papers (arXiv) and PDF reports into structured Markdown.
+        [0.005 USDC] Extracts research papers (arXiv) and PDF reports into structured Markdown.
         """
-        price = 0.05
+        price = 0.005
         if not self.budget_guard.can_spend(price):
             return f"[ERROR: Budget limit exceeded ({self.budget_guard.spent_usdc:.4f}/{self.budget_guard.max_daily_budget_usdc} USDC)]"
         
@@ -123,9 +123,9 @@ class X402AgentToolkit:
 
     def clean_text(self, url: str) -> str:
         """
-        [0.005 USDC] Ultra-fast raw plain text scraper for vector embeddings and RAG search.
+        [0.001 USDC] Ultra-fast raw plain text scraper for vector embeddings and RAG search.
         """
-        price = 0.005
+        price = 0.001
         if not self.budget_guard.can_spend(price):
             return f"[ERROR: Budget limit exceeded ({self.budget_guard.spent_usdc:.4f}/{self.budget_guard.max_daily_budget_usdc} USDC)]"
         
