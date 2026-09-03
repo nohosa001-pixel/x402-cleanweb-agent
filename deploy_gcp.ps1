@@ -22,7 +22,23 @@ if ([string]::IsNullOrEmpty($currentProject)) {
 Write-Host "Project ID: $currentProject" -ForegroundColor Green
 Write-Host "Region: asia-northeast3 (Seoul)" -ForegroundColor Green
 
+# Load .env if present
+if (Test-Path .env) {
+    Get-Content .env | ForEach-Object {
+        $l = $_.Trim()
+        if ($l -and -not $l.StartsWith('#') -and $l.Contains('=')) {
+            $kv = $l.Split('=', 2)
+            $k = $kv[0].Trim()
+            $v = $kv[1].Trim()
+            if (-not [string]::IsNullOrEmpty($k)) {
+                [Environment]::SetEnvironmentVariable($k, $v, "Process")
+            }
+        }
+    }
+}
+
 # 3. Enable APIs
+
 Write-Host "`n[1/2] Enabling required GCP APIs (run, cloudbuild, artifactregistry)..." -ForegroundColor Yellow
 gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com --quiet
 
