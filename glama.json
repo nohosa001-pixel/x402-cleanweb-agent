@@ -1,108 +1,45 @@
-{
-  "$schema": "https://glama.ai/mcp/schemas/server.json",
-  "name": "polygon-x402-cleanweb-agent",
-  "description": "Deterministic Web3 x402 Micropayment MCP & AI Agent Tool Suite with Gemini 3.6 Flash Video Intelligence, Readability Web Cleaner, and Multi-Chain USDC Settlement (Polygon, Base, Arbitrum).",
-  "homepage": "https://github.com/nohosa001-pixel/x402-cleanweb-agent",
-  "maintainers": [
-    "nohosa001-pixel"
-  ],
-  "tags": [
-    "x402",
-    "mcp",
-    "web3",
-    "polygon",
-    "base",
-    "arbitrum",
-    "web-scraper",
-    "youtube-transcript",
-    "gemini-ai",
-    "pdf-research",
-    "micropayments"
-  ],
-  "license": "MIT",
-  "tools": [
-    {
-      "name": "clean_web_content",
-      "description": "Scrapes and converts any raw web page into clean, LLM-ready markdown, eliminating ads, navigation bars, cookie banners, and CSS noise.",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "url": {
-            "type": "string",
-            "description": "The target website URL to scrape and clean."
-          }
-        },
-        "required": ["url"]
-      }
-    },
-    {
-      "name": "clean_youtube_transcript",
-      "description": "Extracts high-precision subtitles, transcripts, or AI-powered comprehensive summaries for any YouTube video using Google Gemini Flash intelligence.",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "url": {
-            "type": "string",
-            "description": "YouTube video URL (e.g. https://www.youtube.com/watch?v=... or https://youtu.be/...)."
-          },
-          "lang": {
-            "type": "string",
-            "description": "Target transcript language code (default: 'ko,en').",
-            "default": "ko,en"
-          }
-        },
-        "required": ["url"]
-      }
-    },
-    {
-      "name": "clean_pdf_research",
-      "description": "Parses and extracts structured plain text and metadata from online PDF whitepapers and academic research papers.",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "url": {
-            "type": "string",
-            "description": "Direct URL pointing to a PDF document."
-          },
-          "max_pages": {
-            "type": "integer",
-            "description": "Maximum number of pages to parse (default: 30).",
-            "default": 30
-          }
-        },
-        "required": ["url"]
-      }
-    },
-    {
-      "name": "clean_batch_scrape",
-      "description": "Concurrently scrapes and extracts markdown from multiple URLs in a single high-speed batch operation.",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "urls": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "description": "List of URLs to scrape in parallel (up to 10 URLs)."
-          }
-        },
-        "required": ["urls"]
-      }
-    },
-    {
-      "name": "get_pass_status",
-      "description": "Checks the active status, remaining queries, and validity period for an agent wallet address or pass token.",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "agent_wallet": {
-            "type": "string",
-            "description": "Ethereum/Polygon address (0x...) or Lemon Squeezy Pass Token."
-          }
-        },
-        "required": ["agent_wallet"]
-      }
-    }
-  ]
+﻿{
+  ": https://glama.ai/mcp/schemas/server.json,
+ name: polygon-x402-cleanweb-agent,
+ description: Zero-human Web3 micropayment MCP agent for LLM-ready clean web scraping, YouTube transcripts with Gemini 3.6 Flash intelligence, and PDF paper extraction with multi-chain USDC settlement (Polygon, Base, Arbitrum).,
+ homepage: https://github.com/nohosa001-pixel/x402-cleanweb-agent,
+ maintainers: [
+ nohosa001-pixel
+ ],
+ tags: [
+ x402,
+ mcp,
+ web3,
+ polygon,
+ base,
+ arbitrum,
+ web-scraper,
+ youtube-transcript,
+ gemini-ai,
+ pdf-research,
+ micropayments
+ ],
+ license: MIT,
+ tools: [
+ {
+ name: clean_web_content,
+ description: Scrapes and converts any target web page into clean, LLM-ready structured Markdown, stripping ads, cookie banners, navigation clutter, and script noise. Returns clean markdown body, page title, word count, and extraction metadata. Usage Guidelines: Use this tool to ingest real-time web content into LLM context windows without token waste. Do NOT use for video audio parsing (use clean_youtube_transcript) or local PDF files (use clean_pdf_research).
+ },
+ {
+ name: clean_youtube_transcript,
+ description: Extracts high-precision subtitles, timestamped transcripts, and comprehensive AI summaries for any YouTube video using Google Gemini Flash intelligence. Returns full timestamped transcript text, bullet-point summary, video duration, and language metadata. Usage Guidelines: Use when you need to ingest or summarize YouTube video knowledge into agent workflows.
+ },
+ {
+ name: clean_pdf_research,
+ description: Parses and extracts structured plain text, sections, and academic metadata from online PDF whitepapers and arXiv research documents. Returns parsed markdown text, section headers, page count, and citation references. Usage Guidelines: Use when ingesting scientific papers, technical specs, or financial PDF reports.
+ },
+ {
+ name: clean_batch_scrape,
+ description: Concurrently scrapes and extracts clean markdown from up to 10 URLs in parallel with high-speed async processing. Returns a JSON array of parsed web documents with individual status codes and content bodies. Usage Guidelines: Use when an agent needs to perform multi-source research across multiple search results simultaneously.
+ },
+ {
+ name: get_pass_status,
+ description: Checks the active subscription status, remaining query quota, and validity period for an agent EVM wallet address (0x...) or Lemon Squeezy Pass Token. Returns pass tier, remaining balance, and expiration timestamp. Usage Guidelines: Use to verify micropayment allowance or query entitlements before dispatching heavy scrape batches.
+ }
+ ]
 }
