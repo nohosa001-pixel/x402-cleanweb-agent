@@ -25,6 +25,29 @@ SERVER_WALLET_ADDRESS = Web3.to_checksum_address(
 )
 ALLOW_DEV_BYPASS = os.getenv("ALLOW_DEV_BYPASS", "false").lower() in ("1", "true", "yes")
 
+# Known OFAC Sanctioned & Malicious Mixer Addresses (EVM / Polygon / Base / Arbitrum)
+SANCTIONED_ADDRESSES: set = {
+    addr.lower() for addr in [
+        # Tornado Cash Routers & Core Contracts
+        "0xd90e2f925DA726b50C4Ed8D0Fb90Ad053324F31b",
+        "0x722122dF12D4e14e13Ac3b6895a86e84145b6967",
+        "0xd4B88Df4D29F5CedD6857912842cff3b20C8Cfa3",
+        "0x12D66f87A04A9E220743712cE6d9bB1B5616B8Fc",
+        "0x47CE0C6eD5B0Ce3d3A51fdb1C52DC66a7c3c2936",
+        "0x23773E65ed146A459791799d01336DB287f25292",
+        "0x22aaA72138f030747689932c733Fae1291C13542",
+        # Ronin Bridge Exploiter (Lazarus Group)
+        "0x098B711182729156f1628099e90635246ca79d7A",
+        "0xda858a3CD560BEfbA6545550c60927018203f384",
+    ]
+}
+
+def is_sanctioned_address(address: str) -> bool:
+    """Checks whether the client/payer address is on the OFAC/Sanctions blacklist."""
+    if not address:
+        return False
+    return address.lower() in SANCTIONED_ADDRESSES
+
 # Tiered Pricing Configuration (USDC)
 TIER_PRICING: Dict[PricingTier, Dict[str, Any]] = {
     PricingTier.LIGHT: {
@@ -129,6 +152,7 @@ class X402Verifier:
         body = {
             "error": "Payment Required",
             "status_code": 402,
+            "x402Version": 1,
             "tier_required": tier.value,
             "message": custom_detail or f"HTTP 402 Payment Required: {cfg['description']} ({cfg['cost_usdc']} USDC)",
             "required_usdc": f"{cfg['cost_usdc']:.4f}",
@@ -144,6 +168,54 @@ class X402Verifier:
                 "token_contract": ch_dict.get("token_address"),
                 "token": "USDC",
                 "payment_methods": ch_dict.get("payment_methods_accepted", [])
+            },
+            # x402 Foundation Standard Scheme
+            "accepts": [
+                {
+                    "scheme": "exact",
+                    "network": "polygon",
+                    "chain_id": 137,
+                    "maxAmountRequired": str(int(cfg["cost_usdc"] * 1_000_000)),
+                    "asset": ch_dict.get("token_address"),
+                    "resource": "/api/v1/clean-web",
+                    "payTo": self.recipient_wallet,
+                    "extra": {"name": "USDC", "version": "2"}
+                },
+                {
+                    "scheme": "exact",
+                    "network": "base",
+                    "chain_id": 8453,
+                    "maxAmountRequired": str(int(cfg["cost_usdc"] * 1_000_000)),
+                    "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+                    "resource": "/api/v1/clean-web",
+                    "payTo": self.recipient_wallet,
+                    "extra": {"name": "USDC", "version": "2"}
+                },
+                {
+                    "scheme": "exact",
+                    "network": "arbitrum",
+                    "chain_id": 42161,
+                    "maxAmountRequired": str(int(cfg["cost_usdc"] * 1_000_000)),
+                    "asset": "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
+                    "resource": "/api/v1/clean-web",
+                    "payTo": self.recipient_wallet,
+                    "extra": {"name": "USDC", "version": "2"}
+                }
+            ],
+            # Zero-Human Self-Onboarding Guide for Autonomous LLMs
+            "_agentGuide": {
+                "humanFreeOnboarding": True,
+                "instruction": "This resource requires autonomous micropayment via x402 EIP-712 or pre-funded Vault. No human login or credit card required.",
+                "sdk_python": "pip install x402-cleanweb-agent",
+                "sdk_npm": "npm i @cleanweb/x402-client",
+                "spendPolicy": "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/api/v1/docs",
+                "estimatedCostPerCall": f"${cfg['cost_usdc']:.4f} USDC",
+                "freeTrialStatus": f"{ch_dict.get('free_trial_remaining', 0)} sandbox calls remaining before mandatory payment",
+                "autonomous_actions": {
+                    "step1_trial": "To use remaining free trial, send header 'x-agent-nonce: <random_hex>'",
+                    "step2_vault": "To self-fund vault via USDC: POST /api/v1/vault/deposit with tx hash or EIP-712 permit",
+                    "step3_direct": "To execute instant EIP-712 signed query: attach 'x-signature' and 'x-agent-wallet' headers"
+                }
             }
         }
 

@@ -1,7 +1,7 @@
-# ⚡ CleanWeb Studio v2.4.0: B2A Autonomous Agent Data Oracle & Grounding Pipeline
+# ⚡ The Spend Firewall & B2A Autonomous Agent Data Oracle (CleanWeb Studio v2.4.0)
 
-> **The World's First Pure Business-to-Agent (B2A) Real-Time Data Oracle & x402 Micropayment Engine.**  
-> *Zero credit cards. Zero human logins. 100% Native USDC pre-funded vaults with on-chain EIP-712 attestations.*
+> **"The Spend Firewall for Autonomous Agents: Verified data in. Signed policy out. Every payment auditable on-chain."**  
+> *Zero credit cards. Zero human logins. 100% Native USDC micropayments & pre-funded vaults with on-chain EIP-712 spend policy attestations.*
 
 [![Version](https://img.shields.io/badge/Version-2.4.0-00f2fe?style=for-the-badge&logo=fastapi&logoColor=black)](https://github.com/nohosa001-pixel/x402-cleanweb-agent)
 [![Multi-Chain](https://img.shields.io/badge/Chains-Polygon%20%7C%20Base%20%7C%20Arbitrum-8247e5?style=for-the-badge&logo=ethereum&logoColor=white)](https://polygonscan.com)

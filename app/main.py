@@ -606,8 +606,50 @@ async def get_treasury_status(wallet_address: Optional[str] = None):
     }
 
 
+# =========================================================================
+# 🌐 A-Grid Enterprise Operations & Governance Endpoints (agrid-ops-agent)
+# =========================================================================
+@app.get("/api/v1/ops/telemetry", tags=["A-Grid Operations & Compliance"])
+async def get_agrid_ops_telemetry(exchange_rate_krw: float = Query(1400.0, ge=100.0)):
+    """
+    Returns real-time consolidated financial, accounting, and compliance metrics
+    specifically formatted for ingestion by agrid-ops-agent (Finance, Accounting, Legal).
+    """
+    from app.agrid_finance_legal import cleanweb_controller
+    return cleanweb_controller.get_cleanweb_ops_telemetry(exchange_rate_krw=exchange_rate_krw)
+
+
+@app.get("/api/v1/ops/journals", tags=["A-Grid Operations & Compliance"])
+async def get_agrid_ops_journals(
+    limit: int = Query(50, ge=1, le=500),
+    exchange_rate_krw: float = Query(1400.0, ge=100.0)
+):
+    """
+    Exports recent on-chain micro-payments and vault deductions as double-entry journal records.
+    """
+    from app.agrid_finance_legal import cleanweb_controller
+    entries = cleanweb_controller.generate_journal_entries(limit=limit, exchange_rate_krw=exchange_rate_krw)
+    return {
+        "status": "success",
+        "service_name": "x402-micro-agent",
+        "entries_count": len(entries),
+        "exchange_rate_krw": exchange_rate_krw,
+        "journal_entries": [e.model_dump() for e in entries]
+    }
+
+
+@app.get("/api/v1/ops/compliance", tags=["A-Grid Operations & Compliance"])
+async def get_agrid_ops_compliance():
+    """
+    Exports cryptographic attestation specs, OFAC sanctions filtering status, and Zero-Data retention policy.
+    """
+    from app.agrid_finance_legal import cleanweb_controller
+    return cleanweb_controller.get_legal_and_compliance_telemetry()
+
+
 @app.get("/api/v1/ping", tags=["System"])
 async def ping_keepalive():
     """Ultra-low-latency keep-alive endpoint for automated agent health checks and warm instance polling."""
     return {"ping": "pong", "timestamp": time.time()}
+
 
