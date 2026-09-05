@@ -521,6 +521,81 @@
       box-shadow: 0 0 12px var(--cyan-glow);
     }
 
+    .select-input {
+      background: var(--code-bg);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      padding: 0.85rem 1rem;
+      color: #fff;
+      font-size: 0.88rem;
+      font-family: var(--font-sans);
+      outline: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      min-width: 170px;
+    }
+
+    .select-input:focus {
+      border-color: var(--cyan);
+      box-shadow: 0 0 12px var(--cyan-glow);
+    }
+
+    .select-input option {
+      background: #0d1326;
+      color: #fff;
+    }
+
+    .form-options-row {
+      display: flex;
+      gap: 1.2rem;
+      align-items: center;
+      margin-bottom: 0.85rem;
+      flex-wrap: wrap;
+    }
+
+    .option-field {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .option-label {
+      font-size: 0.8rem;
+      color: var(--text-sub);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .validation-badge {
+      font-size: 0.72rem;
+      padding: 0.2rem 0.55rem;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .validation-badge.valid {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--emerald);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+
+    .validation-badge.invalid {
+      background: rgba(244, 63, 94, 0.15);
+      color: var(--rose);
+      border: 1px solid rgba(244, 63, 94, 0.35);
+    }
+
+    .validation-badge.neutral {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-muted);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
     .btn-action {
       background: linear-gradient(135deg, var(--cyan), #3b82f6);
       border: none;
@@ -1400,10 +1475,15 @@
         </div>
 
         <div class="input-group">
-          <input type="text" id="webUrlInput" class="text-input" placeholder="Enter target URL to clean (e.g., https://paulgraham.com/greatwork.html)" value="https://paulgraham.com/greatwork.html">
+          <input type="text" id="webUrlInput" class="text-input" placeholder="Enter target URL to clean (e.g., https://paulgraham.com/greatwork.html)" value="https://paulgraham.com/greatwork.html" oninput="validateUrlInput('web')">
           <button class="btn-action" id="btnRunWeb" onclick="runCleanWeb()">
             <span>⚡ Extract Clean Markdown</span>
           </button>
+        </div>
+
+        <div class="form-options-row">
+          <span id="webValidationBadge" class="validation-badge valid">✅ Valid HTTP/HTTPS Target URL</span>
+          <span style="font-size: 0.75rem; color: var(--text-muted);">✨ Zero-Noise LLM Markdown • Auto Cookie & Ad Filter</span>
         </div>
 
         <div class="presets-row">
@@ -1443,20 +1523,38 @@
               Enter any YouTube URL to extract full transcripts, key insights, and timestamped chapter summaries in 1 second.
             </p>
           </div>
-          <span class="tier-badge" style="color: var(--amber); border-color: rgba(245, 158, 11, 0.3); font-size: 0.78rem;">0.010 USDC / video</span>
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <span class="tier-badge" style="color: var(--amber); border-color: rgba(245, 158, 11, 0.3); font-size: 0.78rem;">0.010 USDC / video</span>
+          </div>
         </div>
 
         <div class="input-group">
-          <input type="text" id="ytUrlInput" class="text-input" placeholder="Enter YouTube URL (e.g., https://www.youtube.com/watch?v=aircAruvnKk)" value="https://www.youtube.com/watch?v=aircAruvnKk">
+          <input type="text" id="ytUrlInput" class="text-input" placeholder="Enter YouTube URL (e.g., https://www.youtube.com/watch?v=aircAruvnKk)" value="https://www.youtube.com/watch?v=aircAruvnKk" oninput="validateUrlInput('yt')">
           <button class="btn-action" id="btnRunYt" onclick="runCleanYouTube()">
             <span>🧠 Analyze Video with Gemini AI</span>
           </button>
+        </div>
+
+        <div class="form-options-row">
+          <div class="option-field">
+            <span class="option-label">🌐 Transcript Language:</span>
+            <select id="ytLangSelect" class="select-input">
+              <option value="ko,en" selected>🇰🇷 한국어 + 🇺🇸 English (Default)</option>
+              <option value="ko">🇰🇷 한국어 전용 (Korean Only)</option>
+              <option value="en">🇺🇸 English (US/UK)</option>
+              <option value="ja,en">🇯🇵 日本語 + 🇺🇸 English</option>
+              <option value="zh,en">🇨🇳 中文 + 🇺🇸 English</option>
+              <option value="es,en">🇪🇸 Español + 🇺🇸 English</option>
+            </select>
+          </div>
+          <span id="ytValidationBadge" class="validation-badge valid">✅ Valid YouTube Video URL</span>
         </div>
 
         <div class="presets-row">
           <span class="preset-label">💡 Quick Presets:</span>
           <span class="preset-pill" onclick="setYtUrl('https://www.youtube.com/watch?v=aircAruvnKk')">3Blue1Brown Neural Networks</span>
           <span class="preset-pill" onclick="setYtUrl('https://youtu.be/kCc8FmEb1nY')">Andrej Karpathy Intro to LLMs</span>
+          <span class="preset-pill" onclick="setYtUrl('https://www.youtube.com/shorts/dQw4w9WgXcQ')">YouTube Shorts Demo</span>
         </div>
 
         <div class="console-box">
@@ -1489,14 +1587,26 @@
               Converts arXiv papers, technical whitepapers, and financial PDFs into clean, high-density LLM Markdown.
             </p>
           </div>
-          <span class="tier-badge" style="font-size: 0.78rem;">0.005 USDC / document</span>
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <span class="tier-badge" style="font-size: 0.75rem; background: rgba(16,185,129,0.12); color: var(--emerald); border-color: rgba(16,185,129,0.3);">Max 15MB • 1~100 Pages</span>
+            <span class="tier-badge" style="font-size: 0.78rem;">0.005 USDC / doc</span>
+          </div>
         </div>
 
         <div class="input-group">
-          <input type="text" id="pdfUrlInput" class="text-input" placeholder="Enter online PDF URL (e.g., https://arxiv.org/pdf/1706.03762.pdf)" value="https://arxiv.org/pdf/1706.03762.pdf">
+          <input type="text" id="pdfUrlInput" class="text-input" placeholder="Enter online PDF URL (e.g., https://arxiv.org/pdf/1706.03762.pdf)" value="https://arxiv.org/pdf/1706.03762.pdf" oninput="validateUrlInput('pdf')">
           <button class="btn-action" id="btnRunPdf" onclick="runCleanPdf()">
             <span>📑 Convert PDF to Markdown</span>
           </button>
+        </div>
+
+        <div class="form-options-row">
+          <div class="option-field">
+            <span class="option-label">📑 Max Pages to Parse:</span>
+            <input type="number" id="pdfMaxPagesInput" class="text-input" style="min-width: 90px; max-width: 110px; padding: 0.5rem 0.8rem; font-size: 0.85rem;" min="1" max="100" value="30" step="5">
+            <span style="font-size: 0.75rem; color: var(--text-muted);">(1 ~ 100 pages, token saver)</span>
+          </div>
+          <span id="pdfValidationBadge" class="validation-badge valid">✅ Valid Online PDF URL (.pdf)</span>
         </div>
 
         <div class="presets-row">
@@ -2550,9 +2660,66 @@ print(res.json()["markdown_content"])</code></pre>
       }
     }
 
+    // Real-Time URL Input Validation Feedback
+    function validateUrlInput(type) {
+      if (type === 'web') {
+        const input = document.getElementById('webUrlInput');
+        const badge = document.getElementById('webValidationBadge');
+        if (!input || !badge) return;
+        const val = input.value.trim();
+        const isValid = /^https?:\/\/[^\s/$.?#].[^\s]*$/i.test(val);
+        if (!val) {
+          badge.className = 'validation-badge neutral';
+          badge.innerText = '🌐 Enter HTTP/HTTPS URL';
+        } else if (isValid) {
+          badge.className = 'validation-badge valid';
+          badge.innerText = '✅ Valid Target URL';
+        } else {
+          badge.className = 'validation-badge invalid';
+          badge.innerText = '⚠️ Must begin with http:// or https://';
+        }
+      } else if (type === 'yt') {
+        const input = document.getElementById('ytUrlInput');
+        const badge = document.getElementById('ytValidationBadge');
+        if (!input || !badge) return;
+        const val = input.value.trim();
+        const isYt = /^https?:\/\/(www\.)?(youtube\.com\/(watch\?v=|shorts\/)|youtu\.be\/)[\w-]+/i.test(val);
+        if (!val) {
+          badge.className = 'validation-badge neutral';
+          badge.innerText = '🎬 Enter YouTube Video / Shorts URL';
+        } else if (isYt) {
+          badge.className = 'validation-badge valid';
+          badge.innerText = '✅ Valid YouTube Video URL';
+        } else {
+          badge.className = 'validation-badge invalid';
+          badge.innerText = '⚠️ Invalid YouTube Link (Use watch, youtu.be, or shorts)';
+        }
+      } else if (type === 'pdf') {
+        const input = document.getElementById('pdfUrlInput');
+        const badge = document.getElementById('pdfValidationBadge');
+        if (!input || !badge) return;
+        const val = input.value.trim();
+        const isPdf = /^https?:\/\/[^\s/$.?#].[^\s]*\.pdf(\?.*)?$/i.test(val);
+        if (!val) {
+          badge.className = 'validation-badge neutral';
+          badge.innerText = '📄 Enter Online PDF URL';
+        } else if (isPdf) {
+          badge.className = 'validation-badge valid';
+          badge.innerText = '✅ Valid Online PDF URL (.pdf)';
+        } else if (/^https?:\/\//i.test(val)) {
+          badge.className = 'validation-badge neutral';
+          badge.innerText = 'ℹ️ Online Link (Ensure it serves PDF)';
+        } else {
+          badge.className = 'validation-badge invalid';
+          badge.innerText = '⚠️ Must be a valid HTTP/HTTPS link to PDF';
+        }
+      }
+    }
+
     // Live YouTube Gemini AI Execution
     async function runCleanYouTube() {
       const url = document.getElementById('ytUrlInput').value.trim();
+      const lang = document.getElementById('ytLangSelect') ? document.getElementById('ytLangSelect').value : 'ko,en';
       const btn = document.getElementById('btnRunYt');
       const status = document.getElementById('ytStatus');
 
@@ -2568,12 +2735,12 @@ print(res.json()["markdown_content"])</code></pre>
       if (lastTx) headers['X-Payment-Tx'] = lastTx;
 
       try {
-        const res = await fetch(`/api/v1/clean-youtube?url=${encodeURIComponent(url)}`, { headers });
+        const res = await fetch(`/api/v1/clean-youtube?url=${encodeURIComponent(url)}&lang=${encodeURIComponent(lang)}`, { headers });
         const data = await res.json();
 
         if (res.ok) {
           status.innerText = `🟢 Success • Method: ${data.method_used}`;
-          let text = `# 🎬 ${data.title}\n> Channel: ${data.channel} | Video ID: ${data.video_id}\n\n`;
+          let text = `# 🎬 ${data.title}\n> Channel: ${data.channel} | Video ID: ${data.video_id} | Lang: ${lang}\n\n`;
           text += `## 💡 AI Knowledge Summary\n${data.ai_summary || ''}\n\n`;
           text += `## 📜 Full Transcript\n${data.transcript || ''}`;
           setMarkdownResult('yt', text);
@@ -2595,13 +2762,15 @@ print(res.json()["markdown_content"])</code></pre>
         setMarkdownResult('yt', String(err));
       } finally {
         btn.disabled = false;
-        btn.innerHTML = '<span>🧠 Run Gemini AI Analysis</span>';
+        btn.innerHTML = '<span>🧠 Analyze Video with Gemini AI</span>';
       }
     }
 
     // Live PDF Execution
     async function runCleanPdf() {
       const url = document.getElementById('pdfUrlInput').value.trim();
+      const maxPagesInput = document.getElementById('pdfMaxPagesInput');
+      const maxPages = maxPagesInput ? (parseInt(maxPagesInput.value, 10) || 30) : 30;
       const btn = document.getElementById('btnRunPdf');
       const status = document.getElementById('pdfStatus');
 
@@ -2614,7 +2783,7 @@ print(res.json()["markdown_content"])</code></pre>
       if (lastTx) headers['X-Payment-Tx'] = lastTx;
 
       try {
-        const res = await fetch(`/api/v1/clean-pdf?url=${encodeURIComponent(url)}&max_pages=15`, { headers });
+        const res = await fetch(`/api/v1/clean-pdf?url=${encodeURIComponent(url)}&max_pages=${maxPages}`, { headers });
         const data = await res.json();
         if (res.ok) {
           status.innerText = `🟢 Success • ${data.total_pages} Pages (${data.word_count} words)`;
@@ -2635,7 +2804,7 @@ print(res.json()["markdown_content"])</code></pre>
         setMarkdownResult('pdf', String(err));
       } finally {
         btn.disabled = false;
-        btn.innerHTML = '<span>📑 Parse PDF</span>';
+        btn.innerHTML = '<span>📑 Convert PDF to Markdown</span>';
       }
     }
 

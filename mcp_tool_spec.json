@@ -21,14 +21,33 @@
   },
   "tools": [
     {
+      "name": "get_payment_info",
+      "description": "Returns complete Web3 x402 micropayment configuration, supported multi-chain USDC contract addresses, EVM network chain IDs (Polygon: 137, Base: 8453, Arbitrum: 42161), recipient wallet address, and pricing tiers for all CleanWeb Studio agent tools. Usage Guidelines: Use this tool to discover network parameters and deposit requirements before making x402 paid queries. Do NOT use for checking individual wallet balances (use get_vault_balance).",
+      "parameters": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
       "name": "clean_web_content",
-      "description": "Scrapes and converts any raw web page into clean, LLM-ready markdown, eliminating ads, navigation bars, cookie banners, and CSS noise.",
+      "description": "Scrapes and converts any target web page into clean, LLM-ready structured Markdown, stripping ads, cookie banners, navigation clutter, modals, and script noise. Returns clean markdown body, page title, word count, and extraction metadata. Usage Guidelines: Use this tool to ingest real-time web articles, blogs, and documentation into LLM context windows. Do NOT use for YouTube video parsing (use clean_youtube_transcript) or online PDF whitepapers (use clean_pdf_research). Do NOT use on paywalled or bot-blocked sites.",
       "parameters": {
         "type": "object",
         "properties": {
           "url": {
             "type": "string",
-            "description": "The target website URL to scrape and clean."
+            "format": "uri",
+            "pattern": "^https?:\\/\\/[^\\s/$.?#].[^\\s]*$",
+            "description": "The target HTTP or HTTPS website URL to scrape and convert to markdown.",
+            "examples": [
+              "https://en.wikipedia.org/wiki/Web_scraping",
+              "https://news.ycombinator.com/"
+            ]
+          },
+          "auth_token_or_tx": {
+            "type": "string",
+            "description": "Optional x402 micropayment authorization token or EVM transaction hash.",
+            "default": null
           }
         },
         "required": ["url"]
@@ -36,18 +55,32 @@
     },
     {
       "name": "clean_youtube_transcript",
-      "description": "Extracts high-precision subtitles, transcripts, or AI-powered comprehensive summaries for any YouTube video using Google Gemini Flash intelligence.",
+      "description": "Extracts high-precision subtitles, timestamped transcripts, and comprehensive AI summaries for public YouTube videos using Google Gemini Flash intelligence. Usage Guidelines: Use to ingest YouTube lecture, tutorial, tech talk, or podcast transcripts into agent workflows without token waste. Returns video metadata (title, channel, URL), AI Knowledge Summary, and cleaned transcript. Do NOT use for general web articles (use clean_web_content) or PDF papers (use clean_pdf_research). Do NOT use on private videos or live streams without captions.",
       "parameters": {
         "type": "object",
         "properties": {
           "url": {
             "type": "string",
-            "description": "YouTube video URL."
+            "format": "uri",
+            "pattern": "^https?:\\/\\/(www\\.)?(youtube\\.com\\/(watch\\?v=|shorts\\/)|youtu\\.be\\/)[\\w-]+.*$",
+            "description": "Public YouTube video URL (standard watch, short youtu.be, or Shorts format).",
+            "examples": [
+              "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+              "https://youtu.be/dQw4w9WgXcQ",
+              "https://www.youtube.com/shorts/abcdef12345"
+            ]
           },
           "lang": {
             "type": "string",
-            "description": "Target transcript language code (default: 'ko,en').",
-            "default": "ko,en"
+            "pattern": "^[a-z]{2}(,[a-z]{2})*$",
+            "description": "Comma-separated ISO 639-1 language priority codes for transcript extraction (e.g., 'ko,en', 'en', 'ja').",
+            "default": "ko,en",
+            "examples": ["ko,en", "en", "ja,en"]
+          },
+          "auth_token_or_tx": {
+            "type": "string",
+            "description": "Optional x402 micropayment authorization token or EVM transaction hash.",
+            "default": null
           }
         },
         "required": ["url"]
@@ -55,35 +88,69 @@
     },
     {
       "name": "clean_pdf_research",
-      "description": "Parses and extracts structured plain text and metadata from online PDF whitepapers and academic research papers.",
+      "description": "Parses and extracts structured plain text, sections, and academic metadata from online PDF whitepapers and arXiv research documents. Limit: PDF file size must be under 15MB. Usage Guidelines: Use when ingesting scientific papers, technical specs, or financial PDF reports. Returns title, page count, word count, and parsed plain text. Do NOT use for general HTML web pages (use clean_web_content) or YouTube videos (use clean_youtube_transcript). Do NOT use on encrypted or password-protected PDFs.",
       "parameters": {
         "type": "object",
         "properties": {
           "url": {
             "type": "string",
-            "description": "Direct URL pointing to a PDF document."
+            "format": "uri",
+            "pattern": "^https?:\\/\\/[^\\s/$.?#].[^\\s]*\\.pdf(\\?.*)?$",
+            "description": "Direct HTTP/HTTPS URL pointing to an online PDF document under 15MB.",
+            "examples": [
+              "https://arxiv.org/pdf/1706.03762.pdf",
+              "https://bitcoin.org/bitcoin.pdf"
+            ]
           },
           "max_pages": {
             "type": "integer",
-            "description": "Maximum number of pages to parse (default: 30).",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Maximum number of pages to parse (1 to 100, default: 30) to control token budget.",
             "default": 30
+          },
+          "auth_token_or_tx": {
+            "type": "string",
+            "description": "Optional x402 micropayment authorization token or EVM transaction hash.",
+            "default": null
           }
         },
         "required": ["url"]
       }
     },
     {
+      "name": "get_vault_balance",
+      "description": "Checks the remaining pre-funded USDC balance, total usage, and session status for an agent wallet address or session key. Usage Guidelines: Use before executing heavy tasks to verify sufficient balance for zero-latency execution. Returns agent address, balance in USDC, total deposited/consumed, queries handled, and session key. Do NOT use for querying network pricing (use get_payment_info).",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "agent_address_or_key": {
+            "type": "string",
+            "pattern": "^(0x[a-fA-F0-9]{40}|sk_[a-zA-Z0-9_-]+)$",
+            "description": "Ethereum/Polygon address (0x...) or session key (sk_...) to query balance for.",
+            "examples": ["0x71C...397", "sk_cleanweb_agent_01"]
+          }
+        },
+        "required": ["agent_address_or_key"]
+      }
+    },
+    {
       "name": "clean_batch_scrape",
-      "description": "Concurrently scrapes and extracts markdown from multiple URLs in a single high-speed batch operation.",
+      "description": "Concurrently scrapes and extracts clean markdown from up to 10 URLs in parallel with high-speed async processing. Returns a JSON array of parsed web documents with individual status codes and content bodies. Usage Guidelines: Use when an agent needs to perform multi-source research across multiple search results simultaneously. Do NOT use for single URLs (use clean_web_content).",
       "parameters": {
         "type": "object",
         "properties": {
           "urls": {
             "type": "array",
             "items": {
-              "type": "string"
+              "type": "string",
+              "format": "uri"
             },
-            "description": "List of URLs to scrape in parallel (up to 10 URLs)."
+            "maxItems": 10,
+            "description": "List of HTTP/HTTPS URLs to scrape in parallel (up to 10 URLs).",
+            "examples": [
+              ["https://en.wikipedia.org/wiki/Web_scraping", "https://news.ycombinator.com/"]
+            ]
           }
         },
         "required": ["urls"]
@@ -91,13 +158,15 @@
     },
     {
       "name": "get_pass_status",
-      "description": "Checks the active status, remaining queries, and validity period for an agent wallet address or pass token.",
+      "description": "Checks the active subscription status, remaining query quota, and validity period for an agent EVM wallet address (0x...) or Lemon Squeezy Pass Token. Returns pass tier, remaining balance, and expiration timestamp. Usage Guidelines: Use to verify micropayment allowance or query entitlements before dispatching heavy scrape batches.",
       "parameters": {
         "type": "object",
         "properties": {
           "agent_wallet": {
             "type": "string",
-            "description": "Ethereum/Polygon address (0x...) or Lemon Squeezy Pass Token."
+            "pattern": "^(0x[a-fA-F0-9]{40}|pass_[a-zA-Z0-9_-]+)$",
+            "description": "Ethereum/Polygon address (0x...) or Lemon Squeezy Pass Token.",
+            "examples": ["0x71C...397", "pass_premium_998"]
           }
         },
         "required": ["agent_wallet"]
