@@ -33,9 +33,18 @@
     ],
     "pricing_tiers": {
       "LIGHT": { "amount_usdc": "0.001", "description": "Single web clean markdown" },
+      "SECURE_WEB_CLEAN": { "amount_usdc": "0.005", "description": "Web clean + Security Gate AST/Prompt injection audit" },
       "STANDARD": { "amount_usdc": "0.005", "description": "PDF paper / batch clean" },
       "HEAVY": { "amount_usdc": "0.010", "description": "Gemini AI YouTube audio analysis" },
-      "ONCHAIN": { "amount_usdc": "0.020", "description": "EIP-712 Signed attestation" }
+      "SECURE_YOUTUBE_CLEAN": { "amount_usdc": "0.015", "description": "YouTube AI + Security Gate transcript audit" },
+      "ONCHAIN": { "amount_usdc": "0.020", "description": "EIP-712 Signed attestation" },
+      "ORACLE_GROUNDING": { "amount_usdc": "0.035", "description": "Web3 Signed Oracle Grounding" },
+      "SECURE_ORACLE_GROUNDING": { "amount_usdc": "0.040", "description": "Oracle Grounding + Dual Security Gate Attestation" }
+    },
+    "security_gate_provider": {
+      "name": "agent-security-gate-x402",
+      "url": "https://agent-security-gate-x402-212942243360.asia-northeast3.run.app",
+      "features": ["Jailbreak Radar", "AST Code Safety", "NLI Hallucination Check", "EIP-712 Attestation"]
     }
   },
   "endpoints": {

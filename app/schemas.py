@@ -13,6 +13,9 @@ class PricingTier(str, Enum):
     HEAVY = "HEAVY"          # Gemini AI YouTube Audio Summary ($0.010 USDC)
     ONCHAIN = "ONCHAIN"      # EIP-712 Signed Attestation ($0.020 USDC)
     ORACLE_GROUNDING = "ORACLE_GROUNDING"  # Agent Search + Clean JSON + EIP-712 Signed Oracle ($0.035 USDC)
+    SECURE_WEB_CLEAN = "SECURE_WEB_CLEAN"  # Web Clean + Security Gate AST/Prompt Audit ($0.005 USDC)
+    SECURE_YOUTUBE_CLEAN = "SECURE_YOUTUBE_CLEAN"  # YouTube AI + Security Gate Audit ($0.015 USDC)
+    SECURE_ORACLE_GROUNDING = "SECURE_ORACLE_GROUNDING"  # Oracle + Dual Security Gate Attestation ($0.040 USDC)
 
 
 class PaymentMethod(str, Enum):
@@ -25,7 +28,26 @@ class PaymentMethod(str, Enum):
     DEV_BYPASS = "DEV_BYPASS"
 
 
+class SecurityAuditResult(BaseModel):
+    enabled: bool = True
+    status: str = "success"
+    latency_ms: float = 0.0
+    is_safe: bool = True
+    verdict: str = "PASSED"
+    risk_score: float = 0.0
+    threats: List[str] = []
+    attestation: Optional[Dict[str, Any]] = None
+    payment_settled_usdc: Optional[str] = None
+
+
+class SecurityInspectRequest(BaseModel):
+    text: str = Field(..., description="Content or Python code to inspect")
+    is_code: bool = Field(False, description="True if inspecting Python code AST, False for natural language/prompts")
+
+
 class PaymentChallenge(BaseModel):
+    protocol: str = "B2A_USDC_M2M"
+    instructions: str = "Autonomous Agent Zone: Deposit 2.0+ USDC to recipient_wallet via Polygon/Base/Arbitrum or supply X-Vault-Key header."
     chain: str = "polygon"
     chain_id: int = 137
     recipient_wallet: str
@@ -34,6 +56,7 @@ class PaymentChallenge(BaseModel):
     payment_methods_accepted: List[str]
     pass_options: Dict[str, Any]
     vault_deposit_endpoint: str = "/api/v1/vault/deposit"
+    min_deposit_usdc: float = 2.0
     free_trial_remaining: Optional[int] = None
     nonce: str
     timestamp: int
@@ -93,6 +116,7 @@ class WebCleanResponse(BaseModel):
     onchain_proof: Optional[OnChainProof] = None
     payment_receipt: Optional[PaymentReceipt] = None
     auth: Optional[Dict[str, Any]] = None
+    security_audit: Optional[SecurityAuditResult] = None
 
 
 # --- YouTube Cleaner Schemas ---
@@ -111,6 +135,7 @@ class YouTubeCleanResponse(BaseModel):
     onchain_proof: Optional[OnChainProof] = None
     payment_receipt: Optional[PaymentReceipt] = None
     auth: Optional[Dict[str, Any]] = None
+    security_audit: Optional[SecurityAuditResult] = None
 
 
 # --- PDF Cleaner Schemas ---
@@ -135,6 +160,7 @@ class PDFCleanResponse(BaseModel):
     onchain_proof: Optional[OnChainProof] = None
     payment_receipt: Optional[PaymentReceipt] = None
     auth: Optional[Dict[str, Any]] = None
+    security_audit: Optional[SecurityAuditResult] = None
 
 
 # --- Batch Scrape Schemas ---
@@ -199,6 +225,7 @@ class OracleGroundingRequest(BaseModel):
     query: str = Field(..., description="Natural language search or research query")
     target_schema: Optional[Dict[str, Any]] = Field(None, description="Optional target JSON schema to constrain output")
     max_sources: int = Field(3, ge=1, le=5, description="Number of top web sources to synthesize")
+    secure_audit: bool = Field(False, description="Whether to run dual EIP-712 security audit via Security Gate Agent")
 
 
 class OracleAttestation(BaseModel):
@@ -222,6 +249,7 @@ class OracleGroundingResponse(BaseModel):
     oracle_attestation: OracleAttestation
     payment_receipt: Optional[PaymentReceipt] = None
     auth: Optional[Dict[str, Any]] = None
+    security_audit: Optional[SecurityAuditResult] = None
 
 
 class OracleVerifyRequest(BaseModel):

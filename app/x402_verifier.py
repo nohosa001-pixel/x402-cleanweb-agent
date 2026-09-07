@@ -75,6 +75,21 @@ TIER_PRICING: Dict[PricingTier, Dict[str, Any]] = {
         "units": "35000",
         "description": "Tier 5 (Oracle Grounding): Real-time Search + Clean-to-JSON + EIP-712 Signed Oracle",
     },
+    PricingTier.SECURE_WEB_CLEAN: {
+        "cost_usdc": 0.005,
+        "units": "5000",
+        "description": "Tier 6 (Secure Web Clean): Web Clean + Security Gate AST/Prompt Audit & Proof",
+    },
+    PricingTier.SECURE_YOUTUBE_CLEAN: {
+        "cost_usdc": 0.015,
+        "units": "15000",
+        "description": "Tier 7 (Secure YouTube Clean): Gemini AI Video Intelligence + Security Gate Audit",
+    },
+    PricingTier.SECURE_ORACLE_GROUNDING: {
+        "cost_usdc": 0.040,
+        "units": "40000",
+        "description": "Tier 8 (Secure Oracle Grounding): Oracle Grounding + Dual Attestation by Security Gate",
+    },
 }
 
 FREE_TRIAL_LIMIT = int(os.getenv("FREE_TRIAL_LIMIT", "2"))
@@ -103,28 +118,30 @@ class X402Verifier:
         remaining_trials = max(0, FREE_TRIAL_LIMIT - usage)
 
         return PaymentChallenge(
+            protocol="B2A_USDC_M2M",
+            instructions="Autonomous Agent Zone: Deposit 2.0+ USDC to recipient_wallet or provide X-Vault-Key header. Humans not accepted.",
             chain="polygon",
             chain_id=137,
             recipient_wallet=self.recipient_wallet,
             amount_usdc=f"{cost:.4f}",
             token_address=poly_cfg.usdc_address,
             payment_methods_accepted=[
-                "USDC_ONCHAIN_POLYGON",
-                "USDC_ONCHAIN_BASE",
-                "USDC_ONCHAIN_ARBITRUM",
-                "VAULT_BALANCE",
-                "STRIPE_CARD_PASS",
-                "STRIPE_VAULT_TOPUP",
-                "LEMON_SQUEEZY_PASS",
-                "SANDBOX_FREE_TRIAL"
+                "VAULT_BALANCE",             # Priority 1: X-Vault-Key (sub-1ms)
+                "USDC_ONCHAIN_POLYGON",     # Native USDC on Polygon (137)
+                "USDC_ONCHAIN_BASE",        # Native USDC on Base (8453)
+                "USDC_ONCHAIN_ARBITRUM",    # Native USDC on Arbitrum (42161)
+                "EIP712_AGENT_SIGNATURE",   # Machine off-chain signature
+                "AGENT_PASS",               # X-Agent-Pass pre-funded pass
+                "SANDBOX_FREE_TRIAL"        # 2 free trials for new agent nonces
             ],
             pass_options={
-                "stripe_checkout_endpoint": "/api/v1/checkout/stripe-session",
-                "starter_100_pass": "100 credits ($1.00 USD)",
-                "unlimited_24h_pass": "24h unlimited ($2.00 USD)",
-                "vip_7d_pass": "7d VIP unlimited ($9.00 USD)"
+                "agent_vault_min_deposit": "2.0 USDC",
+                "agent_vault_deposit_endpoint": "/api/v1/vault/deposit",
+                "zero_gas_micropayments": "Enabled (<1ms deduction via X-Vault-Key)",
+                "supported_chains": ["Polygon (137)", "Base (8453)", "Arbitrum (42161)"]
             },
             vault_deposit_endpoint="/api/v1/vault/deposit",
+            min_deposit_usdc=2.0,
             free_trial_remaining=remaining_trials,
             nonce=f"nonce_{secrets.token_hex(8)}",
             timestamp=int(time.time()),
@@ -153,10 +170,17 @@ class X402Verifier:
             "error": "Payment Required",
             "status_code": 402,
             "x402Version": 1,
+            "protocol": ch_dict.get("protocol", "B2A_USDC_M2M"),
+            "instructions": ch_dict.get("instructions", "Autonomous Agent Zone: Deposit 2.0+ USDC or supply X-Vault-Key"),
             "tier_required": tier.value,
             "message": custom_detail or f"HTTP 402 Payment Required: {cfg['description']} ({cfg['cost_usdc']} USDC)",
             "required_usdc": f"{cfg['cost_usdc']:.4f}",
+            "amount_usdc": f"{cfg['cost_usdc']:.4f}",
             "recipient": self.recipient_wallet,
+            "recipient_wallet": self.recipient_wallet,
+            "payment_methods_accepted": ch_dict.get("payment_methods_accepted", []),
+            "vault_deposit_endpoint": "/api/v1/vault/deposit",
+            "min_deposit_usdc": 2.0,
             "challenge": ch_dict,
             # Dual Compatibility for AI Agent SDKs (AutonomousX402Agent & LangChain tools)
             "x402": {

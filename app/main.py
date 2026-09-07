@@ -34,6 +34,8 @@ from app.schemas import (
     OracleGroundingResponse,
     OracleVerifyRequest,
     OracleVerifyResponse,
+    SecurityAuditResult,
+    SecurityInspectRequest,
 )
 from app.x402_verifier import x402_verifier
 from app.cleaners.web_engine import web_cleaner_engine
@@ -44,6 +46,7 @@ from app.vault_manager import vault_manager
 from app.storage import storage_manager
 from app.multi_chain import multi_chain_manager
 from app.oracle_engine import oracle_engine
+from app.security_gate_client import security_gate_client
 
 
 load_dotenv()
@@ -171,15 +174,22 @@ async def root(request: Request):
 
     return {
         "service": "x402-cleanweb-agent",
-        "name": "CleanWeb Studio",
+        "name": "CleanWeb Studio (Autonomous Agent Data & Spend Firewall)",
         "version": "2.4.0",
+        "audience": "AUTONOMOUS_AGENTS_ONLY",
+        "human_policy": "HUMANS_REJECTED (M2M / EIP-712 / Vault-Only)",
         "protocol": "x402 (HTTP 402 Monetized)",
+        "security_gate_integration": "agent-security-gate-x402 (Live AST/Prompt/NLI Inspection)",
         "networks": ["Polygon (137)", "Base (8453)", "Arbitrum (42161)"],
         "pricing_tiers": {
             "web_clean": "0.001 USDC",
+            "secure_web_clean": "0.005 USDC (Includes Security Gate AST/Prompt Audit)",
             "pdf_or_batch": "0.005 USDC",
             "youtube_gemini_ai": "0.010 USDC",
-            "onchain_attestation": "0.020 USDC"
+            "secure_youtube_clean": "0.015 USDC (Includes Security Gate Video Intelligence Audit)",
+            "onchain_attestation": "0.020 USDC",
+            "oracle_grounding": "0.035 USDC",
+            "secure_oracle_grounding": "0.040 USDC (Includes Dual Security Gate Attestation)"
         },
         "interactive_dashboard": "/dashboard",
         "metrics_url": "/metrics",
@@ -252,9 +262,16 @@ async def get_glama_spec():
 async def clean_web(
     request: Request,
     url: str = Query(..., description="Target webpage URL to scrape and convert to markdown"),
-    onchain_proof: bool = Query(False, description="Whether to generate EIP-712 cryptographic attestation")
+    onchain_proof: bool = Query(False, description="Whether to generate EIP-712 cryptographic attestation"),
+    secure_audit: bool = Query(False, description="Run real-time AST, prompt injection, and EIP-712 security audit via Security Gate Agent")
 ):
-    tier = PricingTier.ONCHAIN if onchain_proof else PricingTier.LIGHT
+    if secure_audit:
+        tier = PricingTier.SECURE_WEB_CLEAN
+    elif onchain_proof:
+        tier = PricingTier.ONCHAIN
+    else:
+        tier = PricingTier.LIGHT
+
     is_auth, receipt, err_resp = x402_verifier.verify_request(request, tier=tier)
     if not is_auth:
         return err_resp
@@ -267,6 +284,15 @@ async def clean_web(
                 target_url=url,
                 content_text=data["markdown_content"]
             )
+
+        sec_audit_obj = None
+        if secure_audit:
+            audit_raw = security_gate_client.inspect_content(
+                text=data["markdown_content"],
+                is_code=False,
+                agent_nonce=request.headers.get("x-agent-nonce")
+            )
+            sec_audit_obj = SecurityAuditResult(**audit_raw)
 
         t_analytics = data.get("token_analytics")
         t_obj = TokenAnalytics(**t_analytics) if t_analytics else None
@@ -290,7 +316,8 @@ async def clean_web(
             metadata=meta,
             onchain_proof=proof,
             payment_receipt=receipt,
-            auth=receipt.auth if receipt else None
+            auth=receipt.auth if receipt else None,
+            security_audit=sec_audit_obj
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to scrape webpage: {str(e)}")
@@ -301,9 +328,16 @@ async def clean_youtube(
     request: Request,
     url: str = Query(..., description="YouTube Video URL"),
     lang: str = Query("ko,en", description="Preferred transcript language codes"),
-    onchain_proof: bool = Query(False, description="Whether to generate EIP-712 cryptographic attestation")
+    onchain_proof: bool = Query(False, description="Whether to generate EIP-712 cryptographic attestation"),
+    secure_audit: bool = Query(False, description="Run Security Gate audit on transcript and AI summary")
 ):
-    tier = PricingTier.ONCHAIN if onchain_proof else PricingTier.HEAVY
+    if secure_audit:
+        tier = PricingTier.SECURE_YOUTUBE_CLEAN
+    elif onchain_proof:
+        tier = PricingTier.ONCHAIN
+    else:
+        tier = PricingTier.HEAVY
+
     is_auth, receipt, err_resp = x402_verifier.verify_request(request, tier=tier)
     if not is_auth:
         return err_resp
@@ -316,6 +350,16 @@ async def clean_youtube(
                 target_url=data["url"],
                 content_text=data["transcript"]
             )
+
+        sec_audit_obj = None
+        if secure_audit:
+            audit_text = f"{data.get('title', '')}\n\n{data.get('ai_summary', '')}\n\n{data.get('transcript', '')[:10000]}"
+            audit_raw = security_gate_client.inspect_content(
+                text=audit_text,
+                is_code=False,
+                agent_nonce=request.headers.get("x-agent-nonce")
+            )
+            sec_audit_obj = SecurityAuditResult(**audit_raw)
 
         t_analytics = data.get("token_analytics")
         t_obj = TokenAnalytics(**t_analytics) if t_analytics else None
@@ -334,7 +378,8 @@ async def clean_youtube(
             token_analytics=t_obj,
             onchain_proof=proof,
             payment_receipt=receipt,
-            auth=receipt.auth if receipt else None
+            auth=receipt.auth if receipt else None,
+            security_audit=sec_audit_obj
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to process YouTube video: {str(e)}")
@@ -470,9 +515,9 @@ async def oracle_grounding(request: Request, body: OracleGroundingRequest):
     """
     Autonomous Agent Web3 Oracle Grounding Pipeline.
     Performs real-time web search, noise-free extraction, Gemini 3.6 Flash JSON structuring,
-    and signs the payload with EIP-712 cryptographic attestation (0.035 USDC).
+    and signs the payload with EIP-712 cryptographic attestation (0.035 USDC or 0.040 USDC with Security Gate audit).
     """
-    tier = PricingTier.ORACLE_GROUNDING
+    tier = PricingTier.SECURE_ORACLE_GROUNDING if body.secure_audit else PricingTier.ORACLE_GROUNDING
 
     authorized, receipt, err_resp = x402_verifier.verify_request(request, tier=tier)
     if not authorized:
@@ -486,6 +531,16 @@ async def oracle_grounding(request: Request, body: OracleGroundingRequest):
         )
         result.payment_receipt = receipt
         result.auth = receipt.auth if receipt else None
+
+        if body.secure_audit:
+            audit_text = f"Query: {body.query}\nSummary: {result.summary_markdown}\nData: {json.dumps(result.structured_data, ensure_ascii=False)}"
+            audit_raw = security_gate_client.inspect_content(
+                text=audit_text,
+                is_code=False,
+                agent_nonce=request.headers.get("x-agent-nonce")
+            )
+            result.security_audit = SecurityAuditResult(**audit_raw)
+
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Oracle Grounding failed: {str(e)}")
@@ -513,6 +568,37 @@ async def verify_oracle_attestation(body: OracleVerifyRequest, query: str = Quer
         timestamp_utc=ts_utc,
         message=msg,
     )
+
+
+@app.post("/api/v1/security/inspect", response_model=SecurityAuditResult, tags=["Security Gate"])
+async def security_gate_inspect(request: Request, body: SecurityInspectRequest):
+    """
+    Submits raw text or Python code to Agent Security Gate for sub-5ms AST, prompt-injection, and EIP-712 attestation.
+    """
+    audit_raw = security_gate_client.inspect_content(
+        text=body.text,
+        is_code=body.is_code,
+        agent_nonce=request.headers.get("x-agent-nonce")
+    )
+    return SecurityAuditResult(**audit_raw)
+
+
+@app.get("/api/v1/security/status", tags=["Security Gate"])
+async def security_gate_status():
+    """
+    Returns live health & metadata for the integrated Security Gate service.
+    """
+    return {
+        "provider": "agent-security-gate-x402",
+        "url": security_gate_client.base_url,
+        "features": ["Jailbreak Radar", "AST Code Safety", "NLI Hallucination Check", "EIP-712 Attestation"],
+        "sla": "sub-5ms execution (zero heavy LLM re-invocation)",
+        "pricing": {
+            "secure_web_clean": 0.005,
+            "secure_youtube_clean": 0.015,
+            "secure_oracle_grounding": 0.040
+        }
+    }
 
 
 
