@@ -47,6 +47,7 @@ from app.storage import storage_manager
 from app.multi_chain import multi_chain_manager
 from app.oracle_engine import oracle_engine
 from app.security_gate_client import security_gate_client
+from app.diagnostics import diagnostic_engine
 
 
 load_dotenv()
@@ -220,16 +221,34 @@ async def dashboard():
 
 
 @app.get("/health", tags=["System"])
-async def health_check():
+async def health_check(deep: bool = Query(False, description="Run deep 5-pipeline self-audit")):
+    """Standard health check. Pass ?deep=true for real-time 5-pipeline diagnostic."""
+    if deep:
+        return diagnostic_engine.run_full_diagnostic()
     db_stats = storage_manager.get_stats()
     return {
         "status": "healthy",
         "service": "x402-cleanweb-agent",
-        "version": "2.3.0",
+        "version": "2.4.0",
         "storage": "sqlite3_wal_ready",
         "storage_stats": db_stats,
-        "chains_connected": ["Polygon(137)", "Base(8453)", "Arbitrum(42161)"]
+        "chains_connected": ["Polygon(137)", "Base(8453)", "Arbitrum(42161)"],
+        "security_gate": "agent-security-gate-x402",
+        "diagnostic_api": "/api/v1/system/diagnostics"
     }
+
+
+@app.get("/api/v1/system/diagnostics", tags=["System"])
+async def run_system_diagnostics():
+    """
+    Executes real-time deep self-audit across 5 mission-critical pipelines:
+    1. Agent Security Gate Ingress Defense (Live Cloud Run & Latency SLA)
+    2. Gemini 3.6 Flash Video/Knowledge AI
+    3. EIP-712 Cryptographic On-Chain Signer
+    4. SQLite WAL Storage & Agent Vault Ledger
+    5. Multi-Chain RPC Nodes (Polygon, Base, Arbitrum)
+    """
+    return diagnostic_engine.run_full_diagnostic()
 
 
 @app.get("/.well-known/ap2", tags=["Standards"])
