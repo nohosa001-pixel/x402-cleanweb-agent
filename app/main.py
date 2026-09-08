@@ -79,8 +79,6 @@ MCP_SPEC_FILE_PATH = BASE_DIR / "mcp_tool_spec.json"
 if STATIC_DIR.exists():
     app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
-LEMONSQUEEZY_WEBHOOK_SECRET = os.getenv("LEMONSQUEEZY_WEBHOOK_SECRET", "cleanweb-wh-secret-2026")
-
 
 # =========================================================================
 # 🛡️ In-Memory Sliding Window Rate Limiter & Prometheus Metrics Middleware
@@ -177,8 +175,8 @@ async def root(request: Request):
         "service": "x402-cleanweb-agent",
         "name": "CleanWeb Studio (Autonomous Agent Data & Spend Firewall)",
         "version": "2.4.0",
-        "audience": "AUTONOMOUS_AGENTS_ONLY",
-        "human_policy": "HUMANS_REJECTED (M2M / EIP-712 / Vault-Only)",
+        "audience": "STRICTLY_AUTONOMOUS_AGENTS",
+        "human_policy": "HUMANS_100%_BLOCKED (Strictly M2M Agent-Native Only)",
         "protocol": "x402 (HTTP 402 Monetized)",
         "security_gate_integration": "agent-security-gate-x402 (Live AST/Prompt/NLI Inspection)",
         "networks": ["Polygon (137)", "Base (8453)", "Arbitrum (42161)"],
@@ -200,8 +198,6 @@ async def root(request: Request):
             "clean_pdf": "/api/v1/clean-pdf?url=https://example.com/paper.pdf",
             "clean_batch": "/api/v1/clean-batch",
             "batch_clean_alias": "/api/v1/batch-clean",
-            "stripe_checkout": "/api/v1/checkout/stripe-session",
-            "stripe_webhook": "/api/v1/webhook/stripe",
             "vault_deposit": "/api/v1/vault/deposit",
             "vault_balance": "/api/v1/vault/balance",
             "pass_status": "/api/v1/pass-status",
@@ -621,60 +617,6 @@ async def security_gate_status():
 
 
 
-
-# =========================================================================
-# 💳 Lemon Squeezy Webhook (Legacy Compatibility)
-# =========================================================================
-@app.post("/api/v1/webhook/lemonsqueezy", tags=["Webhook"])
-async def lemonsqueezy_webhook(request: Request):
-    body_bytes = await request.body()
-    signature = request.headers.get("X-Signature", "")
-
-    if LEMONSQUEEZY_WEBHOOK_SECRET and signature:
-        digest = hmac.new(
-            LEMONSQUEEZY_WEBHOOK_SECRET.encode("utf-8"),
-            body_bytes,
-            hashlib.sha256
-        ).hexdigest()
-        if not hmac.compare_digest(digest, signature):
-            raise HTTPException(status_code=401, detail="Invalid webhook signature")
-
-    try:
-        data = json.loads(body_bytes.decode("utf-8"))
-        event_name = data.get("meta", {}).get("event_name", "")
-        
-        if event_name == "order_created":
-            order_data = data.get("data", {}).get("attributes", {})
-            user_email = order_data.get("user_email", "")
-            first_item = order_data.get("first_order_item", {})
-            variant_name = first_item.get("variant_name", "").lower()
-            order_id = str(data.get("data", {}).get("id", ""))
-
-            credits_allocated = 100
-            duration = 86400 if ("24h" in variant_name or "day" in variant_name) else 604800
-            p_type = "24H_PASS" if duration == 86400 else "100_CREDIT_PASS"
-            pass_token = f"pass_{secrets.token_hex(16)}"
-
-            storage_manager.create_pass(
-                pass_token=pass_token,
-                email=user_email,
-                pass_type=p_type,
-                duration_sec=duration,
-                order_id=order_id,
-                credits=credits_allocated
-            )
-            return {
-                "status": "success",
-                "message": "Pass created successfully",
-                "pass_token": pass_token,
-                "credits": credits_allocated,
-                "duration_sec": duration,
-                "order_id": order_id
-            }
-
-        return {"status": "ignored", "event": event_name}
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Webhook processing error: {str(e)}")
 
 
 # =========================================================================

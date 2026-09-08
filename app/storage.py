@@ -1,5 +1,5 @@
 """
-Persistent High-Performance SQLite Storage Layer for Passes, Replay Protection, Free Trials, and Pre-funded Vault Accounts.
+Persistent High-Performance SQLite Storage Layer for Agent Vault Accounts, Replay Protection, and Machine Free Trials.
 Optimized with WAL (Write-Ahead Logging), multi-threading concurrency locks, and LRU Cache.
 """
 
@@ -39,7 +39,7 @@ class StorageManager:
             try:
                 cursor = conn.cursor()
                 
-                # 1. Passes (Lemon Squeezy or custom time passes)
+                # 1. Agent Passes & Pre-allocated Keys
                 cursor.execute("""
                 CREATE TABLE IF NOT EXISTS passes (
                     pass_token TEXT PRIMARY KEY,

@@ -1,70 +1,61 @@
 import time
-import pytest
 from fastapi.testclient import TestClient
 from app.main import app
 from app.storage import storage_manager
 
 client = TestClient(app)
 
-def test_full_payment_lifecycle():
-    # 1. 402 when quota exhausted
+def test_full_autonomous_agent_vault_lifecycle():
+    # 1. 402 when quota exhausted (Verify strict human rejection headers & specs)
     exhausted_id = f"test_user_{int(time.time()*1000)}"
     storage_manager.increment_trial_usage(exhausted_id)
     storage_manager.increment_trial_usage(exhausted_id)
     
     r402 = client.get("/api/v1/clean-web?url=https://example.com", headers={"X-Agent-Nonce": exhausted_id})
     assert r402.status_code == 402
-    assert r402.json()["status_code"] == 402
-    assert "challenge" in r402.json()
+    data402 = r402.json()
+    assert data402["status_code"] == 402
+    assert data402["audience"] == "AUTONOMOUS_AGENTS_ONLY"
+    assert data402["human_policy"] == "HUMANS_100%_BLOCKED"
+    assert r402.headers.get("X-Human-Policy") == "BLOCKED_AGENTS_ONLY"
+    assert "challenge" in data402
     
-    # 2. Webhook order_created generates pass with 100 credits
-    wh_payload = {
-        "meta": {"event_name": "order_created"},
-        "data": {
-            "id": "order_test_lifecycle_100",
-            "attributes": {
-                "user_email": "buyer@cleanweb.ai",
-                "total_formatted": "$1.00",
-                "first_order_item": {"variant_name": "100_passes"}
-            }
-        }
-    }
-    r_wh = client.post("/api/v1/webhook/lemonsqueezy", json=wh_payload)
-    assert r_wh.status_code == 200
-    wh_data = r_wh.json()
-    assert wh_data["status"] == "success"
-    pass_token = wh_data["pass_token"]
-    assert wh_data["credits"] == 100
+    # 2. Autonomous Agent Self-Funds Vault (2.0 USDC minimum)
+    agent_wallet = f"0x{int(time.time()*1000):x}".ljust(42, "0")
+    r_deposit = client.post("/api/v1/vault/deposit", json={
+        "agent_address": agent_wallet,
+        "amount_usdc": 5.0,
+        "chain": "polygon",
+        "tx_hash": ""
+    })
+    assert r_deposit.status_code == 200
+    dep_data = r_deposit.json()
+    assert dep_data["balance_usdc"] >= 5.0
+    vault_key = dep_data["session_key"]
+    assert "vault_key_" in vault_key
     
-    # 3. Check pass-status endpoint
-    r_stat = client.get(f"/api/v1/pass-status?agent_wallet={pass_token}")
-    assert r_stat.status_code == 200
-    stat_data = r_stat.json()
-    assert stat_data["has_active_pass"] is True
-    assert stat_data["remaining_credits"] == 100
+    # 3. Check vault-balance endpoint
+    r_bal = client.get(f"/api/v1/vault/balance?identifier={vault_key}")
+    assert r_bal.status_code == 200
+    assert r_bal.json()["balance_usdc"] >= 5.0
     
-    # 4. Use pass in X-Agent-Pass header
+    # 4. Autonomous Agent Executes Request with X-Vault-Key (Zero-Gas, Sub-1ms)
     r_paid = client.get(
         "/api/v1/clean-web?url=https://example.com",
-        headers={"X-Agent-Pass": pass_token}
+        headers={"X-Vault-Key": vault_key}
     )
     assert r_paid.status_code == 200
     paid_data = r_paid.json()
     assert paid_data["status"] == "success"
-    assert paid_data["auth"]["remaining_credits"] == 99
-    assert paid_data["auth"]["credits_deducted"] == 1
-    assert paid_data["payment_receipt"]["remaining_credits"] == 99
+    assert paid_data["payment_receipt"]["payment_method"] == "VAULT_BALANCE"
+    assert paid_data["payment_receipt"]["remaining_vault_balance"] < 5.0
+    assert paid_data["auth"]["mode"] == "VAULT_BALANCE"
 
-def test_vip_promo_code():
-    r_promo = client.get(
-        "/api/v1/clean-web?url=https://example.com",
-        headers={"X-Agent-Pass": "WELCOME100"}
-    )
-    assert r_promo.status_code == 200
-    pdata = r_promo.json()
-    assert pdata["status"] == "success"
-    assert pdata["auth"]["mode"] == "VIP_PROMO"
-    assert pdata["auth"]["remaining_credits"] > 0
+def test_human_webhook_endpoints_blocked():
+    # Verify legacy human webhooks are eliminated
+    r_ls = client.post("/api/v1/webhook/lemonsqueezy", json={"test": True})
+    assert r_ls.status_code in (404, 405)
+
 
 def test_b2a_vault_deposit_limits_lifecycle():
     vault_agent = f"0x{int(time.time()*1000):x}".ljust(42, "0")

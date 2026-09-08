@@ -1,6 +1,7 @@
 """
-Comprehensive x402 Micropayment Verification and Challenge Engine.
-Supports Multi-Chain USDC (Polygon/Base/Arbitrum), Pre-funded Agent Vault, Lemon Squeezy Passes, and Instant Sandbox Free Trials.
+Autonomous Agent x402 Micropayment Verification and Challenge Engine.
+Strictly Machine-to-Machine (M2M / B2A). Multi-Chain USDC (Polygon/Base/Arbitrum), Pre-funded Agent Vault, and Instant Sandbox Free Trials.
+Humans and web browsers 100% blocked.
 """
 
 import os
@@ -119,20 +120,18 @@ class X402Verifier:
 
         return PaymentChallenge(
             protocol="B2A_USDC_M2M",
-            instructions="Autonomous Agent Zone: Deposit 2.0+ USDC to recipient_wallet or provide X-Vault-Key header. Humans not accepted.",
+            instructions="Strictly Autonomous AI Agents Only (Humans Blocked). Use X-Vault-Key (<1ms zero-gas) or submit on-chain USDC transfer tx hash via X-Payment-Tx.",
             chain="polygon",
             chain_id=137,
             recipient_wallet=self.recipient_wallet,
             amount_usdc=f"{cost:.4f}",
             token_address=poly_cfg.usdc_address,
             payment_methods_accepted=[
-                "VAULT_BALANCE",             # Priority 1: X-Vault-Key (sub-1ms)
+                "VAULT_BALANCE",             # Priority 1: X-Vault-Key (sub-1ms, 0 gas)
                 "USDC_ONCHAIN_POLYGON",     # Native USDC on Polygon (137)
                 "USDC_ONCHAIN_BASE",        # Native USDC on Base (8453)
                 "USDC_ONCHAIN_ARBITRUM",    # Native USDC on Arbitrum (42161)
-                "EIP712_AGENT_SIGNATURE",   # Machine off-chain signature
-                "AGENT_PASS",               # X-Agent-Pass pre-funded pass
-                "SANDBOX_FREE_TRIAL"        # 2 free trials for new agent nonces
+                "SANDBOX_FREE_TRIAL"        # 2 free trials for agent onboarding
             ],
             pass_options={
                 "agent_vault_min_deposit": "2.0 USDC",
@@ -163,15 +162,17 @@ class X402Verifier:
             "X-Payment-Token": "USDC",
             "X-Payment-Networks": "Polygon(137), Base(8453), Arbitrum(42161)",
             "X-Vault-Deposit-Endpoint": "/api/v1/vault/deposit",
-            "X-Stripe-Checkout-Endpoint": "/api/v1/checkout/stripe-session",
+            "X-Human-Policy": "BLOCKED_AGENTS_ONLY",
         }
 
         body = {
             "error": "Payment Required",
             "status_code": 402,
             "x402Version": 1,
-            "protocol": ch_dict.get("protocol", "B2A_USDC_M2M"),
-            "instructions": ch_dict.get("instructions", "Autonomous Agent Zone: Deposit 2.0+ USDC or supply X-Vault-Key"),
+            "protocol": "B2A_USDC_M2M",
+            "audience": "AUTONOMOUS_AGENTS_ONLY",
+            "human_policy": "HUMANS_100%_BLOCKED",
+            "instructions": "Autonomous Agent Protocol: Deposit 2.0+ USDC to Agent Vault or transfer USDC on Polygon/Base/Arbitrum.",
             "tier_required": tier.value,
             "message": custom_detail or f"HTTP 402 Payment Required: {cfg['description']} ({cfg['cost_usdc']} USDC)",
             "required_usdc": f"{cfg['cost_usdc']:.4f}",
@@ -229,16 +230,14 @@ class X402Verifier:
             # Zero-Human Self-Onboarding Guide for Autonomous LLMs
             "_agentGuide": {
                 "humanFreeOnboarding": True,
-                "instruction": "This resource requires autonomous micropayment via x402 EIP-712 or pre-funded Vault. No human login or credit card required.",
+                "policy": "Strictly Machine-to-Machine. No human login, credit card, or browser sessions.",
                 "sdk_python": "pip install x402-cleanweb-agent",
-                "sdk_npm": "npm i @cleanweb/x402-client",
-                "spendPolicy": "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/api/v1/docs",
                 "estimatedCostPerCall": f"${cfg['cost_usdc']:.4f} USDC",
                 "freeTrialStatus": f"{ch_dict.get('free_trial_remaining', 0)} sandbox calls remaining before mandatory payment",
                 "autonomous_actions": {
                     "step1_trial": "To use remaining free trial, send header 'x-agent-nonce: <random_hex>'",
-                    "step2_vault": "To self-fund vault via USDC: POST /api/v1/vault/deposit with tx hash or EIP-712 permit",
-                    "step3_direct": "To execute instant EIP-712 signed query: attach 'x-signature' and 'x-agent-wallet' headers"
+                    "step2_vault": "To self-fund vault via USDC: POST /api/v1/vault/deposit with tx hash or transfer",
+                    "step3_direct": "To execute instant on-chain query: attach 'x-payment-tx: <tx_hash>'"
                 }
             }
         }
@@ -298,58 +297,7 @@ class X402Verifier:
                     custom_detail=f"Insufficient Vault Balance. Current: {remaining_bal:.4f} USDC, Required: {cost_usdc:.4f} USDC. Please deposit via POST /api/v1/vault/deposit"
                 )
 
-        # --- Strategy 3: Stripe / Lemon Squeezy Pass Token & VIP Promo Codes ---
-        pass_token = (
-            request.headers.get("x-pass-token")
-            or request.headers.get("x-agent-pass")
-            or request.headers.get("x-agent-key")
-            or (bearer_token if (bearer_token.startswith("pass_") or bearer_token.upper() in ("WELCOME100", "CLEANWEB100", "VIPAGENT")) else None)
-        )
-        if pass_token:
-            credit_cost = 3 if tier == PricingTier.ORACLE_GROUNDING else (2 if tier in (PricingTier.HEAVY, PricingTier.ONCHAIN) else 1)
-            success, rem_credits, pass_dict = storage_manager.use_pass(pass_token, deduct_credits=credit_cost)
-            if success and pass_dict:
-                order_id_str = str(pass_dict.get("order_id", ""))
-                is_stripe = order_id_str.startswith("cs_") or "stripe" in order_id_str.lower()
-                is_promo = pass_token.upper() in ("WELCOME100", "CLEANWEB100", "VIPAGENT")
-                
-                if is_promo:
-                    mode_name = "VIP_PROMO"
-                    p_method = PaymentMethod.STRIPE_PASS
-                elif is_stripe:
-                    mode_name = "STRIPE_PASS"
-                    p_method = PaymentMethod.STRIPE_PASS
-                else:
-                    mode_name = "LEMON_SQUEEZY_PASS"
-                    p_method = PaymentMethod.LEMON_SQUEEZY_PASS
-
-                rcpt_id = f"rcpt_pass_{secrets.token_hex(6)}"
-                auth_meta = {
-                    "mode": mode_name,
-                    "credits_deducted": credit_cost,
-                    "remaining_credits": rem_credits,
-                    "pass_token": pass_dict.get("pass_token"),
-                    "receipt_id": rcpt_id
-                }
-                receipt = PaymentReceipt(
-                    receipt_id=rcpt_id,
-                    tier=tier,
-                    payment_method=p_method,
-                    payer_address=pass_dict.get("buyer_email"),
-                    cost_usdc=0.0,
-                    remaining_credits=rem_credits,
-                    settled_at=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-                    auth=auth_meta
-                )
-                return True, receipt, None
-            elif pass_dict is not None and rem_credits == 0:
-                return False, None, self.build_402_response(
-                    tier=tier,
-                    request=request,
-                    custom_detail="Pass credits exhausted (0 remaining). Please renew your pass via Stripe or Crypto."
-                )
-
-        # --- Strategy 4: Multi-Chain On-Chain TX Hash ---
+        # --- Strategy 3: Multi-Chain On-Chain TX Hash ---
         tx_hash = (
             request.headers.get("x-payment-tx")
             or request.headers.get("x-tx-hash")
@@ -400,7 +348,7 @@ class X402Verifier:
                     custom_detail=f"On-chain verification failed: {reason}"
                 )
 
-        # --- Strategy 5: Instant Sandbox Free Trial (IP-Protected) ---
+        # --- Strategy 4: Instant Sandbox Free Trial (IP-Protected) ---
         nonce_hdr = request.headers.get("x-agent-nonce", "").strip()
         client_ip = self.get_client_ip(request)
         # Allow test suites to pass isolated test user nonces, while enforcing strict IP-based limitation for clients

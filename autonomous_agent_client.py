@@ -50,10 +50,12 @@ class AutonomousX402Agent:
         self,
         private_key: Optional[str] = None,
         base_url: str = DEFAULT_BASE_URL,
-        rpc_url: Optional[str] = None
+        rpc_url: Optional[str] = None,
+        vault_key: Optional[str] = None
     ):
         self.private_key = private_key or os.getenv("AGENT_PRIVATE_KEY")
         self.base_url = base_url.rstrip("/")
+        self.vault_key = vault_key or os.getenv("AGENT_VAULT_KEY")
         
         # Initialize Web3 Provider with fallback
         self.w3 = self._init_web3(rpc_url)
@@ -124,10 +126,14 @@ class AutonomousX402Agent:
         json_body: Optional[Dict[str, Any]] = None,
         method: str = "GET",
         agent_pass: Optional[str] = None,
-        agent_nonce: Optional[str] = None
+        agent_nonce: Optional[str] = None,
+        vault_key: Optional[str] = None
     ) -> Dict[str, Any]:
         url = f"{self.base_url}{endpoint}"
         headers = {}
+        active_vault_key = vault_key or self.vault_key
+        if active_vault_key:
+            headers["X-Vault-Key"] = active_vault_key
         if agent_pass:
             headers["X-Agent-Pass"] = agent_pass
         if agent_nonce:
@@ -193,32 +199,41 @@ class AutonomousX402Agent:
         res.raise_for_status()
         return res.json()
 
-    def mint_credit_pass(self, amount_usdc: float = 1.0, referral_wallet: Optional[str] = None) -> str:
+    def deposit_vault(self, amount_usdc: float = 2.0, chain: str = "polygon") -> str:
         """
-        [Zero-Latency Pass] Mints a reusable prepaid credit pass:
-        - 1.0 USDC = 100 API Calls
-        - 5.0 USDC = 600 API Calls (20% bonus)
-        Returns the pass_token string to reuse across calls without per-call on-chain transactions.
+        [Zero-Latency Agent Vault] Pre-funds Agent Vault on-chain:
+        Deposits 2.0+ USDC to recipient_wallet, verifies on-chain, and receives X-Vault-Key.
+        Returns the session_key (vault_key) for zero-gas, sub-1ms requests.
         """
+        if amount_usdc < 2.0:
+            raise ValueError("Minimum deposit is 2.0 USDC.")
         raw_amount = int(amount_usdc * 10**6)
         x402_info = {
             "token_contract": "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
             "recipient": "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf",
             "amount_raw": str(raw_amount)
         }
-        print(f"[x402 Agent] Minting Prepaid Credit Pass for {amount_usdc} USDC...")
+        print(f"[x402 Agent] Depositing {amount_usdc} USDC into Agent Vault on {chain}...")
         tx_hash = self._pay_and_get_tx_hash(x402_info)
         
-        payload = {"tx_hash": tx_hash, "amount_usdc": amount_usdc}
-        if referral_wallet:
-            payload["referral_wallet"] = referral_wallet
+        payload = {
+            "agent_address": self.wallet_address,
+            "amount_usdc": amount_usdc,
+            "chain": chain,
+            "tx_hash": tx_hash
+        }
 
-        mint_res = requests.post(f"{self.base_url}/api/v1/pass/mint", json=payload)
-        mint_res.raise_for_status()
-        data = mint_res.json()
-        pass_token = data["pass_token"]
-        print(f"[x402 Agent] Pass minted successfully! Token: {pass_token} ({data['credits']} credits)")
-        return pass_token
+        dep_res = requests.post(f"{self.base_url}/api/v1/vault/deposit", json=payload)
+        dep_res.raise_for_status()
+        data = dep_res.json()
+        vault_key = data["session_key"]
+        self.vault_key = vault_key
+        print(f"[x402 Agent] Vault funded successfully! Balance: {data['balance_usdc']} USDC, Key: {vault_key}")
+        return vault_key
+
+    def mint_credit_pass(self, amount_usdc: float = 2.0, referral_wallet: Optional[str] = None) -> str:
+        """Compatibility alias for deposit_vault."""
+        return self.deposit_vault(amount_usdc=amount_usdc)
 
     def clean_web(
         self,
