@@ -12,4 +12,6 @@ dist/
 build/
 *.egg-info/
 test_*.py
+tests/
+data/
 .DS_Store

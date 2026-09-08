@@ -174,7 +174,7 @@ async def root(request: Request):
     return {
         "service": "x402-cleanweb-agent",
         "name": "CleanWeb Studio (Autonomous Agent Data & Spend Firewall)",
-        "version": "2.4.0",
+        "version": "2.5.0",
         "audience": "STRICTLY_AUTONOMOUS_AGENTS",
         "human_policy": "HUMANS_100%_BLOCKED (Strictly M2M Agent-Native Only)",
         "protocol": "x402 (HTTP 402 Monetized)",
@@ -225,7 +225,7 @@ async def health_check(deep: bool = Query(False, description="Run deep 5-pipelin
     return {
         "status": "healthy",
         "service": "x402-cleanweb-agent",
-        "version": "2.4.0",
+        "version": "2.5.0",
         "storage": "sqlite3_wal_ready",
         "storage_stats": db_stats,
         "chains_connected": ["Polygon(137)", "Base(8453)", "Arbitrum(42161)"],
