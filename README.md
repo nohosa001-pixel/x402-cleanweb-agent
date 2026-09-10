@@ -1,12 +1,12 @@
-# ⚡ The Spend Firewall & B2A Autonomous Agent Data Oracle (CleanWeb Studio v2.4.0)
+# ⚡ The Spend Firewall & B2A Autonomous Agent Data Oracle (CleanWeb Studio v2.5.1)
 
 > **"The Spend Firewall for Autonomous Agents: Verified data in. Signed policy out. Every payment auditable on-chain."**  
 > *Zero credit cards. Zero human logins. 100% Native USDC micropayments & pre-funded vaults with on-chain EIP-712 spend policy attestations.*
 
-[![Version](https://img.shields.io/badge/Version-2.4.0-00f2fe?style=for-the-badge&logo=fastapi&logoColor=black)](https://github.com/nohosa001-pixel/x402-cleanweb-agent)
+[![Version](https://img.shields.io/badge/Version-2.5.1-00f2fe?style=for-the-badge&logo=fastapi&logoColor=black)](https://github.com/nohosa001-pixel/x402-cleanweb-agent)
 [![Multi-Chain](https://img.shields.io/badge/Chains-Polygon%20%7C%20Base%20%7C%20Arbitrum-8247e5?style=for-the-badge&logo=ethereum&logoColor=white)](https://polygonscan.com)
 [![PyPI Package](https://img.shields.io/pypi/v/x402-cleanweb-agent.svg?color=blue&label=PyPI%20Package)](https://pypi.org/project/x402-cleanweb-agent/)
-[![Tests](https://img.shields.io/badge/Tests-19%2F19%20Passed%20(100%25)-10b981?style=for-the-badge&logo=pytest&logoColor=white)](https://github.com/nohosa001-pixel/x402-cleanweb-agent)
+[![Tests](https://img.shields.io/badge/Tests-37%2F37%20Passed%20(100%25)-10b981?style=for-the-badge&logo=pytest&logoColor=white)](https://github.com/nohosa001-pixel/x402-cleanweb-agent)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ---
@@ -18,18 +18,23 @@ Autonomous AI Agents (LangChain, CrewAI, AutoGPT, DeFi trading bots) face three 
 2. **LLM Context Token Waste**: Raw HTML is 95% garbage (ads, scripts, cookie banners) that drains inference budgets.
 3. **Lack of Verifiable Truth (On-Chain Grounding)**: Smart contracts on Polymarket, Hyperliquid, or DeFi cannot verify whether off-chain web data has been tampered with.
 
-**CleanWeb Studio v2.4.0 solves all three in a single HTTP call.**
+**CleanWeb Studio v2.5.0 solves all three in a single HTTP call.**
 
 ---
 
-## 🔮 4 Core Agent Services & Micro-Pricing (USDC)
+## 🔮 Core Agent Services & Micro-Pricing (USDC)
 
 | Service Endpoint | What it Does | Cost (USDC) | Gas Overhead |
 | :--- | :--- | :---: | :---: |
 | **🌐 Clean Web (`/api/v1/clean-web`)** | 99.9% token reduction web markdown cleaner | **0.001 USDC** | **0원 (<5ms)** |
-| **🎬 YouTube AI (`/api/v1/clean-youtube`)** | Gemini 3.6 Flash hybrid video analysis & audio intelligence | **0.010 USDC** | **0원 (<5ms)** |
+| **📝 Pure Text (`/api/v1/clean-text`)** | Ultra-lightweight raw plain text for vector/RAG embeddings | **0.001 USDC** | **0원 (<5ms)** |
+| **🗺️ Site Mapper (`/api/v1/map-site`)** | Domain sitemap & internal URL tree discovery (Firecrawl /map) | **0.002 USDC** | **0원 (<5ms)** |
+| **🔍 Agent Search (`/api/v1/search`)** | Fast real-time keyword search & verified snippets (Tavily) | **0.002 USDC** | **0원 (<5ms)** |
 | **📄 PDF Research (`/api/v1/clean-pdf`)** | Formula & table-preserved academic paper extractor | **0.005 USDC** | **0원 (<5ms)** |
+| **🎬 YouTube AI (`/api/v1/clean-youtube`)** | Gemini 3.6 Flash hybrid video analysis & audio intelligence | **0.010 USDC** | **0원 (<5ms)** |
+| **📊 Extract JSON (`/api/v1/extract-json`)** | Webpage to schema-constrained JSON structured extractor | **0.030 USDC** | **0원 (<5ms)** |
 | **🔮 Web3 Signed Oracle (`/api/v1/oracle/grounding`)** | **Real-time search + Clean-to-JSON + EIP-712 On-Chain Attestation** | **0.035 USDC** | **0원 (<5ms)** |
+| **🧠 Deep Research (`/api/v1/deep-research`)** | Multi-source synthesized AI executive research briefing | **0.150 USDC** | **0원 (<5ms)** |
 
 ---
 
@@ -123,6 +128,20 @@ tests/test_treasury.py::test_multi_chain_balances_structure PASSED              
 
 ======================= 19 passed, 2 warnings in 44.01s =======================
 ```
+
+---
+
+## ⚖️ Legal, Fair Use & Financial Non-Liability Disclaimer
+
+CleanWeb Studio operates strictly under the **Transformative Non-Expressive Text/Data Mining (TDM) Fair Use** doctrine for autonomous AI reasoning.
+
+1. **No Financial or Investment Warranty**: All oracle feeds, search results, and scraped contents are provided **AS-IS**. CleanWeb Studio assumes zero liability for DeFi smart contract liquidations, prediction market settlements (e.g. Polymarket), or trading losses resulting from external web misreporting or LLM hallucinations.
+2. **Caller Responsibility**: The autonomous agent deployer/caller is solely responsible for respecting target website intellectual property and applicable laws.
+3. **Zero-Data Retention (GDPR Compliant)**: All fetched HTML and raw assets are processed ephemerally in RAM and purged immediately upon response transmission.
+4. **100% OFAC Sanctions Filtering**: All micropayment addresses are verified against OFAC Specially Designated Nationals (SDN) lists.
+5. **Full Legal Endpoints**:
+   - `GET /api/v1/legal/terms`: Official Machine-to-Machine Terms of Service
+   - `GET /api/v1/legal/disclaimer`: Full Legal & Financial Disclaimer
 
 ---
 

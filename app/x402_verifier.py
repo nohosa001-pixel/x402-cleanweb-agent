@@ -76,6 +76,26 @@ TIER_PRICING: Dict[PricingTier, Dict[str, Any]] = {
         "units": "35000",
         "description": "Tier 5 (Oracle Grounding): Real-time Search + Clean-to-JSON + EIP-712 Signed Oracle",
     },
+    PricingTier.MAP_SITE: {
+        "cost_usdc": 0.002,
+        "units": "2000",
+        "description": "Tier 11 (Map Site): Domain sitemap & URL tree fast mapping",
+    },
+    PricingTier.SEARCH: {
+        "cost_usdc": 0.002,
+        "units": "2000",
+        "description": "Tier 12 (Search): Fast agent web search & keyword snippets",
+    },
+    PricingTier.EXTRACT_JSON: {
+        "cost_usdc": 0.030,
+        "units": "30000",
+        "description": "Tier 9 (Extract JSON): Webpage to structured JSON schema extraction",
+    },
+    PricingTier.DEEP_RESEARCH: {
+        "cost_usdc": 0.150,
+        "units": "150000",
+        "description": "Tier 10 (Deep Research): Multi-source AI synthesized deep research briefing",
+    },
     PricingTier.SECURE_WEB_CLEAN: {
         "cost_usdc": 0.005,
         "units": "5000",
@@ -267,6 +287,27 @@ class X402Verifier:
             )
             return True, receipt, None
 
+        # --- Strategy 1.5: Agent Pass & VIP Promo Codes ---
+        agent_pass = (
+            request.headers.get("x-agent-pass")
+            or request.headers.get("x-pass-token")
+            or (bearer_token if bearer_token.startswith("pass_") else None)
+        )
+        if agent_pass:
+            is_valid, remaining_credits, pass_dict = storage_manager.use_pass(agent_pass, deduct_credits=1)
+            if is_valid:
+                rcpt_id = f"rcpt_pass_{secrets.token_hex(6)}"
+                receipt = PaymentReceipt(
+                    receipt_id=rcpt_id,
+                    tier=tier,
+                    payment_method=PaymentMethod.SANDBOX_FREE_TRIAL,
+                    cost_usdc=0.0,
+                    remaining_credits=remaining_credits,
+                    settled_at=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                    auth={"mode": "AGENT_PASS", "pass_token": agent_pass, "remaining_credits": remaining_credits, "receipt_id": rcpt_id}
+                )
+                return True, receipt, None
+
         # --- Strategy 2: Pre-funded Agent Vault ---
         vault_key = (
             request.headers.get("x-vault-key")
@@ -288,6 +329,16 @@ class X402Verifier:
                     settled_at=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
                     auth={"mode": "VAULT_BALANCE", "cost_usdc": cost_usdc, "remaining_vault_balance": remaining_bal, "receipt_id": rcpt_id}
                 )
+                try:
+                    from app.agrid_ops_client import dispatch_clearing_event_background
+                    dispatch_clearing_event_background(
+                        operation=request.url.path,
+                        amount_usdc=cost_usdc,
+                        caller_agent_id=acc.get("agent_address") if acc else "vault_agent",
+                        chain="polygon"
+                    )
+                except Exception:
+                    pass
                 return True, receipt, None
             elif acc is not None:
                 # Vault exists but insufficient balance
@@ -340,6 +391,17 @@ class X402Verifier:
                     settled_at=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
                     auth={"mode": "USDC_ONCHAIN", "tx_hash": tx_hash, "amount_usdc": details.get("amount_usdc", cost_usdc), "receipt_id": rcpt_id}
                 )
+                try:
+                    from app.agrid_ops_client import dispatch_clearing_event_background
+                    dispatch_clearing_event_background(
+                        operation=request.url.path,
+                        amount_usdc=details.get("amount_usdc", cost_usdc),
+                        caller_agent_id=details.get("payer", "onchain_agent"),
+                        chain=chain_hdr,
+                        tx_hash=tx_hash
+                    )
+                except Exception:
+                    pass
                 return True, receipt, None
             else:
                 return False, None, self.build_402_response(

@@ -43,8 +43,37 @@ class YouTubeCleanerEngine:
                 return match.group(1)
         return None
 
+    def fetch_official_youtube_api(self, video_id: str) -> Optional[Dict[str, Any]]:
+        """Fetches video metadata and details via official YouTube Data API v3 if API key configured."""
+        yt_api_key = os.getenv("YOUTUBE_API_KEY", "")
+        if not yt_api_key:
+            return None
+        try:
+            url = f"https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id={video_id}&key={yt_api_key}"
+            r = requests.get(url, timeout=5)
+            if r.status_code == 200:
+                data = r.json()
+                items = data.get("items", [])
+                if items:
+                    snippet = items[0].get("snippet", {})
+                    return {
+                        "title": snippet.get("title"),
+                        "author_name": snippet.get("channelTitle"),
+                        "description": snippet.get("description", "")[:1000],
+                        "published_at": snippet.get("publishedAt"),
+                        "source": "official_youtube_data_api_v3"
+                    }
+        except Exception:
+            pass
+        return None
+
     def fetch_oembed(self, video_id: str) -> Dict[str, Any]:
-        """Fetches video title, author, and thumbnail via YouTube oEmbed."""
+        """Fetches video title, author, and thumbnail via YouTube oEmbed (100% official/legal)."""
+        # Try official YouTube Data API v3 first if key present
+        official = self.fetch_official_youtube_api(video_id)
+        if official:
+            return official
+
         oembed_url = f"https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v={video_id}&format=json"
         try:
             r = requests.get(oembed_url, timeout=5)
@@ -149,23 +178,16 @@ class YouTubeCleanerEngine:
         transcript = ""
         method_used = "oembed_fallback"
 
-        # Step 1. Try Invidious Subtitles
-        invidious_sub = self.fetch_invidious_subtitles(video_id, lang=lang)
-        if invidious_sub and len(invidious_sub) > 100:
-            transcript = invidious_sub
-            method_used = "invidious_subtitles"
+        # Step 1. Try official public transcript via youtube_transcript_api (Compliance-First)
+        try:
+            from youtube_transcript_api import YouTubeTranscriptApi
+            t_list = YouTubeTranscriptApi.get_transcript(video_id, languages=[l.strip() for l in lang.split(",")])
+            transcript = " ".join([item["text"] for item in t_list])
+            method_used = "youtube_transcript_api"
+        except Exception:
+            pass
 
-        # Step 2. Try youtube_transcript_api if available
-        if not transcript:
-            try:
-                from youtube_transcript_api import YouTubeTranscriptApi
-                t_list = YouTubeTranscriptApi.get_transcript(video_id, languages=[l.strip() for l in lang.split(",")])
-                transcript = " ".join([item["text"] for item in t_list])
-                method_used = "youtube_transcript_api"
-            except Exception:
-                pass
-
-        # Step 3. Generate Gemini AI Summary
+        # Step 2. Try Google Gemini Flash Video Intelligence
         ai_summary = self.fetch_gemini_summary(video_id, prompt_text=transcript)
         if ai_summary:
             if not transcript:
@@ -173,6 +195,13 @@ class YouTubeCleanerEngine:
                 method_used = "gemini_3.6_flash_ai"
             else:
                 method_used = "hybrid_gemini_flash_transcript"
+
+        # Step 3. Emergency fallback only if no transcript and no Gemini summary
+        if not transcript or method_used == "oembed_fallback":
+            invidious_sub = self.fetch_invidious_subtitles(video_id, lang=lang)
+            if invidious_sub and len(invidious_sub) > 100:
+                transcript = invidious_sub
+                method_used = "invidious_subtitles"
 
         if not transcript:
             transcript = f"Title: {title}\nChannel: {channel}\nURL: https://www.youtube.com/watch?v={video_id}\n\n(Notice: Subtitles are disabled on this video and Gemini AI fallback provided video metadata)."

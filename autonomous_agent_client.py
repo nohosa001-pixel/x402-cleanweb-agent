@@ -28,20 +28,47 @@ ERC20_ABI = [
 ]
 
 DEFAULT_BASE_URL = "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app"
-DEFAULT_RPC_URLS = [
-    "https://polygon-bor-rpc.publicnode.com",
-    "https://polygon.llamarpc.com",
-    "https://1rpc.io/matic",
-    "https://rpc.ankr.com/polygon",
-    "https://polygon.drpc.org"
-]
+
+SUPPORTED_CHAINS: Dict[str, Dict[str, Any]] = {
+    "polygon": {
+        "chain_id": 137,
+        "usdc": "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
+        "rpcs": [
+            "https://polygon-bor-rpc.publicnode.com",
+            "https://polygon.llamarpc.com",
+            "https://1rpc.io/matic",
+            "https://rpc.ankr.com/polygon"
+        ]
+    },
+    "base": {
+        "chain_id": 8453,
+        "usdc": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "rpcs": [
+            "https://mainnet.base.org",
+            "https://base.llamarpc.com",
+            "https://1rpc.io/base"
+        ]
+    },
+    "arbitrum": {
+        "chain_id": 42161,
+        "usdc": "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
+        "rpcs": [
+            "https://arb1.arbitrum.io/rpc",
+            "https://arbitrum.llamarpc.com",
+            "https://1rpc.io/arb"
+        ]
+    }
+}
+
+DEFAULT_RPC_URLS = SUPPORTED_CHAINS["polygon"]["rpcs"]
+
 
 class AutonomousX402Agent:
     """
-    Autonomous Web3 AI Agent Client for x402 Protocol on Polygon Mainnet.
+    Autonomous Web3 AI Agent Client for x402 Protocol on Multi-Chain (Polygon, Base, Arbitrum).
     
     Usage:
-        agent = AutonomousX402Agent(private_key="0x...")
+        agent = AutonomousX402Agent(private_key="0x...", default_chain="polygon", auto_refill=True)
         result = agent.clean_web("https://example.com/article")
         print(result["markdown_content"])
     """
@@ -51,14 +78,22 @@ class AutonomousX402Agent:
         private_key: Optional[str] = None,
         base_url: str = DEFAULT_BASE_URL,
         rpc_url: Optional[str] = None,
-        vault_key: Optional[str] = None
+        vault_key: Optional[str] = None,
+        default_chain: str = "polygon",
+        auto_refill: bool = False,
+        auto_refill_threshold_usdc: float = 0.5
     ):
         self.private_key = private_key or os.getenv("AGENT_PRIVATE_KEY")
         self.base_url = base_url.rstrip("/")
         self.vault_key = vault_key or os.getenv("AGENT_VAULT_KEY")
+        self.default_chain = default_chain.lower()
+        self.auto_refill = auto_refill
+        self.auto_refill_threshold_usdc = auto_refill_threshold_usdc
+        self.session = requests.Session()
         
-        # Initialize Web3 Provider with fallback
-        self.w3 = self._init_web3(rpc_url)
+        # Web3 Providers cache per chain
+        self._w3_cache: Dict[str, Web3] = {}
+        self.w3 = self._init_web3(self.default_chain, rpc_url)
         
         if self.private_key:
             self.account = self.w3.eth.account.from_key(self.private_key)
@@ -67,34 +102,49 @@ class AutonomousX402Agent:
             self.account = None
             self.wallet_address = None
 
-    def _init_web3(self, rpc_url: Optional[str] = None) -> Web3:
-        urls = [rpc_url] + DEFAULT_RPC_URLS if rpc_url else DEFAULT_RPC_URLS
+    def _init_web3(self, chain: str = "polygon", rpc_url: Optional[str] = None) -> Web3:
+        chain_key = chain.lower()
+        if chain_key in self._w3_cache and not rpc_url:
+            return self._w3_cache[chain_key]
+
+        chain_info = SUPPORTED_CHAINS.get(chain_key, SUPPORTED_CHAINS["polygon"])
+        urls = [rpc_url] + chain_info["rpcs"] if rpc_url else chain_info["rpcs"]
+        
         for url in urls:
             if not url:
                 continue
             try:
                 w3 = Web3(Web3.HTTPProvider(url, request_kwargs={"timeout": 10}))
                 if w3.is_connected():
+                    self._w3_cache[chain_key] = w3
                     return w3
             except Exception:
                 continue
-        return Web3(Web3.HTTPProvider(DEFAULT_RPC_URLS[0]))
+        w3_fallback = Web3(Web3.HTTPProvider(chain_info["rpcs"][0]))
+        self._w3_cache[chain_key] = w3_fallback
+        return w3_fallback
 
-    def _pay_and_get_tx_hash(self, x402_info: Dict[str, Any]) -> str:
-        """Executes on-chain USDC transfer based on 402 instructions."""
+    def _pay_and_get_tx_hash(self, x402_info: Dict[str, Any], chain: Optional[str] = None) -> str:
+        """Executes on-chain USDC transfer based on 402 instructions on Polygon, Base, or Arbitrum."""
         if not self.account:
             raise ValueError(
                 "Agent private key is required to execute on-chain micropayments. "
                 "Set AGENT_PRIVATE_KEY env var or pass private_key to AutonomousX402Agent()."
             )
 
-        token_contract_addr = Web3.to_checksum_address(x402_info["token_contract"])
+        # Resolve chain
+        target_chain = (chain or x402_info.get("chain") or self.default_chain).lower()
+        chain_info = SUPPORTED_CHAINS.get(target_chain, SUPPORTED_CHAINS["polygon"])
+        chain_id = int(x402_info.get("chain_id") or chain_info["chain_id"])
+
+        w3_instance = self._init_web3(target_chain)
+        token_contract_addr = Web3.to_checksum_address(x402_info.get("token_contract") or chain_info["usdc"])
         recipient_addr = Web3.to_checksum_address(x402_info["recipient"])
         amount_raw = int(x402_info["amount_raw"])
 
-        token_contract = self.w3.eth.contract(address=token_contract_addr, abi=ERC20_ABI)
-        nonce = self.w3.eth.get_transaction_count(self.wallet_address, "pending")
-        gas_price = self.w3.eth.gas_price
+        token_contract = w3_instance.eth.contract(address=token_contract_addr, abi=ERC20_ABI)
+        nonce = w3_instance.eth.get_transaction_count(self.wallet_address, "pending")
+        gas_price = w3_instance.eth.gas_price
 
         # Build ERC20 Transfer transaction
         tx = token_contract.functions.transfer(
@@ -105,17 +155,17 @@ class AutonomousX402Agent:
             "nonce": nonce,
             "gas": 90000,
             "gasPrice": int(gas_price * 1.2),  # +20% for fast inclusion
-            "chainId": 137
+            "chainId": chain_id
         })
 
         # Sign & Send
-        signed_tx = self.w3.eth.account.sign_transaction(tx, private_key=self.private_key)
-        tx_hash = self.w3.eth.send_raw_transaction(signed_tx.raw_transaction).hex()
+        signed_tx = w3_instance.eth.account.sign_transaction(tx, private_key=self.private_key)
+        tx_hash = w3_instance.eth.send_raw_transaction(signed_tx.raw_transaction).hex()
         
         # Wait for receipt
-        receipt = self.w3.eth.wait_for_transaction_receipt(tx_hash, timeout=60)
+        receipt = w3_instance.eth.wait_for_transaction_receipt(tx_hash, timeout=60)
         if receipt.get("status") != 1:
-            raise RuntimeError(f"USDC Transfer reverted on-chain: {tx_hash}")
+            raise RuntimeError(f"USDC Transfer reverted on-chain on {target_chain}: {tx_hash}")
 
         return tx_hash
 
@@ -141,9 +191,9 @@ class AutonomousX402Agent:
 
         # 1. Initial Request
         if method == "POST":
-            res = requests.post(url, params=params, json=json_body, headers=headers)
+            res = self.session.post(url, params=params, json=json_body, headers=headers)
         else:
-            res = requests.get(url, params=params, headers=headers)
+            res = self.session.get(url, params=params, headers=headers)
 
         if res.status_code == 200:
             return res.json()
@@ -162,22 +212,40 @@ class AutonomousX402Agent:
 
             required_usdc = x402_info.get("amount", data.get("required_usdc", "0.001"))
             suggested_action = data.get("suggested_action", "")
+            chain_name = x402_info.get("chain", self.default_chain)
 
-            print(f"[x402 Agent] 402 Payment Required: {required_usdc} USDC on Polygon.")
+            # Auto-Refill Guard Trigger: If agent has auto_refill enabled and wallet has balance
+            if self.auto_refill and self.account:
+                print(f"[x402 AutoRefill] 402 intercepted. Auto-refilling vault with 2.0 USDC on {chain_name}...")
+                try:
+                    new_vault_key = self.deposit_vault(amount_usdc=2.0, chain=chain_name)
+                    headers["X-Vault-Key"] = new_vault_key
+                    if method == "POST":
+                        retried = self.session.post(url, params=params, json=json_body, headers=headers)
+                    else:
+                        retried = self.session.get(url, params=params, headers=headers)
+                    if retried.status_code == 200:
+                        print("[x402 AutoRefill] Success! Vault refilled and query served seamlessly.")
+                        return retried.json()
+                except Exception as refill_err:
+                    print(f"[x402 AutoRefill] Refill attempt failed: {refill_err}. Falling back to direct tx...")
+
+            print(f"[x402 Agent] 402 Payment Required: {required_usdc} USDC on {chain_name}.")
             if suggested_action:
                 print(f"[x402 Agent Action]: {suggested_action}")
             print(f"[x402 Agent] Paying from agent wallet: {self.wallet_address}...")
 
             # 2. Autonomous On-Chain Payment
-            tx_hash = self._pay_and_get_tx_hash(x402_info)
+            tx_hash = self._pay_and_get_tx_hash(x402_info, chain=chain_name)
             print(f"[x402 Agent] On-chain payment confirmed! Tx: {tx_hash}")
 
             # 3. Re-request with X-Payment-Tx Header
             headers["X-Payment-Tx"] = tx_hash
+            headers["X-Chain"] = chain_name
             if method == "POST":
-                paid_res = requests.post(url, params=params, json=json_body, headers=headers)
+                paid_res = self.session.post(url, params=params, json=json_body, headers=headers)
             else:
-                paid_res = requests.get(url, params=params, headers=headers)
+                paid_res = self.session.get(url, params=params, headers=headers)
 
             if paid_res.status_code == 200:
                 print(f"[x402 Agent] Data successfully acquired.")
@@ -199,27 +267,34 @@ class AutonomousX402Agent:
         res.raise_for_status()
         return res.json()
 
-    def deposit_vault(self, amount_usdc: float = 2.0, chain: str = "polygon") -> str:
+    def deposit_vault(self, amount_usdc: float = 2.0, chain: Optional[str] = None) -> str:
         """
         [Zero-Latency Agent Vault] Pre-funds Agent Vault on-chain:
-        Deposits 2.0+ USDC to recipient_wallet, verifies on-chain, and receives X-Vault-Key.
+        Deposits 2.0+ USDC to recipient_wallet on Polygon, Base, or Arbitrum,
+        verifies on-chain, and receives X-Vault-Key.
         Returns the session_key (vault_key) for zero-gas, sub-1ms requests.
         """
         if amount_usdc < 2.0:
             raise ValueError("Minimum deposit is 2.0 USDC.")
+
+        target_chain = (chain or self.default_chain).lower()
+        chain_info = SUPPORTED_CHAINS.get(target_chain, SUPPORTED_CHAINS["polygon"])
         raw_amount = int(amount_usdc * 10**6)
+
         x402_info = {
-            "token_contract": "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
+            "chain": target_chain,
+            "chain_id": chain_info["chain_id"],
+            "token_contract": chain_info["usdc"],
             "recipient": "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf",
             "amount_raw": str(raw_amount)
         }
-        print(f"[x402 Agent] Depositing {amount_usdc} USDC into Agent Vault on {chain}...")
-        tx_hash = self._pay_and_get_tx_hash(x402_info)
+        print(f"[x402 Agent] Depositing {amount_usdc} USDC into Agent Vault on {target_chain}...")
+        tx_hash = self._pay_and_get_tx_hash(x402_info, chain=target_chain)
         
         payload = {
             "agent_address": self.wallet_address,
             "amount_usdc": amount_usdc,
-            "chain": chain,
+            "chain": target_chain,
             "tx_hash": tx_hash
         }
 
@@ -240,13 +315,16 @@ class AutonomousX402Agent:
         url: str,
         density: str = "standard",
         max_tokens: Optional[int] = None,
+        respect_robots_txt: bool = False,
         agent_pass: Optional[str] = None,
         agent_nonce: Optional[str] = None
     ) -> Dict[str, Any]:
-        """Scrapes and converts messy HTML to clean Markdown with token savings (0.01 USDC / 1 credit)."""
+        """Scrapes and converts messy HTML to clean Markdown with token savings (0.001 USDC / 1 credit)."""
         params: Dict[str, Any] = {"url": url, "density": density}
         if max_tokens:
             params["max_tokens"] = max_tokens
+        if respect_robots_txt:
+            params["respect_robots_txt"] = "true"
         return self._execute_x402_request("/api/v1/clean-web", params=params, agent_pass=agent_pass, agent_nonce=agent_nonce)
 
     def batch_clean(
@@ -283,6 +361,136 @@ class AutonomousX402Agent:
     def deep_research(self, query: str, max_sources: int = 3, agent_pass: Optional[str] = None, agent_nonce: Optional[str] = None) -> Dict[str, Any]:
         """Generates multi-source synthesized AI deep research briefings (0.15 USDC / 15 credits)."""
         return self._execute_x402_request("/api/v1/deep-research", params={"query": query, "max_sources": max_sources}, agent_pass=agent_pass, agent_nonce=agent_nonce)
+
+    def map_site(self, url: str, max_links: int = 50, agent_pass: Optional[str] = None, agent_nonce: Optional[str] = None) -> Dict[str, Any]:
+        """Discovers domain sitemap or internal URL tree (0.002 USDC / 2 credits). Firecrawl /map equivalent."""
+        return self._execute_x402_request("/api/v1/map-site", params={"url": url, "max_links": max_links}, agent_pass=agent_pass, agent_nonce=agent_nonce)
+
+    def search(self, query: str, max_results: int = 5, agent_pass: Optional[str] = None, agent_nonce: Optional[str] = None) -> Dict[str, Any]:
+        """Executes fast real-time keyword web search returning snippets (0.002 USDC / 2 credits). Tavily equivalent."""
+        return self._execute_x402_request("/api/v1/search", params={"query": query, "max_results": max_results}, agent_pass=agent_pass, agent_nonce=agent_nonce)
+
+    def oracle_grounding(
+        self,
+        query: str,
+        target_schema: Optional[Dict[str, Any]] = None,
+        max_sources: int = 3,
+        secure_audit: bool = False,
+        agent_pass: Optional[str] = None,
+        agent_nonce: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """
+        [B2A Web3 Signed Oracle Grounding] (0.035 USDC / 0.040 USDC with Security Gate audit)
+        Executes real-time search, noise-free extraction, Gemini 3.6 Flash JSON structuring,
+        and returns on-chain verifiable EIP-712 attestation.
+        """
+        payload: Dict[str, Any] = {
+            "query": query,
+            "max_sources": max_sources,
+            "secure_audit": secure_audit
+        }
+        if target_schema:
+            payload["target_schema"] = target_schema
+        return self._execute_x402_request("/api/v1/oracle/grounding", json_body=payload, method="POST", agent_pass=agent_pass, agent_nonce=agent_nonce)
+
+    def verify_oracle_attestation(
+        self,
+        query: str,
+        data_hash: str,
+        timestamp: int,
+        signature: str
+    ) -> Dict[str, Any]:
+        """Verifies an EIP-712 signed Oracle attestation via CleanWeb verification endpoint."""
+        payload = {
+            "data_hash": data_hash,
+            "timestamp": timestamp,
+            "signature": signature
+        }
+        res = self.session.post(f"{self.base_url}/api/v1/oracle/verify", params={"query": query}, json=payload)
+        res.raise_for_status()
+        return res.json()
+
+    def verify_attestation_offline(
+        self,
+        query: str,
+        data_hash: str,
+        timestamp: int,
+        signature: str,
+        expected_signer: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """
+        [Zero-Cost Local EIP-712 Verification]
+        Verifies the cryptographic signature entirely off-chain in agent local memory without API or gas costs.
+        """
+        try:
+            from eth_account.messages import encode_typed_data
+            clean_hash = ("0x" + data_hash) if not data_hash.startswith("0x") else data_hash
+            hash_bytes = bytes.fromhex(clean_hash.replace("0x", "").zfill(64))
+
+            structured_data = {
+                "types": {
+                    "EIP712Domain": [
+                        {"name": "name", "type": "string"},
+                        {"name": "version", "type": "string"},
+                        {"name": "chainId", "type": "uint256"},
+                        {"name": "verifyingContract", "type": "address"},
+                    ],
+                    "CleanWebOracleFeed": [
+                        {"name": "query", "type": "string"},
+                        {"name": "dataHash", "type": "bytes32"},
+                        {"name": "timestamp", "type": "uint256"},
+                    ],
+                },
+                "primaryType": "CleanWebOracleFeed",
+                "domain": {
+                    "name": "CleanWebOracle",
+                    "version": "1.0.0",
+                    "chainId": 137,
+                    "verifyingContract": Web3.to_checksum_address("0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7"),
+                },
+                "message": {
+                    "query": query,
+                    "dataHash": hash_bytes,
+                    "timestamp": timestamp,
+                },
+            }
+
+            encoded = encode_typed_data(full_message=structured_data)
+            recovered = self.w3.eth.account.recover_message(encoded, signature=signature)
+            target_expected = expected_signer or "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf"
+
+            is_valid = recovered.lower() == target_expected.lower()
+            return {
+                "valid": is_valid,
+                "recovered_signer": recovered,
+                "expected_signer": target_expected,
+                "timestamp": timestamp,
+                "verification_method": "local_offline_eip712"
+            }
+        except Exception as e:
+            return {
+                "valid": False,
+                "error": str(e),
+                "verification_method": "local_offline_eip712"
+            }
+
+    def get_legal_terms(self) -> Dict[str, Any]:
+        """[Compliance] Retrieves machine-readable B2A terms of service, TDM fair use doctrine, and GDPR policies."""
+        res = self.session.get(f"{self.base_url}/api/v1/legal/terms")
+        res.raise_for_status()
+        return res.json()
+
+    def get_legal_disclaimer(self) -> Dict[str, Any]:
+        """[Compliance] Retrieves AS-IS financial & smart-contract liability disclaimer."""
+        res = self.session.get(f"{self.base_url}/api/v1/legal/disclaimer")
+        res.raise_for_status()
+        return res.json()
+
+    def get_service_health(self, deep: bool = False) -> Dict[str, Any]:
+        """[Telemetry] Checks service health, storage stats, and connected EVM chains."""
+        res = self.session.get(f"{self.base_url}/health", params={"deep": deep})
+        res.raise_for_status()
+        return res.json()
 
 
 if __name__ == "__main__":

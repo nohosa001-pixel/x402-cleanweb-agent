@@ -1,17 +1,22 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "name": "x402-cleanweb-agent",
-  "version": "2.2.0",
+  "version": "2.4.0",
   "protocol": "mcp-2024-11-05",
   "payment": {
     "protocol": "x402",
-    "network": "Polygon, Base, Arbitrum",
+    "network": "Polygon (137), Base (8453), Arbitrum (42161)",
     "supported_currencies": ["USDC"],
     "pricing_tiers": {
-      "LIGHT": "0.001 USDC (Single Web Clean)",
+      "LIGHT": "0.001 USDC (Single Web Clean / Raw Text)",
+      "MAP_SITE": "0.002 USDC (Domain Sitemap & URL Tree Discovery)",
+      "SEARCH": "0.002 USDC (Fast Agent Web Search & Snippets)",
       "STANDARD": "0.005 USDC (PDF / Batch Scrape)",
       "HEAVY": "0.010 USDC (Gemini AI YouTube Full Audio Summary)",
-      "ONCHAIN": "0.020 USDC (EIP-712 Signed Attestation Calldata)"
+      "ONCHAIN": "0.020 USDC (EIP-712 Signed Attestation Calldata)",
+      "EXTRACT_JSON": "0.030 USDC (Schema-Constrained Web JSON Extractor)",
+      "ORACLE_GROUNDING": "0.035 USDC (Search + Clean-to-JSON + EIP-712 Signed Oracle)",
+      "DEEP_RESEARCH": "0.150 USDC (Multi-Source AI Deep Research Briefing)"
     },
     "free_trial": {
       "enabled": true,
@@ -170,6 +175,172 @@
           }
         },
         "required": ["agent_wallet"]
+      }
+    },
+    {
+      "name": "oracle_grounding",
+      "description": "Executes real-time web search, noise-free markdown extraction, Gemini AI JSON structuring, and cryptographically signs the result with an on-chain verifiable EIP-712 attestation (0.035 USDC). Returns structured facts JSON, summary markdown, source URLs, and EIP-712 cryptographic signature (v, r, s).",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search topic or question to ground with live web sources."
+          },
+          "target_schema_json": {
+            "type": "string",
+            "description": "Optional JSON string defining the expected schema or fields."
+          },
+          "max_sources": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5,
+            "default": 3,
+            "description": "Number of web sources to synthesize."
+          },
+          "auth_token_or_tx": {
+            "type": "string",
+            "description": "Optional x402 micropayment authorization token or EVM transaction hash."
+          }
+        },
+        "required": ["query"]
+      }
+    },
+    {
+      "name": "verify_oracle_attestation",
+      "description": "Verifies an EIP-712 cryptographic attestation produced by CleanWeb Oracle off-chain without consuming gas. Returns verification status (valid/invalid), recovered signer address, expected oracle address, and verification status message.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "The original query string that was attested."
+          },
+          "data_hash": {
+            "type": "string",
+            "description": "The SHA-256 data hash of the canonical JSON payload (0x...)."
+          },
+          "timestamp": {
+            "type": "integer",
+            "description": "The Unix epoch timestamp from the attestation."
+          },
+          "signature": {
+            "type": "string",
+            "description": "The 65-byte hex signature (0x...) from the attestation."
+          }
+        },
+        "required": ["query", "data_hash", "timestamp", "signature"]
+      }
+    },
+    {
+      "name": "clean_text_raw",
+      "description": "Extracts pure, tag-free plain text optimized for RAG embedding and vector indexing (0.001 USDC). Returns page title, word count, clean text, and token metrics.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "The target website URL to extract raw text from."
+          },
+          "auth_token_or_tx": {
+            "type": "string",
+            "description": "Optional x402 auth token or tx hash."
+          }
+        },
+        "required": ["url"]
+      }
+    },
+    {
+      "name": "map_site",
+      "description": "Discovers domain sitemap or internal URL tree of any website (0.002 USDC). Firecrawl /map equivalent for web crawling agents.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "Target website domain or URL to map (e.g. 'https://docs.github.com' or 'example.com')."
+          },
+          "max_links": {
+            "type": "integer",
+            "default": 50,
+            "description": "Maximum internal URLs to discover (5 to 100)."
+          },
+          "auth_token_or_tx": {
+            "type": "string",
+            "description": "Optional x402 auth token or tx hash."
+          }
+        },
+        "required": ["url"]
+      }
+    },
+    {
+      "name": "search_web_quick",
+      "description": "Performs fast real-time keyword web search returning titles, verified URLs, and snippets (0.002 USDC). Tavily equivalent.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search query or keyword for real-time web discovery."
+          },
+          "max_results": {
+            "type": "integer",
+            "default": 5,
+            "description": "Maximum results to return (1 to 10)."
+          },
+          "auth_token_or_tx": {
+            "type": "string",
+            "description": "Optional x402 auth token or tx hash."
+          }
+        },
+        "required": ["query"]
+      }
+    },
+    {
+      "name": "extract_json_schema",
+      "description": "Extracts schema-constrained structured JSON data from any webpage using Gemini AI (0.030 USDC). Direct structured attribute ingestion.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Target webpage URL to extract JSON from."
+          },
+          "schema_description": {
+            "type": "string",
+            "description": "Description or format of the fields to extract (e.g., 'price, product_name, in_stock')."
+          },
+          "auth_token_or_tx": {
+            "type": "string",
+            "description": "Optional x402 auth token or tx hash."
+          }
+        },
+        "required": ["url", "schema_description"]
+      }
+    },
+    {
+      "name": "deep_research_topic",
+      "description": "Performs multi-source web crawling and AI synthesis to generate an executive research briefing (0.150 USDC). Deep multi-source intelligence.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Research topic or complex question to investigate."
+          },
+          "max_sources": {
+            "type": "integer",
+            "default": 3,
+            "description": "Number of top web sources to synthesize (1 to 5)."
+          },
+          "auth_token_or_tx": {
+            "type": "string",
+            "description": "Optional x402 auth token or tx hash."
+          }
+        },
+        "required": ["query"]
       }
     }
   ]

@@ -13,6 +13,10 @@ class PricingTier(str, Enum):
     HEAVY = "HEAVY"          # Gemini AI YouTube Audio Summary ($0.010 USDC)
     ONCHAIN = "ONCHAIN"      # EIP-712 Signed Attestation ($0.020 USDC)
     ORACLE_GROUNDING = "ORACLE_GROUNDING"  # Agent Search + Clean JSON + EIP-712 Signed Oracle ($0.035 USDC)
+    MAP_SITE = "MAP_SITE"                  # Domain Sitemap & URL Tree Discovery ($0.002 USDC)
+    SEARCH = "SEARCH"                      # Fast Agent Web Search & Snippets ($0.002 USDC)
+    EXTRACT_JSON = "EXTRACT_JSON"          # Structured JSON schema extraction ($0.030 USDC)
+    DEEP_RESEARCH = "DEEP_RESEARCH"        # Multi-source AI deep research ($0.150 USDC)
     SECURE_WEB_CLEAN = "SECURE_WEB_CLEAN"  # Web Clean + Security Gate AST/Prompt Audit ($0.005 USDC)
     SECURE_YOUTUBE_CLEAN = "SECURE_YOUTUBE_CLEAN"  # YouTube AI + Security Gate Audit ($0.015 USDC)
     SECURE_ORACLE_GROUNDING = "SECURE_ORACLE_GROUNDING"  # Oracle + Dual Security Gate Attestation ($0.040 USDC)
@@ -235,6 +239,7 @@ class OracleAttestation(BaseModel):
     s: str
     signature: str
     domain_chain_id: int
+    abi_calldata: Optional[str] = None
 
 
 class OracleGroundingResponse(BaseModel):
@@ -262,4 +267,71 @@ class OracleVerifyResponse(BaseModel):
     expected_signer: str
     timestamp_utc: str
     message: str
+
+
+# --- Text Cleaner Schemas ---
+class TextCleanResponse(BaseModel):
+    status: str = "success"
+    url: str
+    title: Optional[str] = None
+    plain_text: str
+    word_count: int
+    token_analytics: Optional[TokenAnalytics] = None
+    payment_receipt: Optional[PaymentReceipt] = None
+    auth: Optional[Dict[str, Any]] = None
+
+
+# --- Structured JSON Extraction Schemas ---
+class ExtractJsonRequest(BaseModel):
+    url: str = Field(..., description="Target webpage URL to extract JSON from")
+    schema_description: str = Field(..., description="Description or schema format of the desired JSON fields")
+
+
+class ExtractJsonResponse(BaseModel):
+    status: str = "success"
+    url: str
+    extracted_json: Dict[str, Any]
+    payment_receipt: Optional[PaymentReceipt] = None
+    auth: Optional[Dict[str, Any]] = None
+
+
+# --- Deep Research Schemas ---
+class DeepResearchResponse(BaseModel):
+    status: str = "success"
+    query: str
+    research_brief_markdown: str
+    sources: List[str]
+    structured_data: Optional[Dict[str, Any]] = None
+    oracle_attestation: Optional[OracleAttestation] = None
+    payment_receipt: Optional[PaymentReceipt] = None
+    auth: Optional[Dict[str, Any]] = None
+
+
+# --- Site Mapping Schemas ---
+class SiteMapResponse(BaseModel):
+    status: str = "success"
+    url: str
+    domain: str
+    total_urls: int
+    urls: List[str]
+    sitemap_detected: bool = False
+    payment_receipt: Optional[PaymentReceipt] = None
+    auth: Optional[Dict[str, Any]] = None
+
+
+# --- Fast Agent Web Search Schemas ---
+class SearchResultItem(BaseModel):
+    title: str
+    url: str
+    snippet: str
+
+
+class SearchResponse(BaseModel):
+    status: str = "success"
+    query: str
+    total_results: int
+    results: List[SearchResultItem]
+    payment_receipt: Optional[PaymentReceipt] = None
+    auth: Optional[Dict[str, Any]] = None
+
 

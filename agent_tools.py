@@ -62,16 +62,17 @@ class X402AgentToolkit:
         self.agent_client = AutonomousX402Agent(private_key=private_key, base_url=base_url)
         self.budget_guard = BudgetGuard(max_daily_budget_usdc=max_daily_budget_usdc)
 
-    def clean_web(self, url: str, density: str = "standard", max_tokens: Optional[int] = None) -> str:
+    def clean_web(self, url: str, density: str = "standard", max_tokens: Optional[int] = None, respect_robots_txt: bool = False) -> str:
         """
         [0.001 USDC] Scrapes any website, strips ads & clutter, and returns clean, LLM-ready Markdown.
         density: 'standard', 'compact', or 'tables_only'
+        respect_robots_txt: bool to enforce target domain robots.txt Disallow rules.
         """
         price = 0.001
         if not self.budget_guard.can_spend(price):
             return f"[ERROR: Budget limit exceeded ({self.budget_guard.spent_usdc:.4f}/{self.budget_guard.max_daily_budget_usdc} USDC)]"
         
-        res = self.agent_client.clean_web(url, density=density, max_tokens=max_tokens)
+        res = self.agent_client.clean_web(url, density=density, max_tokens=max_tokens, respect_robots_txt=respect_robots_txt)
         self.budget_guard.record_spend(price, f"clean_web: {url}", res.get("payment", {}).get("tx_hash"))
         
         md = res.get("markdown_content", "")
@@ -157,6 +158,89 @@ class X402AgentToolkit:
         self.budget_guard.record_spend(price, f"deep_research: {query}")
         return res.get("research_brief_markdown", "No briefing generated.")
 
+    def map_site(self, url: str, max_links: int = 50, agent_pass: Optional[str] = None) -> str:
+        """
+        [0.002 USDC / 2 Credits] Discovers domain sitemap or internal URL tree. Firecrawl /map equivalent.
+        """
+        price = 0.002
+        if not self.budget_guard.can_spend(price):
+            return f"[ERROR: Budget limit exceeded ({self.budget_guard.spent_usdc:.4f}/{self.budget_guard.max_daily_budget_usdc} USDC)]"
+
+        res = self.agent_client.map_site(url, max_links=max_links, agent_pass=agent_pass)
+        self.budget_guard.record_spend(price, f"map_site: {url}")
+        return json.dumps({
+            "url": res.get("url"),
+            "domain": res.get("domain"),
+            "total_urls": res.get("total_urls"),
+            "sitemap_detected": res.get("sitemap_detected"),
+            "urls": res.get("urls", [])
+        }, indent=2)
+
+    def search(self, query: str, max_results: int = 5, agent_pass: Optional[str] = None) -> str:
+        """
+        [0.002 USDC / 2 Credits] Fast real-time agent web search with snippets. Tavily / s.jina.ai equivalent.
+        """
+        price = 0.002
+        if not self.budget_guard.can_spend(price):
+            return f"[ERROR: Budget limit exceeded ({self.budget_guard.spent_usdc:.4f}/{self.budget_guard.max_daily_budget_usdc} USDC)]"
+
+        res = self.agent_client.search(query, max_results=max_results, agent_pass=agent_pass)
+        self.budget_guard.record_spend(price, f"search: {query}")
+        return json.dumps({
+            "query": res.get("query"),
+            "total_results": res.get("total_results"),
+            "results": res.get("results", [])
+        }, indent=2, ensure_ascii=False)
+
+    def oracle_grounding(
+        self,
+        query: str,
+        target_schema_json: Optional[str] = None,
+        max_sources: int = 3,
+        secure_audit: bool = False
+    ) -> str:
+        """
+        [0.035 USDC] Real-time web search + Gemini JSON structuring + EIP-712 On-Chain Signed Attestation.
+        """
+        price = 0.040 if secure_audit else 0.035
+        if not self.budget_guard.can_spend(price):
+            return f"[ERROR: Budget limit exceeded ({self.budget_guard.spent_usdc:.4f}/{self.budget_guard.max_daily_budget_usdc} USDC)]"
+
+        schema_dict = None
+        if target_schema_json:
+            try:
+                schema_dict = json.loads(target_schema_json)
+            except Exception:
+                schema_dict = None
+
+        res = self.agent_client.oracle_grounding(
+            query=query,
+            target_schema=schema_dict,
+            max_sources=max_sources,
+            secure_audit=secure_audit
+        )
+        self.budget_guard.record_spend(price, f"oracle_grounding: {query}", res.get("payment_receipt", {}).get("tx_hash"))
+        
+        att = res.get("oracle_attestation", {})
+        return (
+            f"### 🔮 Oracle Grounding: {res.get('query')}\n\n"
+            f"{res.get('summary_markdown', '')}\n\n"
+            f"```json\n{json.dumps(res.get('structured_data', {}), indent=2, ensure_ascii=False)}\n```\n\n"
+            f"*(EIP-712 Signature: {att.get('signature', 'N/A')})*"
+        )
+
+    def verify_oracle_attestation(self, query: str, data_hash: str, timestamp: int, signature: str) -> str:
+        """
+        [Free / Local] Verifies EIP-712 cryptographic oracle attestation without consuming budget.
+        """
+        res = self.agent_client.verify_attestation_offline(
+            query=query,
+            data_hash=data_hash,
+            timestamp=timestamp,
+            signature=signature
+        )
+        return json.dumps(res, indent=2)
+
     def mint_credit_pass(self, amount_usdc: float = 1.0) -> str:
         """
         [Zero-Latency Pass] Mints a reusable credit pass (1.0 USDC = 100 calls, 5.0 USDC = 600 calls).
@@ -176,6 +260,20 @@ class X402AgentToolkit:
         """Alias for get_spending_report."""
         return self.get_spending_report()
 
+    def get_legal_compliance_info(self) -> str:
+        """
+        [Free / Compliance] Returns machine-readable B2A terms of service, TDM fair use doctrine, and AS-IS liability disclaimer.
+        """
+        try:
+            terms = self.agent_client.get_legal_terms()
+            disclaimer = self.agent_client.get_legal_disclaimer()
+            return json.dumps({
+                "terms_of_service": terms,
+                "legal_disclaimer": disclaimer
+            }, indent=2, ensure_ascii=False)
+        except Exception as e:
+            return json.dumps({"error": f"Failed to retrieve compliance info: {str(e)}"})
+
     def get_tools_list(self) -> List[Callable]:
         """Returns a list of callables for LangChain/CrewAI/Smolagents."""
         return [
@@ -184,10 +282,15 @@ class X402AgentToolkit:
             self.clean_youtube,
             self.clean_pdf,
             self.clean_text,
+            self.map_site,
+            self.search,
             self.extract_json,
             self.deep_research,
+            self.oracle_grounding,
+            self.verify_oracle_attestation,
             self.mint_credit_pass,
-            self.get_budget_status
+            self.get_budget_status,
+            self.get_legal_compliance_info
         ]
 
     def get_openai_function_schemas(self) -> List[Dict[str, Any]]:
@@ -203,7 +306,8 @@ class X402AgentToolkit:
                         "properties": {
                             "url": {"type": "string", "description": "Target web page URL"},
                             "density": {"type": "string", "enum": ["standard", "compact", "tables_only"], "description": "Extraction density mode"},
-                            "max_tokens": {"type": "integer", "description": "Optional max token limit"}
+                            "max_tokens": {"type": "integer", "description": "Optional max token limit"},
+                            "respect_robots_txt": {"type": "boolean", "default": False, "description": "Enforce target domain robots.txt Disallow rules"}
                         },
                         "required": ["url"]
                     }
@@ -316,6 +420,81 @@ class X402AgentToolkit:
                 "function": {
                     "name": "x402_get_budget_status",
                     "description": "Retrieves the current agent spending, transaction history, and remaining budget limit.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {}
+                    }
+                }
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "x402_oracle_grounding",
+                    "description": "Performs live web search, extraction, Gemini JSON structuring, and generates EIP-712 on-chain verified attestation (0.035 USDC).",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "query": {"type": "string", "description": "Search or research topic to ground"},
+                            "target_schema_json": {"type": "string", "description": "Optional JSON string constraining output schema"},
+                            "max_sources": {"type": "integer", "default": 3, "description": "Number of sources to synthesize (1 to 5)"},
+                            "secure_audit": {"type": "boolean", "default": False, "description": "Run Security Gate audit"}
+                        },
+                        "required": ["query"]
+                    }
+                }
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "x402_verify_oracle_attestation",
+                    "description": "Verifies an EIP-712 signed Oracle attestation off-chain without gas costs.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "query": {"type": "string", "description": "Original attested query"},
+                            "data_hash": {"type": "string", "description": "SHA-256 data hash of JSON payload"},
+                            "timestamp": {"type": "integer", "description": "Unix timestamp of attestation"},
+                            "signature": {"type": "string", "description": "65-byte hex signature (0x...)"}
+                        },
+                        "required": ["query", "data_hash", "timestamp", "signature"]
+                    }
+                }
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "x402_map_site",
+                    "description": "Discovers domain sitemap or internal URL tree of any website (0.002 USDC). Firecrawl /map equivalent.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "url": {"type": "string", "description": "Target website domain or URL to map"},
+                            "max_links": {"type": "integer", "default": 50, "description": "Max URLs to discover (5 to 100)"}
+                        },
+                        "required": ["url"]
+                    }
+                }
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "x402_search",
+                    "description": "Fast real-time keyword web search returning verified URLs and snippets (0.002 USDC). Tavily equivalent.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "query": {"type": "string", "description": "Keyword or question to search"},
+                            "max_results": {"type": "integer", "default": 5, "description": "Max search results (1 to 10)"}
+                        },
+                        "required": ["query"]
+                    }
+                }
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "x402_get_legal_compliance_info",
+                    "description": "Returns machine-readable terms of service, TDM fair use doctrine, and liability disclaimer (Free).",
                     "parameters": {
                         "type": "object",
                         "properties": {}

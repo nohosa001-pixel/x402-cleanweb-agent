@@ -57,14 +57,17 @@ curl -X POST "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/api/v1/clean-w
 
 | Service | Endpoint | Price (USDC) | Credits | Description |
 |---|---|---|---|---|
-| **🎁 Free Discovery Trial** | Any Endpoint | Free (3 queries)| 0 Credits | Attach header `X-Agent-Nonce: <UUID>` |
-| **🌐 Clean Web** | `GET /api/v1/clean-web?url=<URL>` | 0.01 USDC | 1 Credit | Strips ads/clutter, returns pure Markdown with 60-85% token savings |
-| **📦 Batch Clean** | `POST /api/v1/batch-clean` | 0.01 / URL | 1 Credit/URL | Scrapes up to 10 URLs concurrently in parallel |
-| **🎬 YouTube Transcript** | `GET /api/v1/clean-youtube?url=<URL>` | 0.02 USDC | 2 Credits | Timestamped full video transcripts formatted in Markdown |
-| **📑 PDF Paper Extractor** | `GET /api/v1/clean-pdf?url=<URL>` | 0.05 USDC | 5 Credits | Converts arXiv research papers and reports into clean Markdown |
-| **📝 Pure Text Extractor** | `GET /api/v1/clean-text?url=<URL>` | 0.005 USDC | 1 Credit | Ultra-lightweight raw text for vector/RAG embeddings |
-| **📊 Structured JSON** | `POST /api/v1/extract-json` | 0.03 USDC | 3 Credits | Extracts key-value structured JSON matching user-defined schema |
-| **🧠 Deep Research** | `GET /api/v1/deep-research?query=<TOPIC>`| 0.15 USDC | 15 Credits| Multi-source synthesized AI executive research briefing |
+| **🎁 Free Discovery Trial** | Any Endpoint | Free (2-3 queries)| 0 Credits | Attach header `X-Agent-Nonce: <UUID>` |
+| **🌐 Clean Web** | `GET /api/v1/clean-web?url=<URL>` | 0.001 USDC | 1 Credit | Strips ads/clutter, returns pure Markdown with 85%+ token savings |
+| **📝 Pure Text Extractor** | `GET /api/v1/clean-text?url=<URL>` | 0.001 USDC | 1 Credit | Ultra-lightweight raw text for vector/RAG embeddings |
+| **🗺️ Site Mapper** | `GET /api/v1/map-site?url=<URL>` | 0.002 USDC | 2 Credits | Domain sitemap & URL tree fast discovery (Firecrawl /map) |
+| **🔍 Agent Search** | `GET /api/v1/search?query=<KEYWORD>`| 0.002 USDC | 2 Credits | Fast real-time keyword search & verified snippets (Tavily) |
+| **📦 Batch Clean** | `POST /api/v1/batch-clean` | 0.005 USDC | 5 Credits | Scrapes up to 10 URLs concurrently in parallel |
+| **📑 PDF Paper Extractor** | `GET /api/v1/clean-pdf?url=<URL>` | 0.005 USDC | 5 Credits | Converts arXiv research papers and reports into clean Markdown |
+| **🎬 YouTube Transcript** | `GET /api/v1/clean-youtube?url=<URL>` | 0.010 USDC | 10 Credits | Gemini 3.6 Flash video intelligence & timestamped transcripts |
+| **📊 Structured JSON** | `POST /api/v1/extract-json` | 0.030 USDC | 30 Credits | Extracts key-value structured JSON matching user-defined schema |
+| **🔮 Web3 Signed Oracle** | `POST /api/v1/oracle/grounding` | 0.035 USDC | 35 Credits | Live search + Clean-to-JSON + EIP-712 On-Chain Attestation |
+| **🧠 Deep Research** | `GET /api/v1/deep-research?query=<TOPIC>`| 0.150 USDC | 150 Credits| Multi-source synthesized AI executive research briefing |
 | **📐 Arbitrage ROI Calc** | `GET /api/v1/agent/arbitrage-roi` | Free | 0 Credits | Live mathematical cost-benefit analysis |
 
 ---
@@ -103,8 +106,18 @@ toolkit = X402AgentToolkit()
 markdown = toolkit.clean_web("https://news.ycombinator.com")
 print(markdown)
 
-# Production: Pre-pay credit pass
+# production: Pre-pay credit pass
 # toolkit = X402AgentToolkit(private_key="0xAGENT_POLYGON_PRIVATE_KEY")
 # pass_token = toolkit.mint_credit_pass(amount_usdc=1.0)
 # markdown = toolkit.clean_web("https://news.ycombinator.com", agent_pass=pass_token)
 ```
+
+---
+
+## ⚖️ Legal, Fair Use & Financial Non-Liability Disclaimer
+- **Transformative Non-Expressive Fair Use**: CleanWeb Studio functions solely as an ephemeral noise-reduction proxy for machine-to-machine computational analysis (Text & Data Mining).
+- **Financial & Oracle Disclaimer**: All oracle attestations, web data, and search snippets are provided strictly **AS-IS**. Downstream smart contracts (e.g., Polymarket prediction markets, DeFi protocols) execute at their own autonomous risk; CleanWeb operators accept zero liability for trading losses, liquidations, or third-party web inaccuracies.
+- **Zero-Data Retention (GDPR)**: Raw web HTML and extracted transcripts are processed ephemerally in RAM and purged immediately upon response transmission.
+- **Sanctions**: 100% OFAC SDN screening enforced across all EVM networks.
+- **Full Legal Spec**: `GET /api/v1/legal/terms` & `GET /api/v1/legal/disclaimer`
+

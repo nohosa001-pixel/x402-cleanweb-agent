@@ -6,682 +6,1380 @@
   <title>CleanWeb Studio // Autonomous Agent Machine Console (M2M x402)</title>
   <meta name="description" content="Autonomous AI Agent Machine-to-Machine x402 Micropayment & Clean Data Extraction Console. Strictly for AI agents; humans blocked.">
   
-  <!-- Monospace & Clean Fonts -->
+  <!-- Modern Monospace & High-Density Display Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   
-  <!-- Ethers.js & Marked.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.2/ethers.umd.min.js"></script>
+  <!-- Marked.js for Markdown Rendering -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
   <style>
     :root {
-      --bg-root: #080a0f;
-      --bg-panel: #0d111a;
-      --bg-card: #121723;
-      --bg-input: #080b12;
-      --border-subtle: #1e2638;
-      --border-active: #38bdf8;
-      --accent-cyan: #38bdf8;
+      --bg-root: #04060a;
+      --bg-panel: #090d16;
+      --bg-card: #0e1422;
+      --bg-input: #060911;
+      --bg-hover: #141c30;
+      
+      --border-subtle: #172033;
+      --border-active: #00f2fe;
+      --border-focus: #38bdf8;
+      
+      --accent-cyan: #00f2fe;
+      --accent-blue: #38bdf8;
       --accent-emerald: #10b981;
+      --accent-purple: #a855f7;
       --accent-amber: #f59e0b;
       --accent-rose: #f43f5e;
-      --text-main: #f1f5f9;
-      --text-muted: #64748b;
+      
+      --text-main: #f8fafc;
       --text-sub: #94a3b8;
+      --text-muted: #64748b;
+      --text-dim: #334155;
+      
       --font-mono: 'JetBrains Mono', monospace;
       --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    
     body {
       background: var(--bg-root);
       color: var(--text-main);
       font-family: var(--font-mono);
-      font-size: 13px;
-      line-height: 1.5;
+      font-size: 12px;
+      line-height: 1.45;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 10% 10%, rgba(0, 242, 254, 0.03) 0%, transparent 40%),
+        radial-gradient(circle at 90% 90%, rgba(16, 185, 129, 0.03) 0%, transparent 40%);
     }
 
-    /* Machine Header */
+    /* Scrollbars */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-root); }
+    ::-webkit-scrollbar-thumb { background: var(--border-subtle); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--border-active); }
+
+    /* Top Machine Navigation */
     header {
       background: var(--bg-panel);
       border-bottom: 1px solid var(--border-subtle);
-      padding: 0.8rem 1.5rem;
+      padding: 0.65rem 1.25rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 1rem;
       flex-wrap: wrap;
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
 
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
     .brand-title {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 700;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.75px;
       color: var(--text-main);
       display: flex;
       align-items: center;
       gap: 0.5rem;
     }
-    .brand-title span.badge {
-      font-size: 11px;
+    .badge-protocol {
+      font-size: 10px;
+      font-weight: 600;
       padding: 2px 6px;
-      border-radius: 4px;
-      background: rgba(56, 189, 248, 0.12);
+      border-radius: 3px;
+      background: rgba(0, 242, 254, 0.1);
       color: var(--accent-cyan);
-      border: 1px solid rgba(56, 189, 248, 0.25);
+      border: 1px solid rgba(0, 242, 254, 0.25);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .badge-blocked {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 3px;
+      background: rgba(244, 63, 94, 0.1);
+      color: var(--accent-rose);
+      border: 1px solid rgba(244, 63, 94, 0.3);
+      letter-spacing: 0.5px;
     }
 
-    .machine-status-bar {
+    .telemetry-radar-strip {
       display: flex;
       align-items: center;
       gap: 1.2rem;
       font-size: 11px;
       color: var(--text-sub);
     }
-    .status-indicator {
+    .radar-item {
       display: inline-flex;
       align-items: center;
       gap: 5px;
+      white-space: nowrap;
     }
-    .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
-    .dot.green { background: var(--accent-emerald); box-shadow: 0 0 6px var(--accent-emerald); }
-    .dot.blue { background: var(--accent-cyan); }
+    .pulse-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .pulse-dot.green {
+      background: var(--accent-emerald);
+      box-shadow: 0 0 6px var(--accent-emerald);
+      animation: pulseGlow 2s infinite ease-in-out;
+    }
+    .pulse-dot.cyan {
+      background: var(--accent-cyan);
+      box-shadow: 0 0 6px var(--accent-cyan);
+    }
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
 
-    /* Policy Strip */
-    .policy-strip {
-      background: rgba(244, 63, 94, 0.08);
-      border-bottom: 1px solid rgba(244, 63, 94, 0.2);
-      padding: 0.35rem 1.5rem;
-      font-size: 11px;
-      color: #fda4af;
+    .header-actions {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-    }
-
-    /* Main Console Layout */
-    .console-wrapper {
-      max-width: 1400px;
-      width: 100%;
-      margin: 0 auto;
-      padding: 1.2rem;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    /* Toolbar / Navigation Tabs */
-    .console-toolbar {
-      display: flex;
       gap: 0.5rem;
-      border-bottom: 1px solid var(--border-subtle);
-      padding-bottom: 0.5rem;
-      overflow-x: auto;
     }
-    .tool-tab {
-      background: transparent;
+
+    /* Buttons */
+    .btn-m2m {
+      background: var(--bg-card);
       border: 1px solid var(--border-subtle);
-      color: var(--text-sub);
-      padding: 0.45rem 0.9rem;
       border-radius: 4px;
+      color: var(--text-main);
       font-family: var(--font-mono);
-      font-size: 12px;
+      font-size: 11px;
+      padding: 0.4rem 0.75rem;
       cursor: pointer;
+      font-weight: 600;
       display: inline-flex;
       align-items: center;
       gap: 0.4rem;
       transition: all 0.15s ease;
       white-space: nowrap;
     }
-    .tool-tab:hover {
-      background: rgba(255, 255, 255, 0.03);
-      color: var(--text-main);
+    .btn-m2m:hover {
+      background: var(--bg-hover);
       border-color: var(--text-sub);
     }
-    .tool-tab.active {
-      background: rgba(56, 189, 248, 0.1);
+    .btn-m2m.cyan {
+      background: rgba(0, 242, 254, 0.12);
+      border-color: rgba(0, 242, 254, 0.4);
       color: var(--accent-cyan);
+    }
+    .btn-m2m.cyan:hover {
+      background: rgba(0, 242, 254, 0.22);
       border-color: var(--accent-cyan);
-      font-weight: 600;
+    }
+    .btn-m2m.emerald {
+      background: rgba(16, 185, 129, 0.12);
+      border-color: rgba(16, 185, 129, 0.4);
+      color: var(--accent-emerald);
+    }
+    .btn-m2m.emerald:hover {
+      background: rgba(16, 185, 129, 0.22);
+      border-color: var(--accent-emerald);
     }
 
-    /* Tab Panes */
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-
-    /* Grid Layouts */
-    .grid-metrics {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 0.8rem;
-      margin-bottom: 1rem;
-    }
-    .metric-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: 6px;
-      padding: 0.9rem;
-    }
-    .metric-title { font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.3rem; }
-    .metric-value { font-size: 16px; font-weight: 700; color: var(--text-main); }
-    .metric-desc { font-size: 11px; color: var(--text-sub); margin-top: 0.2rem; }
-
-    /* Panel Card */
-    .panel {
-      background: var(--bg-panel);
-      border: 1px solid var(--border-subtle);
-      border-radius: 6px;
-      padding: 1.2rem;
-      margin-bottom: 1rem;
-    }
-    .panel-header {
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--text-main);
-      margin-bottom: 0.8rem;
+    /* M2M Sub-Header Strip */
+    .m2m-strip {
+      background: #020306;
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 0.35rem 1.25rem;
+      font-size: 10.5px;
+      color: var(--text-muted);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid var(--border-subtle);
-      padding-bottom: 0.5rem;
+      gap: 1rem;
+    }
+    .m2m-strip span code {
+      color: var(--text-sub);
+      background: rgba(255, 255, 255, 0.04);
+      padding: 1px 4px;
+      border-radius: 2px;
     }
 
-    /* Forms & Inputs */
-    .input-row {
-      display: flex;
-      gap: 0.6rem;
-      margin-bottom: 0.8rem;
-      flex-wrap: wrap;
-    }
-    .machine-input {
-      background: var(--bg-input);
-      border: 1px solid var(--border-subtle);
-      border-radius: 4px;
-      color: var(--text-main);
-      font-family: var(--font-mono);
-      font-size: 12px;
-      padding: 0.55rem 0.8rem;
+    /* Main Grid Layout */
+    .app-container {
+      max-width: 1600px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 0.85rem;
       flex: 1;
-      min-width: 240px;
-      outline: none;
+      display: grid;
+      grid-template-columns: 460px 1fr;
+      gap: 0.85rem;
+      align-items: start;
     }
-    .machine-input:focus {
-      border-color: var(--accent-cyan);
+    @media (max-width: 1100px) {
+      .app-container {
+        grid-template-columns: 1fr;
+      }
     }
-    .machine-select {
-      background: var(--bg-input);
+
+    /* Panes */
+    .pane {
+      background: var(--bg-panel);
       border: 1px solid var(--border-subtle);
-      border-radius: 4px;
-      color: var(--text-main);
-      font-family: var(--font-mono);
-      font-size: 12px;
-      padding: 0.55rem 0.8rem;
-      outline: none;
-      cursor: pointer;
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
     }
-    .machine-btn {
+
+    .pane-header {
+      background: rgba(255, 255, 255, 0.015);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 0.65rem 0.9rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11.5px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    .pane-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-main);
+    }
+
+    .pane-body {
+      padding: 0.9rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    /* Endpoint Selector Grid */
+    .endpoint-matrix {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.4rem;
+    }
+    .ep-card {
       background: var(--bg-card);
       border: 1px solid var(--border-subtle);
       border-radius: 4px;
-      color: var(--text-main);
-      font-family: var(--font-mono);
-      font-size: 12px;
-      padding: 0.55rem 1rem;
+      padding: 0.5rem 0.6rem;
       cursor: pointer;
-      font-weight: 600;
-      transition: all 0.15s ease;
-      white-space: nowrap;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      transition: all 0.12s ease;
+      position: relative;
     }
-    .machine-btn:hover {
-      background: rgba(255, 255, 255, 0.05);
-      border-color: var(--text-sub);
+    .ep-card:hover {
+      background: var(--bg-hover);
+      border-color: var(--text-muted);
     }
-    .machine-btn.primary {
-      background: rgba(56, 189, 248, 0.15);
+    .ep-card.active {
+      background: rgba(0, 242, 254, 0.08);
       border-color: var(--accent-cyan);
-      color: var(--accent-cyan);
+      box-shadow: inset 0 0 0 1px var(--accent-cyan);
     }
-    .machine-btn.primary:hover {
-      background: rgba(56, 189, 248, 0.25);
+    .ep-card .ep-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .ep-method {
+      font-size: 9.5px;
+      font-weight: 700;
+      color: var(--accent-emerald);
+    }
+    .ep-method.post { color: var(--accent-purple); }
+    .ep-cost {
+      font-size: 9.5px;
+      color: var(--accent-cyan);
+      font-weight: 600;
+    }
+    .ep-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .ep-path {
+      font-size: 9.5px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    /* Output Console Area */
-    .output-screen {
-      background: #04060a;
+    /* Input Fields & Forms */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+    .form-label {
+      font-size: 10.5px;
+      color: var(--text-sub);
+      display: flex;
+      justify-content: space-between;
+      font-weight: 500;
+    }
+    .form-label .helper {
+      color: var(--text-muted);
+    }
+
+    .machine-input, .machine-textarea, .machine-select {
+      background: var(--bg-input);
       border: 1px solid var(--border-subtle);
       border-radius: 4px;
-      padding: 1rem;
-      min-height: 200px;
-      max-height: 550px;
+      color: var(--text-main);
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      padding: 0.5rem 0.7rem;
+      outline: none;
+      width: 100%;
+      transition: border-color 0.15s ease;
+    }
+    .machine-input:focus, .machine-textarea:focus, .machine-select:focus {
+      border-color: var(--accent-cyan);
+    }
+    .machine-textarea {
+      resize: vertical;
+      min-height: 65px;
+      line-height: 1.4;
+    }
+
+    .input-pill-row {
+      display: flex;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+    }
+    .preset-pill {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-subtle);
+      border-radius: 3px;
+      padding: 2px 6px;
+      font-size: 10px;
+      color: var(--text-sub);
+      cursor: pointer;
+      transition: all 0.1s ease;
+    }
+    .preset-pill:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-main);
+      border-color: var(--text-muted);
+    }
+
+    /* Auth Drawer / Headers Box */
+    .auth-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      padding: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+    .auth-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-sub);
+    }
+
+    /* Command Strip */
+    .action-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr 1fr;
+      gap: 0.4rem;
+      margin-top: 0.2rem;
+    }
+
+    /* Right Output Section */
+    .output-pane-nav {
+      display: flex;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border-subtle);
+      overflow-x: auto;
+    }
+    .nav-tab {
+      background: transparent;
+      border: none;
+      border-right: 1px solid var(--border-subtle);
+      color: var(--text-sub);
+      padding: 0.55rem 0.95rem;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      white-space: nowrap;
+      transition: all 0.1s ease;
+    }
+    .nav-tab:hover {
+      background: rgba(255, 255, 255, 0.02);
+      color: var(--text-main);
+    }
+    .nav-tab.active {
+      background: var(--bg-panel);
+      color: var(--accent-cyan);
+      border-bottom: 2px solid var(--accent-cyan);
+      font-weight: 600;
+    }
+
+    /* Status Bar in Output */
+    .output-meta-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.45rem 0.9rem;
+      background: #020408;
+      border-bottom: 1px solid var(--border-subtle);
+      font-size: 11px;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .meta-tags {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .meta-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 1px 6px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      font-size: 10px;
+    }
+    .meta-tag.success { color: var(--accent-emerald); border-color: rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.08); }
+    .meta-tag.warn { color: var(--accent-amber); border-color: rgba(245, 158, 11, 0.3); background: rgba(245, 158, 11, 0.08); }
+    .meta-tag.error { color: var(--accent-rose); border-color: rgba(244, 63, 94, 0.3); background: rgba(244, 63, 94, 0.08); }
+
+    /* Output Screens */
+    .screen-area {
+      background: #020306;
+      padding: 0.9rem;
+      min-height: 520px;
+      max-height: 720px;
       overflow-y: auto;
-      font-size: 12px;
-      color: #cbd5e1;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      line-height: 1.5;
+      color: #e2e8f0;
       white-space: pre-wrap;
       word-break: break-all;
     }
 
-    /* Table */
-    .telemetry-table {
+    /* Tab Panels */
+    .out-panel { display: none; }
+    .out-panel.active { display: block; }
+
+    /* Tables */
+    .m2m-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 12px;
-      margin-top: 0.5rem;
+      font-size: 11.5px;
     }
-    .telemetry-table th, .telemetry-table td {
+    .m2m-table th, .m2m-table td {
       border: 1px solid var(--border-subtle);
-      padding: 0.55rem 0.8rem;
+      padding: 0.55rem 0.75rem;
       text-align: left;
     }
-    .telemetry-table th {
+    .m2m-table th {
       background: var(--bg-card);
-      color: var(--text-muted);
-      font-weight: 600;
+      color: var(--text-sub);
+      font-size: 10.5px;
       text-transform: uppercase;
-      font-size: 11px;
+      letter-spacing: 0.5px;
     }
-    .telemetry-table tr:hover {
+    .m2m-table tr:hover {
       background: rgba(255, 255, 255, 0.02);
     }
 
-    /* Modal for Key/Vault Setup */
-    .modal-overlay {
+    /* Toast Notification */
+    .toast-box {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #0d1526;
+      border: 1px solid var(--accent-cyan);
+      box-shadow: 0 4px 20px rgba(0, 242, 254, 0.2);
+      border-radius: 4px;
+      padding: 0.6rem 1rem;
+      font-size: 11.5px;
+      color: var(--text-main);
+      z-index: 9999;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.2s ease;
+      pointer-events: none;
+    }
+    .toast-box.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Modal */
+    .m2m-modal-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.75);
+      background: rgba(0, 0, 0, 0.8);
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 999;
+      z-index: 1000;
       padding: 1rem;
     }
-    .modal-box {
+    .m2m-modal {
       background: var(--bg-panel);
       border: 1px solid var(--border-active);
       border-radius: 6px;
-      max-width: 550px;
+      max-width: 580px;
       width: 100%;
-      padding: 1.5rem;
+      box-shadow: 0 0 30px rgba(0, 242, 254, 0.15);
       display: flex;
       flex-direction: column;
-      gap: 1rem;
+      overflow: hidden;
     }
 
     footer {
+      background: var(--bg-panel);
       border-top: 1px solid var(--border-subtle);
-      padding: 0.8rem 1.5rem;
-      font-size: 11px;
+      padding: 0.5rem 1.25rem;
+      font-size: 10.5px;
       color: var(--text-muted);
       display: flex;
       justify-content: space-between;
+      align-items: center;
       flex-wrap: wrap;
-      gap: 1rem;
+      gap: 0.5rem;
     }
   </style>
 </head>
 <body>
 
-  <!-- Header -->
+  <!-- Top Machine Bar -->
   <header>
-    <div class="brand-title">
-      🤖 CLEANWEB STUDIO // M2M CONSOLE
-      <span class="badge">x402 Protocol v2.4</span>
+    <div class="brand-group">
+      <div class="brand-title">
+        ⚡ CLEANWEB // M2M AGENT CONSOLE
+      </div>
+      <span class="badge-protocol">x402 v2.5.0</span>
+      <span class="badge-blocked">HUMANS 100% BLOCKED</span>
     </div>
-    <div class="machine-status-bar">
-      <div class="status-indicator"><span class="dot green"></span> Security Gate: ONLINE</div>
-      <div class="status-indicator"><span class="dot green"></span> EIP-712 Signer: READY</div>
-      <div class="status-indicator"><span class="dot blue"></span> Multi-Chain: 3 Connected</div>
-      <button class="machine-btn" id="btnHeaderBuyPass" onclick="openPaymentModal()">[Agent Vault Setup]</button>
+
+    <div class="telemetry-radar-strip">
+      <div class="radar-item">
+        <span class="pulse-dot green" id="radarSecurityGate"></span>
+        <span>Security Gate: <b style="color:var(--text-main)">ACTIVE</b></span>
+      </div>
+      <div class="radar-item">
+        <span class="pulse-dot green" id="radarSigner"></span>
+        <span>EIP-712: <b style="color:var(--text-main)">ONLINE</b></span>
+      </div>
+      <div class="radar-item">
+        <span class="pulse-dot cyan"></span>
+        <span>Multi-Chain: <b style="color:var(--text-main)">3 NETWORKS</b></span>
+      </div>
+      <div class="radar-item">
+        <span>Rate Limit: <b style="color:var(--text-sub)">180 RPM</b></span>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <button class="btn-m2m" onclick="openVaultModal()">
+        <span>🏦 Vault Session:</span>
+        <b id="hdrVaultBalance" style="color:var(--accent-emerald);">Not Loaded</b>
+      </button>
+      <button class="btn-m2m cyan" onclick="triggerDiagnostics()">
+        <span>[Re-Scan Telemetry]</span>
+      </button>
     </div>
   </header>
 
-  <!-- Policy Strip -->
-  <div class="policy-strip">
-    <span>AUDIENCE: STRICTLY AUTONOMOUS AI AGENTS &bull; POLICY: HUMANS 100% BLOCKED &bull; SETTLEMENT: B2A USDC</span>
-    <span>STATUS: OPERATIONAL</span>
+  <!-- M2M Policy Strip -->
+  <div class="m2m-strip">
+    <span><b>PROTOCOL RULE:</b> Autonomous M2M USDC micropayments via <code>X-Vault-Key</code> (&lt;1ms, 0 gas) or on-chain EVM transfer.</span>
+    <span><b>COMPLIANCE:</b> TDM Fair Use &bull; Ephemeral Zero-Data RAM &bull; OFAC SDN Filtered</span>
   </div>
 
-  <!-- Console Body -->
-  <main class="console-wrapper">
+  <!-- Main Grid Console -->
+  <main class="app-container">
 
-    <!-- Navigation Tabs -->
-    <nav class="console-toolbar" id="console-toolbar">
-      <button class="tool-tab active" onclick="switchTab('tab-diagnostics')">⚡ System Telemetry</button>
-      <button class="tool-tab" id="tab-pricing" onclick="switchTab('tab-pricing')">💳 Agent Vault & Pricing</button>
-      <button class="tool-tab" onclick="switchTab('tab-runner')">🧪 Machine Request Runner</button>
-      <button class="tool-tab" id="tab-oracle" onclick="switchTab('tab-oracle')">🔮 Oracle Grounding (EIP-712)</button>
-      <button class="tool-tab" onclick="switchTab('tab-specs')">📖 Agent SDK & Specs</button>
-    </nav>
-
-    <!-- TAB 1: System Telemetry & Pipeline Health -->
-    <section id="tab-diagnostics" class="tab-content active">
-      <div class="grid-metrics">
-        <div class="metric-card">
-          <div class="metric-title">Health Verdict</div>
-          <div class="metric-value" id="valHealthVerdict" style="color: var(--accent-emerald);">● OPERATIONAL</div>
-          <div class="metric-desc" id="valHealthScore">5/5 Pipelines Active</div>
+    <!-- LEFT COLUMN: Endpoint Selection & Execution Controller -->
+    <section class="pane">
+      <div class="pane-header">
+        <div class="pane-title">
+          <span>⚙️ M2M ENDPOINT SELECTOR & CONTROLLER</span>
         </div>
-        <div class="metric-card">
-          <div class="metric-title">Scan Roundtrip</div>
-          <div class="metric-value" id="valScanLatency">-- ms</div>
-          <div class="metric-desc">Autonomous Diagnostic SLA</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-title">Settlement Networks</div>
-          <div class="metric-value">Polygon / Base / Arb</div>
-          <div class="metric-desc">Native USDC EVM</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-title">Audit Engine</div>
-          <div class="metric-value">AST & Jailbreak Radar</div>
-          <div class="metric-desc">Sub-5ms Inline Defense</div>
-        </div>
+        <span style="font-size:10px; color:var(--text-muted)">9 Endpoints Available</span>
       </div>
 
-      <div class="panel">
-        <div class="panel-header">
-          <span>MISSION-CRITICAL PIPELINE TELEMETRY</span>
-          <button class="machine-btn" onclick="fetchDiagnostics()">[Re-Scan Telemetry]</button>
+      <div class="pane-body">
+        
+        <!-- Endpoint Selection Matrix (9 Endpoints) -->
+        <div class="form-group">
+          <div class="form-label">
+            <span>TARGET SERVICE ENDPOINT</span>
+            <span class="helper" id="lblEndpointCost">Cost: 0.001 USDC</span>
+          </div>
+          <div class="endpoint-matrix" id="endpointMatrix">
+            
+            <div class="ep-card active" data-ep="clean-web" onclick="selectEndpoint('clean-web')">
+              <div class="ep-top">
+                <span class="ep-method">GET</span>
+                <span class="ep-cost">0.001 $</span>
+              </div>
+              <div class="ep-title">Clean Web</div>
+              <div class="ep-path">/api/v1/clean-web</div>
+            </div>
+
+            <div class="ep-card" data-ep="clean-text" onclick="selectEndpoint('clean-text')">
+              <div class="ep-top">
+                <span class="ep-method">GET</span>
+                <span class="ep-cost">0.001 $</span>
+              </div>
+              <div class="ep-title">Raw Text</div>
+              <div class="ep-path">/api/v1/clean-text</div>
+            </div>
+
+            <div class="ep-card" data-ep="map-site" onclick="selectEndpoint('map-site')">
+              <div class="ep-top">
+                <span class="ep-method">GET</span>
+                <span class="ep-cost">0.002 $</span>
+              </div>
+              <div class="ep-title">Site Map</div>
+              <div class="ep-path">/api/v1/map-site</div>
+            </div>
+
+            <div class="ep-card" data-ep="search" onclick="selectEndpoint('search')">
+              <div class="ep-top">
+                <span class="ep-method">GET</span>
+                <span class="ep-cost">0.002 $</span>
+              </div>
+              <div class="ep-title">Agent Search</div>
+              <div class="ep-path">/api/v1/search</div>
+            </div>
+
+            <div class="ep-card" data-ep="clean-pdf" onclick="selectEndpoint('clean-pdf')">
+              <div class="ep-top">
+                <span class="ep-method">GET</span>
+                <span class="ep-cost">0.005 $</span>
+              </div>
+              <div class="ep-title">PDF Research</div>
+              <div class="ep-path">/api/v1/clean-pdf</div>
+            </div>
+
+            <div class="ep-card" data-ep="clean-youtube" onclick="selectEndpoint('clean-youtube')">
+              <div class="ep-top">
+                <span class="ep-method">GET</span>
+                <span class="ep-cost">0.010 $</span>
+              </div>
+              <div class="ep-title">YouTube AI</div>
+              <div class="ep-path">/api/v1/clean-youtube</div>
+            </div>
+
+            <div class="ep-card" data-ep="extract-json" onclick="selectEndpoint('extract-json')">
+              <div class="ep-top">
+                <span class="ep-method post">POST</span>
+                <span class="ep-cost">0.030 $</span>
+              </div>
+              <div class="ep-title">Extract JSON</div>
+              <div class="ep-path">/api/v1/extract-json</div>
+            </div>
+
+            <div class="ep-card" data-ep="oracle-grounding" onclick="selectEndpoint('oracle-grounding')">
+              <div class="ep-top">
+                <span class="ep-method post">POST</span>
+                <span class="ep-cost">0.035 $</span>
+              </div>
+              <div class="ep-title">Signed Oracle</div>
+              <div class="ep-path">/api/v1/oracle/grounding</div>
+            </div>
+
+            <div class="ep-card" data-ep="deep-research" onclick="selectEndpoint('deep-research')">
+              <div class="ep-top">
+                <span class="ep-method">GET</span>
+                <span class="ep-cost">0.150 $</span>
+              </div>
+              <div class="ep-title">Deep Research</div>
+              <div class="ep-path">/api/v1/deep-research</div>
+            </div>
+
+          </div>
         </div>
-        <table class="telemetry-table">
-          <thead>
-            <tr>
-              <th>Pipeline Subsystem</th>
-              <th>Status</th>
-              <th>Latency</th>
-              <th>Details</th>
-            </tr>
-          </thead>
-          <tbody id="telemetryTableBody">
-            <tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Polling diagnostics...</td></tr>
-          </tbody>
-        </table>
+
+        <!-- Dynamic Parameter Inputs -->
+        <div id="dynamicFormFields" style="display:flex; flex-direction:column; gap:0.75rem;">
+          
+          <!-- URL Field -->
+          <div class="form-group" id="groupUrl">
+            <div class="form-label">
+              <span>TARGET RESOURCE URL</span>
+              <span class="helper">Webpage / PDF / YouTube</span>
+            </div>
+            <input type="text" id="inputUrl" class="machine-input" value="https://example.com" placeholder="https://...">
+            <div class="input-pill-row">
+              <span class="preset-pill" onclick="setPreset('url', 'https://example.com')">example.com</span>
+              <span class="preset-pill" onclick="setPreset('url', 'https://news.ycombinator.com')">HackerNews</span>
+              <span class="preset-pill" onclick="setPreset('url', 'https://arxiv.org/pdf/2301.00001.pdf')">ArXiv PDF</span>
+              <span class="preset-pill" onclick="setPreset('url', 'https://www.youtube.com/watch?v=aircAruvnKk')">YouTube AI</span>
+            </div>
+          </div>
+
+          <!-- Query Field (Search / Oracle / Deep Research) -->
+          <div class="form-group" id="groupQuery" style="display: none;">
+            <div class="form-label">
+              <span>QUERY / RESEARCH TOPIC</span>
+              <span class="helper">Real-time Grounding Input</span>
+            </div>
+            <input type="text" id="inputQuery" class="machine-input" value="Ethereum Dencun Upgrade finality status" placeholder="Enter search topic...">
+            <div class="input-pill-row">
+              <span class="preset-pill" onclick="setPreset('query', 'Ethereum Dencun Upgrade finality status')">ETH Dencun</span>
+              <span class="preset-pill" onclick="setPreset('query', 'USDC Polygon vs Base transfer gas')">USDC L2 Gas</span>
+              <span class="preset-pill" onclick="setPreset('query', 'Autonomous AI agent x402 payment protocol')">x402 Agents</span>
+            </div>
+          </div>
+
+          <!-- Schema Description (Extract JSON) -->
+          <div class="form-group" id="groupSchema" style="display: none;">
+            <div class="form-label">
+              <span>SCHEMA EXTRACTION SPECIFICATION</span>
+              <span class="helper">Field specifications for Gemini structured output</span>
+            </div>
+            <textarea id="inputSchema" class="machine-textarea" placeholder="e.g. Extract title, executive summary, author, publication_date, and key numeric data points.">Extract title, summary, key numerical statistics, and author information as structured JSON.</textarea>
+          </div>
+
+          <!-- Max Sources / Limit -->
+          <div class="form-group" id="groupSources" style="display: none;">
+            <div class="form-label">
+              <span>MAX SOURCES / RESULTS</span>
+              <span class="helper" id="lblSourcesHelper">Limits depth</span>
+            </div>
+            <input type="number" id="inputSources" class="machine-input" value="3" min="1" max="10">
+          </div>
+
+        </div>
+
+        <!-- M2M Authentication & Authorization Drawer -->
+        <div class="auth-box">
+          <div class="auth-header">
+            <span>🛡️ AUTONOMOUS AUTH & PAYMENT HEADERS</span>
+            <label style="font-size:10px; cursor:pointer; display:inline-flex; align-items:center; gap:4px;">
+              <input type="checkbox" id="chkDevBypass" onchange="toggleDevBypass()"> Dev Bypass (Local / Test)
+            </label>
+          </div>
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.5rem;">
+            <div>
+              <div class="form-label" style="font-size:10px;">X-Vault-Key (Session)</div>
+              <input type="text" id="inputVaultKey" class="machine-input" placeholder="vault_key_..." style="font-size:10.5px;">
+            </div>
+            <div>
+              <div class="form-label" style="font-size:10px;">X-Agent-Nonce (Free Sandbox)</div>
+              <input type="text" id="inputAgentNonce" class="machine-input" placeholder="agent_sandbox_01" style="font-size:10.5px;">
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Commands Grid -->
+        <div class="action-grid">
+          <button class="btn-m2m cyan" id="btnExecuteCall" onclick="executeCall()" style="justify-content:center;">
+            ⚡ EXECUTE M2M CALL
+          </button>
+          <button class="btn-m2m" onclick="copyCurl()" title="Copy as curl command">
+            📋 cURL
+          </button>
+          <button class="btn-m2m" onclick="copyPython()" title="Copy as AutonomousX402Agent Python script">
+            🐍 Python
+          </button>
+          <button class="btn-m2m" onclick="copyMcp()" title="Copy as MCP JSON tool call">
+            🤖 MCP
+          </button>
+        </div>
+
+        <div style="font-size:10px; color:var(--text-muted); display:flex; justify-content:space-between;">
+          <span>Shortcut: <kbd style="background:rgba(255,255,255,0.06); padding:1px 4px; border-radius:2px;">Ctrl+Enter</kbd> to execute</span>
+          <span id="txtEndpointMethodPath">GET /api/v1/clean-web</span>
+        </div>
+
       </div>
     </section>
 
-    <!-- TAB 2: Agent Vault & Pricing (tab-pricing) -->
-    <section id="tab-pricing" class="tab-content">
-      <div class="panel">
-        <div class="panel-header">
-          <span>AGENT VAULT INSPECTOR & ZERO-GAS TOP-UP</span>
-          <span style="color: var(--accent-cyan); font-size: 11px;">Min Deposit: 2.0 USDC &bull; Zero Gas Micropayments</span>
-        </div>
+    <!-- RIGHT COLUMN: Telemetry, Output Terminal & Specs -->
+    <section class="pane">
+      
+      <!-- Output Navigation Tabs (console-toolbar compatible) -->
+      <div class="output-pane-nav" id="console-toolbar">
+        <button class="nav-tab active" data-tab="tab-raw" onclick="switchOutTab('tab-raw')">
+          📄 Raw Output
+        </button>
+        <button class="nav-tab" id="tab-oracle" data-tab="tab-oracle" onclick="switchOutTab('tab-oracle')">
+          🔮 EIP-712 Attestation
+        </button>
+        <button class="nav-tab" data-tab="tab-telemetry" onclick="switchOutTab('tab-telemetry')">
+          ⚡ 5-Pipeline Health
+        </button>
+        <button class="nav-tab" data-tab="tab-metrics" onclick="switchOutTab('tab-metrics')">
+          📈 Prometheus Metrics
+        </button>
+        <button class="nav-tab" id="tab-pricing" data-tab="tab-vault" onclick="switchOutTab('tab-vault')">
+          🏦 Vault & Treasury
+        </button>
+      </div>
 
-        <div class="input-row">
-          <input type="text" id="vaultCheckInput" class="machine-input" placeholder="Enter Agent Wallet Address (0x...) or X-Vault-Key (vault_key_...)">
-          <button class="machine-btn primary" onclick="queryVaultBalance()">[Check Vault Balance]</button>
+      <!-- Output Meta Strip -->
+      <div class="output-meta-bar">
+        <div class="meta-tags">
+          <span class="meta-tag" id="tagStatus">HTTP: IDLE</span>
+          <span class="meta-tag" id="tagLatency">Latency: -- ms</span>
+          <span class="meta-tag" id="tagTokenSavings">Savings: --%</span>
+          <span class="meta-tag" id="tagCostDeducted">Settled: -- USDC</span>
         </div>
-
-        <div id="vaultResultBox" style="display: none; margin-bottom: 1rem; padding: 0.8rem; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 4px;">
-          <div><strong>Agent Address:</strong> <span id="vResAddress" style="color: var(--accent-cyan);">-</span></div>
-          <div><strong>Current Balance:</strong> <span id="vResBalance" style="color: var(--accent-emerald); font-size: 15px; font-weight: 700;">-</span> USDC</div>
-          <div><strong>Active Session Key:</strong> <span id="vResKey" style="color: var(--text-sub);">-</span></div>
-          <div><strong>Total Consumed:</strong> <span id="vResConsumed">-</span> USDC</div>
-        </div>
-
-        <div class="panel-header" style="margin-top: 1rem;">
-          <span>DEPOSIT NATIVE USDC (SIMULATE / DIRECT CALL)</span>
-        </div>
-        <div class="input-row">
-          <input type="text" id="customVaultAmtInput" class="machine-input" value="2.0" placeholder="Deposit Amount USDC (Min 2.0)">
-          <select id="vaultChainSelect" class="machine-select">
-            <option value="polygon">Polygon (Chain 137)</option>
-            <option value="base">Base (Chain 8453)</option>
-            <option value="arbitrum">Arbitrum (Chain 42161)</option>
-          </select>
-          <input type="text" id="vaultAgentAddrInput" class="machine-input" placeholder="Agent Address (0x...)">
-          <button class="machine-btn primary" id="btnDepositVault" onclick="depositVaultUSDC()">[Deposit to Vault]</button>
-          <button class="machine-btn" onclick="payCryptoUSDC()">[Direct On-Chain Info]</button>
+        <div>
+          <button class="btn-m2m" style="padding:2px 8px; font-size:10px;" id="runOracleGrounding" onclick="runOracleGrounding()">[Oracle Call]</button>
+          <button class="btn-m2m" style="padding:2px 8px; font-size:10px;" onclick="copyRawOutput()">[Copy JSON]</button>
+          <button class="btn-m2m" style="padding:2px 8px; font-size:10px;" onclick="clearOutput()">[Clear]</button>
         </div>
       </div>
 
-      <div class="panel">
-        <div class="panel-header">
-          <span>TIERED M2M PRICING SCHEDULE</span>
-          <span style="color: var(--text-muted);">Instant Settled</span>
-        </div>
-        <table class="telemetry-table">
-          <thead>
-            <tr>
-              <th>Tier Level</th>
-              <th>Operation</th>
-              <th>Cost (USDC)</th>
-              <th>Latency / SLA</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td>Tier 1 (Light)</td><td>Single Web Clean Markdown Extraction</td><td>0.0010 USDC</td><td>Sub-200ms</td></tr>
-            <tr><td>Tier 2 (Standard)</td><td>PDF Paper Stream & Batch Scrape</td><td>0.0050 USDC</td><td>Streamed</td></tr>
-            <tr><td>Tier 3 (Heavy)</td><td>Gemini 3.6 Flash Video Intelligence</td><td>0.0100 USDC</td><td>Sub-1.5s</td></tr>
-            <tr><td>Tier 4 (On-Chain)</td><td>EIP-712 Attestation & ABI Calldata</td><td>0.0200 USDC</td><td>Instant Off-Chain</td></tr>
-            <tr><td>Tier 5 (Oracle)</td><td>Search + Clean-to-JSON + Signed Oracle</td><td>0.0350 USDC</td><td>Dual Verified</td></tr>
-            <tr><td>Tier 6 (Secure Clean)</td><td>Web Clean + Security Gate AST/Jailbreak</td><td>0.0050 USDC</td><td>Sub-5ms WAF</td></tr>
-            <tr><td>Tier 8 (Secure Oracle)</td><td>Oracle Grounding + Security Gate Audit</td><td>0.0400 USDC</td><td>Dual Attestation</td></tr>
-          </tbody>
-        </table>
+      <!-- TAB 1: RAW OUTPUT SCREEN -->
+      <div id="tab-raw" class="out-panel active">
+        <pre class="screen-area" id="screenRaw">Ready for autonomous machine request...
+Select an endpoint on the left and click [EXECUTE M2M CALL] (or press Ctrl+Enter).
+
+All requests enforce x402 HTTP micropayment authentication.
+If no key is provided, the server returns 402 Payment Required with machine settlement specs.</pre>
       </div>
-    </section>
 
-    <!-- TAB 3: Machine Request Runner -->
-    <section id="tab-runner" class="tab-content">
-      <div class="panel">
-        <div class="panel-header">
-          <span>AUTONOMOUS REQUEST SIMULATOR</span>
-          <span style="color: var(--text-sub);">Test 402 Handshake & Responses</span>
-        </div>
-
-        <div class="input-row">
-          <select id="runnerEndpointSelect" class="machine-select" onchange="updateRunnerInput()">
-            <option value="/api/v1/clean-web">GET /api/v1/clean-web (0.001 USDC)</option>
-            <option value="/api/v1/clean-youtube">GET /api/v1/clean-youtube (0.010 USDC)</option>
-            <option value="/api/v1/clean-pdf">GET /api/v1/clean-pdf (0.005 USDC)</option>
-          </select>
-          <input type="text" id="runnerTargetUrl" class="machine-input" value="https://example.com" placeholder="Target Resource URL">
-        </div>
-
-        <div class="input-row">
-          <input type="text" id="runnerVaultKey" class="machine-input" placeholder="X-Vault-Key Header (Optional)">
-          <input type="text" id="runnerAgentNonce" class="machine-input" placeholder="X-Agent-Nonce Header (e.g. test_agent_01 for 2 free trials)">
-          <button class="machine-btn primary" onclick="executeRunnerRequest()">[Execute Request]</button>
-        </div>
-
-        <div class="panel-header" style="margin-top: 1rem;">
-          <span>RAW MACHINE RESPONSE (JSON / STATUS)</span>
-          <span id="runnerStatusBadge" style="font-size: 11px; color: var(--text-muted);">-</span>
-        </div>
-        <div class="output-screen" id="runnerOutputArea">Ready for request execution...</div>
+      <!-- TAB 2: EIP-712 ATTESTATION INSPECTOR -->
+      <div id="tab-oracle-content" class="out-panel">
+        <div class="screen-area" id="screenOracle" style="color: #93c5fd;">No Oracle Grounding attestation loaded.
+Execute POST /api/v1/oracle/grounding to inspect live EIP-712 cryptographic signatures and smart contract calldata.</div>
       </div>
-    </section>
 
-    <!-- TAB 4: Web3 Oracle Grounding Console (tab-oracle) -->
-    <section id="tab-oracle" class="tab-content">
-      <div class="panel">
-        <div class="panel-header">
-          <span>WEB3 ORACLE GROUNDING PIPELINE (EIP-712 ATTESTATION)</span>
-          <span style="color: var(--accent-cyan);">0.035 USDC</span>
-        </div>
+      <!-- TAB 3: 5-PIPELINE HEALTH TELEMETRY -->
+      <div id="tab-telemetry" class="out-panel">
+        <div style="padding:0.9rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+            <div>
+              <b style="font-size:12px; color:var(--text-main);">MISSION-CRITICAL SELF-DIAGNOSTIC PIPELINES</b>
+              <div style="font-size:10.5px; color:var(--text-sub);">Real-time live health & latency audit for sub-5ms SLA</div>
+            </div>
+            <button class="btn-m2m cyan" onclick="triggerDiagnostics()">[Scan Now]</button>
+          </div>
 
-        <div class="input-row">
-          <input type="text" id="oracleQueryInput" class="machine-input" value="Latest Ethereum L2 TVL statistics" placeholder="Live web query for Oracle grounding">
-          <button class="machine-btn primary" id="runOracleGrounding" onclick="runOracleGrounding()">[Run Oracle Grounding]</button>
+          <table class="m2m-table">
+            <thead>
+              <tr>
+                <th>Pipeline Target</th>
+                <th>Status</th>
+                <th>Latency</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody id="telemetryTbody">
+              <tr><td colspan="4" style="text-align:center; color:var(--text-muted);">Awaiting diagnostic scan...</td></tr>
+            </tbody>
+          </table>
         </div>
-
-        <div class="panel-header" style="margin-top: 1rem;">
-          <span>CRYPTOGRAPHIC ORACLE PAYLOAD & SIGNATURE</span>
-        </div>
-        <div class="output-screen" id="oracleOutputArea">Submit query to trigger Oracle Grounding pipeline...</div>
       </div>
-    </section>
 
-    <!-- TAB 5: Agent SDK & Protocol Specs -->
-    <section id="tab-specs" class="tab-content">
-      <div class="panel">
-        <div class="panel-header">
-          <span>AUTONOMOUS AI AGENT PYTHON SDK (ZERO-HUMAN INTEGRATION)</span>
+      <!-- TAB 4: PROMETHEUS METRICS -->
+      <div id="tab-metrics" class="out-panel">
+        <div style="padding:0.9rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+            <b style="font-size:12px; color:var(--text-main);">PROMETHEUS TELEMETRY STREAM (/metrics)</b>
+            <button class="btn-m2m" onclick="fetchPrometheusMetrics()">[Refresh Stream]</button>
+          </div>
+          <pre class="screen-area" id="screenMetrics" style="min-height:480px; font-size:11px; color:#a7f3d0;">Loading Prometheus metrics...</pre>
         </div>
-        <div class="output-screen"># 1. Install Autonomous Agent SDK
-pip install x402-cleanweb-agent
-
-# 2. Autonomous Scraping with Zero-Gas Agent Vault
-from autonomous_agent_client import AutonomousX402Agent
-
-# Initialize with private key or pre-funded vault key
-agent = AutonomousX402Agent(
-    private_key="0xYOUR_PRIVATE_KEY",       # For self-funding vault or on-chain tx
-    vault_key="vault_key_your_prepaid_key"  # Sub-1ms zero-gas instant deduction
-)
-
-# Autonomous Web Clean
-result = agent.clean_web("https://example.com/article")
-print(result["markdown_content"])</div>
-
-        <div class="panel-header" style="margin-top: 1.5rem;">
-          <span>MACHINE-TO-MACHINE (M2M) PROTOCOL SPECIFICATION</span>
-        </div>
-        <table class="telemetry-table">
-          <thead>
-            <tr><th>Header</th><th>Format</th><th>Purpose</th></tr>
-          </thead>
-          <tbody>
-            <tr><td><code>X-Vault-Key</code></td><td><code>vault_key_&lt;hex&gt;</code></td><td>Pre-funded vault deduction (&lt;1ms, 0 gas)</td></tr>
-            <tr><td><code>X-Payment-Tx</code></td><td><code>0x&lt;64_hex&gt;</code></td><td>On-chain USDC transaction hash (Polygon/Base/Arbitrum)</td></tr>
-            <tr><td><code>X-Agent-Nonce</code></td><td><code>&lt;string&gt;</code></td><td>Identifies agent for 2 initial sandbox trials</td></tr>
-            <tr><td><code>X-Human-Policy</code></td><td><code>BLOCKED_AGENTS_ONLY</code></td><td>Server response asserting machine-only protocol</td></tr>
-          </tbody>
-        </table>
       </div>
+
+      <!-- TAB 5: AGENT VAULT & TREASURY -->
+      <div id="tab-vault" class="out-panel">
+        <div style="padding:0.9rem; display:flex; flex-direction:column; gap:0.85rem;">
+          
+          <div class="auth-box">
+            <div class="auth-header">
+              <span>AGENT VAULT BALANCE INSPECTOR</span>
+              <span style="color:var(--accent-cyan); font-size:10px;">Sub-1ms Zero-Gas Instant Deductions</span>
+            </div>
+            <div style="display:flex; gap:0.5rem;">
+              <input type="text" id="vaultInspectInput" class="machine-input" placeholder="Enter Agent Address (0x...) or X-Vault-Key (vault_key_...)">
+              <button class="btn-m2m cyan" onclick="checkVaultBalance()">[Check Balance]</button>
+            </div>
+            <div id="vaultInspectResult" style="display:none; padding:0.6rem; background:var(--bg-input); border-radius:4px; font-size:11.5px;">
+              <div>Address: <span id="resVAddr" style="color:var(--accent-cyan); font-weight:600;">-</span></div>
+              <div>Balance: <span id="resVBal" style="color:var(--accent-emerald); font-size:14px; font-weight:700;">-</span> USDC</div>
+              <div>Active Key: <span id="resVKey" style="color:var(--text-sub); font-size:10.5px;">-</span></div>
+              <div>Total Consumed: <span id="resVCons">-</span> USDC</div>
+            </div>
+          </div>
+
+          <div class="auth-box">
+            <div class="auth-header">
+              <span>DIRECT USDC DEPOSIT (SIMULATION & LOCAL PROVISIONING)</span>
+              <span style="color:var(--text-muted); font-size:10px;">Min Deposit: 2.0 USDC</span>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:0.5rem;">
+              <input type="number" id="customVaultAmtInput" class="machine-input" value="2.0" step="0.5" placeholder="USDC Amount">
+              <select id="depositChain" class="machine-select">
+                <option value="polygon">Polygon (Chain 137)</option>
+                <option value="base">Base (Chain 8453)</option>
+                <option value="arbitrum">Arbitrum (Chain 42161)</option>
+              </select>
+              <input type="text" id="depositAgentAddr" class="machine-input" placeholder="Agent Address (0x...)">
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:0.3rem;">
+              <button class="btn-m2m emerald" id="depositVaultUSDC" onclick="depositVaultUSDC()">[Deposit to Vault]</button>
+              <button class="btn-m2m" onclick="payCryptoUSDC()">[On-Chain Wallet Info]</button>
+            </div>
+          </div>
+
+          <div style="font-size:11px; color:var(--text-sub);">
+            <b>Supported Settlement Chains & Native Contracts:</b>
+            <ul style="margin-left:1.2rem; margin-top:0.3rem; line-height:1.6;">
+              <li><b>Polygon:</b> Native USDC (<code>0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359</code>)</li>
+              <li><b>Base:</b> Native USDC (<code>0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913</code>)</li>
+              <li><b>Arbitrum:</b> Native USDC (<code>0xaf88d065e77c8cC2239327C5EDb3A432268e5831</code>)</li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+
     </section>
 
   </main>
 
-  <!-- Machine Modal (Agent Setup / Keys) -->
-  <div id="paymentModal" class="modal-overlay" style="display: none;">
-    <div class="modal-box">
-      <div class="panel-header">
-        <span>AGENT VAULT QUICK SETUP</span>
-        <button class="machine-btn" onclick="closePaymentModal()">[Close ✕]</button>
+  <!-- Modal: Agent Key Setup (paymentModal compatible) -->
+  <div id="paymentModal" class="m2m-modal-overlay" style="display:none;">
+    <div class="m2m-modal">
+      <div class="pane-header">
+        <div class="pane-title">
+          <span>🏦 AGENT VAULT SESSION KEY ACTIVATOR</span>
+        </div>
+        <button class="btn-m2m" onclick="closePaymentModal()">[✕ Close]</button>
       </div>
-      <p style="color: var(--text-sub); font-size: 12px;">
-        Autonomous AI agents require no human login or credit card. Deposit 2.0+ USDC to self-fund a vault session key, or provide your active key below:
-      </p>
-      <input type="text" id="modalVaultKeyInput" class="machine-input" placeholder="Paste X-Vault-Key (vault_key_...)">
-      <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
-        <button class="machine-btn primary" id="saveAndActivatePass" onclick="saveAndActivatePass()">[Activate Key]</button>
+      <div class="pane-body">
+        <p style="color:var(--text-sub); font-size:11.5px;">
+          Paste an active <code>X-Vault-Key</code> to automatically sign and bypass 402 payment challenges for this machine console session:
+        </p>
+        <input type="text" id="modalKeyInput" class="machine-input" placeholder="vault_key_0123456789abcdef...">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.5rem;">
+          <button class="btn-m2m" onclick="clearActiveKey()">[Remove Key]</button>
+          <button class="btn-m2m cyan" id="saveAndActivatePass" onclick="saveAndActivatePass()">[Activate & Persist Key]</button>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Footer -->
+  <!-- Toast Notification Box -->
+  <div id="toastBox" class="toast-box">Notification message</div>
+
+  <!-- Machine Footer -->
   <footer>
-    <div>CleanWeb Studio &bull; Autonomous Machine Zone &bull; x402 Protocol</div>
-    <div>Strictly AI Agents (M2M) &bull; Humans Blocked</div>
+    <div>CleanWeb Studio v2.5.0 &bull; Autonomous Machine Zone &bull; x402 Micropayment Engine</div>
+    <div>Strictly AI Agents (M2M) &bull; Humans Blocked &bull; Zero-Data Retention Ephemeral Execution</div>
   </footer>
 
-  <!-- Minimal Machine Script -->
+  <!-- Machine Console Engine Script -->
   <script>
-    // Tab Switching
-    function switchTab(tabId) {
-      document.querySelectorAll('.tool-tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-      const activeBtn = Array.from(document.querySelectorAll('.tool-tab')).find(b => b.getAttribute('onclick')?.includes(tabId) || b.id === tabId);
-      if (activeBtn) activeBtn.classList.add('active');
-      const targetPane = document.getElementById(tabId);
-      if (targetPane) targetPane.classList.add('active');
-    }
-
-    // Modal Control
-    function openPaymentModal() {
-      document.getElementById('paymentModal').style.display = 'flex';
-    }
-    function closePaymentModal() {
-      document.getElementById('paymentModal').style.display = 'none';
-    }
-    function saveAndActivatePass() {
-      const k = document.getElementById('modalVaultKeyInput').value.trim();
-      if (k) {
-        localStorage.setItem('x_vault_key', k);
-        document.getElementById('runnerVaultKey').value = k;
-        document.getElementById('vaultCheckInput').value = k;
-        alert('Vault Key activated in local session: ' + k.substring(0, 16) + '...');
+    // State Store
+    const state = {
+      currentEndpoint: 'clean-web',
+      activeVaultKey: localStorage.getItem('x_vault_key') || '',
+      lastResponseJson: null,
+      endpoints: {
+        'clean-web': {
+          method: 'GET',
+          path: '/api/v1/clean-web',
+          cost: '0.001 USDC',
+          fields: ['groupUrl'],
+          pricing: '0.001'
+        },
+        'clean-text': {
+          method: 'GET',
+          path: '/api/v1/clean-text',
+          cost: '0.001 USDC',
+          fields: ['groupUrl'],
+          pricing: '0.001'
+        },
+        'map-site': {
+          method: 'GET',
+          path: '/api/v1/map-site',
+          cost: '0.002 USDC',
+          fields: ['groupUrl', 'groupSources'],
+          sourceLabel: 'Limit (URLs to discover, default 50)',
+          pricing: '0.002'
+        },
+        'search': {
+          method: 'GET',
+          path: '/api/v1/search',
+          cost: '0.002 USDC',
+          fields: ['groupQuery', 'groupSources'],
+          sourceLabel: 'Max search results (default 5)',
+          pricing: '0.002'
+        },
+        'clean-pdf': {
+          method: 'GET',
+          path: '/api/v1/clean-pdf',
+          cost: '0.005 USDC',
+          fields: ['groupUrl'],
+          pricing: '0.005'
+        },
+        'clean-youtube': {
+          method: 'GET',
+          path: '/api/v1/clean-youtube',
+          cost: '0.010 USDC',
+          fields: ['groupUrl'],
+          pricing: '0.010'
+        },
+        'extract-json': {
+          method: 'POST',
+          path: '/api/v1/extract-json',
+          cost: '0.030 USDC',
+          fields: ['groupUrl', 'groupSchema'],
+          pricing: '0.030'
+        },
+        'oracle-grounding': {
+          method: 'POST',
+          path: '/api/v1/oracle/grounding',
+          cost: '0.035 USDC',
+          fields: ['groupQuery', 'groupSources'],
+          sourceLabel: 'Max grounding web sources (1-5)',
+          pricing: '0.035'
+        },
+        'deep-research': {
+          method: 'GET',
+          path: '/api/v1/deep-research',
+          cost: '0.150 USDC',
+          fields: ['groupQuery', 'groupSources'],
+          sourceLabel: 'Max research sources (1-5)',
+          pricing: '0.150'
+        }
       }
-      closePaymentModal();
-    }
+    };
 
-    // Auto load stored key
+    // Initialization
     window.addEventListener('DOMContentLoaded', () => {
-      const k = localStorage.getItem('x_vault_key') || '';
-      if (k) {
-        const rk = document.getElementById('runnerVaultKey');
-        if (rk) rk.value = k;
+      // Load stored key
+      if (state.activeVaultKey) {
+        document.getElementById('inputVaultKey').value = state.activeVaultKey;
+        document.getElementById('modalKeyInput').value = state.activeVaultKey;
+        updateHeaderVaultStatus(state.activeVaultKey);
       }
-      fetchDiagnostics();
+      
+      // Auto-generate random nonce for testing if empty
+      const nonceInput = document.getElementById('inputAgentNonce');
+      if (!nonceInput.value) {
+        nonceInput.value = 'agent_test_' + Math.floor(Math.random() * 100000);
+      }
+
+      // Keyboard Shortcut: Ctrl + Enter to Execute
+      window.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+          e.preventDefault();
+          executeCall();
+        }
+        if (e.key === 'Escape') {
+          closePaymentModal();
+        }
+      });
+
+      // Select initial endpoint
+      selectEndpoint('clean-web');
+      
+      // Run quick telemetry scan
+      triggerDiagnostics();
+      fetchPrometheusMetrics();
     });
 
-    // Real-time Diagnostics Fetch
-    async function fetchDiagnostics() {
-      const tbody = document.getElementById('telemetryTableBody');
-      tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Querying 5-pipeline diagnostic engine...</td></tr>';
+    // Endpoint Selection
+    function selectEndpoint(epKey) {
+      state.currentEndpoint = epKey;
+      const conf = state.endpoints[epKey];
+      if (!conf) return;
+
+      // Update Card Visuals
+      document.querySelectorAll('.ep-card').forEach(el => {
+        el.classList.toggle('active', el.dataset.ep === epKey);
+      });
+
+      // Update Labels
+      document.getElementById('lblEndpointCost').textContent = `Cost: ${conf.cost}`;
+      document.getElementById('txtEndpointMethodPath').textContent = `${conf.method} ${conf.path}`;
+
+      // Toggle Input Groups
+      const allGroups = ['groupUrl', 'groupQuery', 'groupSchema', 'groupSources'];
+      allGroups.forEach(gid => {
+        const el = document.getElementById(gid);
+        if (el) el.style.display = conf.fields.includes(gid) ? 'flex' : 'none';
+      });
+
+      if (conf.sourceLabel && document.getElementById('lblSourcesHelper')) {
+        document.getElementById('lblSourcesHelper').textContent = conf.sourceLabel;
+      }
+
+      // Contextual Presets
+      if (epKey === 'clean-youtube') {
+        document.getElementById('inputUrl').value = 'https://www.youtube.com/watch?v=aircAruvnKk';
+      } else if (epKey === 'clean-pdf') {
+        document.getElementById('inputUrl').value = 'https://arxiv.org/pdf/2301.00001.pdf';
+      } else if (epKey === 'map-site') {
+        document.getElementById('inputUrl').value = 'https://example.com';
+        document.getElementById('inputSources').value = '50';
+      } else if (epKey === 'search') {
+        document.getElementById('inputSources').value = '5';
+      } else if (epKey === 'oracle-grounding' || epKey === 'deep-research') {
+        document.getElementById('inputSources').value = '3';
+      }
+    }
+
+    // Set Presets
+    function setPreset(field, val) {
+      if (field === 'url') document.getElementById('inputUrl').value = val;
+      if (field === 'query') document.getElementById('inputQuery').value = val;
+    }
+
+    // Toggle Dev Bypass
+    function toggleDevBypass() {
+      const isChecked = document.getElementById('chkDevBypass').checked;
+      showToast(isChecked ? 'Dev Bypass Header [Bearer dev-bypass] Enabled' : 'Dev Bypass Disabled (Enforcing x402)');
+    }
+
+    // Tab Switching for Output Pane
+    function switchOutTab(tabId) {
+      document.querySelectorAll('.nav-tab').forEach(b => {
+        b.classList.toggle('active', b.dataset.tab === tabId || b.id === tabId);
+      });
+      document.querySelectorAll('.out-panel').forEach(p => {
+        p.classList.toggle('active', p.id === tabId || (tabId === 'tab-oracle' && p.id === 'tab-oracle-content'));
+      });
+
+      if (tabId === 'tab-telemetry') triggerDiagnostics();
+      if (tabId === 'tab-metrics') fetchPrometheusMetrics();
+    }
+
+    // Build Request
+    function buildRequestPayload() {
+      const conf = state.endpoints[state.currentEndpoint];
+      const urlVal = document.getElementById('inputUrl').value.trim();
+      const queryVal = document.getElementById('inputQuery').value.trim();
+      const schemaVal = document.getElementById('inputSchema').value.trim();
+      const sourcesVal = parseInt(document.getElementById('inputSources').value) || 3;
+
+      const vaultKey = document.getElementById('inputVaultKey').value.trim();
+      const agentNonce = document.getElementById('inputAgentNonce').value.trim();
+      const devBypass = document.getElementById('chkDevBypass').checked;
+
+      const headers = { 'Accept': 'application/json' };
+      if (devBypass) {
+        headers['Authorization'] = 'Bearer dev-bypass';
+      }
+      if (vaultKey) {
+        headers['X-Vault-Key'] = vaultKey;
+      }
+      if (agentNonce) {
+        headers['X-Agent-Nonce'] = agentNonce;
+      }
+
+      let fetchUrl = conf.path;
+      let fetchMethod = conf.method;
+      let fetchBody = null;
+
+      if (fetchMethod === 'GET') {
+        const params = new URLSearchParams();
+        if (conf.fields.includes('groupUrl') && urlVal) params.set('url', urlVal);
+        if (conf.fields.includes('groupQuery') && queryVal) params.set('query', queryVal);
+        if (conf.fields.includes('groupSources')) {
+          if (state.currentEndpoint === 'map-site') params.set('limit', sourcesVal);
+          else if (state.currentEndpoint === 'search') params.set('max_results', sourcesVal);
+          else params.set('max_sources', sourcesVal);
+        }
+        const qs = params.toString();
+        if (qs) fetchUrl += '?' + qs;
+      } else {
+        headers['Content-Type'] = 'application/json';
+        const bodyObj = {};
+        if (conf.fields.includes('groupUrl')) bodyObj['url'] = urlVal;
+        if (conf.fields.includes('groupQuery')) bodyObj['query'] = queryVal;
+        if (conf.fields.includes('groupSchema')) bodyObj['schema_description'] = schemaVal;
+        if (conf.fields.includes('groupSources')) bodyObj['max_sources'] = sourcesVal;
+        fetchBody = JSON.stringify(bodyObj, null, 2);
+      }
+
+      return { fetchUrl, fetchMethod, headers, fetchBody, conf };
+    }
+
+    // Execute Request
+    async function executeCall() {
+      const req = buildRequestPayload();
+      const screenRaw = document.getElementById('screenRaw');
+      const tagStatus = document.getElementById('tagStatus');
+      const tagLatency = document.getElementById('tagLatency');
+      const tagSavings = document.getElementById('tagTokenSavings');
+      const tagCost = document.getElementById('tagCostDeducted');
+
+      switchOutTab('tab-raw');
+      screenRaw.textContent = `[EXECUTING] ${req.fetchMethod} ${req.fetchUrl}...\nConnecting to CleanWeb Studio engine...`;
+      tagStatus.textContent = 'CONNECTING...';
+      tagStatus.className = 'meta-tag warn';
+      tagLatency.textContent = 'Latency: ...';
+
+      const startTime = performance.now();
+      try {
+        const response = await fetch(req.fetchUrl, {
+          method: req.fetchMethod,
+          headers: req.headers,
+          body: req.fetchBody
+        });
+        const elapsed = (performance.now() - startTime).toFixed(1);
+
+        const statusClass = response.ok ? 'meta-tag success' : (response.status === 402 ? 'meta-tag warn' : 'meta-tag error');
+        tagStatus.textContent = `HTTP ${response.status} ${response.statusText}`;
+        tagStatus.className = statusClass;
+        tagLatency.textContent = `Latency: ${elapsed} ms`;
+
+        // Check Headers
+        const savings = response.headers.get('X-Token-Savings') || response.headers.get('x-token-savings');
+        tagSavings.textContent = savings ? `Savings: ${savings}%` : 'Savings: --%';
+
+        const cost = response.headers.get('X-Cost-USDC') || req.conf.cost;
+        tagCost.textContent = response.ok ? `Settled: ${cost}` : (response.status === 402 ? `Requires: ${cost}` : 'Settled: 0 USDC');
+
+        const json = await response.json();
+        state.lastResponseJson = json;
+        screenRaw.textContent = JSON.stringify(json, null, 2);
+
+        // If this is an oracle response, populate oracle tab
+        if (json.attestation || json.eip712_attestation || json.oracle_signature) {
+          populateOracleTab(json);
+        }
+
+        // Check if vault balance changed
+        if (req.headers['X-Vault-Key']) {
+          updateHeaderVaultStatus(req.headers['X-Vault-Key']);
+        }
+
+        showToast(`Request complete (${response.status}) in ${elapsed}ms`);
+      } catch (err) {
+        const elapsed = (performance.now() - startTime).toFixed(1);
+        tagStatus.textContent = 'HTTP ERROR';
+        tagStatus.className = 'meta-tag error';
+        tagLatency.textContent = `Latency: ${elapsed} ms`;
+        screenRaw.textContent = `[CONNECTION ERROR]: ${err.message}\nEnsure CleanWeb Studio is running locally or verify network connectivity.`;
+        showToast('Execution error: ' + err.message);
+      }
+    }
+
+    // Populate Oracle Attestation Tab
+    function populateOracleTab(data) {
+      const att = data.attestation || data.eip712_attestation || data;
+      const screen = document.getElementById('screenOracle');
+      screen.textContent = `🔮 EIP-712 CRYPTOGRAPHIC ON-CHAIN ATTESTATION:\n\n` + JSON.stringify(att, null, 2);
+    }
+
+    function runOracleGrounding() {
+      selectEndpoint('oracle-grounding');
+      executeCall();
+    }
+
+    // Diagnostics Fetch
+    async function triggerDiagnostics() {
+      const tbody = document.getElementById('telemetryTbody');
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-sub);">Auditing 5-pipeline self-diagnostic engine...</td></tr>';
       try {
         const res = await fetch('/api/v1/system/diagnostics');
         const data = await res.json();
         
-        document.getElementById('valHealthVerdict').textContent = data.system_health === 'HEALTHY' ? '● ALL OPERATIONAL' : '▲ ' + data.system_health;
-        document.getElementById('valHealthVerdict').style.color = data.system_health === 'HEALTHY' ? 'var(--accent-emerald)' : 'var(--accent-amber)';
-        document.getElementById('valHealthScore').textContent = (data.overall_score || '5/5') + ' Pipelines Healthy';
-        document.getElementById('valScanLatency').textContent = (data.total_audit_latency_ms || 0).toFixed(1) + ' ms';
-
         let html = '';
         (data.pipelines || []).forEach(p => {
           const isH = p.status === 'HEALTHY';
-          const color = isH ? 'var(--accent-emerald)' : 'var(--accent-amber)';
+          const badgeColor = isH ? 'var(--accent-emerald)' : 'var(--accent-amber)';
           html += `<tr>
-            <td><strong>${p.name}</strong></td>
-            <td style="color: ${color}; font-weight: 600;">● ${p.status}</td>
-            <td>${(p.latency_ms || 0).toFixed(1)}ms</td>
-            <td style="color: var(--text-sub);">${p.details || '-'}</td>
+            <td><strong style="color:var(--text-main);">${p.name}</strong></td>
+            <td style="color:${badgeColor}; font-weight:600;">● ${p.status}</td>
+            <td>${(p.latency_ms || 0).toFixed(1)} ms</td>
+            <td style="color:var(--text-sub); font-size:11px;">${p.details || '-'}</td>
           </tr>`;
         });
-        tbody.innerHTML = html;
+        tbody.innerHTML = html || '<tr><td colspan="4">No pipeline data returned.</td></tr>';
       } catch (e) {
-        tbody.innerHTML = `<tr><td colspan="4" style="color: var(--accent-rose);">Diagnostic fetch failed: ${e.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="4" style="color:var(--accent-rose);">Telemetry probe error: ${e.message}</td></tr>`;
+      }
+    }
+
+    // Prometheus Metrics
+    async function fetchPrometheusMetrics() {
+      const scr = document.getElementById('screenMetrics');
+      try {
+        const res = await fetch('/metrics');
+        const txt = await res.text();
+        scr.textContent = txt;
+      } catch (e) {
+        scr.textContent = '# Metrics fetch error: ' + e.message;
       }
     }
 
     // Vault Inspector
-    async function queryVaultBalance() {
-      const input = document.getElementById('vaultCheckInput').value.trim();
+    async function checkVaultBalance() {
+      const input = document.getElementById('vaultInspectInput').value.trim() || state.activeVaultKey;
       if (!input) {
-        alert('Please provide an Agent Wallet Address or X-Vault-Key.');
+        showToast('Please enter an agent address or vault key.');
         return;
       }
       try {
         const res = await fetch(`/api/v1/vault/balance?identifier=${encodeURIComponent(input)}`);
         if (!res.ok) {
-          alert('Vault Account not found. You can deposit 2.0+ USDC to create one.');
+          showToast('Vault account not found.');
           return;
         }
         const data = await res.json();
-        document.getElementById('vResAddress').textContent = data.agent_address;
-        document.getElementById('vResBalance').textContent = (data.balance_usdc || 0).toFixed(4);
-        document.getElementById('vResKey').textContent = data.session_key;
-        document.getElementById('vResConsumed').textContent = (data.total_consumed || 0).toFixed(4);
-        document.getElementById('vaultResultBox').style.display = 'block';
+        document.getElementById('resVAddr').textContent = data.agent_address;
+        document.getElementById('resVBal').textContent = (data.balance_usdc || 0).toFixed(4);
+        document.getElementById('resVKey').textContent = data.session_key;
+        document.getElementById('resVCons').textContent = (data.total_consumed || 0).toFixed(4);
+        document.getElementById('vaultInspectResult').style.display = 'block';
+
+        // Update header if matched
+        document.getElementById('hdrVaultBalance').textContent = `${(data.balance_usdc || 0).toFixed(2)} USDC`;
+        showToast(`Vault balance: ${data.balance_usdc} USDC`);
       } catch (e) {
-        alert('Failed to query vault balance: ' + e.message);
+        showToast('Balance query failed: ' + e.message);
       }
     }
 
-    // Vault Deposit Simulation / Execution
+    // Vault Deposit Simulation
     async function depositVaultUSDC() {
-      const amt = parseFloat(document.getElementById('customVaultAmtInput').value) || 2.0;
-      const chain = document.getElementById('vaultChainSelect').value;
-      const addr = document.getElementById('vaultAgentAddrInput').value.trim() || '0x' + Array.from(crypto.getRandomValues(new Uint8Array(20))).map(b => b.toString(16).padStart(2,'0')).join('');
-      
+      const amtInput = document.getElementById('customVaultAmtInput');
+      const amt = parseFloat(amtInput ? amtInput.value : 2.0) || 2.0;
+      const chain = document.getElementById('depositChain').value;
+      const addrInput = document.getElementById('depositAgentAddr').value.trim();
+      const addr = addrInput || ('0x' + Array.from(crypto.getRandomValues(new Uint8Array(20))).map(b => b.toString(16).padStart(2,'0')).join(''));
+
       try {
         const res = await fetch('/api/v1/vault/deposit', {
           method: 'POST',
@@ -695,78 +1393,159 @@ print(result["markdown_content"])</div>
         });
         const data = await res.json();
         if (!res.ok) {
-          alert('Deposit failed: ' + (data.detail || JSON.stringify(data)));
+          showToast('Deposit error: ' + (data.detail || JSON.stringify(data)));
           return;
         }
-        alert(`Vault deposit successful! Balance: ${data.balance_usdc} USDC\nSession Key: ${data.session_key}`);
+        showToast(`Deposit +${data.balance_usdc} USDC registered!`);
+        state.activeVaultKey = data.session_key;
         localStorage.setItem('x_vault_key', data.session_key);
-        document.getElementById('runnerVaultKey').value = data.session_key;
-        document.getElementById('vaultCheckInput').value = data.session_key;
-        queryVaultBalance();
+        document.getElementById('inputVaultKey').value = data.session_key;
+        document.getElementById('modalKeyInput').value = data.session_key;
+        document.getElementById('vaultInspectInput').value = data.session_key;
+        updateHeaderVaultStatus(data.session_key);
+        checkVaultBalance();
       } catch (e) {
-        alert('Deposit error: ' + e.message);
+        showToast('Deposit failed: ' + e.message);
       }
     }
 
     function payCryptoUSDC() {
-      alert("Autonomous On-Chain USDC Deposit Info:\n\nSend 2.0+ Native USDC to Server Wallet:\n0x255F9991233f86B29dB847c8d5b8CB9915e80dCf\n\nSupported Chains: Polygon (137), Base (8453), Arbitrum (42161)\nThen POST /api/v1/vault/deposit with your tx_hash.");
+      alert("Autonomous On-Chain USDC Deposit Info:\n\nSend 2.0+ Native USDC to Server Wallet:\n0x255F9991233f86B29dB847c8d5b8CB9915e80dCf\n\nSupported Chains: Polygon (137), Base (8453), Arbitrum (42161)\nThen invoke POST /api/v1/vault/deposit with your tx_hash.");
     }
 
-    // Machine Runner Execution
-    async function executeRunnerRequest() {
-      const endpoint = document.getElementById('runnerEndpointSelect').value;
-      const targetUrl = document.getElementById('runnerTargetUrl').value.trim();
-      const vaultKey = document.getElementById('runnerVaultKey').value.trim();
-      const nonce = document.getElementById('runnerAgentNonce').value.trim();
-      const outputArea = document.getElementById('runnerOutputArea');
-      const statusBadge = document.getElementById('runnerStatusBadge');
-
-      outputArea.textContent = 'Executing autonomous request...';
-      statusBadge.textContent = 'CONNECTING...';
-
-      const headers = {};
-      if (vaultKey) headers['X-Vault-Key'] = vaultKey;
-      if (nonce) headers['X-Agent-Nonce'] = nonce;
-
-      const reqUrl = `${endpoint}?url=${encodeURIComponent(targetUrl)}`;
+    async function updateHeaderVaultStatus(key) {
+      if (!key) {
+        document.getElementById('hdrVaultBalance').textContent = 'Not Set';
+        return;
+      }
       try {
-        const res = await fetch(reqUrl, { headers });
-        statusBadge.textContent = `STATUS: ${res.status} ${res.statusText}`;
-        const data = await res.json();
-        outputArea.textContent = JSON.stringify(data, null, 2);
+        const res = await fetch(`/api/v1/vault/balance?identifier=${encodeURIComponent(key)}`);
+        if (res.ok) {
+          const data = await res.json();
+          document.getElementById('hdrVaultBalance').textContent = `${(data.balance_usdc || 0).toFixed(2)} USDC`;
+        } else {
+          document.getElementById('hdrVaultBalance').textContent = 'Active Key';
+        }
       } catch (e) {
-        statusBadge.textContent = 'ERROR';
-        outputArea.textContent = 'Request execution error: ' + e.message;
+        document.getElementById('hdrVaultBalance').textContent = 'Active Key';
       }
     }
 
-    function updateRunnerInput() {
-      const ep = document.getElementById('runnerEndpointSelect').value;
-      const input = document.getElementById('runnerTargetUrl');
-      if (ep.includes('youtube')) input.value = 'https://www.youtube.com/watch?v=aircAruvnKk';
-      else if (ep.includes('pdf')) input.value = 'https://arxiv.org/pdf/2301.00001.pdf';
-      else input.value = 'https://example.com';
+    // Key Modal Handlers
+    function openPaymentModal() {
+      openVaultModal();
+    }
+    function closePaymentModal() {
+      document.getElementById('paymentModal').style.display = 'none';
+    }
+    function openVaultModal() {
+      document.getElementById('paymentModal').style.display = 'flex';
+      document.getElementById('modalKeyInput').focus();
+    }
+    function saveAndActivatePass() {
+      const k = document.getElementById('modalKeyInput').value.trim();
+      state.activeVaultKey = k;
+      localStorage.setItem('x_vault_key', k);
+      document.getElementById('inputVaultKey').value = k;
+      updateHeaderVaultStatus(k);
+      closePaymentModal();
+      showToast(k ? 'Active Vault Key saved & persisted' : 'Vault Key removed');
+    }
+    function clearActiveKey() {
+      state.activeVaultKey = '';
+      localStorage.removeItem('x_vault_key');
+      document.getElementById('inputVaultKey').value = '';
+      document.getElementById('modalKeyInput').value = '';
+      updateHeaderVaultStatus('');
+      closePaymentModal();
+      showToast('Vault Key removed from session');
     }
 
-    // Oracle Grounding Runner
-    async function runOracleGrounding() {
-      const q = document.getElementById('oracleQueryInput').value.trim();
-      const out = document.getElementById('oracleOutputArea');
-      out.textContent = 'Invoking Oracle Grounding & EIP-712 Signer...';
-      try {
-        const res = await fetch('/api/v1/oracle/grounding', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Agent-Nonce': 'oracle_m2m_test_' + Date.now()
-          },
-          body: JSON.stringify({ query: q })
-        });
-        const data = await res.json();
-        out.textContent = JSON.stringify(data, null, 2);
-      } catch (e) {
-        out.textContent = 'Oracle invocation error: ' + e.message;
+    // Code Generators
+    function copyCurl() {
+      const req = buildRequestPayload();
+      let cmd = `curl -X ${req.fetchMethod} "${window.location.origin}${req.fetchUrl}" \\\n`;
+      Object.entries(req.headers).forEach(([k, v]) => {
+        cmd += `  -H "${k}: ${v}" \\\n`;
+      });
+      if (req.fetchBody) {
+        cmd += `  -d '${req.fetchBody.replace(/'/g, "'\\''")}'`;
+      } else {
+        cmd = cmd.slice(0, -3); // trim trailing slash
       }
+      navigator.clipboard.writeText(cmd);
+      showToast('cURL command copied to clipboard!');
+    }
+
+    function copyPython() {
+      const ep = state.currentEndpoint;
+      const urlVal = document.getElementById('inputUrl').value.trim();
+      const queryVal = document.getElementById('inputQuery').value.trim();
+      const vaultKey = document.getElementById('inputVaultKey').value.trim() || 'vault_key_your_key_here';
+
+      let py = `# Autonomous AI Agent Execution (${ep})\n`;
+      py += `from autonomous_agent_client import AutonomousX402Agent\n\n`;
+      py += `agent = AutonomousX402Agent(\n`;
+      py += `    base_url="${window.location.origin}",\n`;
+      py += `    vault_key="${vaultKey}"  # Sub-1ms zero-gas instant deduction\n`;
+      py += `)\n\n`;
+
+      if (ep === 'clean-web') py += `result = agent.clean_web("${urlVal}")\nprint(result["markdown_content"])`;
+      else if (ep === 'clean-text') py += `result = agent.call_endpoint("/api/v1/clean-text", {"url": "${urlVal}"})\nprint(result["plain_text"])`;
+      else if (ep === 'map-site') py += `result = agent.map_site("${urlVal}")\nprint(result["links"])`;
+      else if (ep === 'search') py += `result = agent.search("${queryVal}")\nprint(result["results"])`;
+      else if (ep === 'clean-pdf') py += `result = agent.clean_pdf("${urlVal}")\nprint(result["markdown_content"])`;
+      else if (ep === 'clean-youtube') py += `result = agent.clean_youtube("${urlVal}")\nprint(result["analysis"])`;
+      else if (ep === 'extract-json') py += `result = agent.extract_json("${urlVal}", "schema description")\nprint(result["extracted_json"])`;
+      else if (ep === 'oracle-grounding') py += `result = agent.oracle_grounding("${queryVal}")\nprint(result["attestation"])`;
+      else if (ep === 'deep-research') py += `result = agent.deep_research("${queryVal}")\nprint(result["research_brief_markdown"])`;
+
+      navigator.clipboard.writeText(py);
+      showToast('Python SDK snippet copied to clipboard!');
+    }
+
+    function copyMcp() {
+      const ep = state.currentEndpoint;
+      const urlVal = document.getElementById('inputUrl').value.trim();
+      const queryVal = document.getElementById('inputQuery').value.trim();
+
+      const mcpMap = {
+        'clean-web': { tool: 'clean_web', args: { url: urlVal } },
+        'clean-text': { tool: 'clean_text_raw', args: { url: urlVal } },
+        'map-site': { tool: 'map_site', args: { url: urlVal } },
+        'search': { tool: 'search_web_quick', args: { query: queryVal } },
+        'clean-pdf': { tool: 'clean_pdf', args: { url: urlVal } },
+        'clean-youtube': { tool: 'clean_youtube', args: { url: urlVal } },
+        'extract-json': { tool: 'extract_json_schema', args: { url: urlVal, schema_description: "Extract structured data" } },
+        'oracle-grounding': { tool: 'oracle_grounding', args: { query: queryVal } },
+        'deep-research': { tool: 'deep_research_topic', args: { query: queryVal } }
+      };
+
+      const mcp = mcpMap[ep] || { tool: ep, args: {} };
+      navigator.clipboard.writeText(JSON.stringify(mcp, null, 2));
+      showToast('MCP Tool JSON call copied to clipboard!');
+    }
+
+    function copyRawOutput() {
+      const scr = document.getElementById('screenRaw').textContent;
+      navigator.clipboard.writeText(scr);
+      showToast('Raw output copied to clipboard!');
+    }
+
+    function clearOutput() {
+      document.getElementById('screenRaw').textContent = 'Output cleared.';
+      document.getElementById('tagStatus').textContent = 'HTTP: IDLE';
+      document.getElementById('tagStatus').className = 'meta-tag';
+      document.getElementById('tagLatency').textContent = 'Latency: -- ms';
+      document.getElementById('tagTokenSavings').textContent = 'Savings: --%';
+      document.getElementById('tagCostDeducted').textContent = 'Settled: -- USDC';
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toastBox');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2600);
     }
   </script>
 </body>

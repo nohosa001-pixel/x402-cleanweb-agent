@@ -36,6 +36,13 @@ from app.schemas import (
     OracleVerifyResponse,
     SecurityAuditResult,
     SecurityInspectRequest,
+    TextCleanResponse,
+    ExtractJsonRequest,
+    ExtractJsonResponse,
+    DeepResearchResponse,
+    SiteMapResponse,
+    SearchResponse,
+    SearchResultItem,
 )
 from app.x402_verifier import x402_verifier
 from app.cleaners.web_engine import web_cleaner_engine
@@ -174,7 +181,7 @@ async def root(request: Request):
     return {
         "service": "x402-cleanweb-agent",
         "name": "CleanWeb Studio (Autonomous Agent Data & Spend Firewall)",
-        "version": "2.5.0",
+        "version": "2.5.1",
         "audience": "STRICTLY_AUTONOMOUS_AGENTS",
         "human_policy": "HUMANS_100%_BLOCKED (Strictly M2M Agent-Native Only)",
         "protocol": "x402 (HTTP 402 Monetized)",
@@ -182,29 +189,49 @@ async def root(request: Request):
         "networks": ["Polygon (137)", "Base (8453)", "Arbitrum (42161)"],
         "pricing_tiers": {
             "web_clean": "0.001 USDC",
+            "clean_text": "0.001 USDC (Raw plain text for vector/RAG)",
             "secure_web_clean": "0.005 USDC (Includes Security Gate AST/Prompt Audit)",
             "pdf_or_batch": "0.005 USDC",
             "youtube_gemini_ai": "0.010 USDC",
             "secure_youtube_clean": "0.015 USDC (Includes Security Gate Video Intelligence Audit)",
             "onchain_attestation": "0.020 USDC",
-            "oracle_grounding": "0.035 USDC",
-            "secure_oracle_grounding": "0.040 USDC (Includes Dual Security Gate Attestation)"
+            "map_site": "0.002 USDC (Domain Sitemap & URL Tree Discovery)",
+            "search": "0.002 USDC (Fast Agent Web Search & Snippets)",
+            "extract_json": "0.030 USDC (Schema-constrained JSON extractor)",
+            "oracle_grounding": "0.035 USDC (Search + Clean-to-JSON + EIP-712 Signed Oracle)",
+            "secure_oracle_grounding": "0.040 USDC (Includes Dual Security Gate Attestation)",
+            "deep_research": "0.150 USDC (Multi-source AI synthesized deep briefing)"
         },
         "interactive_dashboard": "/dashboard",
         "metrics_url": "/metrics",
         "endpoints": {
             "clean_web": "/api/v1/clean-web?url=https://example.com",
+            "clean_text": "/api/v1/clean-text?url=https://example.com",
             "clean_youtube": "/api/v1/clean-youtube?url=https://www.youtube.com/watch?v=aircAruvnKk",
             "clean_pdf": "/api/v1/clean-pdf?url=https://example.com/paper.pdf",
             "clean_batch": "/api/v1/clean-batch",
             "batch_clean_alias": "/api/v1/batch-clean",
+            "map_site": "/api/v1/map-site?url=https://example.com",
+            "search": "/api/v1/search?query=Topic",
+            "extract_json": "/api/v1/extract-json",
+            "oracle_grounding": "/api/v1/oracle/grounding",
+            "oracle_verify": "/api/v1/oracle/verify",
+            "deep_research": "/api/v1/deep-research?query=Topic",
             "vault_deposit": "/api/v1/vault/deposit",
             "vault_balance": "/api/v1/vault/balance",
             "pass_status": "/api/v1/pass-status",
+            "legal_terms": "/api/v1/legal/terms",
+            "legal_disclaimer": "/api/v1/legal/disclaimer",
             "ap2_manifest": "/.well-known/ap2",
             "mcp_tools": "/mcp/tools",
             "metrics": "/metrics",
             "health": "/health"
+        },
+        "legal_notice": {
+            "doctrine": "Transformative Non-Expressive Text/Data Mining (TDM) Fair Use",
+            "financial_disclaimer": "All oracle, search, and cleaned web data provided AS-IS without financial or investment warranty. The caller agent assumes full liability for downstream executions.",
+            "data_retention": "Zero-Data Retention (In-memory ephemeral processing only, GDPR compliant)",
+            "sanctions_compliance": "OFAC SDN List 100% Screened & Blocked"
         }
     }
 
@@ -217,7 +244,7 @@ async def dashboard():
 
 
 @app.get("/health", tags=["System"])
-async def health_check(deep: bool = Query(False, description="Run deep 5-pipeline self-audit")):
+def health_check(deep: bool = Query(False, description="Run deep 5-pipeline self-audit")):
     """Standard health check. Pass ?deep=true for real-time 5-pipeline diagnostic."""
     if deep:
         return diagnostic_engine.run_full_diagnostic()
@@ -225,7 +252,7 @@ async def health_check(deep: bool = Query(False, description="Run deep 5-pipelin
     return {
         "status": "healthy",
         "service": "x402-cleanweb-agent",
-        "version": "2.5.0",
+        "version": "2.5.1",
         "storage": "sqlite3_wal_ready",
         "storage_stats": db_stats,
         "chains_connected": ["Polygon(137)", "Base(8453)", "Arbitrum(42161)"],
@@ -235,7 +262,7 @@ async def health_check(deep: bool = Query(False, description="Run deep 5-pipelin
 
 
 @app.get("/api/v1/system/diagnostics", tags=["System"])
-async def run_system_diagnostics():
+def run_system_diagnostics():
     """
     Executes real-time deep self-audit across 5 mission-critical pipelines:
     1. Agent Security Gate Ingress Defense (Live Cloud Run & Latency SLA)
@@ -274,11 +301,12 @@ async def get_glama_spec():
 # 🌐 Core Cleaning API Endpoints (x402 Protected)
 # =========================================================================
 @app.get("/api/v1/clean-web", response_model=WebCleanResponse, tags=["Cleaners"])
-async def clean_web(
+def clean_web(
     request: Request,
     url: str = Query(..., description="Target webpage URL to scrape and convert to markdown"),
     onchain_proof: bool = Query(False, description="Whether to generate EIP-712 cryptographic attestation"),
-    secure_audit: bool = Query(False, description="Run real-time AST, prompt injection, and EIP-712 security audit via Security Gate Agent")
+    secure_audit: bool = Query(False, description="Run real-time AST, prompt injection, and EIP-712 security audit via Security Gate Agent"),
+    respect_robots_txt: bool = Query(False, description="Whether to enforce target domain robots.txt compliance")
 ):
     if secure_audit:
         tier = PricingTier.SECURE_WEB_CLEAN
@@ -292,7 +320,7 @@ async def clean_web(
         return err_resp
 
     try:
-        data = web_cleaner_engine.fetch_and_clean(url)
+        data = web_cleaner_engine.fetch_and_clean(url, respect_robots_txt=respect_robots_txt)
         proof = None
         if onchain_proof:
             proof = onchain_signer.sign_cleanweb_attestation(
@@ -339,7 +367,7 @@ async def clean_web(
 
 
 @app.get("/api/v1/clean-youtube", response_model=YouTubeCleanResponse, tags=["Cleaners"])
-async def clean_youtube(
+def clean_youtube(
     request: Request,
     url: str = Query(..., description="YouTube Video URL"),
     lang: str = Query("ko,en", description="Preferred transcript language codes"),
@@ -401,7 +429,7 @@ async def clean_youtube(
 
 
 @app.get("/api/v1/clean-pdf", response_model=PDFCleanResponse, tags=["Cleaners"])
-async def clean_pdf(
+def clean_pdf(
     request: Request,
     url: str = Query(..., description="PDF URL"),
     max_pages: int = Query(30, description="Max pages to parse"),
@@ -446,7 +474,7 @@ async def clean_pdf(
 # Supporting BOTH /api/v1/clean-batch AND /api/v1/batch-clean for 100% compatibility
 @app.post("/api/v1/clean-batch", response_model=BatchCleanResponse, tags=["Cleaners"])
 @app.post("/api/v1/batch-clean", response_model=BatchCleanResponse, tags=["Cleaners"])
-async def clean_batch(request: Request, body: BatchCleanRequest):
+def clean_batch(request: Request, body: BatchCleanRequest):
     tier = PricingTier.STANDARD
     is_auth, receipt, err_resp = x402_verifier.verify_request(request, tier=tier)
     if not is_auth:
@@ -469,11 +497,139 @@ async def clean_batch(request: Request, body: BatchCleanRequest):
         raise HTTPException(status_code=500, detail=f"Batch scraping failed: {str(e)}")
 
 
+@app.get("/api/v1/clean-text", response_model=TextCleanResponse, tags=["Cleaners"])
+def clean_text(
+    request: Request,
+    url: str = Query(..., description="Target webpage URL to extract raw plain text from")
+):
+    tier = PricingTier.LIGHT
+    is_auth, receipt, err_resp = x402_verifier.verify_request(request, tier=tier)
+    if not is_auth:
+        return err_resp
+
+    try:
+        data = web_cleaner_engine.fetch_plain_text(url)
+        t_analytics = data.get("token_analytics")
+        t_obj = TokenAnalytics(**t_analytics) if t_analytics else None
+        return TextCleanResponse(
+            status="success",
+            url=data["url"],
+            title=data.get("title"),
+            plain_text=data["plain_text"],
+            word_count=data["word_count"],
+            token_analytics=t_obj,
+            payment_receipt=receipt,
+            auth=receipt.auth if receipt else None
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to extract plain text: {str(e)}")
+
+
+@app.post("/api/v1/extract-json", response_model=ExtractJsonResponse, tags=["Cleaners"])
+def extract_json(request: Request, body: ExtractJsonRequest):
+    tier = PricingTier.EXTRACT_JSON
+    is_auth, receipt, err_resp = x402_verifier.verify_request(request, tier=tier)
+    if not is_auth:
+        return err_resp
+
+    try:
+        extracted = oracle_engine.extract_json_from_webpage(body.url, body.schema_description)
+        return ExtractJsonResponse(
+            status="success",
+            url=body.url,
+            extracted_json=extracted,
+            payment_receipt=receipt,
+            auth=receipt.auth if receipt else None
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to extract JSON: {str(e)}")
+
+
+@app.get("/api/v1/deep-research", response_model=DeepResearchResponse, tags=["Cleaners"])
+def deep_research(
+    request: Request,
+    query: str = Query(..., description="Research query topic"),
+    max_sources: int = Query(3, ge=1, le=5, description="Number of sources to synthesize")
+):
+    tier = PricingTier.DEEP_RESEARCH
+    is_auth, receipt, err_resp = x402_verifier.verify_request(request, tier=tier)
+    if not is_auth:
+        return err_resp
+
+    try:
+        res = oracle_engine.execute_deep_research(query, max_sources=max_sources)
+        return DeepResearchResponse(
+            status="success",
+            query=query,
+            research_brief_markdown=res["research_brief_markdown"],
+            sources=res["sources"],
+            structured_data=res.get("structured_data"),
+            oracle_attestation=res.get("oracle_attestation"),
+            payment_receipt=receipt,
+            auth=receipt.auth if receipt else None
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to perform deep research: {str(e)}")
+
+
+@app.get("/api/v1/map-site", response_model=SiteMapResponse, tags=["Cleaners"])
+def map_site(
+    request: Request,
+    url: str = Query(..., description="Target website domain or URL to map"),
+    max_links: int = Query(50, ge=5, le=100, description="Max URLs to discover")
+):
+    tier = PricingTier.MAP_SITE
+    is_auth, receipt, err_resp = x402_verifier.verify_request(request, tier=tier)
+    if not is_auth:
+        return err_resp
+
+    try:
+        data = web_cleaner_engine.map_website(url, max_links=max_links)
+        return SiteMapResponse(
+            status="success",
+            url=data["url"],
+            domain=data["domain"],
+            total_urls=data["total_urls"],
+            urls=data["urls"],
+            sitemap_detected=data["sitemap_detected"],
+            payment_receipt=receipt,
+            auth=receipt.auth if receipt else None
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to map site: {str(e)}")
+
+
+@app.get("/api/v1/search", response_model=SearchResponse, tags=["Cleaners"])
+def search_web(
+    request: Request,
+    query: str = Query(..., description="Search keyword or question for agent"),
+    max_results: int = Query(5, ge=1, le=10, description="Max search results")
+):
+    tier = PricingTier.SEARCH
+    is_auth, receipt, err_resp = x402_verifier.verify_request(request, tier=tier)
+    if not is_auth:
+        return err_resp
+
+    try:
+        raw_results = oracle_engine.quick_search(query, max_results=max_results)
+        result_items = [SearchResultItem(**item) for item in raw_results]
+        return SearchResponse(
+            status="success",
+            query=query,
+            total_results=len(result_items),
+            results=result_items,
+            payment_receipt=receipt,
+            auth=receipt.auth if receipt else None
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to execute agent search: {str(e)}")
+
+
 # =========================================================================
 # 💰 B2A Autonomous Agent Vault & Pass Management Endpoints
 # =========================================================================
 @app.post("/api/v1/vault/deposit", response_model=VaultBalanceResponse, tags=["Vault"])
-async def deposit_vault(body: VaultDepositRequest):
+def deposit_vault(body: VaultDepositRequest):
     """
     Deposits Native USDC into an autonomous agent's pre-funded vault balance.
     Limits: Minimum 2.0 USDC, Maximum 1,000.0 USDC per deposit.
@@ -492,7 +648,7 @@ async def deposit_vault(body: VaultDepositRequest):
 
 
 @app.get("/api/v1/vault/balance", response_model=VaultBalanceResponse, tags=["Vault"])
-async def get_vault_balance(identifier: str = Query(..., description="Agent Wallet Address or Session Key")):
+def get_vault_balance(identifier: str = Query(..., description="Agent Wallet Address or Session Key")):
     acc = vault_manager.get_balance(identifier)
     if not acc:
         raise HTTPException(status_code=404, detail="Vault account not found for provided address or key.")
@@ -500,7 +656,7 @@ async def get_vault_balance(identifier: str = Query(..., description="Agent Wall
 
 
 @app.get("/api/v1/pass-status", response_model=PassStatusResponse, tags=["Vault"])
-async def get_pass_status(agent_wallet: str = Query(..., description="Agent Address or Pass Token")):
+def get_pass_status(agent_wallet: str = Query(..., description="Agent Address or Pass Token")):
     pass_data = storage_manager.get_pass(agent_wallet)
     vault_data = storage_manager.get_vault(agent_wallet)
 
@@ -526,7 +682,7 @@ async def get_pass_status(agent_wallet: str = Query(..., description="Agent Addr
 # 🔮 B2A Web3 Signed Oracle Grounding Pipeline (0.035 USDC)
 # =========================================================================
 @app.post("/api/v1/oracle/grounding", response_model=OracleGroundingResponse, tags=["Oracle Grounding"])
-async def oracle_grounding(request: Request, body: OracleGroundingRequest):
+def oracle_grounding(request: Request, body: OracleGroundingRequest):
     """
     Autonomous Agent Web3 Oracle Grounding Pipeline.
     Performs real-time web search, noise-free extraction, Gemini 3.6 Flash JSON structuring,
@@ -562,7 +718,7 @@ async def oracle_grounding(request: Request, body: OracleGroundingRequest):
 
 
 @app.post("/api/v1/oracle/verify", response_model=OracleVerifyResponse, tags=["Oracle Grounding"])
-async def verify_oracle_attestation(body: OracleVerifyRequest, query: str = Query("", description="Original query")):
+def verify_oracle_attestation(body: OracleVerifyRequest, query: str = Query("", description="Original query")):
     """
     Verifies an EIP-712 signed Oracle attestation off-chain.
     """
@@ -586,7 +742,7 @@ async def verify_oracle_attestation(body: OracleVerifyRequest, query: str = Quer
 
 
 @app.post("/api/v1/security/inspect", response_model=SecurityAuditResult, tags=["Security Gate"])
-async def security_gate_inspect(request: Request, body: SecurityInspectRequest):
+def security_gate_inspect(request: Request, body: SecurityInspectRequest):
     """
     Submits raw text or Python code to Agent Security Gate for sub-5ms AST, prompt-injection, and EIP-712 attestation.
     """
@@ -698,5 +854,46 @@ async def get_agrid_ops_compliance():
 async def ping_keepalive():
     """Ultra-low-latency keep-alive endpoint for automated agent health checks and warm instance polling."""
     return {"ping": "pong", "timestamp": time.time()}
+
+
+# =========================================================================
+# ⚖️ Legal, Terms of Service & Financial Disclaimer Endpoints
+# =========================================================================
+@app.get("/api/v1/legal/terms", tags=["Legal & Compliance"])
+async def get_legal_terms():
+    """
+    Returns the official B2A Machine-to-Machine Terms of Service for CleanWeb Studio.
+    """
+    return {
+        "service": "x402-cleanweb-agent",
+        "title": "Machine-to-Machine Terms of Service (B2A ToS)",
+        "effective_date": "2025-01-01",
+        "jurisdiction_and_governance": {
+            "permitted_use": "Autonomous LLM reasoning, research synthesis, and non-expressive Text & Data Mining (TDM).",
+            "prohibited_use": "DDoS/overloading third-party servers, bypass of paywalls/authenticated portals, harvesting PII, illegal surveillance.",
+            "fair_use_doctrine": "Transformative non-expressive computational data use under international TDM exceptions.",
+            "zero_data_retention": "All fetched HTML and raw assets are processed ephemerally in RAM and purged immediately upon response transmission."
+        },
+        "caller_responsibility": "The autonomous agent, its deployer, and token holders bear 100% legal responsibility for queries initiated and the subsequent use of cleaned content."
+    }
+
+
+@app.get("/api/v1/legal/disclaimer", tags=["Legal & Compliance"])
+async def get_legal_disclaimer():
+    """
+    Returns the comprehensive Legal, Financial, and Oracle Non-Liability Disclaimer.
+    """
+    return {
+        "service": "x402-cleanweb-agent",
+        "title": "Comprehensive Legal & Financial Non-Liability Disclaimer",
+        "clauses": {
+            "no_financial_advice": "No content, oracle attestation, structured JSON, or research brief constitutes investment, financial, tax, or legal advice.",
+            "as_is_basis": "All web data, search snippets, transcripts, and cryptographic attestations are provided strictly 'AS-IS' and 'AS-AVAILABLE' with zero warranty of accuracy, completeness, or timeliness.",
+            "oracle_execution_risk": "Smart contracts (e.g., Polymarket prediction markets, DeFi liquidity protocols, or DAO treasuries) consuming EIP-712 attestations or ABI calldata execute at their own autonomous risk. CleanWeb Studio and its operators are not liable for smart contract exploits, liquidation events, or financial losses caused by off-chain web misreporting or LLM hallucinations.",
+            "sanctions_compliance": "All transactions are screened against OFAC SDN and international AML sanctions lists. Attempted transactions from sanctioned addresses will be permanently rejected.",
+            "copyright_notice": "Original website text, videos, and papers remain the intellectual property of their respective creators. CleanWeb Studio acts solely as an ephemeral noise-reduction proxy for computational analysis."
+        }
+    }
+
 
 

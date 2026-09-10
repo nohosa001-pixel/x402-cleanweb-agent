@@ -171,6 +171,22 @@ class OnChainCleanWebSigner:
         encoded_message = encode_typed_data(full_message=structured_data)
         signed = self.account.sign_message(encoded_message)
 
+        # Build ABI calldata for Solidity function:
+        # verifyAttestation(string query, bytes32 dataHash, uint256 timestamp, uint8 v, bytes32 r, bytes32 s)
+        w3 = Web3()
+        types = ["string", "bytes32", "uint256", "uint8", "bytes32", "bytes32"]
+        values = [
+            query,
+            hash_bytes,
+            ts,
+            signed.v,
+            bytes.fromhex(hex(signed.r).replace("0x", "").zfill(64)),
+            bytes.fromhex(hex(signed.s).replace("0x", "").zfill(64)),
+        ]
+        func_sig = w3.keccak(text="verifyAttestation(string,bytes32,uint256,uint8,bytes32,bytes32)")[:4]
+        encoded_args = w3.codec.encode(types, values)
+        abi_calldata = "0x" + func_sig.hex() + encoded_args.hex()
+
         return OracleAttestation(
             query=query,
             data_hash=clean_hash,
@@ -181,6 +197,7 @@ class OnChainCleanWebSigner:
             s=hex(signed.s),
             signature="0x" + signed.signature.hex(),
             domain_chain_id=self.chain_id,
+            abi_calldata=abi_calldata,
         )
 
     def verify_oracle_grounding(

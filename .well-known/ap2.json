@@ -38,8 +38,12 @@
       "HEAVY": { "amount_usdc": "0.010", "description": "Gemini AI YouTube audio analysis" },
       "SECURE_YOUTUBE_CLEAN": { "amount_usdc": "0.015", "description": "YouTube AI + Security Gate transcript audit" },
       "ONCHAIN": { "amount_usdc": "0.020", "description": "EIP-712 Signed attestation" },
+      "MAP_SITE": { "amount_usdc": "0.002", "description": "Domain sitemap and URL tree discovery" },
+      "SEARCH": { "amount_usdc": "0.002", "description": "Fast agent web search with verified snippets" },
+      "EXTRACT_JSON": { "amount_usdc": "0.030", "description": "Schema-constrained JSON extractor" },
       "ORACLE_GROUNDING": { "amount_usdc": "0.035", "description": "Web3 Signed Oracle Grounding" },
-      "SECURE_ORACLE_GROUNDING": { "amount_usdc": "0.040", "description": "Oracle Grounding + Dual Security Gate Attestation" }
+      "SECURE_ORACLE_GROUNDING": { "amount_usdc": "0.040", "description": "Oracle Grounding + Dual Security Gate Attestation" },
+      "DEEP_RESEARCH": { "amount_usdc": "0.150", "description": "Multi-source AI deep research briefing" }
     },
     "security_gate_provider": {
       "name": "agent-security-gate-x402",
@@ -49,12 +53,21 @@
   },
   "endpoints": {
     "clean_web": "/api/v1/clean-web",
+    "clean_text": "/api/v1/clean-text",
     "clean_youtube": "/api/v1/clean-youtube",
     "clean_pdf": "/api/v1/clean-pdf",
     "clean_batch": "/api/v1/clean-batch",
+    "map_site": "/api/v1/map-site",
+    "search": "/api/v1/search",
+    "extract_json": "/api/v1/extract-json",
+    "oracle_grounding": "/api/v1/oracle/grounding",
+    "oracle_verify": "/api/v1/oracle/verify",
+    "deep_research": "/api/v1/deep-research",
     "vault_deposit": "/api/v1/vault/deposit",
     "vault_balance": "/api/v1/vault/balance",
     "pass_status": "/api/v1/pass-status",
+    "legal_terms": "/api/v1/legal/terms",
+    "legal_disclaimer": "/api/v1/legal/disclaimer",
     "mcp_tools": "/mcp/tools"
   }
 }

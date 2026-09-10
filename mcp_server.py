@@ -15,6 +15,7 @@ from app.onchain_signer import onchain_signer
 from app.multi_chain import multi_chain_manager
 from app.vault_manager import vault_manager
 from app.storage import storage_manager
+from app.oracle_engine import oracle_engine
 
 load_dotenv(override=True)
 
@@ -54,9 +55,15 @@ def get_payment_info() -> str:
 
 **Pricing Tiers (USDC per call)**:
 - `clean_web_content`: **0.001 USDC** (Markdown web extraction & noise stripping)
+- `clean_text_raw`: **0.001 USDC** (Raw plain text for vector/RAG embeddings)
+- `map_site`: **0.002 USDC** (Domain sitemap & internal URL tree discovery)
+- `search_web_quick`: **0.002 USDC** (Fast real-time agent web search & snippets)
 - `clean_youtube_transcript`: **0.010 USDC** (Gemini AI intelligence & full transcript)
 - `clean_pdf_research`: **0.005 USDC** (PDF papers & whitepapers, up to 100 pages)
 - `clean_batch_scrape`: **0.005 USDC** (Concurrent parallel batch scrape up to 10 URLs)
+- `oracle_grounding`: **0.035 USDC** (Search + Clean-to-JSON + EIP-712 Signed Oracle)
+- `extract_json_schema`: **0.030 USDC** (Webpage to structured JSON schema extractor)
+- `deep_research_topic`: **0.150 USDC** (Multi-source synthesized AI executive briefing)
 - `Pre-funded Vault`: Deposit once, execute queries with zero latency (<1ms)
 """
 
@@ -84,10 +91,14 @@ def clean_web_content(
     auth_token_or_tx: Optional[str] = Field(
         default=None,
         description="Optional x402 micropayment authorization token or EVM transaction hash."
+    ),
+    respect_robots_txt: bool = Field(
+        default=False,
+        description="Whether to enforce target domain robots.txt Disallow rules (compliance-mode)."
     )
 ) -> str:
     try:
-        data = web_cleaner_engine.fetch_and_clean(url)
+        data = web_cleaner_engine.fetch_and_clean(url, respect_robots_txt=respect_robots_txt)
         return f"✅ [CLEAN WEB SUCCESS]\n\n# {data['title']}\n\n{data['markdown_content']}"
     except Exception as e:
         return f"❌ [FETCH ERROR]: {str(e)}"
@@ -218,6 +229,245 @@ def get_vault_balance(
         f"- **Queries Handled**: {acc.get('query_count', 0)}\n"
         f"- **Session Key**: `{acc.get('session_key')}`"
     )
+
+
+@mcp.tool(
+    name="oracle_grounding",
+    description=(
+        "Executes real-time web search, noise-free markdown extraction, Gemini AI JSON structuring, "
+        "and cryptographically signs the result with an on-chain verifiable EIP-712 attestation (0.035 USDC).\n\n"
+        "Usage Guidelines:\n"
+        "- Use this tool when an autonomous agent or smart contract requires verified, tamper-proof ground truth from the live web.\n"
+        "- Returns: Structured facts JSON, human/LLM readable summary markdown, source URLs, and EIP-712 cryptographic signature (v, r, s).\n"
+        "- Smart contracts can verify this off-chain or on-chain using CleanWebOracleVerifier.sol."
+    )
+)
+def oracle_grounding(
+    query: str = Field(
+        ...,
+        description="Search topic or question to ground with live web sources (e.g., 'Latest Fed interest rate decision')."
+    ),
+    target_schema_json: Optional[str] = Field(
+        default=None,
+        description="Optional JSON string defining the expected schema or fields (e.g., '{\"rate\": \"float\", \"date\": \"string\"}')."
+    ),
+    max_sources: int = Field(
+        default=3,
+        ge=1,
+        le=5,
+        description="Number of web sources to synthesize (1 to 5, default: 3)."
+    ),
+    auth_token_or_tx: Optional[str] = Field(
+        default=None,
+        description="Optional x402 micropayment authorization token or EVM transaction hash."
+    )
+) -> str:
+    try:
+        schema_dict = None
+        if target_schema_json:
+            try:
+                import json
+                schema_dict = json.loads(target_schema_json)
+            except Exception:
+                schema_dict = None
+
+        res = oracle_engine.execute_grounding(
+            query=query,
+            target_schema=schema_dict,
+            max_sources=max_sources
+        )
+
+        import json
+        att = res.oracle_attestation
+        return (
+            f"✅ [ORACLE GROUNDING SUCCESS]\n\n"
+            f"### 🔮 Query: {res.query}\n\n"
+            f"{res.summary_markdown}\n\n"
+            f"### 📊 Structured JSON Data\n```json\n{json.dumps(res.structured_data, indent=2, ensure_ascii=False)}\n```\n\n"
+            f"### 🛡️ EIP-712 Cryptographic Attestation\n"
+            f"- **Data Hash**: `{att.data_hash}`\n"
+            f"- **Signer**: `{att.oracle_signer}`\n"
+            f"- **Timestamp**: `{att.timestamp}`\n"
+            f"- **Signature**: `{att.signature}`\n"
+            f"- **ABI Calldata**: `{att.abi_calldata or 'N/A'}`\n"
+            f"- **Sources**: {', '.join(res.source_urls)}"
+        )
+    except Exception as e:
+        return f"❌ [ORACLE ERROR]: {str(e)}"
+
+
+@mcp.tool(
+    name="verify_oracle_attestation",
+    description=(
+        "Verifies an EIP-712 cryptographic attestation produced by CleanWeb Oracle off-chain without consuming gas.\n\n"
+        "Usage Guidelines:\n"
+        "- Use this tool to mathematically verify that data received from CleanWeb Oracle has not been tampered with.\n"
+        "- Returns: Verification status (valid/invalid), recovered signer address, expected oracle address, and message."
+    )
+)
+def verify_oracle_attestation(
+    query: str = Field(..., description="The original query string that was attested."),
+    data_hash: str = Field(..., description="The SHA-256 data hash of the canonical JSON payload (0x...)."),
+    timestamp: int = Field(..., description="The Unix epoch timestamp from the attestation."),
+    signature: str = Field(..., description="The 65-byte hex signature (0x...) from the attestation.")
+) -> str:
+    try:
+        is_valid, recovered = onchain_signer.verify_oracle_grounding(
+            query=query,
+            data_hash=data_hash,
+            timestamp=timestamp,
+            signature=signature
+        )
+        status_icon = "✅ VALID" if is_valid else "❌ INVALID"
+        return (
+            f"🛡️ [ORACLE ATTESTATION VERIFICATION - {status_icon}]\n"
+            f"- **Valid**: {is_valid}\n"
+            f"- **Recovered Signer**: `{recovered}`\n"
+            f"- **Expected Oracle**: `{onchain_signer.signer_address}`\n"
+            f"- **Timestamp**: {timestamp}\n"
+            f"- **Result**: {'Signature matches CleanWeb Master Oracle' if is_valid else 'SIGNATURE MISMATCH / TAMPERED'}"
+        )
+    except Exception as e:
+        return f"❌ [VERIFICATION ERROR]: {str(e)}"
+
+
+@mcp.tool(
+    name="clean_text_raw",
+    description=(
+        "Extracts pure, tag-free plain text optimized for RAG embedding and vector indexing (0.001 USDC).\n\n"
+        "Usage Guidelines:\n"
+        "- Use this tool when ingesting raw webpage text directly into vector databases (Pinecone, Chroma, Qdrant).\n"
+        "- Returns: Page title, word count, clean text, and token metrics."
+    )
+)
+def clean_text_raw(
+    url: str = Field(..., description="The target website URL to extract raw text from."),
+    auth_token_or_tx: Optional[str] = Field(default=None, description="Optional x402 auth token or tx hash.")
+) -> str:
+    try:
+        data = web_cleaner_engine.fetch_plain_text(url)
+        return (
+            f"✅ [RAW TEXT SUCCESS]\n\n"
+            f"# {data['title']}\n"
+            f"> Word Count: {data['word_count']} | URL: {data['url']}\n\n"
+            f"{data['plain_text'][:5000]}"
+        )
+    except Exception as e:
+        return f"❌ [RAW TEXT ERROR]: {str(e)}"
+
+
+@mcp.tool(
+    name="map_site",
+    description=(
+        "Discovers domain sitemap or traverses internal anchor links to return a canonical URL tree (0.002 USDC).\n\n"
+        "Usage Guidelines:\n"
+        "- Use this tool to map an entire website or documentation site before scraping.\n"
+        "- Firecrawl /map equivalent for autonomous web navigation agents.\n"
+        "- Returns: Target URL, domain, total URL count, list of discovered URLs, and sitemap detection status."
+    )
+)
+def map_site(
+    url: str = Field(..., description="Target website domain or URL to map (e.g., 'https://docs.github.com' or 'example.com')."),
+    max_links: int = Field(default=50, ge=5, le=100, description="Maximum internal URLs to discover (default: 50, max: 100)."),
+    auth_token_or_tx: Optional[str] = Field(default=None, description="Optional x402 auth token or tx hash.")
+) -> str:
+    try:
+        data = web_cleaner_engine.map_website(url, max_links=max_links)
+        urls_preview = "\n".join(f"- {u}" for u in data["urls"][:25])
+        remaining = data["total_urls"] - 25
+        more_text = f"\n... and {remaining} more URLs" if remaining > 0 else ""
+        return (
+            f"🗺️ [SITE MAP SUCCESS]\n\n"
+            f"- **Target URL**: {data['url']}\n"
+            f"- **Domain**: `{data['domain']}`\n"
+            f"- **Total URLs Discovered**: {data['total_urls']}\n"
+            f"- **Sitemap.xml Detected**: {data['sitemap_detected']}\n\n"
+            f"### Discovered URL Tree:\n"
+            f"{urls_preview}{more_text}"
+        )
+    except Exception as e:
+        return f"❌ [SITE MAP ERROR]: {str(e)}"
+
+
+@mcp.tool(
+    name="search_web_quick",
+    description=(
+        "Performs fast real-time keyword web search returning titles, links, and text snippets (0.002 USDC).\n\n"
+        "Usage Guidelines:\n"
+        "- Tavily / s.jina.ai competitor designed specifically for LLM autonomous agent retrieval.\n"
+        "- Returns: Concise search result list with title, verified URL, and text snippet."
+    )
+)
+def search_web_quick(
+    query: str = Field(..., description="Search query or keyword for real-time web discovery."),
+    max_results: int = Field(default=5, ge=1, le=10, description="Maximum results to return (default: 5, max: 10)."),
+    auth_token_or_tx: Optional[str] = Field(default=None, description="Optional x402 auth token or tx hash.")
+) -> str:
+    try:
+        results = oracle_engine.quick_search(query, max_results=max_results)
+        items_md = []
+        for i, item in enumerate(results, 1):
+            items_md.append(f"{i}. **[{item['title']}]({item['url']})**\n   > {item['snippet']}")
+        return (
+            f"🔍 [SEARCH SUCCESS]\n\n"
+            f"### Query: `{query}` (Total Results: {len(results)})\n\n"
+            + "\n\n".join(items_md)
+        )
+    except Exception as e:
+        return f"❌ [SEARCH ERROR]: {str(e)}"
+
+
+@mcp.tool(
+    name="extract_json_schema",
+    description=(
+        "Extracts schema-constrained structured JSON data from any webpage using Gemini AI (0.030 USDC).\n\n"
+        "Usage Guidelines:\n"
+        "- Use when an agent needs structured attributes (e.g. pricing, specs, event dates) directly from a URL.\n"
+        "- Returns: Clean JSON dictionary matching the requested schema description."
+    )
+)
+def extract_json_schema(
+    url: str = Field(..., description="Target webpage URL to extract JSON from."),
+    schema_description: str = Field(..., description="Description or format of the fields to extract (e.g., 'price, product_name, in_stock')."),
+    auth_token_or_tx: Optional[str] = Field(default=None, description="Optional x402 auth token or tx hash.")
+) -> str:
+    try:
+        import json
+        extracted = oracle_engine.extract_json_from_webpage(url, schema_description)
+        return (
+            f"📊 [JSON EXTRACTION SUCCESS]\n\n"
+            f"**URL**: {url}\n\n"
+            f"```json\n{json.dumps(extracted, indent=2, ensure_ascii=False)}\n```"
+        )
+    except Exception as e:
+        return f"❌ [JSON EXTRACTION ERROR]: {str(e)}"
+
+
+@mcp.tool(
+    name="deep_research_topic",
+    description=(
+        "Performs multi-source web crawling and AI synthesis to generate an executive research briefing (0.150 USDC).\n\n"
+        "Usage Guidelines:\n"
+        "- Use when an agent needs a comprehensive deep dive into a topic with verified source citations.\n"
+        "- Returns: Full executive briefing markdown with source citations and key takeaways."
+    )
+)
+def deep_research_topic(
+    query: str = Field(..., description="Research topic or complex question to investigate."),
+    max_sources: int = Field(default=3, ge=1, le=5, description="Number of top web sources to synthesize (1 to 5)."),
+    auth_token_or_tx: Optional[str] = Field(default=None, description="Optional x402 auth token or tx hash.")
+) -> str:
+    try:
+        res = oracle_engine.execute_deep_research(query, max_sources=max_sources)
+        sources_list = "\n".join(f"- {s}" for s in res.get("sources", []))
+        return (
+            f"🧠 [DEEP RESEARCH SUCCESS]\n\n"
+            f"### Topic: `{res.get('query', query)}`\n\n"
+            f"{res.get('research_brief_markdown', '')}\n\n"
+            f"### 🌐 Sources Synthesized:\n{sources_list}"
+        )
+    except Exception as e:
+        return f"❌ [DEEP RESEARCH ERROR]: {str(e)}"
 
 
 def main():

@@ -19,7 +19,7 @@ for egg in glob.glob("*.egg-info"):
     print(f"Cleaned {egg}")
 
 # 1. Build Package
-print("\n[1/3] Building Wheel & Source Distribution for v2.5.0...")
+print("\n[1/3] Building Wheel & Source Distribution for v2.5.1...")
 build_res = subprocess.run([sys.executable, "-m", "build"], capture_output=True, text=True, encoding="utf-8")
 if build_res.returncode != 0:
     print("[ERROR] Build failed:")
@@ -56,7 +56,7 @@ cmd = [
     "--verbose"
 ]
 
-print("\n[3/3] Uploading v2.5.0 to PyPI...")
+print("\n[3/3] Uploading v2.5.1 to PyPI...")
 res = subprocess.run(cmd, env=env, capture_output=True, text=True, encoding="utf-8")
 print("Return code:", res.returncode)
 print("Stdout:", res.stdout)

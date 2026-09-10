@@ -48,6 +48,34 @@
     {
       "name": "get_pass_status",
       "description": "Checks the active subscription status, remaining query quota, and validity period for an agent EVM wallet address (0x...) or Lemon Squeezy Pass Token. Returns pass tier, remaining balance, and expiration timestamp. Usage Guidelines: Use to verify micropayment allowance or query entitlements before dispatching heavy scrape batches."
+    },
+    {
+      "name": "oracle_grounding",
+      "description": "Executes real-time web search, noise-free markdown extraction, Gemini AI JSON structuring, and cryptographically signs the result with an on-chain verifiable EIP-712 attestation (0.035 USDC). Returns structured facts JSON, summary markdown, source URLs, and EIP-712 cryptographic signature (v, r, s)."
+    },
+    {
+      "name": "verify_oracle_attestation",
+      "description": "Verifies an EIP-712 cryptographic attestation produced by CleanWeb Oracle off-chain without consuming gas. Returns verification status, recovered signer, and oracle authenticity check."
+    },
+    {
+      "name": "clean_text_raw",
+      "description": "Extracts pure, tag-free plain text optimized for RAG embedding and vector indexing (0.001 USDC). Strips all HTML/markdown artifacts for instant vector ingestion."
+    },
+    {
+      "name": "map_site",
+      "description": "Discovers domain sitemap or internal URL tree of any website (0.002 USDC). Firecrawl /map equivalent for web crawling agents."
+    },
+    {
+      "name": "search_web_quick",
+      "description": "Performs fast real-time keyword web search returning titles, verified URLs, and snippets (0.002 USDC). Tavily equivalent."
+    },
+    {
+      "name": "extract_json_schema",
+      "description": "Extracts schema-constrained structured JSON data from any webpage using Gemini AI (0.030 USDC). Direct structured attribute ingestion."
+    },
+    {
+      "name": "deep_research_topic",
+      "description": "Performs multi-source web crawling and AI synthesis to generate an executive research briefing (0.150 USDC). Deep multi-source intelligence."
     }
   ]
 }
