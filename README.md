@@ -1,9 +1,9 @@
-# ⚡ The Spend Firewall & B2A Autonomous Agent Data Oracle (CleanWeb Studio v2.5.1)
+# ⚡ The Spend Firewall & B2A Autonomous Agent Data Oracle (CleanWeb Studio v2.5.2)
 
 > **"The Spend Firewall for Autonomous Agents: Verified data in. Signed policy out. Every payment auditable on-chain."**  
 > *Zero credit cards. Zero human logins. 100% Native USDC micropayments & pre-funded vaults with on-chain EIP-712 spend policy attestations.*
 
-[![Version](https://img.shields.io/badge/Version-2.5.1-00f2fe?style=for-the-badge&logo=fastapi&logoColor=black)](https://github.com/nohosa001-pixel/x402-cleanweb-agent)
+[![Version](https://img.shields.io/badge/Version-2.5.2-00f2fe?style=for-the-badge&logo=fastapi&logoColor=black)](https://github.com/nohosa001-pixel/x402-cleanweb-agent)
 [![Multi-Chain](https://img.shields.io/badge/Chains-Polygon%20%7C%20Base%20%7C%20Arbitrum-8247e5?style=for-the-badge&logo=ethereum&logoColor=white)](https://polygonscan.com)
 [![PyPI Package](https://img.shields.io/pypi/v/x402-cleanweb-agent.svg?color=blue&label=PyPI%20Package)](https://pypi.org/project/x402-cleanweb-agent/)
 [![Tests](https://img.shields.io/badge/Tests-37%2F37%20Passed%20(100%25)-10b981?style=for-the-badge&logo=pytest&logoColor=white)](https://github.com/nohosa001-pixel/x402-cleanweb-agent)
