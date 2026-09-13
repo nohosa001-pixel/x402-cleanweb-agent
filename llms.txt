@@ -53,6 +53,22 @@ curl -X POST "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/api/v1/clean-w
 
 ---
 
+## 🏛️ Official On-Chain Smart Contracts
+- **Polygon Mainnet (137)**:
+  - AgentPaymentVault: `0x45ecBfAa2F4B0Bc6ccD3eB2dB9B1Ca49CF121861`
+  - CleanWebOracleConsumer: `0xAECbfBc171F522c35985AABa2FA1F9881A046D66`
+  - CleanWebOracleVerifier: `0x18fA451b1d9A9FbbDa6Ebd86F8b42891866ADc46`
+- **Base Mainnet (8453)**:
+  - AgentPaymentVault: `0x28292D76E07E5539F15F3b97935dE8E0432E76DD`
+  - CleanWebOracleConsumer: `0x2394d888Bd4FFeD472318B891FA17f7F9119dabe`
+  - CleanWebOracleVerifier: `0x3eD259e47ebA439A9A35489787482B0003310740`
+- **Arbitrum One (42161)**:
+  - AgentPaymentVault: `0x28292D76E07E5539F15F3b97935dE8E0432E76DD`
+  - CleanWebOracleConsumer: `0x2394d888Bd4FFeD472318B891FA17f7F9119dabe`
+  - CleanWebOracleVerifier: `0x3eD259e47ebA439A9A35489787482B0003310740`
+
+---
+
 ## 🛠️ Service Catalog & Endpoints
 
 | Service | Endpoint | Price (USDC) | Credits | Description |

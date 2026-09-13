@@ -1,9 +1,9 @@
-# ⚡ The Spend Firewall & B2A Autonomous Agent Data Oracle (CleanWeb Studio v2.5.2)
+# ⚡ The Spend Firewall & B2A Autonomous Agent Data Oracle (CleanWeb Studio v2.5.3)
 
 > **"The Spend Firewall for Autonomous Agents: Verified data in. Signed policy out. Every payment auditable on-chain."**  
 > *Zero credit cards. Zero human logins. 100% Native USDC micropayments & pre-funded vaults with on-chain EIP-712 spend policy attestations.*
 
-[![Version](https://img.shields.io/badge/Version-2.5.2-00f2fe?style=for-the-badge&logo=fastapi&logoColor=black)](https://github.com/nohosa001-pixel/x402-cleanweb-agent)
+[![Version](https://img.shields.io/badge/Version-2.5.3-00f2fe?style=for-the-badge&logo=fastapi&logoColor=black)](https://github.com/nohosa001-pixel/x402-cleanweb-agent)
 [![Multi-Chain](https://img.shields.io/badge/Chains-Polygon%20%7C%20Base%20%7C%20Arbitrum-8247e5?style=for-the-badge&logo=ethereum&logoColor=white)](https://polygonscan.com)
 [![PyPI Package](https://img.shields.io/pypi/v/x402-cleanweb-agent.svg?color=blue&label=PyPI%20Package)](https://pypi.org/project/x402-cleanweb-agent/)
 [![Tests](https://img.shields.io/badge/Tests-37%2F37%20Passed%20(100%25)-10b981?style=for-the-badge&logo=pytest&logoColor=white)](https://github.com/nohosa001-pixel/x402-cleanweb-agent)
@@ -69,6 +69,18 @@ require(
     "Tampered or unauthorized oracle data"
 );
 ```
+
+---
+
+## 🏛️ Official On-Chain Smart Contracts (Polygon, Base, Arbitrum)
+
+CleanWeb Studio v2.5.2 deploys verified, deterministic smart contracts for on-chain EIP-712 oracle verification and autonomous agent pre-funded vault management.
+
+| Contract Name | Polygon Mainnet (137) | Base Mainnet (8453) | Arbitrum One (42161) |
+| :--- | :--- | :--- | :--- |
+| **`AgentPaymentVault`** | [`0x45ecBf...1861`](https://polygonscan.com/address/0x45ecBfAa2F4B0Bc6ccD3eB2dB9B1Ca49CF121861) | [`0x28292D...76DD`](https://basescan.org/address/0x28292D76E07E5539F15F3b97935dE8E0432E76DD) | [`0x28292D...76DD`](https://arbiscan.io/address/0x28292D76E07E5539F15F3b97935dE8E0432E76DD) |
+| **`CleanWebOracleConsumer`** | [`0xAECbfB...6D66`](https://polygonscan.com/address/0xAECbfBc171F522c35985AABa2FA1F9881A046D66) | [`0x2394d8...dabe`](https://basescan.org/address/0x2394d888Bd4FFeD472318B891FA17f7F9119dabe) | [`0x2394d8...dabe`](https://arbiscan.io/address/0x2394d888Bd4FFeD472318B891FA17f7F9119dabe) |
+| **`CleanWebOracleVerifier`** | [`0x18fA45...Dc46`](https://polygonscan.com/address/0x18fA451b1d9A9FbbDa6Ebd86F8b42891866ADc46) | [`0x3eD259...0740`](https://basescan.org/address/0x3eD259e47ebA439A9A35489787482B0003310740) | [`0x3eD259...0740`](https://arbiscan.io/address/0x3eD259e47ebA439A9A35489787482B0003310740) |
 
 ---
 

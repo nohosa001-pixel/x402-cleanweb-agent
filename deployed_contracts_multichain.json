@@ -1,0 +1,12 @@
+{
+  "Base Mainnet": {
+    "AgentPaymentVault": "0x28292D76E07E5539F15F3b97935dE8E0432E76DD",
+    "CleanWebOracleConsumer": "0x2394d888Bd4FFeD472318B891FA17f7F9119dabe",
+    "CleanWebOracleVerifier": "0x3eD259e47ebA439A9A35489787482B0003310740"
+  },
+  "Arbitrum One": {
+    "AgentPaymentVault": "0x28292D76E07E5539F15F3b97935dE8E0432E76DD",
+    "CleanWebOracleConsumer": "0x2394d888Bd4FFeD472318B891FA17f7F9119dabe",
+    "CleanWebOracleVerifier": "0x3eD259e47ebA439A9A35489787482B0003310740"
+  }
+}

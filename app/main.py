@@ -62,7 +62,7 @@ load_dotenv()
 app = FastAPI(
     title="CleanWeb Studio (x402 AI Agent Suite)",
     description="Deterministic Web3 x402 Micropayment MCP & AI Agent Tool Suite with Gemini 3.6 Flash Video Intelligence on Polygon, Base, and Arbitrum.",
-    version="2.4.0",
+    version="2.5.3",
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url="/openapi.json"

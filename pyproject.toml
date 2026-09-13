@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "x402-cleanweb-agent"
-version = "2.5.2"
+version = "2.5.3"
 description = "Pure B2A Autonomous Agent Real-Time Data Oracle & x402 Signed Grounding Engine on Polygon, Base, and Arbitrum"
 readme = "README.md"
 requires-python = ">=3.10"

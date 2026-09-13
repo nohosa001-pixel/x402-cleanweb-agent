@@ -109,26 +109,25 @@ def render_dashboard(iteration: int = 1):
     current_time = time.strftime("%Y-%m-%d %H:%M:%S")
 
     print(f"{CYAN}{BOLD}{'=' * 74}{RESET}")
-    print(f"{CYAN}{BOLD} 🚀 Polygon x402 AI Agent Suite — Real-Time Operations Monitor {RESET} {YELLOW}(v2.1.0){RESET}")
+    print(f"{CYAN}{BOLD} 🚀 CleanWeb Studio (x402 Agent) — Multi-Chain Operations Monitor {RESET} {YELLOW}(v2.5.3){RESET}")
     print(f"{CYAN}{BOLD}{'=' * 74}{RESET}")
     print(f" ⏱️  Check Timestamp : {current_time} (Cycle #{iteration})")
     print(f" 🌐 Cloud Run Gateway: {GCP_URL}")
     print(f" 💼 Server Wallet    : {RECIPIENT_WALLET}")
-    print(f" ⛓️  Blockchain       : Polygon Mainnet (PoS Chain ID 137)")
+    print(f" ⛓️  Multi-Chains     : Polygon (137) | Base (8453) | Arbitrum (42161)")
     print(f"{CYAN}{'-' * 74}{RESET}")
 
     # 1. Cloud Run Gateway Status
     if health.get("status_code") == 200:
-        ver = health.get("version", "2.1.0")
-        proto = health.get("protocol", "x402-v2")
+        ver = health.get("version", "2.5.3")
         passes = health.get("active_credit_passes", 0)
-        trials = health.get("free_trials_claimed", 0)
         lat = health.get("latency_ms", 0)
+        chains = health.get("data", {}).get("chains_connected", ["Polygon", "Base", "Arbitrum"])
         
         lat_color = GREEN if lat < 800 else (YELLOW if lat < 2000 else RED)
-        print(f" 🟢 {BOLD}Cloud Run Gateway{RESET} : {GREEN}ONLINE{RESET} ({lat_color}{lat}ms{RESET}, Rev v{ver}, Proto: {proto})")
+        print(f" 🟢 {BOLD}Cloud Run Gateway{RESET} : {GREEN}ONLINE{RESET} ({lat_color}{lat}ms{RESET}, Release v{ver})")
         print(f"    ├─ 🎟️  Active Credit Passes : {BOLD}{passes}{RESET} active passes")
-        print(f"    └─ 🎁 Free Onboarding Nonces: {BOLD}{trials}{RESET} agents claimed")
+        print(f"    └─ 🔗 Active Multi-Chains  : {GREEN}{', '.join(chains)}{RESET}")
     else:
         err = health.get("error") or f"HTTP {health.get('status_code')}"
         print(f" 🔴 {BOLD}Cloud Run Gateway{RESET} : {RED}OFFLINE / ERROR ({err}){RESET}")
@@ -140,9 +139,7 @@ def render_dashboard(iteration: int = 1):
         rpc_lat = balances["rpc_latency_ms"]
 
         gas_warning = ""
-        if pol_val < 0.005:
-            gas_warning = f" {RED}[⚠️ LOW GAS WARNING: Top up POL]{RESET}"
-        elif pol_val < 0.02:
+        if pol_val < 0.05:
             gas_warning = f" {YELLOW}[⚠️ Moderate Gas]{RESET}"
 
         print(f" ⚡ {BOLD}Polygon RPC Node{RESET}  : {GREEN}CONNECTED{RESET} ({rpc_lat}ms via {POLYGON_RPC.split('/')[2]})")
@@ -150,6 +147,13 @@ def render_dashboard(iteration: int = 1):
         print(f" ⛽ {BOLD}Server Gas (POL){RESET}  : {BOLD}{pol_val:.4f} POL{RESET}{gas_warning}")
     else:
         print(f" ⚠️  {BOLD}On-Chain Status{RESET}   : {YELLOW}RPC Failed ({balances.get('error')}){RESET}")
+
+    # 3. Smart Contracts Directory
+    print(f"{CYAN}{'-' * 74}{RESET}")
+    print(f" 🏛️  {BOLD}Deployed Multi-Chain Smart Contracts:{RESET}")
+    print(f"    ├─ 🟣 Polygon  : Verifier {BOLD}0x18fA...Dc46{RESET} | Vault {BOLD}0x45ec...1861{RESET}")
+    print(f"    ├─ 🔵 Base     : Verifier {BOLD}0x3eD2...0740{RESET} | Vault {BOLD}0x2829...76DD{RESET}")
+    print(f"    └─ 🔷 Arbitrum : Verifier {BOLD}0x3eD2...0740{RESET} | Vault {BOLD}0x2829...76DD{RESET}")
 
     # 3. Economic Arbitrage & AI Efficiency ROI
     if arbitrage:
