@@ -416,7 +416,9 @@ class AutonomousX402Agent:
         data_hash: str,
         timestamp: int,
         signature: str,
-        expected_signer: Optional[str] = None
+        expected_signer: Optional[str] = None,
+        contract_address: Optional[str] = None,
+        chain_id: Optional[int] = None
     ) -> Dict[str, Any]:
         """
         [Zero-Cost Local EIP-712 Verification]
@@ -426,6 +428,12 @@ class AutonomousX402Agent:
             from eth_account.messages import encode_typed_data
             clean_hash = ("0x" + data_hash) if not data_hash.startswith("0x") else data_hash
             hash_bytes = bytes.fromhex(clean_hash.replace("0x", "").zfill(64))
+
+            target_chain_id = int(chain_id or os.getenv("POLYGON_CHAIN_ID", os.getenv("CHAIN_ID", "137")))
+            target_contract = contract_address or os.getenv(
+                "CLEANWEB_ORACLE_CONTRACT_ADDRESS",
+                "0xAECbfBc171F522c35985AABa2FA1F9881A046D66"
+            )
 
             structured_data = {
                 "types": {
@@ -445,8 +453,8 @@ class AutonomousX402Agent:
                 "domain": {
                     "name": "CleanWebOracle",
                     "version": "1.0.0",
-                    "chainId": 137,
-                    "verifyingContract": Web3.to_checksum_address("0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7"),
+                    "chainId": target_chain_id,
+                    "verifyingContract": Web3.to_checksum_address(target_contract),
                 },
                 "message": {
                     "query": query,

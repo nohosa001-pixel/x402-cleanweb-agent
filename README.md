@@ -1,24 +1,30 @@
-# ⚡ The Spend Firewall & B2A Autonomous Agent Data Oracle (CleanWeb Studio v2.5.3)
+# ⚡ CleanWeb Studio & Spend Firewall (v2.5.3)
 
-> **"The Spend Firewall for Autonomous Agents: Verified data in. Signed policy out. Every payment auditable on-chain."**  
-> *Zero credit cards. Zero human logins. 100% Native USDC micropayments & pre-funded vaults with on-chain EIP-712 spend policy attestations.*
+> **"Clean, Ad-Free Web Content & Verified On-Chain Data Oracle for Humans & Autonomous Agents."**  
+> *Zero credit cards required. Transparent pay-as-you-go Native USDC micropayments & pre-funded vaults with on-chain Polygon EIP-712 spend policy attestations.*
 
 [![Version](https://img.shields.io/badge/Version-2.5.3-00f2fe?style=for-the-badge&logo=fastapi&logoColor=black)](https://github.com/nohosa001-pixel/x402-cleanweb-agent)
-[![Multi-Chain](https://img.shields.io/badge/Chains-Polygon%20%7C%20Base%20%7C%20Arbitrum-8247e5?style=for-the-badge&logo=ethereum&logoColor=white)](https://polygonscan.com)
-[![PyPI Package](https://img.shields.io/pypi/v/x402-cleanweb-agent.svg?color=blue&label=PyPI%20Package)](https://pypi.org/project/x402-cleanweb-agent/)
-[![Tests](https://img.shields.io/badge/Tests-37%2F37%20Passed%20(100%25)-10b981?style=for-the-badge&logo=pytest&logoColor=white)](https://github.com/nohosa001-pixel/x402-cleanweb-agent)
+[![Multi-Chain](https://img.shields.io/badge/Chains-Polygon%20(Verified)%20%7C%20Base%20%7C%20Arbitrum-8247e5?style=for-the-badge&logo=ethereum&logoColor=white)](https://polygonscan.com/address/0x45ecBfAa2F4B0Bc6ccD3eB2dB9B1Ca49CF121861#code)
+[![Access](https://img.shields.io/badge/Access-Humans%20%26%20AI%20Agents-10b981?style=for-the-badge&logo=probot&logoColor=white)](http://localhost:8080/dashboard)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ---
 
-## 🚀 Why CleanWeb Studio for Autonomous AI Agents?
+## 🚀 Why CleanWeb Studio?
 
-Autonomous AI Agents (LangChain, CrewAI, AutoGPT, DeFi trading bots) face three critical bottlenecks when accessing web knowledge:
-1. **Paywall & Anti-Bot Friction**: Agents cannot solve Cloudflare turnstiles or register credit cards.
-2. **LLM Context Token Waste**: Raw HTML is 95% garbage (ads, scripts, cookie banners) that drains inference budgets.
-3. **Lack of Verifiable Truth (On-Chain Grounding)**: Smart contracts on Polymarket, Hyperliquid, or DeFi cannot verify whether off-chain web data has been tampered with.
+Whether you are a **human researcher** who wants ad-free, high-density web reading, or an **autonomous AI agent** (LangChain, CrewAI, AutoGPT, trading bots) building RAG knowledge:
+1. **Paywall & Anti-Bot Friction**: No need for recurring monthly credit card subscriptions. Pay only for what you consume via pre-funded Native USDC.
+2. **Context Token & Attention Waste**: Raw HTML is 95% garbage (ads, trackers, cookie modals) that clutters your screen or exhausts LLM context windows.
+3. **Verifiable Truth (On-Chain Grounding)**: Every extraction can be cryptographically anchored with an on-chain EIP-712 digital signature verifiable on Polygon.
 
-**CleanWeb Studio v2.5.0 solves all three in a single HTTP call.**
+---
+
+## 🖥️ Interactive Web Studio Dashboard
+
+Access the live human-friendly web interface at:
+* **Web Dashboard**: `http://localhost:8080/dashboard`
+* **Interactive API Docs**: `http://localhost:8080/docs`
+* **Health & Diagnostics**: `http://localhost:8080/health?deep=true`
 
 ---
 
@@ -74,7 +80,7 @@ require(
 
 ## 🏛️ Official On-Chain Smart Contracts (Polygon, Base, Arbitrum)
 
-CleanWeb Studio v2.5.2 deploys verified, deterministic smart contracts for on-chain EIP-712 oracle verification and autonomous agent pre-funded vault management.
+CleanWeb Studio v2.5.3 deploys verified, deterministic smart contracts for on-chain EIP-712 oracle verification and autonomous agent pre-funded vault management.
 
 | Contract Name | Polygon Mainnet (137) | Base Mainnet (8453) | Arbitrum One (42161) |
 | :--- | :--- | :--- | :--- |

@@ -140,7 +140,7 @@ class X402Verifier:
 
         return PaymentChallenge(
             protocol="B2A_USDC_M2M",
-            instructions="Strictly Autonomous AI Agents Only (Humans Blocked). Use X-Vault-Key (<1ms zero-gas) or submit on-chain USDC transfer tx hash via X-Payment-Tx.",
+            instructions="Open for Autonomous AI Agents and Human Users (Pay-As-You-Go). Use X-Vault-Key (<1ms zero-gas) or submit on-chain USDC transfer tx hash.",
             chain="polygon",
             chain_id=137,
             recipient_wallet=self.recipient_wallet,
@@ -151,7 +151,7 @@ class X402Verifier:
                 "USDC_ONCHAIN_POLYGON",     # Native USDC on Polygon (137)
                 "USDC_ONCHAIN_BASE",        # Native USDC on Base (8453)
                 "USDC_ONCHAIN_ARBITRUM",    # Native USDC on Arbitrum (42161)
-                "SANDBOX_FREE_TRIAL"        # 2 free trials for agent onboarding
+                "SANDBOX_FREE_TRIAL"        # 2 free trials for onboarding
             ],
             pass_options={
                 "agent_vault_min_deposit": "2.0 USDC",
@@ -182,7 +182,7 @@ class X402Verifier:
             "X-Payment-Token": "USDC",
             "X-Payment-Networks": "Polygon(137), Base(8453), Arbitrum(42161)",
             "X-Vault-Deposit-Endpoint": "/api/v1/vault/deposit",
-            "X-Human-Policy": "BLOCKED_AGENTS_ONLY",
+            "X-Access-Policy": "OPEN_TO_HUMANS_AND_AGENTS",
         }
 
         body = {
@@ -190,9 +190,9 @@ class X402Verifier:
             "status_code": 402,
             "x402Version": 1,
             "protocol": "B2A_USDC_M2M",
-            "audience": "AUTONOMOUS_AGENTS_ONLY",
-            "human_policy": "HUMANS_100%_BLOCKED",
-            "instructions": "Autonomous Agent Protocol: Deposit 2.0+ USDC to Agent Vault or transfer USDC on Polygon/Base/Arbitrum.",
+            "audience": "HUMANS_AND_AUTONOMOUS_AGENTS",
+            "access_policy": "OPEN_TO_ALL (Pay-As-You-Go via Pre-funded USDC Vault)",
+            "instructions": "Pay-as-you-go micropayment protocol: Use pre-funded vault balance or deposit 2.0+ USDC on Polygon/Base/Arbitrum.",
             "tier_required": tier.value,
             "message": custom_detail or f"HTTP 402 Payment Required: {cfg['description']} ({cfg['cost_usdc']} USDC)",
             "required_usdc": f"{cfg['cost_usdc']:.4f}",

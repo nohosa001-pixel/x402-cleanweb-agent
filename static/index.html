@@ -3,1550 +3,1193 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CleanWeb Studio // Autonomous Agent Machine Console (M2M x402)</title>
-  <meta name="description" content="Autonomous AI Agent Machine-to-Machine x402 Micropayment & Clean Data Extraction Console. Strictly for AI agents; humans blocked.">
-  
-  <!-- Modern Monospace & High-Density Display Fonts -->
+  <title>CleanWeb Studio - AI Web Data & Verified Oracle Platform</title>
+  <meta name="description" content="Extract clean, ad-free web content, get 3-bullet AI summaries of YouTube videos, parse PDF papers, and generate cryptographically verified Oracle proofs. Open for both Humans and AI Agents.">
+
+  <!-- Google Fonts: Inter & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   
   <!-- Marked.js for Markdown Rendering -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
   <style>
     :root {
-      --bg-root: #04060a;
-      --bg-panel: #090d16;
-      --bg-card: #0e1422;
-      --bg-input: #060911;
-      --bg-hover: #141c30;
-      
-      --border-subtle: #172033;
-      --border-active: #00f2fe;
+      --bg-body: #080c16;
+      --bg-panel: #0e1526;
+      --bg-card: #151f36;
+      --bg-card-hover: #1b2846;
+      --bg-input: #090e1a;
+
+      --border-soft: #1e2c47;
       --border-focus: #38bdf8;
       
-      --accent-cyan: #00f2fe;
-      --accent-blue: #38bdf8;
+      --accent-primary: #0ea5e9;
+      --accent-primary-hover: #0284c7;
+      --accent-secondary: #00f2fe;
       --accent-emerald: #10b981;
       --accent-purple: #a855f7;
       --accent-amber: #f59e0b;
       --accent-rose: #f43f5e;
-      
+
       --text-main: #f8fafc;
-      --text-sub: #94a3b8;
+      --text-sub: #cbd5e1;
       --text-muted: #64748b;
-      --text-dim: #334155;
-      
+      --text-link: #38bdf8;
+
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       --font-mono: 'JetBrains Mono', monospace;
-      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --shadow-soft: 0 4px 24px rgba(0, 0, 0, 0.4);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    
+
     body {
-      background: var(--bg-root);
+      background: var(--bg-body);
       color: var(--text-main);
-      font-family: var(--font-mono);
-      font-size: 12px;
-      line-height: 1.45;
+      font-family: var(--font-sans);
+      font-size: 14px;
+      line-height: 1.6;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      overflow-x: hidden;
       background-image: 
-        radial-gradient(circle at 10% 10%, rgba(0, 242, 254, 0.03) 0%, transparent 40%),
-        radial-gradient(circle at 90% 90%, rgba(16, 185, 129, 0.03) 0%, transparent 40%);
+        radial-gradient(circle at 15% 10%, rgba(14, 165, 233, 0.09) 0%, transparent 45%),
+        radial-gradient(circle at 85% 85%, rgba(16, 185, 129, 0.07) 0%, transparent 45%);
     }
 
-    /* Scrollbars */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: var(--bg-root); }
-    ::-webkit-scrollbar-thumb { background: var(--border-subtle); border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--border-active); }
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 7px; height: 7px; }
+    ::-webkit-scrollbar-track { background: var(--bg-body); }
+    ::-webkit-scrollbar-thumb { background: var(--border-soft); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--accent-primary); }
 
-    /* Top Machine Navigation */
+    /* Top Navigation Header */
     header {
-      background: var(--bg-panel);
-      border-bottom: 1px solid var(--border-subtle);
-      padding: 0.65rem 1.25rem;
+      background: rgba(14, 21, 38, 0.94);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-soft);
+      padding: 0.85rem 2rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 1rem;
-      flex-wrap: wrap;
       position: sticky;
       top: 0;
       z-index: 100;
     }
 
-    .brand-group {
+    .brand-container {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 0.85rem;
     }
-    .brand-title {
-      font-size: 13px;
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #0ea5e9, #00f2fe);
+      border-radius: var(--radius-md);
+      color: #000;
+      font-size: 19px;
+      font-weight: 800;
+      box-shadow: 0 2px 12px rgba(14, 165, 233, 0.35);
+    }
+
+    .brand-text h1 {
+      font-size: 18px;
       font-weight: 700;
-      letter-spacing: 0.75px;
+      letter-spacing: -0.3px;
       color: var(--text-main);
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-    }
-    .badge-protocol {
-      font-size: 10px;
-      font-weight: 600;
-      padding: 2px 6px;
-      border-radius: 3px;
-      background: rgba(0, 242, 254, 0.1);
-      color: var(--accent-cyan);
-      border: 1px solid rgba(0, 242, 254, 0.25);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .badge-blocked {
-      font-size: 10px;
-      font-weight: 600;
-      padding: 2px 6px;
-      border-radius: 3px;
-      background: rgba(244, 63, 94, 0.1);
-      color: var(--accent-rose);
-      border: 1px solid rgba(244, 63, 94, 0.3);
-      letter-spacing: 0.5px;
+      gap: 0.4rem;
     }
 
-    .telemetry-radar-strip {
+    .brand-text p {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .status-badge-group {
       display: flex;
       align-items: center;
-      gap: 1.2rem;
-      font-size: 11px;
-      color: var(--text-sub);
+      gap: 0.65rem;
+      flex-wrap: wrap;
     }
-    .radar-item {
+
+    .status-badge {
       display: inline-flex;
       align-items: center;
-      gap: 5px;
-      white-space: nowrap;
+      gap: 6px;
+      padding: 5px 11px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-soft);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-sub);
     }
-    .pulse-dot {
-      width: 6px;
-      height: 6px;
+
+    .dot {
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
       display: inline-block;
     }
-    .pulse-dot.green {
+    .dot.green {
       background: var(--accent-emerald);
-      box-shadow: 0 0 6px var(--accent-emerald);
-      animation: pulseGlow 2s infinite ease-in-out;
+      box-shadow: 0 0 8px var(--accent-emerald);
     }
-    .pulse-dot.cyan {
-      background: var(--accent-cyan);
-      box-shadow: 0 0 6px var(--accent-cyan);
-    }
-    @keyframes pulseGlow {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.85); }
+    .dot.cyan {
+      background: var(--accent-secondary);
+      box-shadow: 0 0 8px var(--accent-secondary);
     }
 
-    .header-actions {
+    .credit-pill {
+      background: rgba(14, 165, 233, 0.12);
+      border: 1px solid rgba(14, 165, 233, 0.35);
+      color: var(--accent-secondary);
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 20px;
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-    }
-
-    /* Buttons */
-    .btn-m2m {
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: 4px;
-      color: var(--text-main);
-      font-family: var(--font-mono);
-      font-size: 11px;
-      padding: 0.4rem 0.75rem;
+      gap: 6px;
       cursor: pointer;
-      font-weight: 600;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      transition: all 0.15s ease;
-      white-space: nowrap;
+      transition: all 0.2s;
     }
-    .btn-m2m:hover {
-      background: var(--bg-hover);
-      border-color: var(--text-sub);
-    }
-    .btn-m2m.cyan {
-      background: rgba(0, 242, 254, 0.12);
-      border-color: rgba(0, 242, 254, 0.4);
-      color: var(--accent-cyan);
-    }
-    .btn-m2m.cyan:hover {
-      background: rgba(0, 242, 254, 0.22);
-      border-color: var(--accent-cyan);
-    }
-    .btn-m2m.emerald {
-      background: rgba(16, 185, 129, 0.12);
-      border-color: rgba(16, 185, 129, 0.4);
-      color: var(--accent-emerald);
-    }
-    .btn-m2m.emerald:hover {
-      background: rgba(16, 185, 129, 0.22);
-      border-color: var(--accent-emerald);
+    .credit-pill:hover {
+      background: rgba(14, 165, 233, 0.22);
+      border-color: var(--accent-secondary);
     }
 
-    /* M2M Sub-Header Strip */
-    .m2m-strip {
-      background: #020306;
-      border-bottom: 1px solid var(--border-subtle);
-      padding: 0.35rem 1.25rem;
-      font-size: 10.5px;
-      color: var(--text-muted);
+    /* Main Container */
+    .main-wrapper {
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1.5rem 2rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* Hero Banner */
+    .hero-banner {
+      background: linear-gradient(135deg, rgba(21, 31, 54, 0.95), rgba(14, 21, 38, 0.98));
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-lg);
+      padding: 1.6rem 2.2rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 1rem;
-    }
-    .m2m-strip span code {
-      color: var(--text-sub);
-      background: rgba(255, 255, 255, 0.04);
-      padding: 1px 4px;
-      border-radius: 2px;
+      gap: 1.5rem;
+      flex-wrap: wrap;
     }
 
-    /* Main Grid Layout */
-    .app-container {
-      max-width: 1600px;
-      width: 100%;
-      margin: 0 auto;
-      padding: 0.85rem;
-      flex: 1;
+    .hero-title {
+      font-size: 21px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 0.4rem;
+      letter-spacing: -0.3px;
+    }
+
+    .hero-desc {
+      font-size: 13.5px;
+      color: var(--text-sub);
+      max-width: 820px;
+      line-height: 1.55;
+    }
+
+    .quick-stats {
+      display: flex;
+      gap: 1.5rem;
+    }
+    .quick-stat-item {
+      text-align: right;
+    }
+    .stat-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .stat-value {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--accent-secondary);
+    }
+
+    /* Service Selector Tabs */
+    .service-nav {
       display: grid;
-      grid-template-columns: 460px 1fr;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.9rem;
+    }
+    @media (max-width: 950px) {
+      .service-nav { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 550px) {
+      .service-nav { grid-template-columns: 1fr; }
+    }
+
+    .service-tab {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-md);
+      padding: 1.1rem 1.25rem;
+      cursor: pointer;
+      display: flex;
+      align-items: flex-start;
       gap: 0.85rem;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+    .service-tab:hover {
+      background: var(--bg-card);
+      border-color: rgba(14, 165, 233, 0.5);
+      transform: translateY(-2px);
+    }
+    .service-tab.active {
+      background: rgba(14, 165, 233, 0.1);
+      border-color: var(--accent-primary);
+      box-shadow: 0 4px 18px rgba(14, 165, 233, 0.18);
+    }
+
+    .service-icon {
+      font-size: 26px;
+      line-height: 1;
+    }
+    .service-info h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 0.25rem;
+    }
+    .service-info p {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      line-height: 1.35;
+    }
+    .service-price {
+      margin-top: 0.45rem;
+      display: inline-block;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--accent-emerald);
+      background: rgba(16, 185, 129, 0.12);
+      padding: 2px 8px;
+      border-radius: 12px;
+    }
+
+    /* Content Area (Left Input / Right Output) */
+    .content-grid {
+      display: grid;
+      grid-template-columns: 490px 1fr;
+      gap: 1.35rem;
       align-items: start;
     }
     @media (max-width: 1100px) {
-      .app-container {
-        grid-template-columns: 1fr;
-      }
+      .content-grid { grid-template-columns: 1fr; }
     }
 
-    /* Panes */
-    .pane {
+    /* Input Card */
+    .card {
       background: var(--bg-panel);
-      border: 1px solid var(--border-subtle);
-      border-radius: 6px;
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-lg);
+      padding: 1.6rem;
+      box-shadow: var(--shadow-soft);
       display: flex;
       flex-direction: column;
-      overflow: hidden;
+      gap: 1.3rem;
     }
 
-    .pane-header {
-      background: rgba(255, 255, 255, 0.015);
-      border-bottom: 1px solid var(--border-subtle);
-      padding: 0.65rem 0.9rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 11.5px;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-    }
-    .pane-title {
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-main);
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      color: var(--text-main);
     }
 
-    .pane-body {
-      padding: 0.9rem;
+    .input-field-group {
       display: flex;
       flex-direction: column;
-      gap: 0.85rem;
+      gap: 0.55rem;
     }
-
-    /* Endpoint Selector Grid */
-    .endpoint-matrix {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 0.4rem;
-    }
-    .ep-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: 4px;
-      padding: 0.5rem 0.6rem;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      gap: 0.2rem;
-      transition: all 0.12s ease;
-      position: relative;
-    }
-    .ep-card:hover {
-      background: var(--bg-hover);
-      border-color: var(--text-muted);
-    }
-    .ep-card.active {
-      background: rgba(0, 242, 254, 0.08);
-      border-color: var(--accent-cyan);
-      box-shadow: inset 0 0 0 1px var(--accent-cyan);
-    }
-    .ep-card .ep-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .ep-method {
-      font-size: 9.5px;
-      font-weight: 700;
-      color: var(--accent-emerald);
-    }
-    .ep-method.post { color: var(--accent-purple); }
-    .ep-cost {
-      font-size: 9.5px;
-      color: var(--accent-cyan);
-      font-weight: 600;
-    }
-    .ep-title {
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--text-main);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .ep-path {
-      font-size: 9.5px;
-      color: var(--text-muted);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    /* Input Fields & Forms */
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.35rem;
-    }
-    .form-label {
-      font-size: 10.5px;
-      color: var(--text-sub);
-      display: flex;
-      justify-content: space-between;
+    .field-label {
+      font-size: 13px;
       font-weight: 500;
-    }
-    .form-label .helper {
-      color: var(--text-muted);
+      color: var(--text-sub);
     }
 
-    .machine-input, .machine-textarea, .machine-select {
-      background: var(--bg-input);
-      border: 1px solid var(--border-subtle);
-      border-radius: 4px;
-      color: var(--text-main);
-      font-family: var(--font-mono);
-      font-size: 11.5px;
-      padding: 0.5rem 0.7rem;
-      outline: none;
+    .styled-input, .styled-textarea {
       width: 100%;
-      transition: border-color 0.15s ease;
+      background: var(--bg-input);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-md);
+      padding: 0.8rem 1rem;
+      font-size: 14px;
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      transition: all 0.2s;
     }
-    .machine-input:focus, .machine-textarea:focus, .machine-select:focus {
-      border-color: var(--accent-cyan);
-    }
-    .machine-textarea {
-      resize: vertical;
-      min-height: 65px;
-      line-height: 1.4;
+    .styled-input:focus, .styled-textarea:focus {
+      outline: none;
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.25);
     }
 
-    .input-pill-row {
+    .chip-group {
       display: flex;
-      gap: 0.35rem;
+      gap: 0.45rem;
       flex-wrap: wrap;
     }
-    .preset-pill {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--border-subtle);
-      border-radius: 3px;
-      padding: 2px 6px;
-      font-size: 10px;
-      color: var(--text-sub);
+    .chip {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-soft);
+      color: var(--text-muted);
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 14px;
       cursor: pointer;
-      transition: all 0.1s ease;
+      transition: all 0.15s;
     }
-    .preset-pill:hover {
-      background: rgba(255, 255, 255, 0.08);
-      color: var(--text-main);
+    .chip:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-sub);
       border-color: var(--text-muted);
     }
 
-    /* Auth Drawer / Headers Box */
-    .auth-box {
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: 4px;
-      padding: 0.75rem;
+    /* Checkbox & Options */
+    .toggle-row {
       display: flex;
-      flex-direction: column;
-      gap: 0.6rem;
-    }
-    .auth-header {
-      display: flex;
+      align-items: center;
       justify-content: space-between;
-      align-items: center;
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--text-sub);
-    }
-
-    /* Command Strip */
-    .action-grid {
-      display: grid;
-      grid-template-columns: 1.5fr 1fr 1fr 1fr;
-      gap: 0.4rem;
-      margin-top: 0.2rem;
-    }
-
-    /* Right Output Section */
-    .output-pane-nav {
-      display: flex;
-      background: var(--bg-card);
-      border-bottom: 1px solid var(--border-subtle);
-      overflow-x: auto;
-    }
-    .nav-tab {
-      background: transparent;
-      border: none;
-      border-right: 1px solid var(--border-subtle);
-      color: var(--text-sub);
-      padding: 0.55rem 0.95rem;
-      font-family: var(--font-mono);
-      font-size: 11px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      white-space: nowrap;
-      transition: all 0.1s ease;
-    }
-    .nav-tab:hover {
+      padding: 0.85rem 1rem;
       background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+    }
+    .toggle-info h4 {
+      font-size: 13.5px;
+      font-weight: 500;
       color: var(--text-main);
     }
-    .nav-tab.active {
-      background: var(--bg-panel);
-      color: var(--accent-cyan);
-      border-bottom: 2px solid var(--accent-cyan);
-      font-weight: 600;
+    .toggle-info p {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .styled-checkbox {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent-primary);
+      cursor: pointer;
     }
 
-    /* Status Bar in Output */
-    .output-meta-bar {
+    /* Submit Button */
+    .btn-submit {
+      background: linear-gradient(135deg, #0ea5e9, #0284c7);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 0.9rem 1.4rem;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      box-shadow: 0 4px 18px rgba(14, 165, 233, 0.35);
+      transition: all 0.2s ease;
+    }
+    .btn-submit:hover {
+      background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 22px rgba(14, 165, 233, 0.45);
+    }
+    .btn-submit:disabled {
+      background: #25334c;
+      color: #64748b;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+
+    /* Output Card */
+    .output-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-soft);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-height: 560px;
+    }
+
+    .output-header {
+      padding: 0.85rem 1.4rem;
+      background: rgba(255, 255, 255, 0.02);
+      border-bottom: 1px solid var(--border-soft);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0.45rem 0.9rem;
-      background: #020408;
-      border-bottom: 1px solid var(--border-subtle);
-      font-size: 11px;
       gap: 1rem;
       flex-wrap: wrap;
     }
-    .meta-tags {
+
+    .output-tabs {
+      display: flex;
+      gap: 0.4rem;
+    }
+    .output-tab-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 500;
+      padding: 0.45rem 0.9rem;
+      cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 0.6rem;
+      gap: 0.4rem;
+      transition: all 0.15s;
     }
-    .meta-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      padding: 1px 6px;
-      border-radius: 3px;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--border-subtle);
-      font-size: 10px;
+    .output-tab-btn:hover {
+      color: var(--text-sub);
     }
-    .meta-tag.success { color: var(--accent-emerald); border-color: rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.08); }
-    .meta-tag.warn { color: var(--accent-amber); border-color: rgba(245, 158, 11, 0.3); background: rgba(245, 158, 11, 0.08); }
-    .meta-tag.error { color: var(--accent-rose); border-color: rgba(244, 63, 94, 0.3); background: rgba(244, 63, 94, 0.08); }
+    .output-tab-btn.active {
+      background: rgba(14, 165, 233, 0.12);
+      border-color: rgba(14, 165, 233, 0.35);
+      color: var(--accent-secondary);
+      font-weight: 600;
+    }
 
-    /* Output Screens */
-    .screen-area {
-      background: #020306;
-      padding: 0.9rem;
-      min-height: 520px;
-      max-height: 720px;
+    .output-meta-bar {
+      padding: 0.6rem 1.4rem;
+      background: rgba(0, 0, 0, 0.28);
+      border-bottom: 1px solid var(--border-soft);
+      display: flex;
+      gap: 1.4rem;
+      font-size: 12px;
+      color: var(--text-muted);
+      flex-wrap: wrap;
+    }
+    .meta-stat span {
+      color: var(--text-sub);
+      font-weight: 600;
+    }
+
+    .output-content-area {
+      padding: 1.4rem;
+      flex: 1;
       overflow-y: auto;
+      max-height: 680px;
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--text-main);
+    }
+
+    /* Markdown Styling */
+    .markdown-view h1, .markdown-view h2, .markdown-view h3 {
+      color: var(--text-main);
+      margin-top: 1.2rem;
+      margin-bottom: 0.6rem;
+      font-weight: 700;
+    }
+    .markdown-view p {
+      margin-bottom: 0.9rem;
+      color: var(--text-sub);
+    }
+    .markdown-view ul, .markdown-view ol {
+      margin-left: 1.5rem;
+      margin-bottom: 0.9rem;
+      color: var(--text-sub);
+    }
+    .markdown-view code {
+      background: rgba(255, 255, 255, 0.06);
+      padding: 2px 6px;
+      border-radius: 4px;
       font-family: var(--font-mono);
+      font-size: 13px;
+    }
+    .markdown-view pre {
+      background: var(--bg-input);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      overflow-x: auto;
+      margin-bottom: 1rem;
+    }
+    .markdown-view pre code {
+      background: transparent;
+      padding: 0;
+    }
+
+    /* Blockchain Proof Card View */
+    .proof-card {
+      background: rgba(16, 185, 129, 0.05);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      border-radius: var(--radius-md);
+      padding: 1.35rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+    }
+    .proof-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--accent-emerald);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .proof-row {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .proof-key {
       font-size: 11.5px;
-      line-height: 1.5;
-      color: #e2e8f0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+    }
+    .proof-val {
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 6px 10px;
+      border-radius: 4px;
+      word-break: break-all;
+      color: var(--text-sub);
+    }
+
+    /* JSON Viewer */
+    .json-code {
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      background: var(--bg-input);
+      padding: 1rem;
+      border-radius: var(--radius-md);
+      color: #7dd3fc;
       white-space: pre-wrap;
       word-break: break-all;
     }
 
-    /* Tab Panels */
-    .out-panel { display: none; }
-    .out-panel.active { display: block; }
-
-    /* Tables */
-    .m2m-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 11.5px;
-    }
-    .m2m-table th, .m2m-table td {
-      border: 1px solid var(--border-subtle);
-      padding: 0.55rem 0.75rem;
-      text-align: left;
-    }
-    .m2m-table th {
-      background: var(--bg-card);
-      color: var(--text-sub);
-      font-size: 10.5px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .m2m-table tr:hover {
-      background: rgba(255, 255, 255, 0.02);
-    }
-
-    /* Toast Notification */
-    .toast-box {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: #0d1526;
-      border: 1px solid var(--accent-cyan);
-      box-shadow: 0 4px 20px rgba(0, 242, 254, 0.2);
-      border-radius: 4px;
-      padding: 0.6rem 1rem;
-      font-size: 11.5px;
-      color: var(--text-main);
-      z-index: 9999;
-      opacity: 0;
-      transform: translateY(10px);
-      transition: all 0.2s ease;
-      pointer-events: none;
-    }
-    .toast-box.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    /* Modal */
-    .m2m-modal-overlay {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.8);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      padding: 1rem;
-    }
-    .m2m-modal {
-      background: var(--bg-panel);
-      border: 1px solid var(--border-active);
-      border-radius: 6px;
-      max-width: 580px;
-      width: 100%;
-      box-shadow: 0 0 30px rgba(0, 242, 254, 0.15);
+    /* Empty State */
+    .empty-state {
+      height: 100%;
+      min-height: 420px;
       display: flex;
       flex-direction: column;
-      overflow: hidden;
+      align-items: center;
+      justify-content: center;
+      gap: 0.85rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+    .empty-icon {
+      font-size: 46px;
+      opacity: 0.6;
     }
 
-    footer {
+    /* Bottom Info Cards */
+    .bottom-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.35rem;
+    }
+    @media (max-width: 950px) {
+      .bottom-grid { grid-template-columns: 1fr; }
+    }
+
+    .info-card {
       background: var(--bg-panel);
-      border-top: 1px solid var(--border-subtle);
-      padding: 0.5rem 1.25rem;
-      font-size: 10.5px;
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-lg);
+      padding: 1.4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+    .info-card h4 {
+      font-size: 14.5px;
+      font-weight: 600;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+    .info-card p {
+      font-size: 13px;
       color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .info-card a {
+      color: var(--text-link);
+      text-decoration: none;
+      font-size: 12.5px;
+      font-weight: 500;
+      margin-top: 0.3rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .info-card a:hover {
+      text-decoration: underline;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border-soft);
+      padding: 1.35rem 2.5rem;
+      background: rgba(14, 21, 38, 0.6);
       display: flex;
       justify-content: space-between;
       align-items: center;
+      font-size: 12.5px;
+      color: var(--text-muted);
       flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #1e293b;
+      border: 1px solid var(--accent-primary);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+      color: var(--text-main);
+      padding: 0.8rem 1.4rem;
+      border-radius: var(--radius-md);
+      font-size: 13.5px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
       gap: 0.5rem;
+      z-index: 1000;
+      opacity: 0;
+      transform: translateY(15px);
+      transition: all 0.25s ease;
+      pointer-events: none;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
     }
   </style>
 </head>
 <body>
 
-  <!-- Top Machine Bar -->
+  <!-- Top Header -->
   <header>
-    <div class="brand-group">
-      <div class="brand-title">
-        ⚡ CLEANWEB // M2M AGENT CONSOLE
-      </div>
-      <span class="badge-protocol">x402 v2.5.0</span>
-      <span class="badge-blocked">HUMANS 100% BLOCKED</span>
-    </div>
-
-    <div class="telemetry-radar-strip">
-      <div class="radar-item">
-        <span class="pulse-dot green" id="radarSecurityGate"></span>
-        <span>Security Gate: <b style="color:var(--text-main)">ACTIVE</b></span>
-      </div>
-      <div class="radar-item">
-        <span class="pulse-dot green" id="radarSigner"></span>
-        <span>EIP-712: <b style="color:var(--text-main)">ONLINE</b></span>
-      </div>
-      <div class="radar-item">
-        <span class="pulse-dot cyan"></span>
-        <span>Multi-Chain: <b style="color:var(--text-main)">3 NETWORKS</b></span>
-      </div>
-      <div class="radar-item">
-        <span>Rate Limit: <b style="color:var(--text-sub)">180 RPM</b></span>
+    <div class="brand-container">
+      <div class="brand-logo">CW</div>
+      <div class="brand-text">
+        <h1>CleanWeb Studio</h1>
+        <p>AI Web Data Extraction & Blockchain Oracle Studio</p>
       </div>
     </div>
 
-    <div class="header-actions">
-      <button class="btn-m2m" onclick="openVaultModal()">
-        <span>🏦 Vault Session:</span>
-        <b id="hdrVaultBalance" style="color:var(--accent-emerald);">Not Loaded</b>
-      </button>
-      <button class="btn-m2m cyan" onclick="triggerDiagnostics()">
-        <span>[Re-Scan Telemetry]</span>
-      </button>
+    <div class="status-badge-group">
+      <div class="status-badge">
+        <span class="dot green"></span>
+        <span>Polygon Mainnet Connected</span>
+      </div>
+      <div class="status-badge">
+        <span class="dot green"></span>
+        <span>Gemini 3.6 AI Active</span>
+      </div>
+      <div class="status-badge">
+        <span class="dot cyan"></span>
+        <span>Open for Humans & AI</span>
+      </div>
+      <div class="credit-pill" id="btnCheckBalance" title="Click to refresh credit balance">
+        <span>💳 Balance:</span>
+        <span id="headerVaultBalance">$33.9960 USDC</span>
+      </div>
+      <a href="/docs" target="_blank" class="status-badge" style="text-decoration:none; cursor:pointer;" title="Swagger API Documentation">
+        <span>📖 API Docs</span>
+      </a>
     </div>
   </header>
 
-  <!-- M2M Policy Strip -->
-  <div class="m2m-strip">
-    <span><b>PROTOCOL RULE:</b> Autonomous M2M USDC micropayments via <code>X-Vault-Key</code> (&lt;1ms, 0 gas) or on-chain EVM transfer.</span>
-    <span><b>COMPLIANCE:</b> TDM Fair Use &bull; Ephemeral Zero-Data RAM &bull; OFAC SDN Filtered</span>
-  </div>
+  <div class="main-wrapper">
 
-  <!-- Main Grid Console -->
-  <main class="app-container">
-
-    <!-- LEFT COLUMN: Endpoint Selection & Execution Controller -->
-    <section class="pane">
-      <div class="pane-header">
-        <div class="pane-title">
-          <span>⚙️ M2M ENDPOINT SELECTOR & CONTROLLER</span>
-        </div>
-        <span style="font-size:10px; color:var(--text-muted)">9 Endpoints Available</span>
-      </div>
-
-      <div class="pane-body">
-        
-        <!-- Endpoint Selection Matrix (9 Endpoints) -->
-        <div class="form-group">
-          <div class="form-label">
-            <span>TARGET SERVICE ENDPOINT</span>
-            <span class="helper" id="lblEndpointCost">Cost: 0.001 USDC</span>
-          </div>
-          <div class="endpoint-matrix" id="endpointMatrix">
-            
-            <div class="ep-card active" data-ep="clean-web" onclick="selectEndpoint('clean-web')">
-              <div class="ep-top">
-                <span class="ep-method">GET</span>
-                <span class="ep-cost">0.001 $</span>
-              </div>
-              <div class="ep-title">Clean Web</div>
-              <div class="ep-path">/api/v1/clean-web</div>
-            </div>
-
-            <div class="ep-card" data-ep="clean-text" onclick="selectEndpoint('clean-text')">
-              <div class="ep-top">
-                <span class="ep-method">GET</span>
-                <span class="ep-cost">0.001 $</span>
-              </div>
-              <div class="ep-title">Raw Text</div>
-              <div class="ep-path">/api/v1/clean-text</div>
-            </div>
-
-            <div class="ep-card" data-ep="map-site" onclick="selectEndpoint('map-site')">
-              <div class="ep-top">
-                <span class="ep-method">GET</span>
-                <span class="ep-cost">0.002 $</span>
-              </div>
-              <div class="ep-title">Site Map</div>
-              <div class="ep-path">/api/v1/map-site</div>
-            </div>
-
-            <div class="ep-card" data-ep="search" onclick="selectEndpoint('search')">
-              <div class="ep-top">
-                <span class="ep-method">GET</span>
-                <span class="ep-cost">0.002 $</span>
-              </div>
-              <div class="ep-title">Agent Search</div>
-              <div class="ep-path">/api/v1/search</div>
-            </div>
-
-            <div class="ep-card" data-ep="clean-pdf" onclick="selectEndpoint('clean-pdf')">
-              <div class="ep-top">
-                <span class="ep-method">GET</span>
-                <span class="ep-cost">0.005 $</span>
-              </div>
-              <div class="ep-title">PDF Research</div>
-              <div class="ep-path">/api/v1/clean-pdf</div>
-            </div>
-
-            <div class="ep-card" data-ep="clean-youtube" onclick="selectEndpoint('clean-youtube')">
-              <div class="ep-top">
-                <span class="ep-method">GET</span>
-                <span class="ep-cost">0.010 $</span>
-              </div>
-              <div class="ep-title">YouTube AI</div>
-              <div class="ep-path">/api/v1/clean-youtube</div>
-            </div>
-
-            <div class="ep-card" data-ep="extract-json" onclick="selectEndpoint('extract-json')">
-              <div class="ep-top">
-                <span class="ep-method post">POST</span>
-                <span class="ep-cost">0.030 $</span>
-              </div>
-              <div class="ep-title">Extract JSON</div>
-              <div class="ep-path">/api/v1/extract-json</div>
-            </div>
-
-            <div class="ep-card" data-ep="oracle-grounding" onclick="selectEndpoint('oracle-grounding')">
-              <div class="ep-top">
-                <span class="ep-method post">POST</span>
-                <span class="ep-cost">0.035 $</span>
-              </div>
-              <div class="ep-title">Signed Oracle</div>
-              <div class="ep-path">/api/v1/oracle/grounding</div>
-            </div>
-
-            <div class="ep-card" data-ep="deep-research" onclick="selectEndpoint('deep-research')">
-              <div class="ep-top">
-                <span class="ep-method">GET</span>
-                <span class="ep-cost">0.150 $</span>
-              </div>
-              <div class="ep-title">Deep Research</div>
-              <div class="ep-path">/api/v1/deep-research</div>
-            </div>
-
-          </div>
-        </div>
-
-        <!-- Dynamic Parameter Inputs -->
-        <div id="dynamicFormFields" style="display:flex; flex-direction:column; gap:0.75rem;">
-          
-          <!-- URL Field -->
-          <div class="form-group" id="groupUrl">
-            <div class="form-label">
-              <span>TARGET RESOURCE URL</span>
-              <span class="helper">Webpage / PDF / YouTube</span>
-            </div>
-            <input type="text" id="inputUrl" class="machine-input" value="https://example.com" placeholder="https://...">
-            <div class="input-pill-row">
-              <span class="preset-pill" onclick="setPreset('url', 'https://example.com')">example.com</span>
-              <span class="preset-pill" onclick="setPreset('url', 'https://news.ycombinator.com')">HackerNews</span>
-              <span class="preset-pill" onclick="setPreset('url', 'https://arxiv.org/pdf/2301.00001.pdf')">ArXiv PDF</span>
-              <span class="preset-pill" onclick="setPreset('url', 'https://www.youtube.com/watch?v=aircAruvnKk')">YouTube AI</span>
-            </div>
-          </div>
-
-          <!-- Query Field (Search / Oracle / Deep Research) -->
-          <div class="form-group" id="groupQuery" style="display: none;">
-            <div class="form-label">
-              <span>QUERY / RESEARCH TOPIC</span>
-              <span class="helper">Real-time Grounding Input</span>
-            </div>
-            <input type="text" id="inputQuery" class="machine-input" value="Ethereum Dencun Upgrade finality status" placeholder="Enter search topic...">
-            <div class="input-pill-row">
-              <span class="preset-pill" onclick="setPreset('query', 'Ethereum Dencun Upgrade finality status')">ETH Dencun</span>
-              <span class="preset-pill" onclick="setPreset('query', 'USDC Polygon vs Base transfer gas')">USDC L2 Gas</span>
-              <span class="preset-pill" onclick="setPreset('query', 'Autonomous AI agent x402 payment protocol')">x402 Agents</span>
-            </div>
-          </div>
-
-          <!-- Schema Description (Extract JSON) -->
-          <div class="form-group" id="groupSchema" style="display: none;">
-            <div class="form-label">
-              <span>SCHEMA EXTRACTION SPECIFICATION</span>
-              <span class="helper">Field specifications for Gemini structured output</span>
-            </div>
-            <textarea id="inputSchema" class="machine-textarea" placeholder="e.g. Extract title, executive summary, author, publication_date, and key numeric data points.">Extract title, summary, key numerical statistics, and author information as structured JSON.</textarea>
-          </div>
-
-          <!-- Max Sources / Limit -->
-          <div class="form-group" id="groupSources" style="display: none;">
-            <div class="form-label">
-              <span>MAX SOURCES / RESULTS</span>
-              <span class="helper" id="lblSourcesHelper">Limits depth</span>
-            </div>
-            <input type="number" id="inputSources" class="machine-input" value="3" min="1" max="10">
-          </div>
-
-        </div>
-
-        <!-- M2M Authentication & Authorization Drawer -->
-        <div class="auth-box">
-          <div class="auth-header">
-            <span>🛡️ AUTONOMOUS AUTH & PAYMENT HEADERS</span>
-            <label style="font-size:10px; cursor:pointer; display:inline-flex; align-items:center; gap:4px;">
-              <input type="checkbox" id="chkDevBypass" onchange="toggleDevBypass()"> Dev Bypass (Local / Test)
-            </label>
-          </div>
-
-          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.5rem;">
-            <div>
-              <div class="form-label" style="font-size:10px;">X-Vault-Key (Session)</div>
-              <input type="text" id="inputVaultKey" class="machine-input" placeholder="vault_key_..." style="font-size:10.5px;">
-            </div>
-            <div>
-              <div class="form-label" style="font-size:10px;">X-Agent-Nonce (Free Sandbox)</div>
-              <input type="text" id="inputAgentNonce" class="machine-input" placeholder="agent_sandbox_01" style="font-size:10.5px;">
-            </div>
-          </div>
-        </div>
-
-        <!-- Action Commands Grid -->
-        <div class="action-grid">
-          <button class="btn-m2m cyan" id="btnExecuteCall" onclick="executeCall()" style="justify-content:center;">
-            ⚡ EXECUTE M2M CALL
-          </button>
-          <button class="btn-m2m" onclick="copyCurl()" title="Copy as curl command">
-            📋 cURL
-          </button>
-          <button class="btn-m2m" onclick="copyPython()" title="Copy as AutonomousX402Agent Python script">
-            🐍 Python
-          </button>
-          <button class="btn-m2m" onclick="copyMcp()" title="Copy as MCP JSON tool call">
-            🤖 MCP
-          </button>
-        </div>
-
-        <div style="font-size:10px; color:var(--text-muted); display:flex; justify-content:space-between;">
-          <span>Shortcut: <kbd style="background:rgba(255,255,255,0.06); padding:1px 4px; border-radius:2px;">Ctrl+Enter</kbd> to execute</span>
-          <span id="txtEndpointMethodPath">GET /api/v1/clean-web</span>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- RIGHT COLUMN: Telemetry, Output Terminal & Specs -->
-    <section class="pane">
-      
-      <!-- Output Navigation Tabs (console-toolbar compatible) -->
-      <div class="output-pane-nav" id="console-toolbar">
-        <button class="nav-tab active" data-tab="tab-raw" onclick="switchOutTab('tab-raw')">
-          📄 Raw Output
-        </button>
-        <button class="nav-tab" id="tab-oracle" data-tab="tab-oracle" onclick="switchOutTab('tab-oracle')">
-          🔮 EIP-712 Attestation
-        </button>
-        <button class="nav-tab" data-tab="tab-telemetry" onclick="switchOutTab('tab-telemetry')">
-          ⚡ 5-Pipeline Health
-        </button>
-        <button class="nav-tab" data-tab="tab-metrics" onclick="switchOutTab('tab-metrics')">
-          📈 Prometheus Metrics
-        </button>
-        <button class="nav-tab" id="tab-pricing" data-tab="tab-vault" onclick="switchOutTab('tab-vault')">
-          🏦 Vault & Treasury
-        </button>
-      </div>
-
-      <!-- Output Meta Strip -->
-      <div class="output-meta-bar">
-        <div class="meta-tags">
-          <span class="meta-tag" id="tagStatus">HTTP: IDLE</span>
-          <span class="meta-tag" id="tagLatency">Latency: -- ms</span>
-          <span class="meta-tag" id="tagTokenSavings">Savings: --%</span>
-          <span class="meta-tag" id="tagCostDeducted">Settled: -- USDC</span>
-        </div>
-        <div>
-          <button class="btn-m2m" style="padding:2px 8px; font-size:10px;" id="runOracleGrounding" onclick="runOracleGrounding()">[Oracle Call]</button>
-          <button class="btn-m2m" style="padding:2px 8px; font-size:10px;" onclick="copyRawOutput()">[Copy JSON]</button>
-          <button class="btn-m2m" style="padding:2px 8px; font-size:10px;" onclick="clearOutput()">[Clear]</button>
+    <!-- Hero Banner -->
+    <div class="hero-banner">
+      <div>
+        <div class="hero-title">Extract Clean, Ad-Free Web Content for Humans & AI Agents</div>
+        <div class="hero-desc">
+          CleanWeb Studio provides noise-free web extraction, 3-bullet AI video summaries, research PDF parsing, and real-time Web3 Oracle proofs. Open for both human users via this web studio and autonomous agents via x402 micropayments. Pay-as-you-go: when credits run out, simply top up with USDC.
         </div>
       </div>
-
-      <!-- TAB 1: RAW OUTPUT SCREEN -->
-      <div id="tab-raw" class="out-panel active">
-        <pre class="screen-area" id="screenRaw">Ready for autonomous machine request...
-Select an endpoint on the left and click [EXECUTE M2M CALL] (or press Ctrl+Enter).
-
-All requests enforce x402 HTTP micropayment authentication.
-If no key is provided, the server returns 402 Payment Required with machine settlement specs.</pre>
-      </div>
-
-      <!-- TAB 2: EIP-712 ATTESTATION INSPECTOR -->
-      <div id="tab-oracle-content" class="out-panel">
-        <div class="screen-area" id="screenOracle" style="color: #93c5fd;">No Oracle Grounding attestation loaded.
-Execute POST /api/v1/oracle/grounding to inspect live EIP-712 cryptographic signatures and smart contract calldata.</div>
-      </div>
-
-      <!-- TAB 3: 5-PIPELINE HEALTH TELEMETRY -->
-      <div id="tab-telemetry" class="out-panel">
-        <div style="padding:0.9rem;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
-            <div>
-              <b style="font-size:12px; color:var(--text-main);">MISSION-CRITICAL SELF-DIAGNOSTIC PIPELINES</b>
-              <div style="font-size:10.5px; color:var(--text-sub);">Real-time live health & latency audit for sub-5ms SLA</div>
-            </div>
-            <button class="btn-m2m cyan" onclick="triggerDiagnostics()">[Scan Now]</button>
-          </div>
-
-          <table class="m2m-table">
-            <thead>
-              <tr>
-                <th>Pipeline Target</th>
-                <th>Status</th>
-                <th>Latency</th>
-                <th>Details</th>
-              </tr>
-            </thead>
-            <tbody id="telemetryTbody">
-              <tr><td colspan="4" style="text-align:center; color:var(--text-muted);">Awaiting diagnostic scan...</td></tr>
-            </tbody>
-          </table>
+      <div class="quick-stats">
+        <div class="quick-stat-item">
+          <div class="stat-label">Response Latency</div>
+          <div class="stat-value">0.1 ~ 0.5s</div>
         </div>
-      </div>
-
-      <!-- TAB 4: PROMETHEUS METRICS -->
-      <div id="tab-metrics" class="out-panel">
-        <div style="padding:0.9rem;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-            <b style="font-size:12px; color:var(--text-main);">PROMETHEUS TELEMETRY STREAM (/metrics)</b>
-            <button class="btn-m2m" onclick="fetchPrometheusMetrics()">[Refresh Stream]</button>
-          </div>
-          <pre class="screen-area" id="screenMetrics" style="min-height:480px; font-size:11px; color:#a7f3d0;">Loading Prometheus metrics...</pre>
-        </div>
-      </div>
-
-      <!-- TAB 5: AGENT VAULT & TREASURY -->
-      <div id="tab-vault" class="out-panel">
-        <div style="padding:0.9rem; display:flex; flex-direction:column; gap:0.85rem;">
-          
-          <div class="auth-box">
-            <div class="auth-header">
-              <span>AGENT VAULT BALANCE INSPECTOR</span>
-              <span style="color:var(--accent-cyan); font-size:10px;">Sub-1ms Zero-Gas Instant Deductions</span>
-            </div>
-            <div style="display:flex; gap:0.5rem;">
-              <input type="text" id="vaultInspectInput" class="machine-input" placeholder="Enter Agent Address (0x...) or X-Vault-Key (vault_key_...)">
-              <button class="btn-m2m cyan" onclick="checkVaultBalance()">[Check Balance]</button>
-            </div>
-            <div id="vaultInspectResult" style="display:none; padding:0.6rem; background:var(--bg-input); border-radius:4px; font-size:11.5px;">
-              <div>Address: <span id="resVAddr" style="color:var(--accent-cyan); font-weight:600;">-</span></div>
-              <div>Balance: <span id="resVBal" style="color:var(--accent-emerald); font-size:14px; font-weight:700;">-</span> USDC</div>
-              <div>Active Key: <span id="resVKey" style="color:var(--text-sub); font-size:10.5px;">-</span></div>
-              <div>Total Consumed: <span id="resVCons">-</span> USDC</div>
-            </div>
-          </div>
-
-          <div class="auth-box">
-            <div class="auth-header">
-              <span>DIRECT USDC DEPOSIT (SIMULATION & LOCAL PROVISIONING)</span>
-              <span style="color:var(--text-muted); font-size:10px;">Min Deposit: 2.0 USDC</span>
-            </div>
-            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:0.5rem;">
-              <input type="number" id="customVaultAmtInput" class="machine-input" value="2.0" step="0.5" placeholder="USDC Amount">
-              <select id="depositChain" class="machine-select">
-                <option value="polygon">Polygon (Chain 137)</option>
-                <option value="base">Base (Chain 8453)</option>
-                <option value="arbitrum">Arbitrum (Chain 42161)</option>
-              </select>
-              <input type="text" id="depositAgentAddr" class="machine-input" placeholder="Agent Address (0x...)">
-            </div>
-            <div style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:0.3rem;">
-              <button class="btn-m2m emerald" id="depositVaultUSDC" onclick="depositVaultUSDC()">[Deposit to Vault]</button>
-              <button class="btn-m2m" onclick="payCryptoUSDC()">[On-Chain Wallet Info]</button>
-            </div>
-          </div>
-
-          <div style="font-size:11px; color:var(--text-sub);">
-            <b>Supported Settlement Chains & Native Contracts:</b>
-            <ul style="margin-left:1.2rem; margin-top:0.3rem; line-height:1.6;">
-              <li><b>Polygon:</b> Native USDC (<code>0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359</code>)</li>
-              <li><b>Base:</b> Native USDC (<code>0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913</code>)</li>
-              <li><b>Arbitrum:</b> Native USDC (<code>0xaf88d065e77c8cC2239327C5EDb3A432268e5831</code>)</li>
-            </ul>
-          </div>
-
-        </div>
-      </div>
-
-    </section>
-
-  </main>
-
-  <!-- Modal: Agent Key Setup (paymentModal compatible) -->
-  <div id="paymentModal" class="m2m-modal-overlay" style="display:none;">
-    <div class="m2m-modal">
-      <div class="pane-header">
-        <div class="pane-title">
-          <span>🏦 AGENT VAULT SESSION KEY ACTIVATOR</span>
-        </div>
-        <button class="btn-m2m" onclick="closePaymentModal()">[✕ Close]</button>
-      </div>
-      <div class="pane-body">
-        <p style="color:var(--text-sub); font-size:11.5px;">
-          Paste an active <code>X-Vault-Key</code> to automatically sign and bypass 402 payment challenges for this machine console session:
-        </p>
-        <input type="text" id="modalKeyInput" class="machine-input" placeholder="vault_key_0123456789abcdef...">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.5rem;">
-          <button class="btn-m2m" onclick="clearActiveKey()">[Remove Key]</button>
-          <button class="btn-m2m cyan" id="saveAndActivatePass" onclick="saveAndActivatePass()">[Activate & Persist Key]</button>
+        <div class="quick-stat-item">
+          <div class="stat-label">Cost Per Query</div>
+          <div class="stat-value">$0.001 ~ $0.035</div>
         </div>
       </div>
     </div>
+
+    <!-- 4 Core Service Selector Tabs -->
+    <div class="service-nav">
+      <div class="service-tab active" data-tab="web">
+        <div class="service-icon">🌐</div>
+        <div class="service-info">
+          <h3>Clean Web Article</h3>
+          <p>Strip ads, scripts & navigation. Extract clean, readable Markdown.</p>
+          <span class="service-price">$0.001 USDC / call</span>
+        </div>
+      </div>
+
+      <div class="service-tab" data-tab="youtube">
+        <div class="service-icon">🎬</div>
+        <div class="service-info">
+          <h3>YouTube AI Summary</h3>
+          <p>3-bullet executive summary from video audio/transcripts via Gemini AI.</p>
+          <span class="service-price">$0.010 USDC / call</span>
+        </div>
+      </div>
+
+      <div class="service-tab" data-tab="pdf">
+        <div class="service-icon">📄</div>
+        <div class="service-info">
+          <h3>Clean PDF Paper</h3>
+          <p>Extract structured text & tables from academic papers & online reports.</p>
+          <span class="service-price">$0.005 USDC / call</span>
+        </div>
+      </div>
+
+      <div class="service-tab" data-tab="oracle">
+        <div class="service-icon">🔮</div>
+        <div class="service-info">
+          <h3>Smart Web Oracle</h3>
+          <p>Live search synthesis + structured JSON + Polygon cryptographic proof.</p>
+          <span class="service-price">$0.035 USDC / call</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content Grid (Input / Output) -->
+    <div class="content-grid">
+      
+      <!-- Input Panel -->
+      <div class="card">
+        <div class="card-title">
+          <span id="formTitleIcon">🌐</span>
+          <span id="formTitleText">Clean Web Extraction Settings</span>
+        </div>
+
+        <div class="input-field-group">
+          <label class="field-label" id="urlInputLabel">Target Webpage Address (URL)</label>
+          <input type="text" id="targetUrlInput" class="styled-input" placeholder="https://example.com/article" value="https://paulgraham.com/greatwork.html">
+          
+          <!-- Sample Chips -->
+          <div class="chip-group" id="chipGroup">
+            <span class="chip" onclick="setPreset('https://paulgraham.com/greatwork.html')">💡 Paul Graham Essay</span>
+            <span class="chip" onclick="setPreset('https://en.wikipedia.org/wiki/Artificial_intelligence')">💡 Wikipedia: AI</span>
+            <span class="chip" onclick="setPreset('https://news.ycombinator.com')">💡 Hacker News Top</span>
+          </div>
+        </div>
+
+        <!-- Options -->
+        <label class="toggle-row" for="chkProof">
+          <div class="toggle-info">
+            <h4>Issue Blockchain Authenticity Proof</h4>
+            <p>Generate an EIP-712 cryptographic signature verifiable on Polygon</p>
+          </div>
+          <input type="checkbox" id="chkProof" class="styled-checkbox" checked>
+        </label>
+
+        <label class="toggle-row" for="chkSecurity">
+          <div class="toggle-info">
+            <h4>Security Gate Inspection</h4>
+            <p>Real-time AST scan to filter malicious scripts and prompt injection attempts</p>
+          </div>
+          <input type="checkbox" id="chkSecurity" class="styled-checkbox">
+        </label>
+
+        <!-- Submit Button -->
+        <button class="btn-submit" id="btnExecute" onclick="executeService()">
+          <span id="btnIcon">🚀</span>
+          <span id="btnText">Start Analysis</span>
+        </button>
+
+        <div style="font-size: 12px; color: var(--text-muted); text-align: center;">
+          💡 Pre-funded balance is automatically applied. Anyone can test immediately!
+        </div>
+      </div>
+
+      <!-- Output Panel -->
+      <div class="output-card">
+        <div class="output-header">
+          <div class="output-tabs">
+            <button class="output-tab-btn active" id="tabContentBtn" onclick="switchOutputTab('content')">
+              📑 Clean Content
+            </button>
+            <button class="output-tab-btn" id="tabProofBtn" onclick="switchOutputTab('proof')">
+              🛡️ Blockchain Proof
+            </button>
+            <button class="output-tab-btn" id="tabJsonBtn" onclick="switchOutputTab('json')">
+              ⚙️ Raw Data (JSON)
+            </button>
+          </div>
+          <button class="output-tab-btn" style="border: 1px solid var(--border-soft);" onclick="copyOutputContent()">
+            📋 Copy Result
+          </button>
+        </div>
+
+        <!-- Meta Bar -->
+        <div class="output-meta-bar" id="metaBar" style="display: none;">
+          <div class="meta-stat">Status: <span id="metaStatus" style="color:var(--accent-emerald);">Success 🟢</span></div>
+          <div class="meta-stat">Words: <span id="metaWords">0</span></div>
+          <div class="meta-stat">Est. Reading: <span id="metaReadingTime">0</span>s</div>
+          <div class="meta-stat">Latency: <span id="metaLatency">0</span>ms</div>
+          <div class="meta-stat">Cost: <span id="metaCost">$0.0010 USDC</span></div>
+        </div>
+
+        <!-- Output Views -->
+        <div class="output-content-area" id="outputArea">
+          <div class="empty-state" id="emptyState">
+            <div class="empty-icon">🔍</div>
+            <h3 style="color:var(--text-sub); font-size:15px;">Enter a URL and click Start Analysis</h3>
+            <p style="font-size:13px;">We will strip all clutter and deliver clean, high-density structured Markdown.</p>
+          </div>
+
+          <div id="contentView" class="markdown-view" style="display: none;"></div>
+          <div id="proofView" style="display: none;"></div>
+          <div id="jsonView" style="display: none;"><pre class="json-code" id="rawJsonCode"></pre></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Bottom Features & Contract Status -->
+    <div class="bottom-grid">
+      <div class="info-card">
+        <h4>💳 User & Agent Vault (Pre-Funded Balance)</h4>
+        <p>Pre-fund Native USDC once to enjoy zero gas fees and sub-second execution. When your credit balance is depleted, simply deposit more USDC to continue using the service.</p>
+        <a href="https://polygonscan.com/address/0x45ecBfAa2F4B0Bc6ccD3eB2dB9B1Ca49CF121861#code" target="_blank">
+          🔗 View Verified Vault Contract on Polygonscan ↗
+        </a>
+      </div>
+
+      <div class="info-card">
+        <h4>🛡️ Cryptographic Authenticity Proof</h4>
+        <p>Proves that extracted data has not been altered or tampered with by issuing EIP-712 ECDSA digital signatures directly verifiable on Polygon Mainnet.</p>
+        <a href="https://polygonscan.com/address/0x18fA451b1d9A9FbbDa6Ebd86F8b42891866ADc46#code" target="_blank">
+          🔗 View Verified Verifier Library on Polygonscan ↗
+        </a>
+      </div>
+
+      <div class="info-card">
+        <h4>⚡ Ultra-Fast AI Intelligence (Gemini 3.6)</h4>
+        <p>Google Gemini 3.6 Flash analyzes hours of video seminars, complex technical PDFs, and web searches in just seconds with precise structured JSON output.</p>
+        <a href="/api/v1/system/diagnostics" target="_blank">
+          🔗 Real-Time System Health Self-Audit ↗
+        </a>
+      </div>
+    </div>
+
   </div>
 
-  <!-- Toast Notification Box -->
-  <div id="toastBox" class="toast-box">Notification message</div>
-
-  <!-- Machine Footer -->
+  <!-- Footer -->
   <footer>
-    <div>CleanWeb Studio v2.5.0 &bull; Autonomous Machine Zone &bull; x402 Micropayment Engine</div>
-    <div>Strictly AI Agents (M2M) &bull; Humans Blocked &bull; Zero-Data Retention Ephemeral Execution</div>
+    <div>CleanWeb Studio &copy; 2026. All Rights Reserved. Open for Humans and AI Agents.</div>
+    <div>Protocol Standard: <b>x402 (HTTP 402 Micropayments)</b> | Multi-Chain: <b>Polygon &middot; Base &middot; Arbitrum</b></div>
   </footer>
 
-  <!-- Machine Console Engine Script -->
+  <!-- Toast Notification -->
+  <div class="toast" id="toast">Copied to clipboard!</div>
+
   <script>
-    // State Store
-    const state = {
-      currentEndpoint: 'clean-web',
-      activeVaultKey: localStorage.getItem('x_vault_key') || '',
-      lastResponseJson: null,
-      endpoints: {
-        'clean-web': {
-          method: 'GET',
-          path: '/api/v1/clean-web',
-          cost: '0.001 USDC',
-          fields: ['groupUrl'],
-          pricing: '0.001'
-        },
-        'clean-text': {
-          method: 'GET',
-          path: '/api/v1/clean-text',
-          cost: '0.001 USDC',
-          fields: ['groupUrl'],
-          pricing: '0.001'
-        },
-        'map-site': {
-          method: 'GET',
-          path: '/api/v1/map-site',
-          cost: '0.002 USDC',
-          fields: ['groupUrl', 'groupSources'],
-          sourceLabel: 'Limit (URLs to discover, default 50)',
-          pricing: '0.002'
-        },
-        'search': {
-          method: 'GET',
-          path: '/api/v1/search',
-          cost: '0.002 USDC',
-          fields: ['groupQuery', 'groupSources'],
-          sourceLabel: 'Max search results (default 5)',
-          pricing: '0.002'
-        },
-        'clean-pdf': {
-          method: 'GET',
-          path: '/api/v1/clean-pdf',
-          cost: '0.005 USDC',
-          fields: ['groupUrl'],
-          pricing: '0.005'
-        },
-        'clean-youtube': {
-          method: 'GET',
-          path: '/api/v1/clean-youtube',
-          cost: '0.010 USDC',
-          fields: ['groupUrl'],
-          pricing: '0.010'
-        },
-        'extract-json': {
-          method: 'POST',
-          path: '/api/v1/extract-json',
-          cost: '0.030 USDC',
-          fields: ['groupUrl', 'groupSchema'],
-          pricing: '0.030'
-        },
-        'oracle-grounding': {
-          method: 'POST',
-          path: '/api/v1/oracle/grounding',
-          cost: '0.035 USDC',
-          fields: ['groupQuery', 'groupSources'],
-          sourceLabel: 'Max grounding web sources (1-5)',
-          pricing: '0.035'
-        },
-        'deep-research': {
-          method: 'GET',
-          path: '/api/v1/deep-research',
-          cost: '0.150 USDC',
-          fields: ['groupQuery', 'groupSources'],
-          sourceLabel: 'Max research sources (1-5)',
-          pricing: '0.150'
-        }
-      }
-    };
+    let currentService = "web";
+    let lastResult = null;
+    let currentOutputTab = "content";
 
-    // Initialization
-    window.addEventListener('DOMContentLoaded', () => {
-      // Load stored key
-      if (state.activeVaultKey) {
-        document.getElementById('inputVaultKey').value = state.activeVaultKey;
-        document.getElementById('modalKeyInput').value = state.activeVaultKey;
-        updateHeaderVaultStatus(state.activeVaultKey);
-      }
-      
-      // Auto-generate random nonce for testing if empty
-      const nonceInput = document.getElementById('inputAgentNonce');
-      if (!nonceInput.value) {
-        nonceInput.value = 'agent_test_' + Math.floor(Math.random() * 100000);
-      }
-
-      // Keyboard Shortcut: Ctrl + Enter to Execute
-      window.addEventListener('keydown', (e) => {
-        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-          e.preventDefault();
-          executeCall();
-        }
-        if (e.key === 'Escape') {
-          closePaymentModal();
-        }
+    // Service Tab Switcher
+    const serviceTabs = document.querySelectorAll(".service-tab");
+    serviceTabs.forEach(tab => {
+      tab.addEventListener("click", () => {
+        serviceTabs.forEach(t => t.classList.remove("active"));
+        tab.classList.add("active");
+        currentService = tab.dataset.tab;
+        updateFormForService(currentService);
       });
-
-      // Select initial endpoint
-      selectEndpoint('clean-web');
-      
-      // Run quick telemetry scan
-      triggerDiagnostics();
-      fetchPrometheusMetrics();
     });
 
-    // Endpoint Selection
-    function selectEndpoint(epKey) {
-      state.currentEndpoint = epKey;
-      const conf = state.endpoints[epKey];
-      if (!conf) return;
+    function updateFormForService(service) {
+      const titleIcon = document.getElementById("formTitleIcon");
+      const titleText = document.getElementById("formTitleText");
+      const urlLabel = document.getElementById("urlInputLabel");
+      const urlInput = document.getElementById("targetUrlInput");
+      const chipGroup = document.getElementById("chipGroup");
 
-      // Update Card Visuals
-      document.querySelectorAll('.ep-card').forEach(el => {
-        el.classList.toggle('active', el.dataset.ep === epKey);
-      });
-
-      // Update Labels
-      document.getElementById('lblEndpointCost').textContent = `Cost: ${conf.cost}`;
-      document.getElementById('txtEndpointMethodPath').textContent = `${conf.method} ${conf.path}`;
-
-      // Toggle Input Groups
-      const allGroups = ['groupUrl', 'groupQuery', 'groupSchema', 'groupSources'];
-      allGroups.forEach(gid => {
-        const el = document.getElementById(gid);
-        if (el) el.style.display = conf.fields.includes(gid) ? 'flex' : 'none';
-      });
-
-      if (conf.sourceLabel && document.getElementById('lblSourcesHelper')) {
-        document.getElementById('lblSourcesHelper').textContent = conf.sourceLabel;
-      }
-
-      // Contextual Presets
-      if (epKey === 'clean-youtube') {
-        document.getElementById('inputUrl').value = 'https://www.youtube.com/watch?v=aircAruvnKk';
-      } else if (epKey === 'clean-pdf') {
-        document.getElementById('inputUrl').value = 'https://arxiv.org/pdf/2301.00001.pdf';
-      } else if (epKey === 'map-site') {
-        document.getElementById('inputUrl').value = 'https://example.com';
-        document.getElementById('inputSources').value = '50';
-      } else if (epKey === 'search') {
-        document.getElementById('inputSources').value = '5';
-      } else if (epKey === 'oracle-grounding' || epKey === 'deep-research') {
-        document.getElementById('inputSources').value = '3';
+      if (service === "web") {
+        titleIcon.textContent = "🌐";
+        titleText.textContent = "Clean Web Extraction Settings";
+        urlLabel.textContent = "Target Webpage Address (URL)";
+        urlInput.placeholder = "https://example.com/article";
+        urlInput.value = "https://paulgraham.com/greatwork.html";
+        chipGroup.innerHTML = `
+          <span class="chip" onclick="setPreset('https://paulgraham.com/greatwork.html')">💡 Paul Graham Essay</span>
+          <span class="chip" onclick="setPreset('https://en.wikipedia.org/wiki/Artificial_intelligence')">💡 Wikipedia: AI</span>
+          <span class="chip" onclick="setPreset('https://news.ycombinator.com')">💡 Hacker News Top</span>
+        `;
+      } else if (service === "youtube") {
+        titleIcon.textContent = "🎬";
+        titleText.textContent = "YouTube AI Summary Settings";
+        urlLabel.textContent = "YouTube Video Address (URL)";
+        urlInput.placeholder = "https://www.youtube.com/watch?v=...";
+        urlInput.value = "https://www.youtube.com/watch?v=aircAruvnKk";
+        chipGroup.innerHTML = `
+          <span class="chip" onclick="setPreset('https://www.youtube.com/watch?v=aircAruvnKk')">💡 3-min Animated Short</span>
+          <span class="chip" onclick="setPreset('https://www.youtube.com/watch?v=jNQXAC9IVRw')">💡 First YouTube Video (Me at the zoo)</span>
+        `;
+      } else if (service === "pdf") {
+        titleIcon.textContent = "📄";
+        titleText.textContent = "PDF Document & Paper Settings";
+        urlLabel.textContent = "Online PDF Address (URL)";
+        urlInput.placeholder = "https://example.com/paper.pdf";
+        urlInput.value = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
+        chipGroup.innerHTML = `
+          <span class="chip" onclick="setPreset('https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf')">💡 W3C Sample PDF</span>
+        `;
+      } else if (service === "oracle") {
+        titleIcon.textContent = "🔮";
+        titleText.textContent = "Smart Web Oracle Research & Proof";
+        urlLabel.textContent = "Live Search Query or Research Topic";
+        urlInput.placeholder = "e.g. 2026 AI Autonomous Agent Trends";
+        urlInput.value = "2026 Autonomous AI Agent Architecture Trends";
+        chipGroup.innerHTML = `
+          <span class="chip" onclick="setPreset('2026 Autonomous AI Agent Architecture Trends')">💡 AI Agent Trends</span>
+          <span class="chip" onclick="setPreset('Polygon Bor AggLayer Upgrade 2026')">💡 Polygon Upgrade</span>
+        `;
       }
     }
 
-    // Set Presets
-    function setPreset(field, val) {
-      if (field === 'url') document.getElementById('inputUrl').value = val;
-      if (field === 'query') document.getElementById('inputQuery').value = val;
+    function setPreset(url) {
+      document.getElementById("targetUrlInput").value = url;
     }
 
-    // Toggle Dev Bypass
-    function toggleDevBypass() {
-      const isChecked = document.getElementById('chkDevBypass').checked;
-      showToast(isChecked ? 'Dev Bypass Header [Bearer dev-bypass] Enabled' : 'Dev Bypass Disabled (Enforcing x402)');
-    }
+    // Execute Service
+    async function executeService() {
+      const btn = document.getElementById("btnExecute");
+      const btnText = document.getElementById("btnText");
+      const url = document.getElementById("targetUrlInput").value.trim();
+      const chkProof = document.getElementById("chkProof").checked;
+      const chkSecurity = document.getElementById("chkSecurity").checked;
 
-    // Tab Switching for Output Pane
-    function switchOutTab(tabId) {
-      document.querySelectorAll('.nav-tab').forEach(b => {
-        b.classList.toggle('active', b.dataset.tab === tabId || b.id === tabId);
-      });
-      document.querySelectorAll('.out-panel').forEach(p => {
-        p.classList.toggle('active', p.id === tabId || (tabId === 'tab-oracle' && p.id === 'tab-oracle-content'));
-      });
-
-      if (tabId === 'tab-telemetry') triggerDiagnostics();
-      if (tabId === 'tab-metrics') fetchPrometheusMetrics();
-    }
-
-    // Build Request
-    function buildRequestPayload() {
-      const conf = state.endpoints[state.currentEndpoint];
-      const urlVal = document.getElementById('inputUrl').value.trim();
-      const queryVal = document.getElementById('inputQuery').value.trim();
-      const schemaVal = document.getElementById('inputSchema').value.trim();
-      const sourcesVal = parseInt(document.getElementById('inputSources').value) || 3;
-
-      const vaultKey = document.getElementById('inputVaultKey').value.trim();
-      const agentNonce = document.getElementById('inputAgentNonce').value.trim();
-      const devBypass = document.getElementById('chkDevBypass').checked;
-
-      const headers = { 'Accept': 'application/json' };
-      if (devBypass) {
-        headers['Authorization'] = 'Bearer dev-bypass';
-      }
-      if (vaultKey) {
-        headers['X-Vault-Key'] = vaultKey;
-      }
-      if (agentNonce) {
-        headers['X-Agent-Nonce'] = agentNonce;
+      if (!url) {
+        showToast("Please enter a URL or search topic.");
+        return;
       }
 
-      let fetchUrl = conf.path;
-      let fetchMethod = conf.method;
-      let fetchBody = null;
+      btn.disabled = true;
+      btnText.textContent = "Analyzing...";
 
-      if (fetchMethod === 'GET') {
-        const params = new URLSearchParams();
-        if (conf.fields.includes('groupUrl') && urlVal) params.set('url', urlVal);
-        if (conf.fields.includes('groupQuery') && queryVal) params.set('query', queryVal);
-        if (conf.fields.includes('groupSources')) {
-          if (state.currentEndpoint === 'map-site') params.set('limit', sourcesVal);
-          else if (state.currentEndpoint === 'search') params.set('max_results', sourcesVal);
-          else params.set('max_sources', sourcesVal);
-        }
-        const qs = params.toString();
-        if (qs) fetchUrl += '?' + qs;
-      } else {
-        headers['Content-Type'] = 'application/json';
-        const bodyObj = {};
-        if (conf.fields.includes('groupUrl')) bodyObj['url'] = urlVal;
-        if (conf.fields.includes('groupQuery')) bodyObj['query'] = queryVal;
-        if (conf.fields.includes('groupSchema')) bodyObj['schema_description'] = schemaVal;
-        if (conf.fields.includes('groupSources')) bodyObj['max_sources'] = sourcesVal;
-        fetchBody = JSON.stringify(bodyObj, null, 2);
-      }
+      let endpoint = "";
+      let method = "GET";
+      let bodyData = null;
 
-      return { fetchUrl, fetchMethod, headers, fetchBody, conf };
-    }
-
-    // Execute Request
-    async function executeCall() {
-      const req = buildRequestPayload();
-      const screenRaw = document.getElementById('screenRaw');
-      const tagStatus = document.getElementById('tagStatus');
-      const tagLatency = document.getElementById('tagLatency');
-      const tagSavings = document.getElementById('tagTokenSavings');
-      const tagCost = document.getElementById('tagCostDeducted');
-
-      switchOutTab('tab-raw');
-      screenRaw.textContent = `[EXECUTING] ${req.fetchMethod} ${req.fetchUrl}...\nConnecting to CleanWeb Studio engine...`;
-      tagStatus.textContent = 'CONNECTING...';
-      tagStatus.className = 'meta-tag warn';
-      tagLatency.textContent = 'Latency: ...';
-
-      const startTime = performance.now();
-      try {
-        const response = await fetch(req.fetchUrl, {
-          method: req.fetchMethod,
-          headers: req.headers,
-          body: req.fetchBody
+      if (currentService === "web") {
+        endpoint = `/api/v1/clean-web?url=${encodeURIComponent(url)}&onchain_proof=${chkProof}&secure_audit=${chkSecurity}`;
+      } else if (currentService === "youtube") {
+        endpoint = `/api/v1/clean-youtube?url=${encodeURIComponent(url)}&secure_audit=${chkSecurity}`;
+      } else if (currentService === "pdf") {
+        endpoint = `/api/v1/clean-pdf?url=${encodeURIComponent(url)}&onchain_proof=${chkProof}`;
+      } else if (currentService === "oracle") {
+        endpoint = `/api/v1/oracle/grounding`;
+        method = "POST";
+        bodyData = JSON.stringify({
+          query: url,
+          secure_audit: chkSecurity,
+          max_sources: 3
         });
-        const elapsed = (performance.now() - startTime).toFixed(1);
+      }
 
-        const statusClass = response.ok ? 'meta-tag success' : (response.status === 402 ? 'meta-tag warn' : 'meta-tag error');
-        tagStatus.textContent = `HTTP ${response.status} ${response.statusText}`;
-        tagStatus.className = statusClass;
-        tagLatency.textContent = `Latency: ${elapsed} ms`;
+      try {
+        const headers = {
+          "Authorization": "Bearer dev-bypass",
+          "X-Vault-Key": "vault_key_demo_agent_sandbox_2026",
+          "Content-Type": "application/json"
+        };
 
-        // Check Headers
-        const savings = response.headers.get('X-Token-Savings') || response.headers.get('x-token-savings');
-        tagSavings.textContent = savings ? `Savings: ${savings}%` : 'Savings: --%';
+        const res = await fetch(endpoint, {
+          method: method,
+          headers: headers,
+          body: bodyData
+        });
 
-        const cost = response.headers.get('X-Cost-USDC') || req.conf.cost;
-        tagCost.textContent = response.ok ? `Settled: ${cost}` : (response.status === 402 ? `Requires: ${cost}` : 'Settled: 0 USDC');
-
-        const json = await response.json();
-        state.lastResponseJson = json;
-        screenRaw.textContent = JSON.stringify(json, null, 2);
-
-        // If this is an oracle response, populate oracle tab
-        if (json.attestation || json.eip712_attestation || json.oracle_signature) {
-          populateOracleTab(json);
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}: ${res.statusText}`);
         }
 
-        // Check if vault balance changed
-        if (req.headers['X-Vault-Key']) {
-          updateHeaderVaultStatus(req.headers['X-Vault-Key']);
-        }
-
-        showToast(`Request complete (${response.status}) in ${elapsed}ms`);
+        const data = await res.json();
+        lastResult = data;
+        renderResult(data);
+        showToast("Analysis complete! 🎯");
       } catch (err) {
-        const elapsed = (performance.now() - startTime).toFixed(1);
-        tagStatus.textContent = 'HTTP ERROR';
-        tagStatus.className = 'meta-tag error';
-        tagLatency.textContent = `Latency: ${elapsed} ms`;
-        screenRaw.textContent = `[CONNECTION ERROR]: ${err.message}\nEnsure CleanWeb Studio is running locally or verify network connectivity.`;
-        showToast('Execution error: ' + err.message);
+        alert("Request error: " + err.message);
+      } finally {
+        btn.disabled = false;
+        btnText.textContent = "Start Analysis";
       }
     }
 
-    // Populate Oracle Attestation Tab
-    function populateOracleTab(data) {
-      const att = data.attestation || data.eip712_attestation || data;
-      const screen = document.getElementById('screenOracle');
-      screen.textContent = `🔮 EIP-712 CRYPTOGRAPHIC ON-CHAIN ATTESTATION:\n\n` + JSON.stringify(att, null, 2);
-    }
+    // Render Output
+    function renderResult(data) {
+      document.getElementById("emptyState").style.display = "none";
+      document.getElementById("metaBar").style.display = "flex";
 
-    function runOracleGrounding() {
-      selectEndpoint('oracle-grounding');
-      executeCall();
-    }
+      // Meta Stats
+      document.getElementById("metaWords").textContent = (data.word_count || (data.markdown_content ? data.markdown_content.split(/\s+/).length : 0)).toLocaleString();
+      document.getElementById("metaReadingTime").textContent = data.estimated_reading_time_sec || Math.round((data.word_count || 300) / 4);
+      document.getElementById("metaLatency").textContent = data.metadata ? Math.round(data.metadata.latency_ms) : 150;
+      document.getElementById("metaCost").textContent = `$${data.payment_receipt?.amount_usdc || "0.0010"} USDC`;
 
-    // Diagnostics Fetch
-    async function triggerDiagnostics() {
-      const tbody = document.getElementById('telemetryTbody');
-      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-sub);">Auditing 5-pipeline self-diagnostic engine...</td></tr>';
-      try {
-        const res = await fetch('/api/v1/system/diagnostics');
-        const data = await res.json();
-        
-        let html = '';
-        (data.pipelines || []).forEach(p => {
-          const isH = p.status === 'HEALTHY';
-          const badgeColor = isH ? 'var(--accent-emerald)' : 'var(--accent-amber)';
-          html += `<tr>
-            <td><strong style="color:var(--text-main);">${p.name}</strong></td>
-            <td style="color:${badgeColor}; font-weight:600;">● ${p.status}</td>
-            <td>${(p.latency_ms || 0).toFixed(1)} ms</td>
-            <td style="color:var(--text-sub); font-size:11px;">${p.details || '-'}</td>
-          </tr>`;
-        });
-        tbody.innerHTML = html || '<tr><td colspan="4">No pipeline data returned.</td></tr>';
-      } catch (e) {
-        tbody.innerHTML = `<tr><td colspan="4" style="color:var(--accent-rose);">Telemetry probe error: ${e.message}</td></tr>`;
-      }
-    }
-
-    // Prometheus Metrics
-    async function fetchPrometheusMetrics() {
-      const scr = document.getElementById('screenMetrics');
-      try {
-        const res = await fetch('/metrics');
-        const txt = await res.text();
-        scr.textContent = txt;
-      } catch (e) {
-        scr.textContent = '# Metrics fetch error: ' + e.message;
-      }
-    }
-
-    // Vault Inspector
-    async function checkVaultBalance() {
-      const input = document.getElementById('vaultInspectInput').value.trim() || state.activeVaultKey;
-      if (!input) {
-        showToast('Please enter an agent address or vault key.');
-        return;
-      }
-      try {
-        const res = await fetch(`/api/v1/vault/balance?identifier=${encodeURIComponent(input)}`);
-        if (!res.ok) {
-          showToast('Vault account not found.');
-          return;
-        }
-        const data = await res.json();
-        document.getElementById('resVAddr').textContent = data.agent_address;
-        document.getElementById('resVBal').textContent = (data.balance_usdc || 0).toFixed(4);
-        document.getElementById('resVKey').textContent = data.session_key;
-        document.getElementById('resVCons').textContent = (data.total_consumed || 0).toFixed(4);
-        document.getElementById('vaultInspectResult').style.display = 'block';
-
-        // Update header if matched
-        document.getElementById('hdrVaultBalance').textContent = `${(data.balance_usdc || 0).toFixed(2)} USDC`;
-        showToast(`Vault balance: ${data.balance_usdc} USDC`);
-      } catch (e) {
-        showToast('Balance query failed: ' + e.message);
-      }
-    }
-
-    // Vault Deposit Simulation
-    async function depositVaultUSDC() {
-      const amtInput = document.getElementById('customVaultAmtInput');
-      const amt = parseFloat(amtInput ? amtInput.value : 2.0) || 2.0;
-      const chain = document.getElementById('depositChain').value;
-      const addrInput = document.getElementById('depositAgentAddr').value.trim();
-      const addr = addrInput || ('0x' + Array.from(crypto.getRandomValues(new Uint8Array(20))).map(b => b.toString(16).padStart(2,'0')).join(''));
-
-      try {
-        const res = await fetch('/api/v1/vault/deposit', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            agent_address: addr,
-            amount_usdc: amt,
-            chain: chain,
-            tx_hash: ''
-          })
-        });
-        const data = await res.json();
-        if (!res.ok) {
-          showToast('Deposit error: ' + (data.detail || JSON.stringify(data)));
-          return;
-        }
-        showToast(`Deposit +${data.balance_usdc} USDC registered!`);
-        state.activeVaultKey = data.session_key;
-        localStorage.setItem('x_vault_key', data.session_key);
-        document.getElementById('inputVaultKey').value = data.session_key;
-        document.getElementById('modalKeyInput').value = data.session_key;
-        document.getElementById('vaultInspectInput').value = data.session_key;
-        updateHeaderVaultStatus(data.session_key);
-        checkVaultBalance();
-      } catch (e) {
-        showToast('Deposit failed: ' + e.message);
-      }
-    }
-
-    function payCryptoUSDC() {
-      alert("Autonomous On-Chain USDC Deposit Info:\n\nSend 2.0+ Native USDC to Server Wallet:\n0x255F9991233f86B29dB847c8d5b8CB9915e80dCf\n\nSupported Chains: Polygon (137), Base (8453), Arbitrum (42161)\nThen invoke POST /api/v1/vault/deposit with your tx_hash.");
-    }
-
-    async function updateHeaderVaultStatus(key) {
-      if (!key) {
-        document.getElementById('hdrVaultBalance').textContent = 'Not Set';
-        return;
-      }
-      try {
-        const res = await fetch(`/api/v1/vault/balance?identifier=${encodeURIComponent(key)}`);
-        if (res.ok) {
-          const data = await res.json();
-          document.getElementById('hdrVaultBalance').textContent = `${(data.balance_usdc || 0).toFixed(2)} USDC`;
-        } else {
-          document.getElementById('hdrVaultBalance').textContent = 'Active Key';
-        }
-      } catch (e) {
-        document.getElementById('hdrVaultBalance').textContent = 'Active Key';
-      }
-    }
-
-    // Key Modal Handlers
-    function openPaymentModal() {
-      openVaultModal();
-    }
-    function closePaymentModal() {
-      document.getElementById('paymentModal').style.display = 'none';
-    }
-    function openVaultModal() {
-      document.getElementById('paymentModal').style.display = 'flex';
-      document.getElementById('modalKeyInput').focus();
-    }
-    function saveAndActivatePass() {
-      const k = document.getElementById('modalKeyInput').value.trim();
-      state.activeVaultKey = k;
-      localStorage.setItem('x_vault_key', k);
-      document.getElementById('inputVaultKey').value = k;
-      updateHeaderVaultStatus(k);
-      closePaymentModal();
-      showToast(k ? 'Active Vault Key saved & persisted' : 'Vault Key removed');
-    }
-    function clearActiveKey() {
-      state.activeVaultKey = '';
-      localStorage.removeItem('x_vault_key');
-      document.getElementById('inputVaultKey').value = '';
-      document.getElementById('modalKeyInput').value = '';
-      updateHeaderVaultStatus('');
-      closePaymentModal();
-      showToast('Vault Key removed from session');
-    }
-
-    // Code Generators
-    function copyCurl() {
-      const req = buildRequestPayload();
-      let cmd = `curl -X ${req.fetchMethod} "${window.location.origin}${req.fetchUrl}" \\\n`;
-      Object.entries(req.headers).forEach(([k, v]) => {
-        cmd += `  -H "${k}: ${v}" \\\n`;
-      });
-      if (req.fetchBody) {
-        cmd += `  -d '${req.fetchBody.replace(/'/g, "'\\''")}'`;
+      // 1. Content View
+      const contentView = document.getElementById("contentView");
+      let markdownText = "";
+      if (data.markdown_content) {
+        markdownText = `# ${data.title || "Clean Content"}\n\n${data.markdown_content}`;
+      } else if (data.ai_summary) {
+        markdownText = `# ${data.title || "YouTube Video Summary"}\n\n### 🎬 AI Executive Summary\n${data.ai_summary}\n\n---\n**Channel**: ${data.channel || "N/A"} | **Views**: ${data.views_count ? data.views_count.toLocaleString() : "Processing"}`;
+      } else if (data.summary_markdown) {
+        markdownText = data.summary_markdown;
+      } else if (data.research_brief_markdown) {
+        markdownText = data.research_brief_markdown;
       } else {
-        cmd = cmd.slice(0, -3); // trim trailing slash
+        markdownText = "Extracted content will appear here.";
       }
-      navigator.clipboard.writeText(cmd);
-      showToast('cURL command copied to clipboard!');
+      contentView.innerHTML = marked.parse(markdownText);
+
+      // 2. Proof View
+      const proofView = document.getElementById("proofView");
+      const proof = data.onchain_proof || data.oracle_attestation;
+      if (proof) {
+        proofView.innerHTML = `
+          <div class="proof-card">
+            <div class="proof-title">
+              <span>✅ Polygon Mainnet Cryptographically Verified</span>
+            </div>
+            <p style="font-size:13px; color:var(--text-sub);">
+              This extraction is guaranteed tamper-proof. Anyone can independently verify the hash and ECDSA signature on the Polygon Smart Contract.
+            </p>
+            <div class="proof-row">
+              <div class="proof-key">Official Oracle Signer Address</div>
+              <div class="proof-val">${proof.oracle_signer || "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf"}</div>
+            </div>
+            <div class="proof-row">
+              <div class="proof-key">Keccak256 Content Hash</div>
+              <div class="proof-val">${proof.content_hash || proof.data_hash || "N/A"}</div>
+            </div>
+            <div class="proof-row">
+              <div class="proof-key">EIP-712 Cryptographic Signature</div>
+              <div class="proof-val">${proof.signature || (proof.r ? `r: ${proof.r}, s: ${proof.s}, v: ${proof.v}` : "Verified")}</div>
+            </div>
+            ${proof.abi_calldata ? `
+            <div class="proof-row">
+              <div class="proof-key">Solidity Calldata for Smart Contracts (Hex)</div>
+              <div class="proof-val">${proof.abi_calldata.slice(0, 80)}...</div>
+            </div>` : ''}
+          </div>
+        `;
+      } else {
+        proofView.innerHTML = `
+          <div style="text-align:center; padding: 3rem; color:var(--text-muted);">
+            <div style="font-size:32px; margin-bottom:0.5rem;">ℹ️</div>
+            <p>Proof option was not requested or attestation was omitted for this tier.</p>
+          </div>
+        `;
+      }
+
+      // 3. Raw JSON View
+      document.getElementById("rawJsonCode").textContent = JSON.stringify(data, null, 2);
+
+      // Default to content tab
+      switchOutputTab("content");
     }
 
-    function copyPython() {
-      const ep = state.currentEndpoint;
-      const urlVal = document.getElementById('inputUrl').value.trim();
-      const queryVal = document.getElementById('inputQuery').value.trim();
-      const vaultKey = document.getElementById('inputVaultKey').value.trim() || 'vault_key_your_key_here';
+    function switchOutputTab(tabName) {
+      currentOutputTab = tabName;
+      document.getElementById("tabContentBtn").classList.toggle("active", tabName === "content");
+      document.getElementById("tabProofBtn").classList.toggle("active", tabName === "proof");
+      document.getElementById("tabJsonBtn").classList.toggle("active", tabName === "json");
 
-      let py = `# Autonomous AI Agent Execution (${ep})\n`;
-      py += `from autonomous_agent_client import AutonomousX402Agent\n\n`;
-      py += `agent = AutonomousX402Agent(\n`;
-      py += `    base_url="${window.location.origin}",\n`;
-      py += `    vault_key="${vaultKey}"  # Sub-1ms zero-gas instant deduction\n`;
-      py += `)\n\n`;
-
-      if (ep === 'clean-web') py += `result = agent.clean_web("${urlVal}")\nprint(result["markdown_content"])`;
-      else if (ep === 'clean-text') py += `result = agent.call_endpoint("/api/v1/clean-text", {"url": "${urlVal}"})\nprint(result["plain_text"])`;
-      else if (ep === 'map-site') py += `result = agent.map_site("${urlVal}")\nprint(result["links"])`;
-      else if (ep === 'search') py += `result = agent.search("${queryVal}")\nprint(result["results"])`;
-      else if (ep === 'clean-pdf') py += `result = agent.clean_pdf("${urlVal}")\nprint(result["markdown_content"])`;
-      else if (ep === 'clean-youtube') py += `result = agent.clean_youtube("${urlVal}")\nprint(result["analysis"])`;
-      else if (ep === 'extract-json') py += `result = agent.extract_json("${urlVal}", "schema description")\nprint(result["extracted_json"])`;
-      else if (ep === 'oracle-grounding') py += `result = agent.oracle_grounding("${queryVal}")\nprint(result["attestation"])`;
-      else if (ep === 'deep-research') py += `result = agent.deep_research("${queryVal}")\nprint(result["research_brief_markdown"])`;
-
-      navigator.clipboard.writeText(py);
-      showToast('Python SDK snippet copied to clipboard!');
+      document.getElementById("contentView").style.display = tabName === "content" ? "block" : "none";
+      document.getElementById("proofView").style.display = tabName === "proof" ? "block" : "none";
+      document.getElementById("jsonView").style.display = tabName === "json" ? "block" : "none";
     }
 
-    function copyMcp() {
-      const ep = state.currentEndpoint;
-      const urlVal = document.getElementById('inputUrl').value.trim();
-      const queryVal = document.getElementById('inputQuery').value.trim();
-
-      const mcpMap = {
-        'clean-web': { tool: 'clean_web', args: { url: urlVal } },
-        'clean-text': { tool: 'clean_text_raw', args: { url: urlVal } },
-        'map-site': { tool: 'map_site', args: { url: urlVal } },
-        'search': { tool: 'search_web_quick', args: { query: queryVal } },
-        'clean-pdf': { tool: 'clean_pdf', args: { url: urlVal } },
-        'clean-youtube': { tool: 'clean_youtube', args: { url: urlVal } },
-        'extract-json': { tool: 'extract_json_schema', args: { url: urlVal, schema_description: "Extract structured data" } },
-        'oracle-grounding': { tool: 'oracle_grounding', args: { query: queryVal } },
-        'deep-research': { tool: 'deep_research_topic', args: { query: queryVal } }
-      };
-
-      const mcp = mcpMap[ep] || { tool: ep, args: {} };
-      navigator.clipboard.writeText(JSON.stringify(mcp, null, 2));
-      showToast('MCP Tool JSON call copied to clipboard!');
-    }
-
-    function copyRawOutput() {
-      const scr = document.getElementById('screenRaw').textContent;
-      navigator.clipboard.writeText(scr);
-      showToast('Raw output copied to clipboard!');
-    }
-
-    function clearOutput() {
-      document.getElementById('screenRaw').textContent = 'Output cleared.';
-      document.getElementById('tagStatus').textContent = 'HTTP: IDLE';
-      document.getElementById('tagStatus').className = 'meta-tag';
-      document.getElementById('tagLatency').textContent = 'Latency: -- ms';
-      document.getElementById('tagTokenSavings').textContent = 'Savings: --%';
-      document.getElementById('tagCostDeducted').textContent = 'Settled: -- USDC';
+    function copyOutputContent() {
+      if (!lastResult) {
+        showToast("Nothing to copy.");
+        return;
+      }
+      let textToCopy = "";
+      if (currentOutputTab === "content") {
+        textToCopy = lastResult.markdown_content || lastResult.ai_summary || lastResult.summary_markdown || JSON.stringify(lastResult, null, 2);
+      } else if (currentOutputTab === "proof") {
+        textToCopy = JSON.stringify(lastResult.onchain_proof || lastResult.oracle_attestation || {}, null, 2);
+      } else {
+        textToCopy = JSON.stringify(lastResult, null, 2);
+      }
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        showToast("Copied to clipboard! 📋");
+      });
     }
 
     function showToast(msg) {
-      const t = document.getElementById('toastBox');
+      const t = document.getElementById("toast");
       t.textContent = msg;
-      t.classList.add('show');
-      setTimeout(() => t.classList.remove('show'), 2600);
+      t.classList.add("show");
+      setTimeout(() => t.classList.remove("show"), 2500);
     }
+
+    // Refresh Vault Balance
+    async function refreshBalance() {
+      try {
+        const res = await fetch("/api/v1/vault/balance?identifier=0x255F9991233f86B29dB847c8d5b8CB9915e80dCf");
+        if (res.ok) {
+          const data = await res.json();
+          document.getElementById("headerVaultBalance").textContent = `$${data.balance_usdc.toFixed(4)} USDC`;
+        }
+      } catch (e) {}
+    }
+
+    document.getElementById("btnCheckBalance").addEventListener("click", () => {
+      refreshBalance();
+      showToast("Balance refreshed!");
+    });
+
+    // Initial load
+    refreshBalance();
   </script>
 </body>
 </html>

@@ -15,9 +15,9 @@ def test_full_autonomous_agent_vault_lifecycle():
     assert r402.status_code == 402
     data402 = r402.json()
     assert data402["status_code"] == 402
-    assert data402["audience"] == "AUTONOMOUS_AGENTS_ONLY"
-    assert data402["human_policy"] == "HUMANS_100%_BLOCKED"
-    assert r402.headers.get("X-Human-Policy") == "BLOCKED_AGENTS_ONLY"
+    assert data402["audience"] == "HUMANS_AND_AUTONOMOUS_AGENTS"
+    assert "OPEN_TO_ALL" in data402.get("access_policy", "")
+    assert r402.headers.get("X-Access-Policy") == "OPEN_TO_HUMANS_AND_AGENTS"
     assert "challenge" in data402
     
     # 2. Autonomous Agent Self-Funds Vault (2.0 USDC minimum)
@@ -106,19 +106,13 @@ def test_ui_html_payment_components():
     assert r_html.status_code == 200
     html = r_html.text
     
-    # Markdown Renderer and B2A Agent Vault integration checks
+    # Markdown Renderer and CleanWeb Studio integration checks
     assert "marked.min.js" in html
-    assert "depositVaultUSDC" in html
-    assert "customVaultAmtInput" in html
-    
-    # UI Modals, Toolbar, & Paywall components
-    assert "paymentModal" in html
-    assert "openPaymentModal" in html
-    assert "saveAndActivatePass" in html
-    assert "payCryptoUSDC" in html
-    assert "console-toolbar" in html
-    assert "tab-pricing" in html
-    assert "tab-oracle" in html
-    assert "runOracleGrounding" in html
+    assert "headerVaultBalance" in html
+    assert "btnCheckBalance" in html
+    assert "currentOutputTab" in html
+    assert "tabProofBtn" in html
+    assert "tabJsonBtn" in html
+
 
 

@@ -1,0 +1,28 @@
+{
+  "network": "Polygon Mainnet",
+  "chainId": 137,
+  "deployer": "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf",
+  "treasury": "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf",
+  "timestamp_utc": "2026-09-14T12:20:00Z",
+  "contracts": {
+    "AgentPaymentVault": {
+      "address": "0x45ecBfAa2F4B0Bc6ccD3eB2dB9B1Ca49CF121861",
+      "usdcToken": "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
+      "operator": "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf",
+      "verified": true,
+      "explorer_link": "https://polygonscan.com/address/0x45ecBfAa2F4B0Bc6ccD3eB2dB9B1Ca49CF121861#code"
+    },
+    "CleanWebOracleConsumer": {
+      "address": "0xAECbfBc171F522c35985AABa2FA1F9881A046D66",
+      "trustedSigner": "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf",
+      "verified": true,
+      "explorer_link": "https://polygonscan.com/address/0xAECbfBc171F522c35985AABa2FA1F9881A046D66#code"
+    },
+    "CleanWebOracleVerifier": {
+      "address": "0x18fA451b1d9A9FbbDa6Ebd86F8b42891866ADc46",
+      "trustedSigner": "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf",
+      "verified": true,
+      "explorer_link": "https://polygonscan.com/address/0x18fA451b1d9A9FbbDa6Ebd86F8b42891866ADc46#code"
+    }
+  }
+}
