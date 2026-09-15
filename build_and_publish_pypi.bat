@@ -1,9 +1,9 @@
 @echo off
 chcp 65001 >nul
-title PyPI Build & Publish - x402-cleanweb-agent v2.5.3
+title PyPI Build & Publish - x402-cleanweb-agent v2.5.4
 
 echo =========================================================
-echo  📦 PyPI Package Build & Publish Tool (v2.5.3)
+echo  📦 PyPI Package Build & Publish Tool (v2.5.4)
 echo =========================================================
 echo.
 

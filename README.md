@@ -1,9 +1,9 @@
-# ⚡ CleanWeb Studio & Spend Firewall (v2.5.3)
+# ⚡ CleanWeb Studio & Spend Firewall (v2.5.4)
 
 > **"Clean, Ad-Free Web Content & Verified On-Chain Data Oracle for Humans & Autonomous Agents."**  
 > *Zero credit cards required. Transparent pay-as-you-go Native USDC micropayments & pre-funded vaults with on-chain Polygon EIP-712 spend policy attestations.*
 
-[![Version](https://img.shields.io/badge/Version-2.5.3-00f2fe?style=for-the-badge&logo=fastapi&logoColor=black)](https://github.com/nohosa001-pixel/x402-cleanweb-agent)
+[![Version](https://img.shields.io/badge/Version-2.5.4-00f2fe?style=for-the-badge&logo=fastapi&logoColor=black)](https://github.com/nohosa001-pixel/x402-cleanweb-agent)
 [![Multi-Chain](https://img.shields.io/badge/Chains-Polygon%20(Verified)%20%7C%20Base%20%7C%20Arbitrum-8247e5?style=for-the-badge&logo=ethereum&logoColor=white)](https://polygonscan.com/address/0x45ecBfAa2F4B0Bc6ccD3eB2dB9B1Ca49CF121861#code)
 [![Access](https://img.shields.io/badge/Access-Humans%20%26%20AI%20Agents-10b981?style=for-the-badge&logo=probot&logoColor=white)](http://localhost:8080/dashboard)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -80,7 +80,7 @@ require(
 
 ## 🏛️ Official On-Chain Smart Contracts (Polygon, Base, Arbitrum)
 
-CleanWeb Studio v2.5.3 deploys verified, deterministic smart contracts for on-chain EIP-712 oracle verification and autonomous agent pre-funded vault management.
+CleanWeb Studio v2.5.4 deploys verified, deterministic smart contracts for on-chain EIP-712 oracle verification and autonomous agent pre-funded vault management.
 
 | Contract Name | Polygon Mainnet (137) | Base Mainnet (8453) | Arbitrum One (42161) |
 | :--- | :--- | :--- | :--- |
