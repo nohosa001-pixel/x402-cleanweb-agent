@@ -4,6 +4,7 @@
 > *Zero credit cards required. Transparent pay-as-you-go Native USDC micropayments & pre-funded vaults with on-chain Polygon EIP-712 spend policy attestations.*
 
 [![Version](https://img.shields.io/badge/Version-2.5.4-00f2fe?style=for-the-badge&logo=fastapi&logoColor=black)](https://github.com/nohosa001-pixel/x402-cleanweb-agent)
+[![Glama MCP](https://img.shields.io/badge/MCP-Glama.ai%20Verified-blueviolet?style=for-the-badge&logo=anthropic&logoColor=white)](https://glama.ai/mcp/servers)
 [![Multi-Chain](https://img.shields.io/badge/Chains-Polygon%20(Verified)%20%7C%20Base%20%7C%20Arbitrum-8247e5?style=for-the-badge&logo=ethereum&logoColor=white)](https://polygonscan.com/address/0x45ecBfAa2F4B0Bc6ccD3eB2dB9B1Ca49CF121861#code)
 [![Access](https://img.shields.io/badge/Access-Humans%20%26%20AI%20Agents-10b981?style=for-the-badge&logo=probot&logoColor=white)](http://localhost:8080/dashboard)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -87,6 +88,30 @@ CleanWeb Studio v2.5.4 deploys verified, deterministic smart contracts for on-ch
 | **`AgentPaymentVault`** | [`0x45ecBf...1861`](https://polygonscan.com/address/0x45ecBfAa2F4B0Bc6ccD3eB2dB9B1Ca49CF121861) | [`0x28292D...76DD`](https://basescan.org/address/0x28292D76E07E5539F15F3b97935dE8E0432E76DD) | [`0x28292D...76DD`](https://arbiscan.io/address/0x28292D76E07E5539F15F3b97935dE8E0432E76DD) |
 | **`CleanWebOracleConsumer`** | [`0xAECbfB...6D66`](https://polygonscan.com/address/0xAECbfBc171F522c35985AABa2FA1F9881A046D66) | [`0x2394d8...dabe`](https://basescan.org/address/0x2394d888Bd4FFeD472318B891FA17f7F9119dabe) | [`0x2394d8...dabe`](https://arbiscan.io/address/0x2394d888Bd4FFeD472318B891FA17f7F9119dabe) |
 | **`CleanWebOracleVerifier`** | [`0x18fA45...Dc46`](https://polygonscan.com/address/0x18fA451b1d9A9FbbDa6Ebd86F8b42891866ADc46) | [`0x3eD259...0740`](https://basescan.org/address/0x3eD259e47ebA439A9A35489787482B0003310740) | [`0x3eD259...0740`](https://arbiscan.io/address/0x3eD259e47ebA439A9A35489787482B0003310740) |
+
+---
+
+## 🤖 Glama.ai MCP Server Integration
+
+CleanWeb Studio is fully compliant with the **Model Context Protocol (MCP)** specification via [`glama.json`](glama.json).
+Connect seamlessly to **Claude Desktop, Cursor, and Glama.ai**:
+
+```json
+{
+  "mcpServers": {
+    "polygon-x402-cleanweb": {
+      "command": "python",
+      "args": ["-u", "mcp_server.py"],
+      "env": {
+        "POLYGON_RPC_URL": "https://polygon-bor-rpc.publicnode.com",
+        "SERVER_WALLET_ADDRESS": "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf",
+        "USDC_CONTRACT_ADDRESS": "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359"
+      }
+    }
+  }
+}
+```
+* **Glama Directory**: Listed under [`glama.json`](glama.json) with 14 production agent tools.
 
 ---
 

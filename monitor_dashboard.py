@@ -22,8 +22,7 @@ if hasattr(sys.stdout, "reconfigure"):
 # .env 로드
 load_dotenv(override=True)
 
-# Configuration & Constants
-GCP_URL = os.getenv("GCP_GATEWAY_URL", "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app")
+GCP_URL = os.getenv("GCP_GATEWAY_URL", "https://x402-cleanweb-agent-212942243360.asia-northeast3.run.app")
 RECIPIENT_WALLET = os.getenv("SERVER_WALLET_ADDRESS", "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf")
 USDC_CONTRACT = os.getenv("USDC_CONTRACT_ADDRESS", "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359")
 POLYGON_RPC = os.getenv("POLYGON_RPC_URL", "https://polygon-bor-rpc.publicnode.com")
