@@ -63,7 +63,7 @@ This guide provides everything required to verify and publicly display **`AgentP
 
 ---
 
-## 3. Base (Chain ID: 8453) Multi-Chain Parameters
+## 3. Base (Chain ID: 8453) Multi-Chain Parameters (✔ Verified on BaseScan)
 
 * **Native USDC Address**: `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`
 * **Direct Verify URLs**:

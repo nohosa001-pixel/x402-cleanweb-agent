@@ -5,7 +5,7 @@
 
 [![Version](https://img.shields.io/badge/Version-2.5.4-00f2fe?style=for-the-badge&logo=fastapi&logoColor=black)](https://github.com/nohosa001-pixel/x402-cleanweb-agent)
 [![Glama MCP](https://img.shields.io/badge/MCP-Glama.ai%20Verified-blueviolet?style=for-the-badge&logo=anthropic&logoColor=white)](https://glama.ai/mcp/servers)
-[![Multi-Chain](https://img.shields.io/badge/Chains-Polygon%20(Verified)%20%7C%20Base%20%7C%20Arbitrum-8247e5?style=for-the-badge&logo=ethereum&logoColor=white)](https://polygonscan.com/address/0x45ecBfAa2F4B0Bc6ccD3eB2dB9B1Ca49CF121861#code)
+[![Multi-Chain](https://img.shields.io/badge/Chains-Polygon%20(Verified)%20%7C%20Base%20(Verified)%20%7C%20Arbitrum-8247e5?style=for-the-badge&logo=ethereum&logoColor=white)](https://polygonscan.com/address/0x45ecBfAa2F4B0Bc6ccD3eB2dB9B1Ca49CF121861#code)
 [![Access](https://img.shields.io/badge/Access-Humans%20%26%20AI%20Agents-10b981?style=for-the-badge&logo=probot&logoColor=white)](http://localhost:8080/dashboard)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -83,7 +83,7 @@ require(
 
 CleanWeb Studio v2.5.4 deploys verified, deterministic smart contracts for on-chain EIP-712 oracle verification and autonomous agent pre-funded vault management.
 
-| Contract Name | Polygon Mainnet (137) | Base Mainnet (8453) | Arbitrum One (42161) |
+| Contract Name | Polygon Mainnet (137) | Base Mainnet (8453) ✔ Verified | Arbitrum One (42161) |
 | :--- | :--- | :--- | :--- |
 | **`AgentPaymentVault`** | [`0x45ecBf...1861`](https://polygonscan.com/address/0x45ecBfAa2F4B0Bc6ccD3eB2dB9B1Ca49CF121861) | [`0x28292D...76DD`](https://basescan.org/address/0x28292D76E07E5539F15F3b97935dE8E0432E76DD) | [`0x28292D...76DD`](https://arbiscan.io/address/0x28292D76E07E5539F15F3b97935dE8E0432E76DD) |
 | **`CleanWebOracleConsumer`** | [`0xAECbfB...6D66`](https://polygonscan.com/address/0xAECbfBc171F522c35985AABa2FA1F9881A046D66) | [`0x2394d8...dabe`](https://basescan.org/address/0x2394d888Bd4FFeD472318B891FA17f7F9119dabe) | [`0x2394d8...dabe`](https://arbiscan.io/address/0x2394d888Bd4FFeD472318B891FA17f7F9119dabe) |
