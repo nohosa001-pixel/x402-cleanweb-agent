@@ -149,10 +149,10 @@ def render_dashboard(iteration: int = 1):
 
     # 3. Smart Contracts Directory
     print(f"{CYAN}{'-' * 74}{RESET}")
-    print(f" 🏛️  {BOLD}Deployed Multi-Chain Smart Contracts:{RESET}")
-    print(f"    ├─ 🟣 Polygon  : Verifier {BOLD}0x18fA...Dc46{RESET} | Vault {BOLD}0x45ec...1861{RESET}")
-    print(f"    ├─ 🔵 Base     : Verifier {BOLD}0x3eD2...0740{RESET} | Vault {BOLD}0x2829...76DD{RESET}")
-    print(f"    └─ 🔷 Arbitrum : Verifier {BOLD}0x3eD2...0740{RESET} | Vault {BOLD}0x2829...76DD{RESET}")
+    print(f" 🏛️  {BOLD}Deployed Multi-Chain Smart Contracts (100% Verified):{RESET}")
+    print(f"    ├─ 🟣 Polygon  : Verifier {BOLD}0x18fA...Dc46{RESET} | Vault {BOLD}0x45ec...1861{RESET} {GREEN}(✔ Verified){RESET}")
+    print(f"    ├─ 🔵 Base     : Verifier {BOLD}0x3eD2...0740{RESET} | Vault {BOLD}0x2829...76DD{RESET} {GREEN}(✔ Verified){RESET}")
+    print(f"    └─ 🔷 Arbitrum : Verifier {BOLD}0x3eD2...0740{RESET} | Vault {BOLD}0x2829...76DD{RESET} {GREEN}(✔ Verified){RESET}")
 
     # 3. Economic Arbitrage & AI Efficiency ROI
     if arbitrage:

@@ -81,7 +81,7 @@ This guide provides everything required to verify and publicly display **`AgentP
 
 ---
 
-## 4. Arbitrum One (Chain ID: 42161) Multi-Chain Parameters
+## 4. Arbitrum One (Chain ID: 42161) Multi-Chain Parameters (✔ Verified on Arbiscan)
 
 * **Native USDC Address**: `0xaf88d065e77c8cC2239327C5EDb3A432268e5831`
 * **Direct Verify URLs**:
