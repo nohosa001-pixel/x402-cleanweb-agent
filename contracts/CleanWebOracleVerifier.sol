@@ -19,9 +19,15 @@ contract CleanWebOracleVerifier {
 
     bytes32 public immutable DOMAIN_SEPARATOR;
     address public oracleSigner;
+    address public owner;
 
     event OracleAttestationVerified(string query, bytes32 indexed dataHash, uint256 timestamp, address indexed signer);
     event OracleSignerUpdated(address indexed oldSigner, address indexed newSigner);
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only owner can call");
+        _;
+    }
 
     /**
      * @notice Initializes the verifier with the official CleanWeb treasury/oracle address.
@@ -29,6 +35,7 @@ contract CleanWebOracleVerifier {
      */
     constructor(address _oracleSigner) {
         require(_oracleSigner != address(0), "Invalid oracle signer");
+        owner = msg.sender;
         oracleSigner = _oracleSigner;
 
         DOMAIN_SEPARATOR = keccak256(
@@ -40,6 +47,16 @@ contract CleanWebOracleVerifier {
                 address(this)
             )
         );
+    }
+
+    /**
+     * @notice Updates the oracle signer address. Restricted to contract owner.
+     * @param _newSigner The new oracle signer address
+     */
+    function setOracleSigner(address _newSigner) external onlyOwner {
+        require(_newSigner != address(0), "Invalid signer address");
+        emit OracleSignerUpdated(oracleSigner, _newSigner);
+        oracleSigner = _newSigner;
     }
 
     /**

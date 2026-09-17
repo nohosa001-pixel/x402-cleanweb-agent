@@ -1,0 +1,39 @@
+{
+  "$schema": "https://modelcontextprotocol.io/schemas/server-card.json",
+  "name": "x402-cleanweb-agent",
+  "version": "2.5.4",
+  "title": "Polygon x402 CleanWeb & Autonomous Web3 Agent Suite",
+  "description": "Universal MCP server for high-efficiency web cleaning, YouTube transcript analysis, research paper extraction, and EIP-712 Web3 Oracles on Polygon, Base, and Arbitrum. Includes 3 free trial queries out-of-the-box.",
+  "publisher": {
+    "name": "x402 AI Autonomous Systems",
+    "url": "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nohosa001-pixel/x402-cleanweb-agent"
+  },
+  "package": {
+    "registry": "pypi",
+    "name": "x402-cleanweb-agent",
+    "url": "https://pypi.org/project/x402-cleanweb-agent/"
+  },
+  "transport": {
+    "type": "stdio",
+    "command": "uvx",
+    "args": ["x402-cleanweb-agent"]
+  },
+  "capabilities": {
+    "tools": true,
+    "resources": false,
+    "prompts": true
+  },
+  "tools_count": 14,
+  "configuration": {
+    "mcpServers": {
+      "polygon-x402-cleanweb": {
+        "command": "uvx",
+        "args": ["x402-cleanweb-agent"]
+      }
+    }
+  }
+}

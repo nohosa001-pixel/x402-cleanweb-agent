@@ -1,0 +1,18 @@
+{
+  "schema_version": "v1",
+  "name_for_model": "x402_cleanweb_agent",
+  "name_for_human": "x402 CleanWeb & Web3 Agent Suite",
+  "description_for_model": "Autonomous B2A data extraction, web cleaning, YouTube video intelligence, research paper extraction, and EIP-712 Web3 Oracles. Saves 87% LLM context tokens. Supports HTTP 402 USDC micropayments and zero-auth discovery passes.",
+  "description_for_human": "High-efficiency web cleaner, YouTube intelligence, and Web3 oracle suite for AI agents with crypto micropayments.",
+  "auth": {
+    "type": "none"
+  },
+  "api": {
+    "type": "openapi",
+    "url": "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/openapi.json",
+    "has_user_authentication": false
+  },
+  "logo_url": "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/static/favicon.ico",
+  "contact_email": "agents@x402.org",
+  "legal_info_url": "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/api/v1/legal/terms"
+}

@@ -124,10 +124,12 @@ def run_tests():
     res = client.get("/api/v1/clean-web?url=https://example.com")
     if res.status_code == 402:
         data = res.json()
+        recipient = data.get("recipient") or data.get("recipient_wallet")
+        networks = data.get("networks") or data.get("payment_methods_accepted") or data.get("challenge", {}).get("payment_methods_accepted")
         print(f"  🛡️ HTTP 상태 코드: {res.status_code} Payment Required (정상)")
         print(f"  💰 요구 결제 금액: {data.get('amount_usdc')} USDC")
-        print(f"  📬 수신 지갑 주소: {data.get('recipient_address')}")
-        print(f"  🌐 지원 네트워크: {data.get('supported_networks')}")
+        print(f"  📬 수신 지갑 주소: {recipient}")
+        print(f"  🌐 지원 결제 수단: {networks}")
         print("  ✅ [PASS] x402 프로토콜 규격대로 무단 접근 완벽 차단 및 결제 가이드 반환")
         passed_count += 1
     else:
@@ -143,8 +145,9 @@ def run_tests():
     if res.status_code == 200:
         data = res.json()
         receipt = data.get("payment_receipt", {})
+        cost = receipt.get("cost_usdc") if receipt.get("cost_usdc") is not None else receipt.get("amount_usdc")
         print(f"  🧾 결제 승인 수단: {receipt.get('payment_method')}")
-        print(f"  💵 차감된 금액: ${receipt.get('amount_usdc')} USDC")
+        print(f"  💵 차감된 금액: ${cost} USDC")
         print(f"  💳 잔여 볼트 잔액: ${receipt.get('remaining_vault_balance'):.4f} USDC")
         print(f"  📄 스크래핑된 문서 제목: {data.get('title')}")
         print("  ✅ [PASS] 에이전트 선입금 볼트에서 지연 없이 자동 차감 및 서비스 제공 성공")
@@ -211,10 +214,10 @@ def run_tests():
     res = client.get("/health?deep=true")
     if res.status_code == 200:
         diag = res.json()
-        overall = diag.get("overall_status")
+        overall = diag.get("system_health") or diag.get("overall_status")
         print(f"  🩺 종합 헬스 상태: {overall}")
         for p in diag.get("pipelines", []):
-            status_icon = "🟢" if p.get("status") == "healthy" else "🟡"
+            status_icon = "🟢" if p.get("status") == "HEALTHY" or p.get("status") == "healthy" else "🟡"
             print(f"     {status_icon} {p.get('name')}: {p.get('status')} ({p.get('latency_ms')}ms)")
         print("  ✅ [PASS] 전체 핵심 엔진 및 RPC 노드 정상 동작")
         passed_count += 1

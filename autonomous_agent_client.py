@@ -509,8 +509,8 @@ if __name__ == "__main__":
 
     agent = AutonomousX402Agent(private_key="0xYOUR_AGENT_PRIVATE_KEY")
     
-    # 1. Mint zero-latency credit pass
-    pass_token = agent.mint_credit_pass(amount_usdc=1.0)
+    # 1. Mint zero-latency credit pass (2.0 USDC minimum)
+    pass_token = agent.mint_credit_pass(amount_usdc=2.0)
     
     # 2. Scrape with 0ms latency
     result = agent.clean_web("https://example.com/article", agent_pass=pass_token)

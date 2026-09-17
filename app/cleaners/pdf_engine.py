@@ -77,6 +77,7 @@ class PDFCleanerEngine:
         latency_ms = round((time.time() - start_time) * 1000, 2)
 
         return {
+            "status": "success",
             "url": url,
             "total_pages": total_pages,
             "parsed_pages": pages_to_read,

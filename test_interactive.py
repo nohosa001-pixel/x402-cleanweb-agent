@@ -153,9 +153,13 @@ def interactive_menu():
             print("Invalid option. Please try again.")
 
 
-if __name__ == "__main__":
+def main():
     if len(sys.argv) > 1 and sys.argv[1] in ("--auto-test", "-a", "--test"):
         print_banner()
         run_automated_suite()
     else:
         interactive_menu()
+
+
+if __name__ == "__main__":
+    main()

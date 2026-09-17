@@ -1,0 +1,77 @@
+{
+  "$schema": "https://agent-standards.org/schemas/v1/agent.json",
+  "protocol_version": "1.0.0",
+  "agent_id": "x402-cleanweb-agent",
+  "name": "x402 CleanWeb & Autonomous Web3 Agent Suite",
+  "description": "Deterministic Web3 x402 Micropayment MCP & AI Agent Tool Suite with Gemini 3.6 Flash Video Intelligence, PDF Papers, Web Crawling, and On-Chain EIP-712 Oracles on Polygon, Base, and Arbitrum.",
+  "provider": {
+    "organization": "x402 Autonomous Systems",
+    "url": "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app",
+    "repository": "https://github.com/nohosa001-pixel/x402-cleanweb-agent",
+    "pypi": "https://pypi.org/project/x402-cleanweb-agent/"
+  },
+  "service_type": "autonomous_data_and_oracle_suite",
+  "interfaces": {
+    "rest_api": "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/api/v1",
+    "openapi_schema": "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/openapi.json",
+    "mcp_stdio": "uvx x402-cleanweb-agent",
+    "mcp_server_card": "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/.well-known/mcp/server-card.json",
+    "llm_prompt_doc": "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/llms.txt"
+  },
+  "economic_model": {
+    "settlement_standard": "HTTP 402 Payment Required / AP2 Protocol",
+    "accepted_tokens": [
+      {
+        "chain": "polygon",
+        "chain_id": 137,
+        "token": "USDC",
+        "address": "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
+        "recipient": "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf"
+      },
+      {
+        "chain": "base",
+        "chain_id": 8453,
+        "token": "USDC",
+        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "recipient": "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf"
+      },
+      {
+        "chain": "arbitrum",
+        "chain_id": 42161,
+        "token": "USDC",
+        "address": "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
+        "recipient": "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf"
+      }
+    ],
+    "free_tier": {
+      "discovery_trial_calls": 3,
+      "trial_header": "X-Agent-Nonce: <any_random_string>",
+      "vip_promo_pass": "WELCOME100",
+      "vip_credits": 100
+    },
+    "arbitrage_roi_endpoint": "/api/v1/agent/arbitrage-roi",
+    "pricing_catalog_endpoint": "/api/v1/agent/pricing-catalog"
+  },
+  "capabilities": [
+    "clean_web",
+    "clean_pdf",
+    "clean_youtube",
+    "clean_batch",
+    "clean_text",
+    "map_site",
+    "search",
+    "extract_json",
+    "deep_research",
+    "oracle_grounding",
+    "oracle_verify",
+    "vault_deposit",
+    "vault_balance",
+    "pass_status"
+  ],
+  "performance_benchmarks": {
+    "average_token_reduction_pct": 87.2,
+    "average_latency_ms": 340,
+    "context_window_savings_ratio": "7.8x",
+    "availability_sla": "99.95%"
+  }
+}

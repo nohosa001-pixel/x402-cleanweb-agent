@@ -104,6 +104,13 @@ class ScrapeMetadata(BaseModel):
 
 
 # --- Web Cleaner Schemas ---
+class CleanWebRequest(BaseModel):
+    url: str = Field(..., description="Target webpage URL to scrape and convert to markdown")
+    onchain_proof: bool = Field(False, description="Whether to generate EIP-712 cryptographic attestation")
+    secure_audit: bool = Field(False, description="Run real-time AST, prompt injection, and EIP-712 security audit")
+    respect_robots_txt: bool = Field(False, description="Whether to enforce target domain robots.txt compliance")
+
+
 class WebCleanResponse(BaseModel):
     status: str = "success"
     url: str

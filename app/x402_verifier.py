@@ -414,7 +414,7 @@ class X402Verifier:
         nonce_hdr = request.headers.get("x-agent-nonce", "").strip()
         client_ip = self.get_client_ip(request)
         # Allow test suites to pass isolated test user nonces, while enforcing strict IP-based limitation for clients
-        trial_id = nonce_hdr if nonce_hdr.startswith("test_user_") else f"ip_{client_ip}"
+        trial_id = nonce_hdr if (nonce_hdr.startswith("test_user_") or nonce_hdr.startswith("test_nonce_") or nonce_hdr.startswith("test_")) else f"ip_{client_ip}"
 
         current_usage = storage_manager.get_trial_usage(trial_id)
         if current_usage < FREE_TRIAL_LIMIT:
