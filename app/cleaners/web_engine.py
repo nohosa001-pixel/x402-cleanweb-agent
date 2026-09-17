@@ -163,11 +163,17 @@ class WebCleanerEngine:
                 return jina_res
             raise primary_err
 
-        # Handle encoding
-        if resp.encoding is None or resp.encoding == "ISO-8859-1":
-            resp.encoding = resp.apparent_encoding or "utf-8"
+        # Safeguard: Protect against memory bombs and runaway payloads
+        content_length = resp.headers.get("Content-Length")
+        if content_length:
+            try:
+                if int(content_length) > 10 * 1024 * 1024:
+                    raise ValueError(f"Target webpage exceeds maximum allowed size of 10MB (got {int(content_length)/(1024*1024):.1f}MB).")
+            except ValueError as ve:
+                if "exceeds maximum" in str(ve):
+                    raise ve
 
-        html_text = resp.text
+        html_text = resp.text[:2_000_000]
         raw_tokens = max(1, len(html_text) // 4)
         soup = BeautifulSoup(html_text, "html.parser")
 

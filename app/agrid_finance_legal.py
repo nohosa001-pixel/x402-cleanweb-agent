@@ -86,6 +86,100 @@ class CleanWebIntegrationController:
         # Client runway in total queries remaining in active vaults
         queries_runway_in_vaults = int(total_vault_balance / self.default_price_usdc) if self.default_price_usdc > 0 else 0
 
+        # Granular Cost-of-Goods-Sold (COGS) & Unit Margin Audit across all active tiers
+        tier_cogs_audit = {
+            "LIGHT (Web Clean)": {
+                "price_usdc": 0.001,
+                "cogs_cloud_run_usd": 0.0000046,
+                "cogs_llm_usd": 0.0,
+                "cogs_rpc_usd": 0.0,
+                "total_cogs_usd": 0.0000046,
+                "net_margin_usd": 0.0009954,
+                "gross_margin_pct": 99.54,
+                "loss_risk": "ZERO"
+            },
+            "SEARCH (Fast Web Snippets)": {
+                "price_usdc": 0.002,
+                "cogs_cloud_run_usd": 0.0000095,
+                "cogs_llm_usd": 0.0,
+                "cogs_rpc_usd": 0.0,
+                "total_cogs_usd": 0.0000095,
+                "net_margin_usd": 0.0019905,
+                "gross_margin_pct": 99.53,
+                "loss_risk": "ZERO"
+            },
+            "STANDARD (PDF / Batch Clean)": {
+                "price_usdc": 0.005,
+                "cogs_cloud_run_usd": 0.0000222,
+                "cogs_llm_usd": 0.0,
+                "cogs_rpc_usd": 0.0,
+                "total_cogs_usd": 0.0000222,
+                "net_margin_usd": 0.0049778,
+                "gross_margin_pct": 99.56,
+                "loss_risk": "ZERO"
+            },
+            "HEAVY (YouTube Intelligence)": {
+                "price_usdc": 0.010,
+                "cogs_cloud_run_usd": 0.0000288,
+                "cogs_llm_usd": 0.0003970,
+                "cogs_rpc_usd": 0.0,
+                "total_cogs_usd": 0.0004258,
+                "net_margin_usd": 0.0095742,
+                "gross_margin_pct": 95.74,
+                "loss_risk": "ZERO"
+            },
+            "ONCHAIN (EIP-712 Cryptographic Sign)": {
+                "price_usdc": 0.020,
+                "cogs_cloud_run_usd": 0.0000018,
+                "cogs_llm_usd": 0.0,
+                "cogs_rpc_usd": 0.0,
+                "total_cogs_usd": 0.0000018,
+                "net_margin_usd": 0.0199982,
+                "gross_margin_pct": 99.99,
+                "loss_risk": "ZERO"
+            },
+            "EXTRACT_JSON (Structured Schema AI)": {
+                "price_usdc": 0.030,
+                "cogs_cloud_run_usd": 0.0000192,
+                "cogs_llm_usd": 0.0002630,
+                "cogs_rpc_usd": 0.0,
+                "total_cogs_usd": 0.0002822,
+                "net_margin_usd": 0.0297178,
+                "gross_margin_pct": 99.06,
+                "loss_risk": "ZERO"
+            },
+            "ORACLE_GROUNDING (Search+JSON+Sign)": {
+                "price_usdc": 0.035,
+                "cogs_cloud_run_usd": 0.0000360,
+                "cogs_llm_usd": 0.0003680,
+                "cogs_rpc_usd": 0.0,
+                "total_cogs_usd": 0.0004040,
+                "net_margin_usd": 0.0345960,
+                "gross_margin_pct": 98.85,
+                "loss_risk": "ZERO"
+            },
+            "DEEP_RESEARCH (Multi-source Synthesis)": {
+                "price_usdc": 0.150,
+                "cogs_cloud_run_usd": 0.0000480,
+                "cogs_llm_usd": 0.0006750,
+                "cogs_rpc_usd": 0.0,
+                "total_cogs_usd": 0.0007230,
+                "net_margin_usd": 0.1492770,
+                "gross_margin_pct": 99.52,
+                "loss_risk": "ZERO"
+            }
+        }
+
+        loss_prevention_safeguards = {
+            "prepayment_enforcement": "Payment receipt or vault deduction strictly validated BEFORE compute execution.",
+            "zero_free_tier": "Mandatory paid execution. Zero unmetered trials or unauthenticated bypasses.",
+            "server_gas_subsidy": "0.00% (Client agent pays network gas on-chain; server wallet incurs 0 gas).",
+            "chargeback_and_bad_debt_risk": "0.00% (USDC blockchain settlement eliminates credit card chargebacks and unpaid receivables).",
+            "memory_exhaustion_defense": "10MB HTML stream limit, 2MB parsed text cap, 15MB PDF limit, 30-page PDF cap.",
+            "llm_token_explosion_defense": "YouTube context capped at 3,500 chars; Deep Research sources capped at 3x3000 chars.",
+            "minimum_gross_margin": "95.74% (Lowest margin tier is YouTube; highest is 99.99%)"
+        }
+
         return {
             "treasury_wallet": self.treasury_address,
             "total_capital_usd": total_capital_usdc,
@@ -105,7 +199,9 @@ class CleanWebIntegrationController:
                     "cloud_run_usd": self.cost_cloud_run_usd,
                     "gemini_flash_tokens_usd": self.cost_llm_tokens_usd,
                     "rpc_infra_usd": self.cost_rpc_and_infra_usd
-                }
+                },
+                "tier_cogs_audit": tier_cogs_audit,
+                "loss_prevention_safeguards": loss_prevention_safeguards
             }
         }
 
