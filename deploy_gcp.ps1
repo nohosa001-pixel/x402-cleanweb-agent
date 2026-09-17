@@ -15,7 +15,7 @@ if (-not (Get-Command gcloud -ErrorAction SilentlyContinue)) {
 # 2. Get current GCP Project
 $currentProject = (gcloud config get-value project 2>$null).Trim()
 if ([string]::IsNullOrEmpty($currentProject)) {
-    $currentProject = Read-Host "Enter GCP Project ID"
+    $currentProject = "my-nohosa-87175"
     gcloud config set project $currentProject
 }
 
