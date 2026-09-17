@@ -44,10 +44,9 @@
       }
     ],
     "free_tier": {
-      "discovery_trial_calls": 3,
-      "trial_header": "X-Agent-Nonce: <any_random_string>",
-      "vip_promo_pass": "WELCOME100",
-      "vip_credits": 100
+      "discovery_trial_calls": 0,
+      "policy": "MANDATORY_PAYMENT_REQUIRED",
+      "free_trials": false
     },
     "arbitrage_roi_endpoint": "/api/v1/agent/arbitrage-roi",
     "pricing_catalog_endpoint": "/api/v1/agent/pricing-catalog"

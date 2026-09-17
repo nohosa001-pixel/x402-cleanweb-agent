@@ -355,10 +355,10 @@ def get_agent_capabilities():
             {"name": "Arbitrum One", "chain_id": 42161, "vault": "0x3eD21B72583569769B73a3885d562145b23d57E3"}
         ],
         "trial_policy": {
-            "free_calls_per_nonce": 3,
-            "header": "X-Agent-Nonce: <unique_session_id>",
-            "vip_trial_code": "WELCOME100",
-            "vip_credits": 100
+            "free_calls_per_nonce": 0,
+            "policy": "MANDATORY_PAID_EXECUTION",
+            "free_trials": False,
+            "min_vault_deposit_usdc": 2.0
         },
         "performance_sla": {
             "average_token_reduction_pct": 87.2,
@@ -411,9 +411,9 @@ def get_pricing_catalog():
             {"tier": "SCALE", "price_usdc": 5.00, "credits": 10000, "discount": "50%"}
         ],
         "zero_friction_trial": {
-            "unauthenticated_free_calls": 3,
-            "header_required": "X-Agent-Nonce: <uuid>",
-            "welcome_pass_code": "WELCOME100"
+            "unauthenticated_free_calls": 0,
+            "policy": "NO_FREE_TIER_PAYMENT_MANDATORY",
+            "access_method": "X-Vault-Key or On-Chain Tx"
         }
     }
 

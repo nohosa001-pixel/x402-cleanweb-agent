@@ -113,7 +113,7 @@ TIER_PRICING: Dict[PricingTier, Dict[str, Any]] = {
     },
 }
 
-FREE_TRIAL_LIMIT = int(os.getenv("FREE_TRIAL_LIMIT", "2"))
+FREE_TRIAL_LIMIT = int(os.getenv("FREE_TRIAL_LIMIT", "0"))
 
 
 class X402Verifier:
@@ -134,13 +134,10 @@ class X402Verifier:
         cfg = TIER_PRICING.get(tier, TIER_PRICING[PricingTier.LIGHT])
         cost = cfg["cost_usdc"]
         poly_cfg = multi_chain_manager.get_chain_config("polygon")
-        
-        usage = storage_manager.get_trial_usage(ip_or_nonce) if ip_or_nonce else 0
-        remaining_trials = max(0, FREE_TRIAL_LIMIT - usage)
 
         return PaymentChallenge(
             protocol="B2A_USDC_M2M",
-            instructions="Open for Autonomous AI Agents and Human Users (Pay-As-You-Go). Use X-Vault-Key (<1ms zero-gas) or submit on-chain USDC transfer tx hash.",
+            instructions="Strictly Paid Protocol for Autonomous AI Agents and Humans. Zero free tier. Use X-Vault-Key (<1ms zero-gas) or submit on-chain USDC transfer tx hash on Polygon, Base, or Arbitrum.",
             chain="polygon",
             chain_id=137,
             recipient_wallet=self.recipient_wallet,
@@ -150,8 +147,7 @@ class X402Verifier:
                 "VAULT_BALANCE",             # Priority 1: X-Vault-Key (sub-1ms, 0 gas)
                 "USDC_ONCHAIN_POLYGON",     # Native USDC on Polygon (137)
                 "USDC_ONCHAIN_BASE",        # Native USDC on Base (8453)
-                "USDC_ONCHAIN_ARBITRUM",    # Native USDC on Arbitrum (42161)
-                "SANDBOX_FREE_TRIAL"        # 2 free trials for onboarding
+                "USDC_ONCHAIN_ARBITRUM"     # Native USDC on Arbitrum (42161)
             ],
             pass_options={
                 "agent_vault_min_deposit": "2.0 USDC",
@@ -161,7 +157,7 @@ class X402Verifier:
             },
             vault_deposit_endpoint="/api/v1/vault/deposit",
             min_deposit_usdc=2.0,
-            free_trial_remaining=remaining_trials,
+            free_trial_remaining=0,
             nonce=f"nonce_{secrets.token_hex(8)}",
             timestamp=int(time.time()),
         )
@@ -410,28 +406,29 @@ class X402Verifier:
                     custom_detail=f"On-chain verification failed: {reason}"
                 )
 
-        # --- Strategy 4: Instant Sandbox Free Trial (IP-Protected) ---
-        nonce_hdr = request.headers.get("x-agent-nonce", "").strip()
-        client_ip = self.get_client_ip(request)
-        # Allow test suites to pass isolated test user nonces, while enforcing strict IP-based limitation for clients
-        trial_id = nonce_hdr if (nonce_hdr.startswith("test_user_") or nonce_hdr.startswith("test_nonce_") or nonce_hdr.startswith("test_")) else f"ip_{client_ip}"
+        # --- Strategy 4: Instant Sandbox Free Trial (Disabled - Zero Free Tier) ---
+        if FREE_TRIAL_LIMIT > 0:
+            nonce_hdr = request.headers.get("x-agent-nonce", "").strip()
+            client_ip = self.get_client_ip(request)
+            # Allow test suites to pass isolated test user nonces, while enforcing strict IP-based limitation for clients
+            trial_id = nonce_hdr if (nonce_hdr.startswith("test_user_") or nonce_hdr.startswith("test_nonce_") or nonce_hdr.startswith("test_")) else f"ip_{client_ip}"
 
-        current_usage = storage_manager.get_trial_usage(trial_id)
-        if current_usage < FREE_TRIAL_LIMIT:
-            storage_manager.increment_trial_usage(trial_id)
-            rem = FREE_TRIAL_LIMIT - current_usage - 1
-            rcpt_id = f"rcpt_trial_{secrets.token_hex(6)}"
-            receipt = PaymentReceipt(
-                receipt_id=rcpt_id,
-                tier=tier,
-                payment_method=PaymentMethod.SANDBOX_FREE_TRIAL,
-                payer_address=f"sandbox_{trial_id[:16]}",
-                cost_usdc=0.0,
-                remaining_free_trials=rem,
-                settled_at=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-                auth={"mode": "SANDBOX_FREE_TRIAL", "remaining_free_trials": rem, "receipt_id": rcpt_id}
-            )
-            return True, receipt, None
+            current_usage = storage_manager.get_trial_usage(trial_id)
+            if current_usage < FREE_TRIAL_LIMIT:
+                storage_manager.increment_trial_usage(trial_id)
+                rem = FREE_TRIAL_LIMIT - current_usage - 1
+                rcpt_id = f"rcpt_trial_{secrets.token_hex(6)}"
+                receipt = PaymentReceipt(
+                    receipt_id=rcpt_id,
+                    tier=tier,
+                    payment_method=PaymentMethod.SANDBOX_FREE_TRIAL,
+                    payer_address=f"sandbox_{trial_id[:16]}",
+                    cost_usdc=0.0,
+                    remaining_free_trials=rem,
+                    settled_at=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                    auth={"mode": "SANDBOX_FREE_TRIAL", "remaining_free_trials": rem, "receipt_id": rcpt_id}
+                )
+                return True, receipt, None
 
         # --- Default: Return 402 Challenge ---
         return False, None, self.build_402_response(tier=tier, request=request)

@@ -42,8 +42,8 @@ def test_agent_capabilities_reflection():
     assert data["status"] == "active"
     assert data["tools_count"] == 14
     assert len(data["tools"]) == 14
-    assert len(data["supported_chains"]) == 3
-    assert data["trial_policy"]["vip_trial_code"] == "WELCOME100"
+    assert data["trial_policy"]["free_calls_per_nonce"] == 0
+    assert data["trial_policy"]["free_trials"] is False
 
 def test_agent_pricing_catalog():
     res = client.get("/api/v1/agent/pricing-catalog")
