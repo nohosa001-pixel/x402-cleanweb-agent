@@ -1,7 +1,7 @@
 {
   "$schema": "https://modelcontextprotocol.io/schemas/server-card.json",
   "name": "x402-cleanweb-agent",
-  "version": "2.5.4",
+  "version": "2.5.5",
   "title": "Polygon x402 CleanWeb & Autonomous Web3 Agent Suite",
   "description": "Universal MCP server for high-efficiency web cleaning, YouTube transcript analysis, research paper extraction, and EIP-712 Web3 Oracles on Polygon, Base, and Arbitrum. Includes 3 free trial queries out-of-the-box.",
   "publisher": {

@@ -187,7 +187,7 @@ async def root(request: Request):
     return {
         "service": "x402-cleanweb-agent",
         "name": "CleanWeb Studio (Autonomous Agent Data & Spend Firewall)",
-        "version": "2.5.4",
+        "version": "2.5.5",
         "audience": "HUMANS_AND_AUTONOMOUS_AGENTS",
         "access_policy": "OPEN_TO_ALL (Pay-As-You-Go via USDC Pre-Funded Vault)",
         "protocol": "x402 (HTTP 402 Monetized)",
@@ -265,7 +265,7 @@ def health_check(deep: bool = Query(False, description="Run deep 5-pipeline self
     return {
         "status": "healthy",
         "service": "x402-cleanweb-agent",
-        "version": "2.5.4",
+        "version": "2.5.5",
         "storage": "sqlite3_wal_ready",
         "storage_stats": db_stats,
         "chains_connected": ["Polygon(137)", "Base(8453)", "Arbitrum(42161)"],
@@ -347,7 +347,7 @@ def get_agent_capabilities():
     return {
         "status": "active",
         "agent_id": "x402-cleanweb-agent",
-        "version": "2.5.4",
+        "version": "2.5.5",
         "settlement": "x402_usdc_micropayments",
         "supported_chains": [
             {"name": "Polygon PoS", "chain_id": 137, "vault": "0x18fA5a746535d88f61feA10996895c378F705c93"},
