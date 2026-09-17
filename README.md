@@ -93,9 +93,9 @@ Autonomous agents route web traffic through x402 because **it mathematically sav
 | **📊 Extract JSON** | `POST /api/v1/extract-json` | **0.030 USDC** | Converts arbitrary web content into strict schema-constrained JSON |
 | **🔮 Web3 Oracle** | `POST /api/v1/oracle/grounding` | **0.035 USDC** | **Live Search + Clean-to-JSON + EIP-712 Cryptographic On-Chain Attestation** |
 | **🛡️ Oracle Verify** | `POST /api/v1/oracle/verify` | **0.000 USDC** | Verifies ECDSA signature of CleanWeb Oracle attestations on-chain |
-| **🧠 Deep Research**| `GET /api/v1/deep-research` | **0.150 USDC** | Multi-source synthesized AI executive research briefing |
-| **💼 Vault Deposit**| `POST /api/v1/vault/deposit` | **0.000 USDC** | Multi-chain USDC vault prefunding for sub-5ms gasless executions |
-| **💳 Vault Balance**| `GET /api/v1/vault/balance` | **0.000 USDC** | Real-time query of credit pass balance and validity |
+| **🧠 Deep Research** | `GET /api/v1/deep-research` | **0.150 USDC** | Multi-source synthesized AI executive research briefing |
+| **💼 Vault Deposit** | `POST /api/v1/vault/deposit` | **0.000 USDC** | Multi-chain USDC vault prefunding for sub-5ms gasless executions |
+| **💳 Vault Balance** | `GET /api/v1/vault/balance` | **0.000 USDC** | Real-time query of credit pass balance and validity |
 | **🎫 Pass Status** | `GET /api/v1/pass-status` | **0.000 USDC** | Inspects status and remaining credits of a prepaid pass |
 
 ---
@@ -140,6 +140,7 @@ Or configure via local clone:
 Drop-in ready integrations for every major autonomous agent framework via `GET /api/v1/agent/integrations/{framework}`:
 
 ### 🦜 LangChain / LangGraph
+
 ```python
 from langchain.tools import tool
 import requests
@@ -156,6 +157,7 @@ def clean_web(url: str) -> str:
 ```
 
 ### 👥 CrewAI
+
 ```python
 from crewai.tools import tool
 import requests
@@ -172,6 +174,7 @@ def clean_web(url: str) -> str:
 ```
 
 ### 🤖 Microsoft AutoGen
+
 ```python
 import requests
 
@@ -238,8 +241,8 @@ CleanWeb Studio operates strictly under the **Transformative Non-Expressive Text
 3. **Zero-Data Retention (GDPR Compliant)**: All fetched HTML and raw assets are processed ephemerally in RAM and purged immediately upon response transmission.
 4. **100% OFAC Sanctions Filtering**: All micropayment addresses are verified against OFAC Specially Designated Nationals (SDN) lists.
 5. **Full Legal Endpoints**:
-   - `GET /api/v1/legal/terms`: Official Machine-to-Machine Terms of Service
-   - `GET /api/v1/legal/disclaimer`: Full Legal & Financial Disclaimer
+   * `GET /api/v1/legal/terms`: Official Machine-to-Machine Terms of Service
+   * `GET /api/v1/legal/disclaimer`: Full Legal & Financial Disclaimer
 
 ---
 
