@@ -74,6 +74,7 @@ Issues = "https://github.com/nohosa001-pixel/x402-cleanweb-agent/issues"
 x402-cleanweb-agent = "mcp_server:main"
 x402-agent = "mcp_server:main"
 x402-mcp = "mcp_server:main"
+x402-cli = "x402_cleanweb_agent:main"
 x402-server = "main:main"
 x402-tester = "test_interactive:main"
 
