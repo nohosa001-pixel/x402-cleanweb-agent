@@ -118,7 +118,7 @@ def render_dashboard(iteration: int = 1):
 
     # 1. Cloud Run Gateway Status
     if health.get("status_code") == 200:
-        ver = health.get("version", "2.5.3")
+        ver = health.get("version", "2.5.5")
         passes = health.get("active_credit_passes", 0)
         lat = health.get("latency_ms", 0)
         chains = health.get("data", {}).get("chains_connected", ["Polygon", "Base", "Arbitrum"])

@@ -78,7 +78,7 @@ x402-server = "main:main"
 x402-tester = "test_interactive:main"
 
 [tool.setuptools]
-py-modules = ["main", "mcp_server", "test_interactive", "polygon_agent", "autonomous_agent_client", "agent_tools", "monitor_dashboard"]
+py-modules = ["main", "mcp_server", "test_interactive", "polygon_agent", "autonomous_agent_client", "agent_tools", "monitor_dashboard", "x402_cleanweb_agent"]
 
 [tool.setuptools.package-data]
 "*" = ["*.json", "*.txt", ".well-known/*", "contracts/*"]
