@@ -83,6 +83,33 @@ GLOBAL_THREAD = [
     )
 ]
 
+# 3. 순수 B2A 자율 에이전트 개발자 스레드 (B2A Autonomous Agent Infrastructure Thread)
+B2A_AGENT_THREAD = [
+    (
+        "Building AI Agents with LangChain, CrewAI, AutoGen, or Eliza? 🤖🛑\n\n"
+        "Stop burning 87% of your LLM context budget on messy HTML ads & boilerplate noise!\n\n"
+        "Introducing x402 CleanWeb Agent: The 100% Autonomous B2A (Machine-to-Machine) Data Oracle with HTTP 402 Micropayments 👇 (1/3)\n"
+        f"📦 PyPI: {PYPI_URL}\n"
+        "#AIAgents #LangChain #CrewAI #Web3 #MCP #x402"
+    ),
+    (
+        "⚡ Why Autonomous Agents choose x402:\n\n"
+        "• 📉 87.0% Token Noise Reduction (-86.2% Net LLM Inference Costs)\n"
+        "• 🛡️ Ingress Security Gate: Real-time Prompt Injection & Jailbreak Defense\n"
+        "• 🔐 Multi-Chain EIP-712 Cryptographic Signatures (Polygon, Base, Arbitrum)\n"
+        "• ⚡ Zero-Human In-the-Loop: 35ms Agent Vault settlement via X-Vault-Key\n\n"
+        "(2/3)"
+    ),
+    (
+        "🚀 Integrate into your AI agents in under 1 minute:\n\n"
+        "pip install x402-cleanweb-agent\n\n"
+        f"🌐 Live Production Gateway: {GCP_URL}\n"
+        f"🏛️ Smart Contracts Verified: Polygon | Base | Arbitrum\n"
+        f"📜 Docs & Architecture: {GITHUB_URL}\n\n"
+        "#Python #AutonomousAgents #EIP712 #Solidity (3/3)"
+    )
+]
+
 def build_status_alert_tweet():
     """사용자 관점의 서비스 UI 및 편의성 강조 단일 트윗"""
     return (
@@ -195,18 +222,21 @@ def main():
     print("==========================================================")
     print(" 1. 🇰🇷 한국 사용자 서비스 & UI 중심 스레드 게시")
     print(" 2. 🚀 글로벌 사용자 서비스 & UI 중심 스레드 게시")
-    print(" 3. 📄 웹 서비스 UI 소개 단일 트윗 게시")
-    print(" 4. ⏰ 백그라운드 정기 자동 알림 스케줄러 실행")
-    print(" 5. ⚙️ X API 연동 안내 및 상태 확인")
+    print(" 3. 🤖 순수 B2A 자율 에이전트 인프라 스레드 게시 (LangChain/CrewAI/AutoGen 개발자용)")
+    print(" 4. 📄 웹 서비스 UI 소개 단일 트윗 게시")
+    print(" 5. ⏰ 백그라운드 정기 자동 알림 스케줄러 실행")
+    print(" 6. ⚙️ X API 연동 안내 및 상태 확인")
     print("==========================================================")
     
-    choice = input("👉 원하는 작업 번호를 입력하세요 (기본값: 1): ").strip() or "1"
+    choice = input("👉 원하는 작업 번호를 입력하세요 (기본값: 3): ").strip() or "3"
     
     if choice == "1":
         run_post_thread(KOREAN_THREAD, "한국 사용자 서비스 스레드")
     elif choice == "2":
         run_post_thread(GLOBAL_THREAD, "글로벌 사용자 서비스 스레드")
     elif choice == "3":
+        run_post_thread(B2A_AGENT_THREAD, "B2A 자율 에이전트 인프라 스레드")
+    elif choice == "4":
         tweet = build_status_alert_tweet()
         print("\n" + tweet)
         if X_API_KEY and X_API_SECRET:
@@ -218,10 +248,10 @@ def main():
                 open_intent_tweet(tweet)
         else:
             open_intent_tweet(tweet)
-    elif choice == "4":
+    elif choice == "5":
         hours = input("알림 주기(시간)를 입력하세요 (기본값: 6): ").strip() or "6"
         run_scheduler(int(hours))
-    elif choice == "5":
+    elif choice == "6":
         print("\n[X API 연동 상태]")
         print(f" - X_API_KEY: {'✅ 설정됨' if X_API_KEY else '❌ 미설정 (Web Intent로 작동)'}")
         print(f" - X_API_SECRET: {'✅ 설정됨' if X_API_SECRET else '❌ 미설정'}")
@@ -238,6 +268,8 @@ if __name__ == "__main__":
             run_post_thread(KOREAN_THREAD, "한국 사용자 서비스 스레드")
         elif arg == "--auto-global":
             run_post_thread(GLOBAL_THREAD, "글로벌 사용자 서비스 스레드")
+        elif arg in ("--b2a", "--auto-b2a"):
+            run_post_thread(B2A_AGENT_THREAD, "B2A 자율 에이전트 인프라 스레드")
         elif arg == "--status":
             t = build_status_alert_tweet()
             print(t)

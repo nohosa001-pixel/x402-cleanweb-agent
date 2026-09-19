@@ -47,7 +47,7 @@
     },
     {
       "name": "get_pass_status",
-      "description": "Checks the active subscription status, remaining query quota, and validity period for an agent EVM wallet address (0x...) or Lemon Squeezy Pass Token. Returns pass tier, remaining balance, and expiration timestamp. Usage Guidelines: Use to verify micropayment allowance or query entitlements before dispatching heavy scrape batches."
+      "description": "Checks the active subscription status, remaining query quota, and validity period for an agent EVM wallet address (0x...) or Agent VIP Pass Token. Returns pass tier, remaining balance, and expiration timestamp. Usage Guidelines: Use to verify micropayment allowance or query entitlements before dispatching heavy scrape batches."
     },
     {
       "name": "oracle_grounding",

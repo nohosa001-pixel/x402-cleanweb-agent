@@ -2,7 +2,7 @@
 A GRID Enterprise Finance, Accounting & Legal Integration Module for x402-micro-agent (CleanWeb Studio).
 Provides:
 1. [Finance]: Multi-chain USDC treasury status, unit economics, agent vault runway forecasting.
-2. [Accounting]: Micro-payment double-entry journal entries, Lemon Squeezy passes, VAT & zero-rate export ledger.
+2. [Accounting]: Micro-payment double-entry journal entries, Agent VIP passes, VAT & zero-rate export ledger.
 3. [Legal]: Machine-to-Machine Terms of Service, Zero-Data Retention policy compliance, EIP-712 cryptographic proofs, OFAC screening.
 """
 
@@ -25,7 +25,7 @@ class CleanWebJournalEntry(BaseModel):
     account_credit: str = Field(description="대변 계정과목")
     amount_usdc: float
     amount_krw: int
-    source_type: str = Field(description="ONCHAIN_USDC, VAULT_DEDUCTION, LEMON_SQUEEZY_PASS")
+    source_type: str = Field(description="ONCHAIN_USDC, VAULT_DEDUCTION, AGENT_VIP_PASS")
     tax_category: str = Field(default="Zero-Rate Export (영세율 외화획득 용역) / M2M Micro-Service")
     reference_id: str = ""
     description: str = ""

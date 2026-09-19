@@ -25,6 +25,27 @@
 
 ---
 
+## 🤖 1-Minute Framework Integration (LangChain & CrewAI)
+
+Equip your autonomous agents with x402 clean web extraction in under 1 minute:
+
+```python
+# LangChain Agent Tool Example
+from examples.langchain_agent_example import clean_web_tool
+
+result = clean_web_tool.invoke({"url": "https://paulgraham.com/greatwork.html"})
+print(result)  # Clean markdown with 87% token noise reduction
+```
+
+```python
+# CrewAI Researcher Tool Example
+from examples.crewai_agent_example import clean_web_for_crewai
+
+content = clean_web_for_crewai("https://paulgraham.com/greatwork.html")
+```
+
+---
+
 ## ⚡ 10-Second Instant Test (Zero Auth / 3 Free Calls Included)
 
 No wallet, credit card, or API key needed. Attach an `X-Agent-Nonce` header to test immediately:

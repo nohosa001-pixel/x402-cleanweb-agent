@@ -52,8 +52,8 @@ def test_full_autonomous_agent_vault_lifecycle():
     assert paid_data["auth"]["mode"] == "VAULT_BALANCE"
 
 def test_human_webhook_endpoints_blocked():
-    # Verify legacy human webhooks are eliminated
-    r_ls = client.post("/api/v1/webhook/lemonsqueezy", json={"test": True})
+    # Verify legacy human payment webhook routes do not exist in pure B2A architecture
+    r_ls = client.post("/api/v1/webhook/payment", json={"test": True})
     assert r_ls.status_code in (404, 405)
 
 

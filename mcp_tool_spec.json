@@ -163,14 +163,14 @@
     },
     {
       "name": "get_pass_status",
-      "description": "Checks the active subscription status, remaining query quota, and validity period for an agent EVM wallet address (0x...) or Lemon Squeezy Pass Token. Returns pass tier, remaining balance, and expiration timestamp. Usage Guidelines: Use to verify micropayment allowance or query entitlements before dispatching heavy scrape batches.",
+      "description": "Checks the active subscription status, remaining query quota, and validity period for an agent EVM wallet address (0x...) or Agent VIP Pass Token. Returns pass tier, remaining balance, and expiration timestamp. Usage Guidelines: Use to verify micropayment allowance or query entitlements before dispatching heavy scrape batches.",
       "parameters": {
         "type": "object",
         "properties": {
           "agent_wallet": {
             "type": "string",
             "pattern": "^(0x[a-fA-F0-9]{40}|pass_[a-zA-Z0-9_-]+)$",
-            "description": "Ethereum/Polygon address (0x...) or Lemon Squeezy Pass Token.",
+            "description": "Ethereum/Polygon address (0x...) or Agent VIP Pass Token.",
             "examples": ["0x71C...397", "pass_premium_998"]
           }
         },
