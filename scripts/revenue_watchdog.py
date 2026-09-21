@@ -91,4 +91,16 @@ def check_multi_chain_revenue():
 
 
 if __name__ == "__main__":
-    check_multi_chain_revenue()
+    if len(sys.argv) > 1 and sys.argv[1] == "--watch":
+        interval = int(sys.argv[2]) if len(sys.argv) > 2 else 60
+        print(f"📡 Starting continuous treasury surveillance (polling every {interval}s)...")
+        while True:
+            try:
+                check_multi_chain_revenue()
+                time.sleep(interval)
+            except KeyboardInterrupt:
+                print("\n🛑 Surveillance stopped by user.")
+                break
+    else:
+        check_multi_chain_revenue()
+
