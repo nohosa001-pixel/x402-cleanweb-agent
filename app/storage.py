@@ -326,10 +326,11 @@ class StorageManager:
                 row = cur.fetchone()
                 if not row:
                     return False, 0.0, None
-                if row["balance_usdc"] < amount_usdc:
+                # 6-decimal micro-USDC precision check (prevents floating-point precision rejection)
+                if round(row["balance_usdc"], 6) < round(amount_usdc - 1e-6, 6):
                     return False, row["balance_usdc"], dict(row)
                 
-                new_bal = round(row["balance_usdc"] - amount_usdc, 6)
+                new_bal = max(0.0, round(row["balance_usdc"] - amount_usdc, 6))
                 new_consumed = round(row["total_consumed"] + amount_usdc, 6)
                 new_queries = row["query_count"] + 1
                 cur.execute("""

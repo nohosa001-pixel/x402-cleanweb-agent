@@ -51,10 +51,12 @@ class PaymentChallenge(BaseModel):
     instructions: str = "Autonomous Agent Zone: Deposit 2.0+ USDC to recipient_wallet via Polygon/Base/Arbitrum or supply X-Vault-Key header."
     chain: str = "polygon"
     chain_id: int = 137
+    recipient: Optional[str] = None
     recipient_wallet: str
     amount_usdc: str
     token_address: str
     payment_methods_accepted: List[str]
+    networks: Optional[List[Dict[str, Any]]] = None
     pass_options: Dict[str, Any]
     vault_deposit_endpoint: str = "/api/v1/vault/deposit"
     min_deposit_usdc: float = 2.0
@@ -72,6 +74,7 @@ class PaymentReceipt(BaseModel):
     cost_usdc: float
     remaining_vault_balance: Optional[float] = None
     remaining_free_trials: Optional[int] = None
+    remaining_trial_calls: Optional[int] = None
     remaining_credits: Optional[int] = None
     settled_at: str
     auth: Optional[Dict[str, Any]] = None
@@ -106,6 +109,8 @@ class ScrapeMetadata(BaseModel):
 # --- Web Cleaner Schemas ---
 class CleanWebRequest(BaseModel):
     url: str = Field(..., description="Target webpage URL to scrape and convert to markdown")
+    density: Optional[str] = Field("standard", description="Markdown density level ('standard', 'dense', 'light')")
+    max_tokens: Optional[int] = Field(None, description="Max token limit for output markdown to prevent LLM context overflow")
     onchain_proof: bool = Field(False, description="Whether to generate EIP-712 cryptographic attestation")
     secure_audit: bool = Field(False, description="Run real-time AST, prompt injection, and EIP-712 security audit")
     respect_robots_txt: bool = Field(False, description="Whether to enforce target domain robots.txt compliance")
@@ -116,6 +121,7 @@ class WebCleanResponse(BaseModel):
     url: str
     title: Optional[str] = None
     markdown_content: str
+    content: Optional[str] = Field(None, description="Backward-compatibility alias for autonomous agents (equivalent to markdown_content)")
     word_count: int
     estimated_reading_time_sec: int
     engine: Optional[str] = "cleanweb_fast_parser"
@@ -128,6 +134,13 @@ class WebCleanResponse(BaseModel):
 
 
 # --- YouTube Cleaner Schemas ---
+class CleanYouTubeRequest(BaseModel):
+    url: str = Field(..., description="Target YouTube video URL")
+    lang: Optional[str] = Field("ko,en", description="Comma-separated language priority codes")
+    onchain_proof: bool = Field(False, description="Whether to generate EIP-712 cryptographic attestation")
+    secure_audit: bool = Field(False, description="Run real-time security audit")
+
+
 class YouTubeCleanResponse(BaseModel):
     status: str = "success"
     url: str
@@ -147,6 +160,12 @@ class YouTubeCleanResponse(BaseModel):
 
 
 # --- PDF Cleaner Schemas ---
+class CleanPDFRequest(BaseModel):
+    url: str = Field(..., description="Direct HTTP/HTTPS URL pointing to an online PDF")
+    max_pages: Optional[int] = Field(30, ge=1, le=100, description="Max pages to parse")
+    onchain_proof: bool = Field(False, description="Whether to generate EIP-712 cryptographic attestation")
+
+
 class PDFAnalytics(BaseModel):
     total_pages: int
     parsed_pages: int
@@ -262,6 +281,7 @@ class OracleGroundingResponse(BaseModel):
 
 
 class OracleVerifyRequest(BaseModel):
+    query: Optional[str] = None
     data_hash: str
     timestamp: int
     signature: str
@@ -315,6 +335,11 @@ class DeepResearchResponse(BaseModel):
 
 
 # --- Site Mapping Schemas ---
+class SiteMapRequest(BaseModel):
+    url: str = Field(..., description="Target website domain or URL to map")
+    max_links: Optional[int] = Field(50, ge=5, le=100, description="Max URLs to discover")
+
+
 class SiteMapResponse(BaseModel):
     status: str = "success"
     url: str
@@ -327,6 +352,11 @@ class SiteMapResponse(BaseModel):
 
 
 # --- Fast Agent Web Search Schemas ---
+class SearchRequest(BaseModel):
+    query: str = Field(..., description="Search keyword or question for agent")
+    max_results: Optional[int] = Field(5, ge=1, le=10, description="Max search results")
+
+
 class SearchResultItem(BaseModel):
     title: str
     url: str

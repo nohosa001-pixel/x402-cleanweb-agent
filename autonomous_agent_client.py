@@ -7,7 +7,14 @@ HTTP 402 Payment Required flows, transfer USDC on-chain, and fetch LLM-ready dat
 """
 
 import os
+import sys
 import time
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8")
+
 import requests
 from typing import Dict, Any, Optional
 from web3 import Web3
@@ -101,6 +108,7 @@ class AutonomousX402Agent:
         else:
             self.account = None
             self.wallet_address = None
+        self.default_nonce = f"agent_session_{int(time.time() * 1000)}"
 
     def _init_web3(self, chain: str = "polygon", rpc_url: Optional[str] = None) -> Web3:
         chain_key = chain.lower()
@@ -184,6 +192,8 @@ class AutonomousX402Agent:
         active_vault_key = vault_key or self.vault_key
         if active_vault_key:
             headers["X-Vault-Key"] = active_vault_key
+        elif not self.account:
+            headers["X-Agent-Nonce"] = agent_nonce or self.default_nonce
         if agent_pass:
             headers["X-Agent-Pass"] = agent_pass
         if agent_nonce:

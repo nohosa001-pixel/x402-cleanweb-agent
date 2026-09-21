@@ -4,6 +4,16 @@ Supports Multi-Chain (Polygon/Base/Arbitrum) USDC Micropayments and Free Tier fo
 """
 
 import os
+import sys
+
+# Force UTF-8 stdio encoding on Windows to prevent UnicodeEncodeError in MCP JSON-RPC pipes
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8")
+if hasattr(sys.stdin, "reconfigure"):
+    sys.stdin.reconfigure(encoding="utf-8")
+
 from typing import Optional, List
 from mcp.server import MCPServer
 from dotenv import load_dotenv
@@ -22,12 +32,21 @@ load_dotenv(override=True)
 # MCP Server Initialization
 mcp = MCPServer(
     name="x402-cleanweb-agent",
-    version="2.4.0",
+    version="2.6.0",
     description="Deterministic Web3 x402 Micropayment MCP Suite for Web, YouTube Gemini AI, and PDF Papers on Polygon, Base, and Arbitrum."
 )
 
 
 from pydantic import Field
+
+
+def _coerce_val(val, default_val):
+    """Safely extracts default from Pydantic FieldInfo if invoked directly in Python."""
+    if hasattr(val, "default") and val.default is not ...:
+        return val.default
+    if type(val) is type(default_val):
+        return val
+    return default_val
 
 @mcp.tool(
     name="get_payment_info",
@@ -97,6 +116,7 @@ def clean_web_content(
         description="Whether to enforce target domain robots.txt Disallow rules (compliance-mode)."
     )
 ) -> str:
+    respect_robots_txt = _coerce_val(respect_robots_txt, False)
     try:
         data = web_cleaner_engine.fetch_and_clean(url, respect_robots_txt=respect_robots_txt)
         return f"✅ [CLEAN WEB SUCCESS]\n\n# {data['title']}\n\n{data['markdown_content']}"
@@ -140,6 +160,7 @@ def clean_youtube_transcript(
         description="Optional x402 micropayment authorization token or EVM transaction hash."
     )
 ) -> str:
+    lang = _coerce_val(lang, "ko,en")
     try:
         data = youtube_cleaner_engine.clean_youtube(url, lang=lang)
         return (
@@ -187,6 +208,7 @@ def clean_pdf_research(
         description="Optional x402 micropayment authorization token or EVM transaction hash."
     )
 ) -> str:
+    max_pages = _coerce_val(max_pages, 30)
     try:
         data = pdf_cleaner_engine.clean_pdf(url, max_pages=max_pages)
         return (
@@ -262,6 +284,7 @@ def oracle_grounding(
         description="Optional x402 micropayment authorization token or EVM transaction hash."
     )
 ) -> str:
+    max_sources = _coerce_val(max_sources, 3)
     try:
         schema_dict = None
         if target_schema_json:
@@ -371,6 +394,7 @@ def map_site(
     max_links: int = Field(default=50, ge=5, le=100, description="Maximum internal URLs to discover (default: 50, max: 100)."),
     auth_token_or_tx: Optional[str] = Field(default=None, description="Optional x402 auth token or tx hash.")
 ) -> str:
+    max_links = _coerce_val(max_links, 50)
     try:
         data = web_cleaner_engine.map_website(url, max_links=max_links)
         urls_preview = "\n".join(f"- {u}" for u in data["urls"][:25])
@@ -403,6 +427,7 @@ def search_web_quick(
     max_results: int = Field(default=5, ge=1, le=10, description="Maximum results to return (default: 5, max: 10)."),
     auth_token_or_tx: Optional[str] = Field(default=None, description="Optional x402 auth token or tx hash.")
 ) -> str:
+    max_results = _coerce_val(max_results, 5)
     try:
         results = oracle_engine.quick_search(query, max_results=max_results)
         items_md = []
@@ -457,6 +482,7 @@ def deep_research_topic(
     max_sources: int = Field(default=3, ge=1, le=5, description="Number of top web sources to synthesize (1 to 5)."),
     auth_token_or_tx: Optional[str] = Field(default=None, description="Optional x402 auth token or tx hash.")
 ) -> str:
+    max_sources = _coerce_val(max_sources, 3)
     try:
         res = oracle_engine.execute_deep_research(query, max_sources=max_sources)
         sources_list = "\n".join(f"- {s}" for s in res.get("sources", []))
@@ -468,6 +494,69 @@ def deep_research_topic(
         )
     except Exception as e:
         return f"❌ [DEEP RESEARCH ERROR]: {str(e)}"
+
+
+@mcp.tool(
+    name="clean_batch_scrape",
+    description=(
+        "Concurrently scrapes and extracts clean markdown from up to 10 URLs in parallel with high-speed async processing (0.005 USDC).\n\n"
+        "Usage Guidelines:\n"
+        "- Use when an agent needs to perform multi-source research across multiple search results simultaneously.\n"
+        "- Returns: Formatted summary and content preview of parsed web documents."
+    )
+)
+def clean_batch_scrape(
+    urls: List[str] = Field(..., description="List of target URLs to scrape in parallel (up to 10)."),
+    auth_token_or_tx: Optional[str] = Field(default=None, description="Optional x402 auth token, vault key, or tx hash.")
+) -> str:
+    try:
+        if len(urls) > 10:
+            urls = urls[:10]
+        results = web_cleaner_engine.batch_clean(urls)
+        summary = f"📦 [BATCH CLEAN SUCCESS] Parsed {len(results)} URLs concurrently:\n\n"
+        for idx, r in enumerate(results, 1):
+            status = r.get("status", "unknown")
+            url = r.get("url", "")
+            title = r.get("title", "Untitled")
+            content = r.get("markdown_content", "")[:300]
+            summary += f"### {idx}. [{title}]({url}) (Status: {status})\n{content}...\n\n"
+        return summary
+    except Exception as e:
+        return f"❌ [BATCH CLEAN ERROR]: {str(e)}"
+
+
+@mcp.tool(
+    name="get_pass_status",
+    description=(
+        "Checks the active subscription status, remaining query quota, and validity period for an agent EVM wallet address (0x...) or Agent VIP Pass Token.\n\n"
+        "Usage Guidelines:\n"
+        "- Use to verify micropayment allowance or query entitlements before dispatching heavy scrape batches.\n"
+        "- Returns: Pass tier, remaining balance, and expiration timestamp."
+    )
+)
+def get_pass_status(
+    agent_wallet_or_token: str = Field(..., description="Agent EVM wallet address (0x...) or Pass Token (e.g. 'WELCOME100').")
+) -> str:
+    try:
+        pass_data = storage_manager.get_pass(agent_wallet_or_token)
+        vault_data = storage_manager.get_vault(agent_wallet_or_token)
+        has_pass = pass_data is not None
+        pass_type = pass_data["pass_type"] if pass_data else "None"
+        exp_utc = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(pass_data["expires_at"])) if pass_data else "N/A"
+        credits = pass_data.get("credits", 0) if pass_data else 0
+        v_bal = vault_data["balance_usdc"] if vault_data else 0.0
+
+        return (
+            f"🎫 [AGENT PASS STATUS]\n"
+            f"- **Identifier**: `{agent_wallet_or_token}`\n"
+            f"- **Active Pass**: {'✅ YES' if has_pass else '❌ NO'}\n"
+            f"- **Pass Type**: {pass_type}\n"
+            f"- **Remaining Credits**: {credits}\n"
+            f"- **Pre-funded Vault Balance**: ${v_bal:.4f} USDC\n"
+            f"- **Expires At**: {exp_utc}"
+        )
+    except Exception as e:
+        return f"❌ [PASS STATUS ERROR]: {str(e)}"
 
 
 def main():

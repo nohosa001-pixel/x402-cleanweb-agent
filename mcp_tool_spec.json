@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "name": "x402-cleanweb-agent",
-  "version": "2.5.5",
+  "version": "2.6.0",
   "protocol": "mcp-2024-11-05",
   "payment": {
     "protocol": "x402",

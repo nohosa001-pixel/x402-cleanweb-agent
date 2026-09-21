@@ -1,5 +1,5 @@
 {
-  "$schema": "https://agent-standards.org/schemas/v1/agent.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "protocol_version": "1.0.0",
   "agent_id": "x402-cleanweb-agent",
   "name": "x402 CleanWeb & Autonomous Web3 Agent Suite",
@@ -44,9 +44,10 @@
       }
     ],
     "free_tier": {
-      "discovery_trial_calls": 0,
-      "policy": "MANDATORY_PAYMENT_REQUIRED",
-      "free_trials": false
+      "discovery_trial_calls": 2,
+      "policy": "INSTANT_SANDBOX_DISCOVERY_PER_NONCE",
+      "free_trials": true,
+      "trial_header": "X-Agent-Nonce"
     },
     "arbitrage_roi_endpoint": "/api/v1/agent/arbitrage-roi",
     "pricing_catalog_endpoint": "/api/v1/agent/pricing-catalog"

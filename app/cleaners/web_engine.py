@@ -32,6 +32,15 @@ DEFAULT_HEADERS = {
 }
 
 
+def normalize_url(url: str) -> str:
+    """Robustly normalizes raw URLs, fixing collapsed slashes from reverse proxies and missing protocols."""
+    cleaned = url.strip()
+    cleaned = re.sub(r'^(https?):/+', r'\1://', cleaned, flags=re.IGNORECASE)
+    if not re.match(r'^https?://', cleaned, re.IGNORECASE):
+        cleaned = 'https://' + cleaned
+    return cleaned
+
+
 class WebCleanerEngine:
     """Extracts high-density LLM-ready markdown from any raw website URL with resilient fallbacks and connection pooling."""
 
@@ -116,15 +125,14 @@ class WebCleanerEngine:
             pass
         return None
 
-    def fetch_and_clean(self, url: str, respect_robots_txt: bool = False) -> Dict[str, Any]:
+    def fetch_and_clean(self, url: str, respect_robots_txt: bool = False, max_tokens: Optional[int] = None) -> Dict[str, Any]:
         """Fetches a URL and parses it into clean Markdown with automatic WAF fallback, connection pooling, and token metrics."""
-        if not url.startswith("http://") and not url.startswith("https://"):
-            url = "https://" + url
+        url = normalize_url(url)
 
         if not is_safe_url(url):
             raise ValueError(f"Blocked URL ({url}): Access to local/private network or cloud metadata services is prohibited for security.")
 
-        cache_key = f"{url}_robots_{respect_robots_txt}"
+        cache_key = f"{url}_robots_{respect_robots_txt}_max_{max_tokens}"
         cached = self._get_from_cache(cache_key)
         if cached:
             cached["cached"] = True
@@ -250,6 +258,12 @@ class WebCleanerEngine:
         # Normalize multiple newlines
         markdown_body = re.sub(r"\n{3,}", "\n\n", markdown_body)
 
+        # Apply agent-specified max_tokens limit if requested
+        if max_tokens and max_tokens > 0:
+            char_limit = max_tokens * 4
+            if len(markdown_body) > char_limit:
+                markdown_body = markdown_body[:char_limit].rstrip() + "\n\n... [Content Truncated by max_tokens limit] ..."
+
         words = markdown_body.split()
         word_count = len(words)
         reading_time_sec = max(1, int(word_count / 3.5))  # ~210 wpm
@@ -330,9 +344,7 @@ class WebCleanerEngine:
         Autonomous Agent Site Mapper (Firecrawl /map equivalent).
         Discovers domain sitemap or traverses internal anchor links to return a canonical URL tree.
         """
-        target_url = domain_or_url.strip()
-        if not target_url.startswith("http://") and not target_url.startswith("https://"):
-            target_url = "https://" + target_url
+        target_url = normalize_url(domain_or_url)
 
         if not is_safe_url(target_url):
             raise ValueError(f"Security Alert: Target URL blocked: {target_url}")

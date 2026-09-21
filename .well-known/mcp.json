@@ -28,6 +28,22 @@
     "prompts": true
   },
   "tools_count": 14,
+  "tools": [
+    "get_payment_info",
+    "clean_web_content",
+    "clean_youtube_transcript",
+    "clean_pdf_research",
+    "get_vault_balance",
+    "clean_batch_scrape",
+    "get_pass_status",
+    "oracle_grounding",
+    "verify_oracle_attestation",
+    "clean_text_raw",
+    "map_site",
+    "search_web_quick",
+    "extract_json_schema",
+    "deep_research_topic"
+  ],
   "configuration": {
     "mcpServers": {
       "polygon-x402-cleanweb": {

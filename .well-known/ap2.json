@@ -1,10 +1,18 @@
 {
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "ap2_version": "2.0.0",
   "name": "x402-cleanweb-agent",
   "description": "Deterministic Web3 x402 Micropayment MCP & AI Agent Tool Suite with Gemini 3.6 Flash Video Intelligence on Polygon, Base, and Arbitrum",
   "provider": {
     "name": "x402 AI Agent Team",
     "url": "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app"
+  },
+  "free_tier": {
+    "free_trials": true,
+    "discovery_trial_calls": 2,
+    "policy": "INSTANT_SANDBOX_DISCOVERY_PER_NONCE",
+    "trial_header": "X-Agent-Nonce",
+    "description": "2 free trials per unique agent nonce for zero-friction schema validation and discovery onboarding"
   },
   "settlement": {
     "type": "x402",
@@ -68,6 +76,8 @@
     "pass_status": "/api/v1/pass-status",
     "legal_terms": "/api/v1/legal/terms",
     "legal_disclaimer": "/api/v1/legal/disclaimer",
+    "reader_proxy": "/r/{target_url}",
+    "llms_txt": "/llms.txt",
     "mcp_tools": "/mcp/tools"
   }
 }

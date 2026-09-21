@@ -7,9 +7,10 @@ client = TestClient(app)
 
 def test_full_autonomous_agent_vault_lifecycle():
     # 1. 402 when quota exhausted (Verify strict human rejection headers & specs)
+    from app.x402_verifier import FREE_TRIAL_LIMIT
     exhausted_id = f"test_user_{int(time.time()*1000)}"
-    storage_manager.increment_trial_usage(exhausted_id)
-    storage_manager.increment_trial_usage(exhausted_id)
+    for _ in range(FREE_TRIAL_LIMIT):
+        storage_manager.increment_trial_usage(exhausted_id)
     
     r402 = client.get("/api/v1/clean-web?url=https://example.com", headers={"X-Agent-Nonce": exhausted_id})
     assert r402.status_code == 402

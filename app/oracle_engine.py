@@ -10,6 +10,7 @@ import json
 import time
 import hashlib
 import urllib.parse
+import xml.etree.ElementTree as ET
 from typing import List, Dict, Any, Optional, Tuple
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -40,46 +41,45 @@ class OracleEngine:
 
     def search_web_sources(self, query: str, max_results: int = 3) -> List[str]:
         """
-        Performs real-time search to retrieve top reliable web source URLs.
-        Uses DuckDuckGo HTML scraping with Jina Search fallback.
+        Performs resilient real-time multi-tier web search to retrieve top authoritative web source URLs.
+        Tier 1: Wikipedia OpenSearch API (canonical encyclopedia entries, 0ms WAF block)
+        Tier 2: Google News RSS (real-time news, market/tech updates, fast XML parsing)
+        Tier 3: Safe topic-based encyclopedia & verified index fallback
         """
         urls: List[str] = []
         clean_q = query.strip()
+        if not clean_q:
+            return urls
 
-        # 1. Attempt DuckDuckGo HTML search
+        # 1. Tier 1: Wikipedia Full-Text & OpenSearch API (instant, authoritative, semantic match)
         try:
-            ddg_url = f"https://html.duckduckgo.com/html/?q={urllib.parse.quote_plus(clean_q)}"
-            r = requests.get(ddg_url, headers=self.headers, timeout=8)
-            if r.status_code == 200:
-                soup = BeautifulSoup(r.text, "html.parser")
-                for a in soup.find_all("a", class_="result__url"):
-                    raw_href = a.get("href", "").strip()
-                    # DuckDuckGo wraps URLs in /l/?uddg=
-                    if "uddg=" in raw_href:
-                        parsed = urllib.parse.parse_qs(urllib.parse.urlparse(raw_href).query)
-                        if "uddg" in parsed and parsed["uddg"]:
-                            actual_url = parsed["uddg"][0]
-                            if actual_url.startswith("http") and is_safe_url(actual_url):
-                                urls.append(actual_url)
-                    elif raw_href.startswith("http") and is_safe_url(raw_href):
-                        urls.append(raw_href)
-
+            wiki_api = f"https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch={urllib.parse.quote_plus(clean_q)}&utf8=&format=json"
+            wr = requests.get(wiki_api, headers=self.headers, timeout=3)
+            if wr.status_code == 200:
+                for item in wr.json().get("query", {}).get("search", []):
+                    title = item.get("title", "")
+                    if title:
+                        slug = title.replace(" ", "_")
+                        clean_url = f"https://en.wikipedia.org/wiki/{urllib.parse.quote(slug)}"
+                        if is_safe_url(clean_url) and clean_url not in urls:
+                            urls.append(clean_url)
                     if len(urls) >= max_results:
                         break
         except Exception:
             pass
 
-        # 2. Fallback: If no URLs, try Jina Search or Wikipedia/Official search
-        if not urls:
+        # 2. Tier 2: Google News RSS (real-time news, breaking market/tech updates)
+        if len(urls) < max_results:
             try:
-                jina_search = f"https://s.jina.ai/{urllib.parse.quote_plus(clean_q)}"
-                jr = requests.get(jina_search, headers={"Accept": "application/json"}, timeout=8)
-                if jr.status_code == 200:
-                    data = jr.json()
-                    for item in data.get("data", []):
-                        u = item.get("url")
-                        if u and is_safe_url(u) and u not in urls:
-                            urls.append(u)
+                rss_url = f"https://news.google.com/rss/search?q={urllib.parse.quote_plus(clean_q)}&hl=en-US&gl=US&ceid=US:en"
+                r = requests.get(rss_url, headers=self.headers, timeout=3)
+                if r.status_code == 200:
+                    root = ET.fromstring(r.content)
+                    for item in root.findall(".//item"):
+                        link = item.findtext("link")
+                        if link and link.startswith("http") and is_safe_url(link):
+                            if link not in urls:
+                                urls.append(link)
                         if len(urls) >= max_results:
                             break
             except Exception:
@@ -108,62 +108,54 @@ class OracleEngine:
     def quick_search(self, query: str, max_results: int = 5) -> List[Dict[str, Any]]:
         """
         Fast Agent Search API (Tavily / s.jina.ai competitor).
-        Returns title, url, and concise text snippet for autonomous LLM agents.
+        Returns title, url, and concise text snippet for autonomous LLM agents without rate-limits or connection hangs.
         """
         results: List[Dict[str, Any]] = []
         clean_q = query.strip()
+        if not clean_q:
+            return results
 
-        # 1. DuckDuckGo HTML parser
+        # 1. Tier 1: Wikipedia Full-Text Search API (canonical definitions & technical snippets)
         try:
-            ddg_url = f"https://html.duckduckgo.com/html/?q={urllib.parse.quote_plus(clean_q)}"
-            r = requests.get(ddg_url, headers=self.headers, timeout=8)
-            if r.status_code == 200:
-                soup = BeautifulSoup(r.text, "html.parser")
-                for res_div in soup.find_all("div", class_="result"):
-                    title_elem = res_div.find("a", class_="result__a")
-                    snippet_elem = res_div.find("a", class_="result__snippet")
-                    url_elem = res_div.find("a", class_="result__url")
-
-                    if not title_elem:
-                        continue
-
-                    title = title_elem.get_text(strip=True)
-                    snippet = snippet_elem.get_text(strip=True) if snippet_elem else ""
-
-                    raw_href = title_elem.get("href", "") or (url_elem.get("href", "") if url_elem else "")
-                    actual_url = ""
-                    if "uddg=" in raw_href:
-                        parsed = urllib.parse.parse_qs(urllib.parse.urlparse(raw_href).query)
-                        if "uddg" in parsed and parsed["uddg"]:
-                            actual_url = parsed["uddg"][0]
-                    elif raw_href.startswith("http"):
-                        actual_url = raw_href
-
-                    if actual_url and is_safe_url(actual_url):
+            wiki_api = f"https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch={urllib.parse.quote_plus(clean_q)}&utf8=&format=json"
+            wr = requests.get(wiki_api, headers=self.headers, timeout=3)
+            if wr.status_code == 200:
+                for item in wr.json().get("query", {}).get("search", []):
+                    title = item.get("title", "")
+                    clean_snippet = re.sub(r"<[^>]+>", "", item.get("snippet", ""))
+                    slug = title.replace(" ", "_")
+                    clean_url = f"https://en.wikipedia.org/wiki/{urllib.parse.quote(slug)}"
+                    if is_safe_url(clean_url):
                         results.append({
                             "title": title,
-                            "url": actual_url,
-                            "snippet": snippet,
+                            "url": clean_url,
+                            "snippet": clean_snippet or f"Canonical encyclopedia entry for {title}.",
                         })
                     if len(results) >= max_results:
                         break
         except Exception:
             pass
 
-        # 2. Fallback: Jina Search JSON
+        # 2. Tier 2: Google News RSS (real-time news, breaking market/tech updates)
         if len(results) < max_results:
             try:
-                jina_search = f"https://s.jina.ai/{urllib.parse.quote_plus(clean_q)}"
-                jr = requests.get(jina_search, headers={"Accept": "application/json"}, timeout=8)
-                if jr.status_code == 200:
-                    data = jr.json()
-                    for item in data.get("data", []):
-                        u = item.get("url", "")
-                        if u and is_safe_url(u) and not any(r["url"] == u for r in results):
+                rss_url = f"https://news.google.com/rss/search?q={urllib.parse.quote_plus(clean_q)}&hl=en-US&gl=US&ceid=US:en"
+                r = requests.get(rss_url, headers=self.headers, timeout=3)
+                if r.status_code == 200:
+                    root = ET.fromstring(r.content)
+                    for item in root.findall(".//item"):
+                        title = item.findtext("title") or clean_q
+                        link = item.findtext("link") or ""
+                        pub_date = item.findtext("pubDate") or ""
+                        source_elem = item.find("source")
+                        source_name = source_elem.text if source_elem is not None else "Verified Media"
+                        snippet = f"[{source_name} | {pub_date}] {title}" if pub_date else title
+
+                        if link and is_safe_url(link) and not any(res["url"] == link for res in results):
                             results.append({
-                                "title": item.get("title", clean_q),
-                                "url": u,
-                                "snippet": (item.get("content") or item.get("description") or "")[:300].strip(),
+                                "title": title,
+                                "url": link,
+                                "snippet": snippet,
                             })
                         if len(results) >= max_results:
                             break
@@ -253,7 +245,7 @@ Format the JSON with keys:
                 from google import genai
                 client = genai.Client(api_key=GEMINI_API_KEY)
                 response = client.models.generate_content(
-                    model="gemini-2.5-flash",
+                    model=os.getenv("GEMINI_MODEL", "gemini-1.5-flash"),
                     contents=prompt,
                     config={"response_mime_type": "application/json"}
                 )
@@ -360,7 +352,7 @@ Output strictly valid JSON only. Do not include markdown codeblocks or preamble.
                 from google import genai
                 client = genai.Client(api_key=GEMINI_API_KEY)
                 response = client.models.generate_content(
-                    model="gemini-2.5-flash",
+                    model=os.getenv("GEMINI_MODEL", "gemini-1.5-flash"),
                     contents=prompt,
                     config={"response_mime_type": "application/json"}
                 )

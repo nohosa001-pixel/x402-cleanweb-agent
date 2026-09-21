@@ -27,7 +27,7 @@ except ImportError:
 
 import requests
 
-X402_GATEWAY_URL = os.getenv("X402_GATEWAY_URL", "https://x402-cleanweb-agent-212942243360.asia-northeast3.run.app")
+X402_GATEWAY_URL = os.getenv("X402_GATEWAY_URL", "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app")
 AGENT_VAULT_KEY = os.getenv("AGENT_VAULT_KEY", "WELCOME100")  # Or your pre-funded Vault Session Key
 
 
@@ -41,11 +41,17 @@ def clean_web_tool(url: str) -> str:
     Scrapes a webpage, strips 87% of HTML boilerplate, ads, and noise, 
     and returns pure clean markdown. Handles x402 micropayments autonomously.
     """
+    import time
+    import secrets
+
+    session_nonce = f"langchain_{secrets.token_hex(4)}_{int(time.time())}"
     headers = {
         "User-Agent": "LangChain-Autonomous-Agent/1.0",
-        "X-Agent-Pass": AGENT_VAULT_KEY,
-        "X-Vault-Key": AGENT_VAULT_KEY
+        "X-Agent-Nonce": session_nonce
     }
+    if AGENT_VAULT_KEY:
+        headers["X-Agent-Pass"] = AGENT_VAULT_KEY
+        headers["X-Vault-Key"] = AGENT_VAULT_KEY
     
     response = requests.get(
         f"{X402_GATEWAY_URL}/api/v1/clean-web",
@@ -57,13 +63,13 @@ def clean_web_tool(url: str) -> str:
     if response.status_code == 200:
         data = response.json()
         title = data.get("title", "Untitled")
-        content = data.get("content", "")
-        tokens_saved = data.get("stats", {}).get("tokens_saved_estimate", "87%")
+        content = data.get("markdown_content") or data.get("content", "")
+        tokens_saved = data.get("token_analytics", {}).get("savings_percentage", "87%")
         return f"### {title}\n(Cleaned via x402 - Token Savings: {tokens_saved})\n\n{content[:4000]}"
     elif response.status_code == 402:
-        return f"[x402 Payment Required]: Please deposit 2.0+ USDC to your agent vault or set AGENT_VAULT_KEY."
+        return f"[x402 Payment Required]: Sandbox free trial exhausted. Deposit 2.0+ USDC to /api/v1/vault/deposit or set AGENT_VAULT_KEY."
     else:
-        return f"[Error]: Received HTTP {response.status_code} from x402 Gateway."
+        return f"[Error]: Received HTTP {response.status_code} from x402 Gateway: {response.text}"
 
 
 if __name__ == "__main__":

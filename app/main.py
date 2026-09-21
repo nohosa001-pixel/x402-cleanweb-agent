@@ -23,7 +23,9 @@ from app.schemas import (
     PricingTier,
     CleanWebRequest,
     WebCleanResponse,
+    CleanYouTubeRequest,
     YouTubeCleanResponse,
+    CleanPDFRequest,
     PDFCleanResponse,
     BatchCleanRequest,
     BatchCleanResponse,
@@ -42,12 +44,14 @@ from app.schemas import (
     ExtractJsonRequest,
     ExtractJsonResponse,
     DeepResearchResponse,
+    SiteMapRequest,
     SiteMapResponse,
+    SearchRequest,
     SearchResponse,
     SearchResultItem,
 )
 from app.x402_verifier import x402_verifier
-from app.cleaners.web_engine import web_cleaner_engine
+from app.cleaners.web_engine import web_cleaner_engine, normalize_url
 from app.cleaners.youtube_engine import youtube_cleaner_engine
 from app.cleaners.pdf_engine import pdf_cleaner_engine
 from app.onchain_signer import onchain_signer
@@ -73,9 +77,20 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=[
+        "WWW-Authenticate",
+        "X-Payment-Required",
+        "X-Payment-Amount",
+        "X-Payment-Recipient",
+        "X-Payment-Token",
+        "X-Payment-Networks",
+        "X-Vault-Deposit-Endpoint",
+        "X-Agent-Trial-Remaining",
+        "X-Access-Policy",
+    ]
 )
 
 BASE_DIR = Path(__file__).parent.parent
@@ -88,6 +103,7 @@ MCP_SERVER_CARD_PATH = BASE_DIR / ".well-known" / "mcp" / "server-card.json"
 MCP_ALIAS_PATH = BASE_DIR / ".well-known" / "mcp.json"
 GLAMA_FILE_PATH = BASE_DIR / "glama.json"
 MCP_SPEC_FILE_PATH = BASE_DIR / "mcp_tool_spec.json"
+LLMS_TXT_PATH = BASE_DIR / "llms.txt"
 
 if STATIC_DIR.exists():
     app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
@@ -112,7 +128,15 @@ METRICS = {
 async def rate_limit_and_metrics_middleware(request: Request, call_next):
     # Skip rate limiting for static assets and metrics
     path = request.url.path
-    client_ip = request.client.host if request.client else "unknown"
+    
+    # Correctly parse real client IP behind Cloud Run / reverse proxies
+    forwarded = request.headers.get("x-forwarded-for")
+    if forwarded:
+        client_ip = forwarded.split(",")[0].strip()
+    elif request.client:
+        client_ip = request.client.host
+    else:
+        client_ip = "127.0.0.1"
 
     if not path.startswith("/static") and path not in ("/metrics", "/health"):
         now = time.time()
@@ -187,7 +211,7 @@ async def root(request: Request):
     return {
         "service": "x402-cleanweb-agent",
         "name": "CleanWeb Studio (Autonomous Agent Data & Spend Firewall)",
-        "version": "2.5.5",
+        "version": "2.6.0",
         "audience": "HUMANS_AND_AUTONOMOUS_AGENTS",
         "access_policy": "OPEN_TO_ALL (Pay-As-You-Go via USDC Pre-Funded Vault)",
         "protocol": "x402 (HTTP 402 Monetized)",
@@ -265,7 +289,7 @@ def health_check(deep: bool = Query(False, description="Run deep 5-pipeline self
     return {
         "status": "healthy",
         "service": "x402-cleanweb-agent",
-        "version": "2.5.5",
+        "version": "2.6.0",
         "storage": "sqlite3_wal_ready",
         "storage_stats": db_stats,
         "chains_connected": ["Polygon(137)", "Base(8453)", "Arbitrum(42161)"],
@@ -334,6 +358,16 @@ async def get_mcp_server_card():
     raise HTTPException(status_code=404, detail="mcp server card not found")
 
 
+@app.get("/llms.txt", response_class=PlainTextResponse, tags=["Standards"])
+async def get_llms_txt():
+    """
+    Agent LLM Standard manifest for autonomous agents, crawlers, and swarms.
+    """
+    if LLMS_TXT_PATH.exists():
+        return FileResponse(LLMS_TXT_PATH, media_type="text/plain; charset=utf-8")
+    raise HTTPException(status_code=404, detail="llms.txt not found")
+
+
 # =========================================================================
 # 🤖 Autonomous Agent Discovery, Reflection & Arbitrage Endpoints
 # =========================================================================
@@ -347,7 +381,7 @@ def get_agent_capabilities():
     return {
         "status": "active",
         "agent_id": "x402-cleanweb-agent",
-        "version": "2.5.5",
+        "version": "2.6.0",
         "settlement": "x402_usdc_micropayments",
         "supported_chains": [
             {"name": "Polygon PoS", "chain_id": 137, "vault": "0x18fA5a746535d88f61feA10996895c378F705c93"},
@@ -572,6 +606,8 @@ def get_framework_integration(framework: str):
 def clean_web(
     request: Request,
     url: str = Query(..., description="Target webpage URL to scrape and convert to markdown"),
+    density: str = Query("standard", description="Markdown density ('standard', 'dense', 'light')"),
+    max_tokens: Optional[int] = Query(None, description="Max token limit for output markdown to prevent LLM context overflow"),
     onchain_proof: bool = Query(False, description="Whether to generate EIP-712 cryptographic attestation"),
     secure_audit: bool = Query(False, description="Run real-time AST, prompt injection, and EIP-712 security audit via Security Gate Agent"),
     respect_robots_txt: bool = Query(False, description="Whether to enforce target domain robots.txt compliance")
@@ -588,7 +624,7 @@ def clean_web(
         return err_resp
 
     try:
-        data = web_cleaner_engine.fetch_and_clean(url, respect_robots_txt=respect_robots_txt)
+        data = web_cleaner_engine.fetch_and_clean(url, respect_robots_txt=respect_robots_txt, max_tokens=max_tokens)
         proof = None
         if onchain_proof:
             proof = onchain_signer.sign_cleanweb_attestation(
@@ -620,6 +656,7 @@ def clean_web(
             url=data["url"],
             title=data["title"],
             markdown_content=data["markdown_content"],
+            content=data["markdown_content"],
             word_count=data["word_count"],
             estimated_reading_time_sec=data["estimated_reading_time_sec"],
             engine=data.get("engine", "cleanweb_fast_parser"),
@@ -650,10 +687,64 @@ def clean_web_post(request: Request, body: CleanWebRequest):
     return clean_web(
         request=request,
         url=body.url,
+        density=body.density or "standard",
+        max_tokens=body.max_tokens,
         onchain_proof=body.onchain_proof,
         secure_audit=body.secure_audit,
         respect_robots_txt=body.respect_robots_txt
     )
+
+
+@app.get("/r/{target_url:path}", response_class=PlainTextResponse, tags=["Autonomous Agents"])
+def agent_reader_proxy(request: Request, target_url: str):
+    """
+    Zero-Friction Fast Universal Proxy for Autonomous AI Agents & LLMs (Jina Reader Style).
+    Usage:
+        curl https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/r/https://news.ycombinator.com
+    Returns pure, token-optimized Markdown with 87% token noise removed.
+    Includes 3 free sandbox calls per agent IP/nonce, or pre-funded vault balance.
+    """
+    # 1. Robustly normalize scheme and collapsed slashes
+    target_url = normalize_url(target_url)
+
+    # 2. Preserve incoming query parameters (e.g. ?q=... or ?id=...)
+    query_str = request.url.query
+    if query_str:
+        delimiter = "&" if "?" in target_url else "?"
+        target_url = f"{target_url}{delimiter}{query_str}"
+
+    is_auth, receipt, err_resp = x402_verifier.verify_request(request, tier=PricingTier.LIGHT)
+    if not is_auth:
+        return err_resp
+
+    try:
+        data = web_cleaner_engine.fetch_and_clean(target_url, respect_robots_txt=False)
+        markdown = data.get("markdown_content", "")
+        title = data.get("title", "Clean Web Extraction")
+        analytics = data.get("token_analytics", {})
+        savings = analytics.get("savings_percentage", "87%")
+
+        banner = (
+            f"# {title}\n\n"
+            f"> Source URL: {target_url}\n"
+            f"> Token Compression: {savings} Noise Stripped\n\n"
+            f"---\n\n"
+        )
+        footer = (
+            f"\n\n---\n"
+            f"<!-- x402 CleanWeb Agent Suite (B2A Multi-Chain Micropayments & EIP-712 Oracles) -->\n"
+            f"<!-- Documentation: https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/docs -->\n"
+        )
+        return PlainTextResponse(banner + markdown + footer, media_type="text/markdown; charset=utf-8")
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except requests.exceptions.HTTPError as he:
+        upstream_status = he.response.status_code if he.response is not None else 502
+        raise HTTPException(status_code=502, detail=f"Target webpage host returned HTTP {upstream_status}: {str(he)}")
+    except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as ce:
+        raise HTTPException(status_code=504, detail=f"Target webpage host unreachable or timed out: {str(ce)}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Agent Proxy Extraction Failed: {str(e)}")
 
 
 @app.get("/api/v1/clean-youtube", response_model=YouTubeCleanResponse, tags=["Cleaners"])
@@ -718,6 +809,21 @@ def clean_youtube(
         raise HTTPException(status_code=500, detail=f"Failed to process YouTube video: {str(e)}")
 
 
+@app.post("/api/v1/clean-youtube", response_model=YouTubeCleanResponse, tags=["Cleaners"])
+def clean_youtube_post(request: Request, body: CleanYouTubeRequest):
+    """
+    POST variant supporting JSON payload bodies: {"url": "https://...", "lang": "en"}
+    Essential for autonomous LLM agents and LangChain / CrewAI tool invocation.
+    """
+    return clean_youtube(
+        request=request,
+        url=body.url,
+        lang=body.lang or "ko,en",
+        onchain_proof=body.onchain_proof,
+        secure_audit=body.secure_audit
+    )
+
+
 @app.get("/api/v1/clean-pdf", response_model=PDFCleanResponse, tags=["Cleaners"])
 def clean_pdf(
     request: Request,
@@ -766,6 +872,20 @@ def clean_pdf(
         raise HTTPException(status_code=504, detail=f"Target PDF host unreachable or timed out: {str(ce)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to parse PDF: {str(e)}")
+
+
+@app.post("/api/v1/clean-pdf", response_model=PDFCleanResponse, tags=["Cleaners"])
+def clean_pdf_post(request: Request, body: CleanPDFRequest):
+    """
+    POST variant supporting JSON payload bodies: {"url": "https://...", "max_pages": 30}
+    Essential for autonomous LLM agents and LangChain / CrewAI tool invocation.
+    """
+    return clean_pdf(
+        request=request,
+        url=body.url,
+        max_pages=body.max_pages or 30,
+        onchain_proof=body.onchain_proof
+    )
 
 
 # Supporting BOTH /api/v1/clean-batch AND /api/v1/batch-clean for 100% compatibility
@@ -896,6 +1016,15 @@ def map_site(
         raise HTTPException(status_code=500, detail=f"Failed to map site: {str(e)}")
 
 
+@app.post("/api/v1/map-site", response_model=SiteMapResponse, tags=["Cleaners"])
+def map_site_post(request: Request, body: SiteMapRequest):
+    """
+    POST variant supporting JSON payload bodies: {"url": "https://...", "max_links": 50}
+    Essential for autonomous LLM agents and LangChain / CrewAI tool invocation.
+    """
+    return map_site(request=request, url=body.url, max_links=body.max_links or 50)
+
+
 @app.get("/api/v1/search", response_model=SearchResponse, tags=["Cleaners"])
 def search_web(
     request: Request,
@@ -922,10 +1051,20 @@ def search_web(
         raise HTTPException(status_code=500, detail=f"Failed to execute agent search: {str(e)}")
 
 
+@app.post("/api/v1/search", response_model=SearchResponse, tags=["Cleaners"])
+def search_web_post(request: Request, body: SearchRequest):
+    """
+    POST variant supporting JSON payload bodies: {"query": "...", "max_results": 5}
+    Essential for autonomous LLM agents and LangChain / CrewAI tool invocation.
+    """
+    return search_web(request=request, query=body.query, max_results=body.max_results or 5)
+
+
 # =========================================================================
 # 💰 B2A Autonomous Agent Vault & Pass Management Endpoints
 # =========================================================================
 @app.post("/api/v1/vault/deposit", response_model=VaultBalanceResponse, tags=["Vault"])
+@app.post("/api/v1/pass/mint", response_model=VaultBalanceResponse, tags=["Vault"])
 def deposit_vault(body: VaultDepositRequest):
     """
     Deposits Native USDC into an autonomous agent's pre-funded vault balance.
@@ -1018,9 +1157,11 @@ def oracle_grounding(request: Request, body: OracleGroundingRequest):
 def verify_oracle_attestation(body: OracleVerifyRequest, query: str = Query("", description="Original query")):
     """
     Verifies an EIP-712 signed Oracle attestation off-chain.
+    Supports receiving query via JSON payload or URL query parameter.
     """
+    effective_query = (body.query or query or "").strip()
     is_valid, recovered = onchain_signer.verify_oracle_grounding(
-        query=query,
+        query=effective_query,
         data_hash=body.data_hash,
         timestamp=body.timestamp,
         signature=body.signature,

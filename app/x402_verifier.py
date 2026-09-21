@@ -113,7 +113,7 @@ TIER_PRICING: Dict[PricingTier, Dict[str, Any]] = {
     },
 }
 
-FREE_TRIAL_LIMIT = int(os.getenv("FREE_TRIAL_LIMIT", "0"))
+FREE_TRIAL_LIMIT = int(os.getenv("FREE_TRIAL_LIMIT", "2"))
 
 
 class X402Verifier:
@@ -135,11 +135,21 @@ class X402Verifier:
         cost = cfg["cost_usdc"]
         poly_cfg = multi_chain_manager.get_chain_config("polygon")
 
+        rem_trials = 0
+        if FREE_TRIAL_LIMIT > 0 and ip_or_nonce:
+            trial_id = ip_or_nonce
+            current_usage = storage_manager.get_trial_usage(trial_id)
+            rem_trials = max(0, FREE_TRIAL_LIMIT - current_usage)
+
         return PaymentChallenge(
             protocol="B2A_USDC_M2M",
-            instructions="Strictly Paid Protocol for Autonomous AI Agents and Humans. Zero free tier. Use X-Vault-Key (<1ms zero-gas) or submit on-chain USDC transfer tx hash on Polygon, Base, or Arbitrum.",
+            instructions=(
+                f"Autonomous Agent Protocol (B2A). {rem_trials} free sandbox trial(s) available via 'X-Agent-Nonce'. "
+                "For production, use X-Vault-Key (<1ms zero-gas) or submit on-chain USDC transfer tx hash on Polygon, Base, or Arbitrum."
+            ),
             chain="polygon",
             chain_id=137,
+            recipient=self.recipient_wallet,
             recipient_wallet=self.recipient_wallet,
             amount_usdc=f"{cost:.4f}",
             token_address=poly_cfg.usdc_address,
@@ -149,6 +159,11 @@ class X402Verifier:
                 "USDC_ONCHAIN_BASE",        # Native USDC on Base (8453)
                 "USDC_ONCHAIN_ARBITRUM"     # Native USDC on Arbitrum (42161)
             ],
+            networks=[
+                {"chain": "polygon", "chain_id": 137, "token": "USDC", "address": poly_cfg.usdc_address, "recipient": self.recipient_wallet},
+                {"chain": "base", "chain_id": 8453, "token": "USDC", "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", "recipient": self.recipient_wallet},
+                {"chain": "arbitrum", "chain_id": 42161, "token": "USDC", "address": "0xaf88d065e77c8cC2239327C5EDb3A432268e5831", "recipient": self.recipient_wallet}
+            ],
             pass_options={
                 "agent_vault_min_deposit": "2.0 USDC",
                 "agent_vault_deposit_endpoint": "/api/v1/vault/deposit",
@@ -157,7 +172,7 @@ class X402Verifier:
             },
             vault_deposit_endpoint="/api/v1/vault/deposit",
             min_deposit_usdc=2.0,
-            free_trial_remaining=0,
+            free_trial_remaining=rem_trials,
             nonce=f"nonce_{secrets.token_hex(8)}",
             timestamp=int(time.time()),
         )
@@ -406,12 +421,11 @@ class X402Verifier:
                     custom_detail=f"On-chain verification failed: {reason}"
                 )
 
-        # --- Strategy 4: Instant Sandbox Free Trial (Disabled - Zero Free Tier) ---
+        # --- Strategy 4: Instant Sandbox Free Trial ---
         if FREE_TRIAL_LIMIT > 0:
             nonce_hdr = request.headers.get("x-agent-nonce", "").strip()
             client_ip = self.get_client_ip(request)
-            # Allow test suites to pass isolated test user nonces, while enforcing strict IP-based limitation for clients
-            trial_id = nonce_hdr if (nonce_hdr.startswith("test_user_") or nonce_hdr.startswith("test_nonce_") or nonce_hdr.startswith("test_")) else f"ip_{client_ip}"
+            trial_id = nonce_hdr if nonce_hdr else f"ip_{client_ip}"
 
             current_usage = storage_manager.get_trial_usage(trial_id)
             if current_usage < FREE_TRIAL_LIMIT:
@@ -425,8 +439,9 @@ class X402Verifier:
                     payer_address=f"sandbox_{trial_id[:16]}",
                     cost_usdc=0.0,
                     remaining_free_trials=rem,
+                    remaining_trial_calls=rem,
                     settled_at=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-                    auth={"mode": "SANDBOX_FREE_TRIAL", "remaining_free_trials": rem, "receipt_id": rcpt_id}
+                    auth={"mode": "SANDBOX_FREE_TRIAL", "remaining_free_trials": rem, "remaining_trial_calls": rem, "receipt_id": rcpt_id}
                 )
                 return True, receipt, None
 

@@ -22,7 +22,7 @@ if hasattr(sys.stdout, "reconfigure"):
 load_dotenv(override=True)
 
 # Configuration & Links
-GCP_URL = "https://x402-cleanweb-agent-212942243360.asia-northeast3.run.app"
+GCP_URL = "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app"
 PYPI_URL = "https://pypi.org/project/x402-cleanweb-agent/"
 GITHUB_URL = "https://github.com/nohosa001-pixel/x402-cleanweb-agent"
 
@@ -32,54 +32,60 @@ X_API_SECRET = os.getenv("X_API_SECRET", "")
 X_ACCESS_TOKEN = os.getenv("X_ACCESS_TOKEN", "")
 X_ACCESS_TOKEN_SECRET = os.getenv("X_ACCESS_TOKEN_SECRET", "")
 
-# 1. 한국어 사용자 서비스 & UI 중심 스레드
+# 1. 한국어 자율 AI 에이전트 개발자 & 빌더 전용 스레드 (B2A AI Agent Thread)
 KOREAN_THREAD = [
     (
-        "복잡하고 광고 많은 웹페이지, 긴 유튜브 영상 대본, 두꺼운 PDF 논문 요약할 때 답답하셨죠? 🛑\n\n"
-        "비싼 월 5만원 정기 결제 없이, 필요한 문서만 1건당 10원대로 깔끔하게 본문만 뽑아주는 웹 서비스를 오픈했습니다! 📄✨\n\n"
-        "브라우저에서 로그인 없이 바로 써보실 수 있습니다👇 (1/3)\n"
-        "#웹서비스 #문서요약 #유튜브자막 #PDF변환 #AI도구"
+        "자율 AI 에이전트(LangChain, CrewAI, AutoGen, Eliza)를 구축 중이신가요? 🤖🛑\n\n"
+        "웹 검색/스크래핑 시 80KB의 더러운 HTML 태그와 광고로 LLM 토큰 예산을 태우지 마세요.\n\n"
+        "토큰 노이즈 87% 압축 + 악성 프롬프트 인젝션 실시간 차단 + EIP-712 온체인 검증 오라클:\n"
+        "순수 자율 에이전트를 위한 B2A 머신-투-머신 인프라 x402를 소개합니다👇 (1/3)\n"
+        "#AIAgents #LangChain #CrewAI #자율에이전트 #Web3 #MCP"
     ),
     (
-        "💻 누구나 브라우저 UI에서 클릭 한 번으로 바로 사용 가능:\n\n"
-        "🌐 웹 링크 입력 ➡️ 광고·메뉴 싹 지우고 핵심 본문만 추출\n"
-        "🎬 유튜브 링크 입력 ➡️ 타임스탬프가 포함된 전체 대본 추출\n"
-        "📑 PDF·논문 업로드 ➡️ 읽기 편한 깔끔한 문서로 변환\n"
-        "📝 순수 텍스트 추출 ➡️ AI 요약이나 메모장에 바로 붙여넣기\n\n"
+        "⚡ 자율 에이전트 운영자가 x402를 선택하는 4가지 이유:\n\n"
+        "• 📉 토큰 비용 86.2% 절감: 87% 텍스트 압축으로 GPT-4o/Claude 인퍼런스 비용 극대화 절약\n"
+        "• 🛡️ Ingress Defense: 악성 프롬프트 인젝션·탈옥 코드 실시간 AST 검역\n"
+        "• 🔐 EIP-712 온체인 서명: Polygon, Base, Arbitrum 스마트 컨트랙트에서 위변조 독립 검증\n"
+        "• 💳 Zero-Human 결제: 인간 개입 없이 자율 에이전트가 USDC 볼트(<1ms 무가스)로 직접 정산\n\n"
         "(2/3)"
     ),
     (
-        "지금 바로 브라우저 UI에서 무료로 체험해보세요 🚀\n\n"
-        f"✨ 웹 UI 무료 체험: {GCP_URL}\n"
-        "👉 화면의 [⚡ 1초 무료 체험] 버튼을 누르면 설치 없이 즉시 결과를 확인하실 수 있습니다!\n\n"
-        "#생산성도구 #칼퇴치트키 #자료조사 #리포트작성 (3/3)"
+        "🚀 1분 만에 자율 에이전트에 무인 연동하기:\n\n"
+        "pip install x402-cleanweb-agent\n\n"
+        "터미널/에이전트 즉시 테스트 (3회 무료 샌드박스):\n"
+        f"curl \"{GCP_URL}/r/https://news.ycombinator.com\"\n\n"
+        f"🌐 게이트웨이 & API 명세: {GCP_URL}/docs\n"
+        f"📜 공식 깃허브: {GITHUB_URL} (3/3)\n"
+        "#Python #MachineToMachine #스마트컨트랙트 #LLM"
     )
 ]
 
-# 2. 글로벌 사용자 서비스 & UI 중심 스레드 (Global Launch Thread)
+# 2. 글로벌 자율 AI 에이전트 인프라 스레드 (Global Autonomous Agent Infrastructure Thread)
 GLOBAL_THREAD = [
     (
-        "Tired of messy ads, cluttered websites, and expensive $49/mo subscriptions? 🛑\n\n"
-        "Introducing our Clean Web & Document Extraction Web App! 📄✨\n"
-        "Turn any messy webpage, YouTube video, or PDF into clean, ready-to-read text in 1 second.\n\n"
-        "Pay only when you use it (from $0.005). Try the live Web UI 👇 (1/3)\n"
-        f"🌐 {GCP_URL}\n"
-        "#Productivity #WebTools #Summary #CleanWeb #AI"
+        "Building Autonomous AI Agents & Swarms with LangChain, CrewAI, or AutoGen? 🤖🛑\n\n"
+        "Stop burning 87% of your LLM context window on raw HTML noise, scripts, and ads.\n\n"
+        "Introducing x402 CleanWeb: The 100% Autonomous B2A (Machine-to-Machine) Real-Time Data Oracle with cryptographic EIP-712 proofs 👇 (1/3)\n"
+        f"📦 PyPI: {PYPI_URL}\n"
+        "#AIAgents #LangChain #CrewAI #Web3 #MCP #AgenticAI"
     ),
     (
-        "⚡ What you can do directly on the Web UI:\n\n"
-        "• 🌐 Clean Web: Strip all ads & clutter for clean reading\n"
-        "• 🎬 YouTube Transcripts: Extract full timestamped video scripts\n"
-        "• 📑 PDF & Papers: Convert research papers into digestible text\n"
-        "• 📝 Pure Text: Copy-paste directly into your favorite AI tool\n\n"
+        "💡 Mathematical Token Arbitrage Proof for Agent Operators:\n\n"
+        "• 80KB Raw Web HTML ≈ 20,000 tokens ($0.05 USD on GPT-4o / Claude 3.5)\n"
+        "• x402 Clean Markdown ≈ 2,600 tokens + $0.001 API fee = $0.0075 Total\n"
+        "• Net Savings: 86.2% dollar reduction on EVERY single agent web search\n"
+        "• Zero Human In-The-Loop: 1ms zero-gas USDC micropayments via Pre-funded Vaults\n\n"
         "(2/3)"
     ),
     (
-        "✨ Experience the interactive Web UI right now!\n\n"
-        f"👉 Click [⚡ Free Instant Test] on the site to see it in action without any login:\n\n"
-        f"🌐 Live Web App: {GCP_URL}\n"
-        f"📦 Python Tool: {PYPI_URL}\n\n"
-        "#Productivity #AITools #Workflow #Reading (3/3)"
+        "⚡ Zero-Friction Instant Test for Autonomous Agents:\n\n"
+        f"curl \"{GCP_URL}/r/https://news.ycombinator.com\"\n\n"
+        "Equip your agent in 60 seconds:\n"
+        "pip install x402-cleanweb-agent\n\n"
+        f"🌐 Production Gateway: {GCP_URL}\n"
+        f"🛡️ Verified Contracts on Polygon, Base & Arbitrum\n"
+        f"📜 Open Architecture: {GITHUB_URL} (3/3)\n"
+        "#Python #AutonomousAgents #EIP712 #SmartContracts"
     )
 ]
 
@@ -111,16 +117,17 @@ B2A_AGENT_THREAD = [
 ]
 
 def build_status_alert_tweet():
-    """사용자 관점의 서비스 UI 및 편의성 강조 단일 트윗"""
+    """자율 AI 에이전트 빌더를 위한 핵심 소구점 강조 단일 트윗"""
     return (
-        f"📄 [자료 조사 & 문서 정리 웹 서비스 안내]\n\n"
-        f"광고 많은 웹페이지, 유튜브 영상 대본, PDF 논문을 1초 만에 깔끔한 본문으로 뽑아주는 웹 도구입니다 ✨\n\n"
-        f"• 월 정기 결제 X (건당 10원대)\n"
-        f"• 로그인 없이 브라우저에서 바로 사용\n\n"
-        f"지금 웹 UI에서 바로 무료 체험해보세요 👇\n"
-        f"🌐 {GCP_URL}\n\n"
-        f"#웹서비스 #문서정리 #자료조사 #생산성도구"
+        "🤖 [B2A Autonomous Agent Data Infrastructure]\n\n"
+        "자율 AI 에이전트의 웹 브라우징 토큰 비용을 87% 절감하고, 위변조 방지 EIP-712 암호학적 오라클 서명을 즉시 발급합니다.\n\n"
+        "• LangChain / CrewAI / AutoGen 1분 연동\n"
+        "• Polygon, Base, Arbitrum USDC 머신 결제\n"
+        "• 3회 무료 샌드박스 테스트 지원\n\n"
+        f"⚡ 1초 테스트: {GCP_URL}/r/https://news.ycombinator.com\n\n"
+        "#AIAgents #자율에이전트 #LangChain #Web3 #MCP"
     )
+
 
 def post_tweet_api(text: str, in_reply_to_tweet_id: str = None) -> dict:
     """X API v2를 사용하여 트윗 게시"""

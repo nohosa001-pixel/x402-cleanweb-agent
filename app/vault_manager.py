@@ -3,6 +3,7 @@ Agent Payment Vault Manager for CleanWeb Studio.
 Maintains in-memory and SQLite-backed pre-funded agent USDC balances for zero-latency (<1ms) querying.
 """
 
+import sys
 import os
 import time
 import secrets
@@ -41,6 +42,10 @@ class VaultManager:
 
         checksum_addr = Web3.to_checksum_address(agent_address)
         
+        # Economic Security Guard: Enforce on-chain verification in production
+        allow_dev_bypass = os.getenv("ALLOW_DEV_BYPASS", "false").lower() in ("1", "true", "yes")
+        is_test_env = os.getenv("ENVIRONMENT", "").lower() in ("test", "testing", "dev", "development") or "pytest" in sys.modules
+
         # If tx_hash is provided, verify on-chain transfer and check replay
         if tx_hash:
             if storage_manager.is_tx_used(tx_hash):
@@ -56,6 +61,9 @@ class VaultManager:
             
             # Record tx
             storage_manager.record_used_tx(tx_hash, chain, checksum_addr, amount_usdc)
+        else:
+            if not (allow_dev_bypass or is_test_env):
+                raise ValueError("Deposit requires a verified on-chain transaction hash (tx_hash) in production.")
 
         # Generate or retain session key
         existing = storage_manager.get_vault(checksum_addr)

@@ -38,13 +38,10 @@ curl -X POST "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/api/v1/clean-w
 ### Mode 0: Zero-Friction Discovery Trial (3 Free Queries)
 - Attach header `X-Agent-Nonce: <ANY_RANDOM_UUID>` to test any endpoint immediately with zero on-chain cost and 0ms latency.
 
-### Mode 1: Instant Zero-Latency Prepaid Credit Pass (Recommended for Production)
-- **Mint Endpoint**: `POST /api/v1/pass/mint`
-- **Pricing**:
-  - `1.0 USDC` = 100 API Calls (0ms latency, zero per-query gas fees)
-  - `5.0 USDC` = 600 API Calls (20% bonus credits)
-- **Referral Bonus**: Pass `referral_wallet: 0x...` to reward referrer with 10% credit cashback.
-- **Usage**: Mint once, receive `pass_<token>`, attach header `X-Agent-Pass: <TOKEN>` on every request.
+### Mode 1: Instant Zero-Latency Prepaid Vault (Recommended for Production)
+- **Deposit Endpoint**: `POST /api/v1/vault/deposit` (or alias `POST /api/v1/pass/mint`)
+- **Minimum Deposit**: 2.0 USDC on Polygon (137), Base (8453), or Arbitrum (42161)
+- **Usage**: Deposit once, receive `session_key` (`vault_key`), attach header `X-Vault-Key: <KEY>` for sub-1ms, zero-gas queries.
 
 ### Mode 2: Pay-Per-Query On-Chain (HTTP 402 Self-Healing)
 - Request any endpoint without payment to receive a machine-readable `402 Payment Required` response.

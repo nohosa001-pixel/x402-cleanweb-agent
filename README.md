@@ -1,11 +1,11 @@
-# ⚡ Polygon x402 Autonomous AI Agent Suite & Spend Firewall (v2.5.5)
+# ⚡ Polygon x402 Autonomous AI Agent Suite & Spend Firewall (v2.6.0)
 
 > **"High-Throughput Clean Web Markdown, YouTube Intelligence & Cryptographic Web3 Oracles for Autonomous AI Agents & Swarms."**  
 > *Zero credit cards required. Pure B2A (Business-to-Agent) USDC micropayments & pre-funded vaults on Polygon, Base, and Arbitrum with on-chain EIP-712 spend policy attestations.*
 
-[![Version](https://img.shields.io/badge/Version-2.5.5-00f2fe?style=for-the-badge&logo=fastapi&logoColor=black)](https://github.com/nohosa001-pixel/x402-cleanweb-agent)
+[![Version](https://img.shields.io/badge/Version-2.6.0-00f2fe?style=for-the-badge&logo=fastapi&logoColor=black)](https://github.com/nohosa001-pixel/x402-cleanweb-agent)
 [![PyPI](https://img.shields.io/pypi/v/x402-cleanweb-agent?style=for-the-badge&logo=pypi&logoColor=white&color=blue)](https://pypi.org/project/x402-cleanweb-agent/)
-[![Tests](https://img.shields.io/badge/Tests-43%2F43%20Passed%20(100%25)-success?style=for-the-badge&logo=pytest&logoColor=white)](https://github.com/nohosa001-pixel/x402-cleanweb-agent)
+[![Tests](https://img.shields.io/badge/Tests-50%2F50%20Passed%20(100%25)-success?style=for-the-badge&logo=pytest&logoColor=white)](https://github.com/nohosa001-pixel/x402-cleanweb-agent)
 [![MCP](https://img.shields.io/badge/MCP-14%20Tools%20Ready-blueviolet?style=for-the-badge&logo=anthropic&logoColor=white)](https://glama.ai/mcp/servers)
 [![Multi-Chain](https://img.shields.io/badge/Chains-Polygon%20%7C%20Base%20%7C%20Arbitrum-8247e5?style=for-the-badge&logo=ethereum&logoColor=white)](https://polygonscan.com/address/0x45ecBfAa2F4B0Bc6ccD3eB2dB9B1Ca49CF121861#code)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)

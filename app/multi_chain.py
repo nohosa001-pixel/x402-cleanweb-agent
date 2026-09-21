@@ -218,7 +218,8 @@ class MultiChainManager:
                 topic_1 = topics[1].hex().lower() if hasattr(topics[1], "hex") else str(topics[1]).lower()
                 payer_addr = safe_checksum("0x" + topic_1[-40:])
 
-        if transferred_amount_usdc < min_amount_usdc:
+        # 6-decimal micro-USDC precision comparison to prevent IEEE-754 float precision rejection
+        if round(transferred_amount_usdc, 6) < round(min_amount_usdc - 1e-6, 6):
             return False, (
                 f"Insufficient USDC transferred. Found {transferred_amount_usdc:.4f} USDC, "
                 f"expected at least {min_amount_usdc:.4f} USDC to {target_recipient} on {cfg.display_name}."
