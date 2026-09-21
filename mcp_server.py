@@ -5,6 +5,7 @@ Supports Multi-Chain (Polygon/Base/Arbitrum) USDC Micropayments and Free Tier fo
 
 import os
 import sys
+import time
 
 # Force UTF-8 stdio encoding on Windows to prevent UnicodeEncodeError in MCP JSON-RPC pipes
 if hasattr(sys.stdout, "reconfigure"):
@@ -60,7 +61,10 @@ def _coerce_val(val, default_val):
         "- Do NOT use for checking individual wallet balances (use `get_vault_balance`)."
     )
 )
-def get_payment_info() -> str:
+def get_payment_info(
+    tier: Optional[str] = Field(default=None, description="Optional specific pricing tier to inspect."),
+    chain: Optional[str] = Field(default=None, description="Optional specific chain name (polygon, base, arbitrum).")
+) -> str:
     poly_cfg = multi_chain_manager.get_chain_config("polygon")
     base_cfg = multi_chain_manager.get_chain_config("base")
     arb_cfg = multi_chain_manager.get_chain_config("arbitrum")

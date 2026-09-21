@@ -19,13 +19,12 @@ load_dotenv()
 
 POLYGON_CHAIN_ID = int(os.getenv("POLYGON_CHAIN_ID", os.getenv("CHAIN_ID", "137")))
 CLEANWEB_CONTRACT_ADDRESS = os.getenv(
-    "CLEANWEB_ORACLE_CONTRACT_ADDRESS",
-    "0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7"
+    "CLEANWEB_ORACLE_VERIFIER_ADDRESS",
+    os.getenv("CLEANWEB_ORACLE_CONTRACT_ADDRESS", "0x18fA451b1d9A9FbbDa6Ebd86F8b42891866ADc46")
 )
 ORACLE_SIGNER_PRIVATE_KEY = os.getenv(
     "ORACLE_SIGNER_PRIVATE_KEY",
-    # Safe default for local/sandbox development: Hardhat Account #0
-    "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+    os.getenv("SERVER_PRIVATE_KEY", os.getenv("DEPLOYER_PRIVATE_KEY", "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"))
 )
 
 

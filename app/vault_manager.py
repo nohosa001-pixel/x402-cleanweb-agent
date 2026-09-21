@@ -84,6 +84,18 @@ class VaultManager:
         addr = vault["agent_address"]
         return storage_manager.deduct_vault(addr, amount_usdc)
 
+    def refund(self, identifier: str, amount_usdc: float) -> Tuple[bool, float, Optional[Dict[str, Any]]]:
+        """
+        Refunds cost back to pre-funded vault balance if operation fails.
+        Returns (success, new_balance, account_dict).
+        """
+        vault = storage_manager.get_vault(identifier)
+        if not vault:
+            return False, 0.0, None
+        
+        addr = vault["agent_address"]
+        return storage_manager.refund_vault(addr, amount_usdc)
+
     def get_balance(self, identifier: str) -> Optional[Dict[str, Any]]:
         """Retrieves vault account details by agent address or session key."""
         return storage_manager.get_vault(identifier)

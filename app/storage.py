@@ -150,7 +150,8 @@ class StorageManager:
 
         if pass_token in self._cache_active_passes:
             cached = self._cache_active_passes[pass_token]
-            if cached.get("expires_at", 0) > now:
+            # Invalidate cache if expired or if VIP pass ran out of credits
+            if cached.get("expires_at", 0) > now and not (token_upper in ("WELCOME100", "CLEANWEB100", "VIPAGENT") and cached.get("credits", 0) <= 0):
                 return cached
             else:
                 self._cache_active_passes.pop(pass_token, None)
@@ -161,19 +162,19 @@ class StorageManager:
                 cur = conn.cursor()
                 cur.execute("SELECT * FROM passes WHERE pass_token = ? AND is_active = 1", (pass_token,))
                 row = cur.fetchone()
-                if not row:
-                    # If VIP code wasn't seeded yet, seed on demand
-                    if pass_token in ("WELCOME100", "CLEANWEB100", "VIPAGENT"):
-                        exp_ts = now + 31536000
-                        cur.execute("""
-                        INSERT OR REPLACE INTO passes (pass_token, buyer_email, pass_type, created_at, expires_at, is_active, order_id, credits)
-                        VALUES (?, 'vip@cleanweb.ai', 'VIP_PROMO_100', ?, ?, 1, 'promo_instant', 100)
-                        """, (pass_token, now, exp_ts))
-                        conn.commit()
-                        cur.execute("SELECT * FROM passes WHERE pass_token = ?", (pass_token,))
-                        row = cur.fetchone()
-                    else:
-                        return None
+                
+                # Auto-seed or auto-refill depleted VIP passes
+                if token_upper in ("WELCOME100", "CLEANWEB100", "VIPAGENT") and (not row or row["credits"] <= 0):
+                    exp_ts = now + 31536000
+                    cur.execute("""
+                    INSERT OR REPLACE INTO passes (pass_token, buyer_email, pass_type, created_at, expires_at, is_active, order_id, credits)
+                    VALUES (?, 'vip@cleanweb.ai', 'VIP_PROMO_100', ?, ?, 1, 'promo_instant', 100)
+                    """, (pass_token, now, exp_ts))
+                    conn.commit()
+                    cur.execute("SELECT * FROM passes WHERE pass_token = ?", (pass_token,))
+                    row = cur.fetchone()
+                elif not row:
+                    return None
                 
                 if row and row["expires_at"] > now:
                     res = dict(row)
@@ -344,6 +345,32 @@ class StorageManager:
                 return True, new_bal, dict(cur.fetchone())
             finally:
                 conn.close()
+
+    def refund_vault(self, agent_address: str, amount_usdc: float) -> Tuple[bool, float, Optional[Dict[str, Any]]]:
+        """Rolls back deducted balance if service extraction fails, guaranteeing zero economic loss for agents."""
+        now = int(time.time())
+        with self._lock:
+            conn = self._get_conn()
+            try:
+                cur = conn.cursor()
+                cur.execute("SELECT * FROM agent_vaults WHERE LOWER(agent_address) = ?", (agent_address.lower(),))
+                row = cur.fetchone()
+                if not row:
+                    return False, 0.0, None
+                new_bal = round(row["balance_usdc"] + amount_usdc, 6)
+                new_consumed = max(0.0, round(row["total_consumed"] - amount_usdc, 6))
+                new_queries = max(0, row["query_count"] - 1)
+                cur.execute("""
+                UPDATE agent_vaults 
+                SET balance_usdc = ?, total_consumed = ?, last_active = ?, query_count = ?
+                WHERE LOWER(agent_address) = ?
+                """, (new_bal, new_consumed, now, new_queries, agent_address.lower()))
+                conn.commit()
+                cur.execute("SELECT * FROM agent_vaults WHERE LOWER(agent_address) = ?", (agent_address.lower(),))
+                return True, new_bal, dict(cur.fetchone())
+            finally:
+                conn.close()
+
 
     def get_stats(self) -> Dict[str, Any]:
         """Telemetry statistics for database health and volume."""

@@ -21,6 +21,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from app.schemas import (
     PricingTier,
+    PaymentMethod,
+    PaymentReceipt,
     CleanWebRequest,
     WebCleanResponse,
     CleanYouTubeRequest,
@@ -197,6 +199,15 @@ async def get_metrics():
         lines.append(f'cleanweb_http_requests_total{{status="{status_code}"}} {count}')
 
     return PlainTextResponse("\n".join(lines), media_type="text/plain; version=0.0.4")
+
+
+def safe_refund_vault(receipt: Optional[PaymentReceipt]):
+    """Safely rolls back deducted vault balance if an upstream extraction or external service call fails."""
+    if receipt and receipt.payment_method == PaymentMethod.VAULT_BALANCE and receipt.payer_address and receipt.cost_usdc > 0:
+        try:
+            vault_manager.refund(receipt.payer_address, receipt.cost_usdc)
+        except Exception:
+            pass
 
 
 # =========================================================================
@@ -668,13 +679,17 @@ def clean_web(
             security_audit=sec_audit_obj
         )
     except ValueError as ve:
+        safe_refund_vault(receipt)
         raise HTTPException(status_code=400, detail=str(ve))
     except requests.exceptions.HTTPError as he:
+        safe_refund_vault(receipt)
         upstream_status = he.response.status_code if he.response is not None else 502
         raise HTTPException(status_code=502, detail=f"Target webpage host returned HTTP {upstream_status}: {str(he)}")
     except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as ce:
+        safe_refund_vault(receipt)
         raise HTTPException(status_code=504, detail=f"Target webpage host unreachable or timed out: {str(ce)}")
     except Exception as e:
+        safe_refund_vault(receipt)
         raise HTTPException(status_code=500, detail=f"Failed to scrape webpage: {str(e)}")
 
 
@@ -737,13 +752,17 @@ def agent_reader_proxy(request: Request, target_url: str):
         )
         return PlainTextResponse(banner + markdown + footer, media_type="text/markdown; charset=utf-8")
     except ValueError as ve:
+        safe_refund_vault(receipt)
         raise HTTPException(status_code=400, detail=str(ve))
     except requests.exceptions.HTTPError as he:
+        safe_refund_vault(receipt)
         upstream_status = he.response.status_code if he.response is not None else 502
         raise HTTPException(status_code=502, detail=f"Target webpage host returned HTTP {upstream_status}: {str(he)}")
     except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as ce:
+        safe_refund_vault(receipt)
         raise HTTPException(status_code=504, detail=f"Target webpage host unreachable or timed out: {str(ce)}")
     except Exception as e:
+        safe_refund_vault(receipt)
         raise HTTPException(status_code=500, detail=f"Agent Proxy Extraction Failed: {str(e)}")
 
 
@@ -806,6 +825,7 @@ def clean_youtube(
             security_audit=sec_audit_obj
         )
     except Exception as e:
+        safe_refund_vault(receipt)
         raise HTTPException(status_code=500, detail=f"Failed to process YouTube video: {str(e)}")
 
 
@@ -864,13 +884,17 @@ def clean_pdf(
             auth=receipt.auth if receipt else None
         )
     except ValueError as ve:
+        safe_refund_vault(receipt)
         raise HTTPException(status_code=400, detail=str(ve))
     except requests.exceptions.HTTPError as he:
+        safe_refund_vault(receipt)
         upstream_status = he.response.status_code if he.response is not None else 502
         raise HTTPException(status_code=502, detail=f"Target PDF host returned HTTP {upstream_status}: {str(he)}")
     except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as ce:
+        safe_refund_vault(receipt)
         raise HTTPException(status_code=504, detail=f"Target PDF host unreachable or timed out: {str(ce)}")
     except Exception as e:
+        safe_refund_vault(receipt)
         raise HTTPException(status_code=500, detail=f"Failed to parse PDF: {str(e)}")
 
 
@@ -911,6 +935,7 @@ def clean_batch(request: Request, body: BatchCleanRequest):
             auth=receipt.auth if receipt else None
         )
     except Exception as e:
+        safe_refund_vault(receipt)
         raise HTTPException(status_code=500, detail=f"Batch scraping failed: {str(e)}")
 
 
@@ -939,6 +964,7 @@ def clean_text(
             auth=receipt.auth if receipt else None
         )
     except Exception as e:
+        safe_refund_vault(receipt)
         raise HTTPException(status_code=500, detail=f"Failed to extract plain text: {str(e)}")
 
 
@@ -959,6 +985,7 @@ def extract_json(request: Request, body: ExtractJsonRequest):
             auth=receipt.auth if receipt else None
         )
     except Exception as e:
+        safe_refund_vault(receipt)
         raise HTTPException(status_code=500, detail=f"Failed to extract JSON: {str(e)}")
 
 
@@ -986,6 +1013,7 @@ def deep_research(
             auth=receipt.auth if receipt else None
         )
     except Exception as e:
+        safe_refund_vault(receipt)
         raise HTTPException(status_code=500, detail=f"Failed to perform deep research: {str(e)}")
 
 
@@ -1013,6 +1041,7 @@ def map_site(
             auth=receipt.auth if receipt else None
         )
     except Exception as e:
+        safe_refund_vault(receipt)
         raise HTTPException(status_code=500, detail=f"Failed to map site: {str(e)}")
 
 
@@ -1048,6 +1077,7 @@ def search_web(
             auth=receipt.auth if receipt else None
         )
     except Exception as e:
+        safe_refund_vault(receipt)
         raise HTTPException(status_code=500, detail=f"Failed to execute agent search: {str(e)}")
 
 
@@ -1150,6 +1180,7 @@ def oracle_grounding(request: Request, body: OracleGroundingRequest):
 
         return result
     except Exception as e:
+        safe_refund_vault(receipt)
         raise HTTPException(status_code=500, detail=f"Oracle Grounding failed: {str(e)}")
 
 

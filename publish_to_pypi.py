@@ -3,10 +3,24 @@ import os
 import glob
 import shutil
 import subprocess
+import re
 from dotenv import load_dotenv
 
 sys.stdout.reconfigure(encoding='utf-8')
 load_dotenv()
+
+# Extract version from pyproject.toml
+version = "unknown"
+try:
+    with open("pyproject.toml", "r", encoding="utf-8") as f:
+        content = f.read()
+        match = re.search(r'version\s*=\s*["\']([^"\']+)["\']', content)
+        if match:
+            version = match.group(1)
+except Exception as e:
+    print(f"Warning: Could not extract version: {e}")
+
+print(f"🚀 Preparing PyPI Release for x402-cleanweb-agent v{version}...")
 
 # Clean previous build artifacts
 for d in ["dist", "build"]:
@@ -19,7 +33,7 @@ for egg in glob.glob("*.egg-info"):
     print(f"Cleaned {egg}")
 
 # 1. Build Package
-print("\n[1/3] Building Wheel & Source Distribution for v2.5.5...")
+print(f"\n[1/3] Building Wheel & Source Distribution for v{version}...")
 build_res = subprocess.run([sys.executable, "-m", "build"], capture_output=True, text=True, encoding="utf-8")
 if build_res.returncode != 0:
     print("[ERROR] Build failed:")
@@ -56,7 +70,7 @@ cmd = [
     "--verbose"
 ]
 
-print("\n[3/3] Uploading v2.5.5 to PyPI...")
+print(f"\n[3/3] Uploading v{version} to PyPI...")
 res = subprocess.run(cmd, env=env, capture_output=True, text=True, encoding="utf-8")
 print("Return code:", res.returncode)
 print("Stdout:", res.stdout)
@@ -64,7 +78,8 @@ if res.stderr:
     print("Stderr:", res.stderr)
 
 if res.returncode == 0:
-    print("\n🎉 [SUCCESS] x402-cleanweb-agent v2.5.5 published to PyPI successfully!")
+    print(f"\n🎉 [SUCCESS] x402-cleanweb-agent v{version} published to PyPI successfully!")
 else:
     print("\n❌ [ERROR] PyPI upload failed.")
     sys.exit(res.returncode)
+

@@ -16,7 +16,7 @@ if hasattr(sys.stderr, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8")
 
 import requests
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List, Tuple
 from web3 import Web3
 from web3.middleware import ExtraDataToPOAMiddleware
 
@@ -441,8 +441,8 @@ class AutonomousX402Agent:
 
             target_chain_id = int(chain_id or os.getenv("POLYGON_CHAIN_ID", os.getenv("CHAIN_ID", "137")))
             target_contract = contract_address or os.getenv(
-                "CLEANWEB_ORACLE_CONTRACT_ADDRESS",
-                "0xAECbfBc171F522c35985AABa2FA1F9881A046D66"
+                "CLEANWEB_ORACLE_VERIFIER_ADDRESS",
+                os.getenv("CLEANWEB_ORACLE_CONTRACT_ADDRESS", "0x18fA451b1d9A9FbbDa6Ebd86F8b42891866ADc46")
             )
 
             structured_data = {

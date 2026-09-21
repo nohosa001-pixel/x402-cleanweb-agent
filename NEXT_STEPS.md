@@ -4,7 +4,7 @@
 > 모든 정책과 엔드포인트는 자율 머신-투-머신(M2M/B2A) 경제와 제로-인간(Zero-Human) 결제에 맞춰져 있습니다.
 
 * **운영 상태**: 🟢 **정식 라이브 서비스 운영 중 (Production Live)**
-* **릴리즈 버전**: PyPI `v2.5.5` (최신 안정화 버전 배포 완료)
+* **릴리즈 버전**: PyPI `v2.6.0` (최신 안정화 버전 배포 완료)
 * **핵심 인프라**: GCP Cloud Run (3대 Triad 서비스 무장애 가동)
 * **스마트 컨트랙트**: 3개 체인(Polygon, Base, Arbitrum) 100% 온체인 검증 완료
 
@@ -15,7 +15,7 @@
 2. **⚡ Jina-Style Agent Proxy**: `https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/r/{url}`
 3. **🛡️ Security Gate**: `https://agent-security-gate-x402-212942243360.asia-northeast3.run.app`
 4. **🪨 Minerals Oracle**: `https://minerals-oracle-x402-212942243360.asia-northeast3.run.app`
-5. **📦 PyPI 공식 패키지**: `pip install x402-cleanweb-agent==2.5.5`
+5. **📦 PyPI 공식 패키지**: `pip install x402-cleanweb-agent==2.6.0`
 
 ---
 

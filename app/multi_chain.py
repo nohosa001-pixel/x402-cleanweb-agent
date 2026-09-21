@@ -10,6 +10,7 @@ from typing import Dict, Any, Optional, List, Tuple
 from enum import Enum
 from pydantic import BaseModel
 from web3 import Web3
+from web3.exceptions import TransactionNotFound
 
 
 class SupportedChain(str, Enum):
@@ -44,10 +45,8 @@ CHAIN_REGISTRY: Dict[str, ChainConfig] = {
         usdc_address=safe_checksum(os.getenv("USDC_CONTRACT_ADDRESS", "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359")),
         rpc_urls=[
             os.getenv("POLYGON_RPC_URL", "https://polygon-bor-rpc.publicnode.com"),
-            "https://polygon.llamarpc.com",
-            "https://1rpc.io/matic",
-            "https://rpc.ankr.com/polygon",
-            "https://polygon-rpc.com"
+            "https://polygon.drpc.org",
+            "https://1rpc.io/matic"
         ],
         explorer_url="https://polygonscan.com",
         decimals=6
@@ -59,10 +58,8 @@ CHAIN_REGISTRY: Dict[str, ChainConfig] = {
         usdc_address=safe_checksum("0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"),
         rpc_urls=[
             "https://mainnet.base.org",
-            "https://base.llamarpc.com",
-            "https://1rpc.io/base",
-            "https://base-rpc.publicnode.com",
-            "https://rpc.ankr.com/base"
+            "https://base.drpc.org",
+            "https://1rpc.io/base"
         ],
         explorer_url="https://basescan.org",
         decimals=6
@@ -74,10 +71,8 @@ CHAIN_REGISTRY: Dict[str, ChainConfig] = {
         usdc_address=safe_checksum("0xaf88d065e77c8cC2239327C5EDb3A432268e5831"),
         rpc_urls=[
             "https://arb1.arbitrum.io/rpc",
-            "https://arbitrum.llamarpc.com",
-            "https://1rpc.io/arb",
-            "https://arbitrum-one-rpc.publicnode.com",
-            "https://rpc.ankr.com/arbitrum"
+            "https://arbitrum.drpc.org",
+            "https://1rpc.io/arb"
         ],
         explorer_url="https://arbiscan.io",
         decimals=6
@@ -146,6 +141,27 @@ class MultiChainManager:
                 }
         return results
 
+    def get_valid_recipients(self, chain_identifier: Any = "polygon", extra_recipient: Optional[str] = None) -> List[str]:
+        """Returns all recognized recipient addresses (server EOA wallet + deployed AgentPaymentVault contracts)."""
+        recipients = [self.default_recipient.lower()]
+        if extra_recipient:
+            recipients.append(safe_checksum(extra_recipient).lower())
+            
+        # Add configured AgentPaymentVault contracts across chains
+        vault_addrs = [
+            os.getenv("AGENT_PAYMENT_VAULT_ADDRESS", "0x45ecBfAa2F4B0Bc6ccD3eB2dB9B1Ca49CF121861"),
+            os.getenv("BASE_AGENT_PAYMENT_VAULT_ADDRESS", "0x28292D76E07E5539F15F3b97935dE8E0432E76DD"),
+            os.getenv("ARBITRUM_AGENT_PAYMENT_VAULT_ADDRESS", "0x28292D76E07E5539F15F3b97935dE8E0432E76DD"),
+            "0x45ecBfAa2F4B0Bc6ccD3eB2dB9B1Ca49CF121861",
+            "0x28292D76E07E5539F15F3b97935dE8E0432E76DD"
+        ]
+        for v in vault_addrs:
+            try:
+                recipients.append(safe_checksum(v).lower())
+            except Exception:
+                pass
+        return list(set(recipients))
+
     def verify_usdc_transfer(
         self,
         tx_hash: str,
@@ -155,9 +171,10 @@ class MultiChainManager:
     ) -> Tuple[bool, str, Optional[Dict[str, Any]]]:
         """
         Verifies on-chain ERC-20 USDC Transfer event for a given transaction hash.
-        Includes automatic RPC failover if the primary RPC times out.
+        Features automatic retry polling (up to 8s) for pending block mining and multi-RPC failover.
+        Accepts transfers to both the server EOA wallet and the official AgentPaymentVault contracts.
         """
-        target_recipient = safe_checksum(expected_recipient or self.default_recipient)
+        valid_recipients = self.get_valid_recipients(chain_identifier, expected_recipient)
         
         tx_hash = tx_hash.strip()
         if not re.match(r"^0x[a-fA-F0-9]{64}$", tx_hash):
@@ -167,29 +184,42 @@ class MultiChainManager:
         receipt = None
         last_err = None
 
-        # Multi-RPC Failover Loop
-        for rpc in cfg.rpc_urls:
-            try:
-                w3 = Web3(Web3.HTTPProvider(rpc, request_kwargs={"timeout": 6}))
-                receipt = w3.eth.get_transaction_receipt(tx_hash)
-                if receipt:
+        # Robust Retry Polling: poll up to 4 attempts (total ~5 seconds) to accommodate on-chain block mining
+        max_attempts = 4
+        poll_interval = 1.5
+
+        for attempt in range(max_attempts):
+            for rpc in cfg.rpc_urls:
+                try:
+                    w3 = Web3(Web3.HTTPProvider(rpc, request_kwargs={"timeout": 3}))
+                    receipt = w3.eth.get_transaction_receipt(tx_hash)
+                    if receipt:
+                        break
+                except TransactionNotFound as e:
+                    # Node is responsive & healthy: transaction is simply pending/unmined
+                    last_err = e
                     break
-            except Exception as e:
-                last_err = e
-                continue
+                except Exception as e:
+                    last_err = e
+                    continue
+            if receipt:
+                break
+            if attempt < max_attempts - 1:
+                time.sleep(poll_interval)
 
         if not receipt:
-            return False, f"Transaction not yet mined or not found on {cfg.display_name} (Last error: {last_err}).", None
+            return False, f"Transaction not yet mined or not found on {cfg.display_name} (Last error: {last_err}). Please wait a few seconds and retry.", None
 
         if receipt.get("status") != 1:
             return False, f"Transaction reverted on {cfg.display_name}.", None
 
-        # Parse logs for ERC20 Transfer to target_recipient
+        # Parse logs for ERC20 Transfer to any valid recipient
         usdc_contract_lower = cfg.usdc_address.lower()
-        target_topic_addr = "0x" + target_recipient.lower().replace("0x", "").zfill(64)
+        target_topic_addrs = {"0x" + r.replace("0x", "").zfill(64).lower() for r in valid_recipients}
 
         transferred_amount_usdc = 0.0
         payer_addr = None
+        matched_recipient = None
 
         for log in receipt.get("logs", []):
             log_addr = log.get("address", "").lower()
@@ -206,7 +236,7 @@ class MultiChainManager:
 
             # Topic 2: to
             topic_2 = topics[2].hex().lower() if hasattr(topics[2], "hex") else str(topics[2]).lower()
-            if topic_2 == target_topic_addr.lower():
+            if topic_2 in target_topic_addrs:
                 raw_data = log.get("data", "0x0")
                 if hasattr(raw_data, "hex"):
                     raw_data = raw_data.hex()
@@ -217,12 +247,13 @@ class MultiChainManager:
 
                 topic_1 = topics[1].hex().lower() if hasattr(topics[1], "hex") else str(topics[1]).lower()
                 payer_addr = safe_checksum("0x" + topic_1[-40:])
+                matched_recipient = safe_checksum("0x" + topic_2[-40:])
 
         # 6-decimal micro-USDC precision comparison to prevent IEEE-754 float precision rejection
         if round(transferred_amount_usdc, 6) < round(min_amount_usdc - 1e-6, 6):
             return False, (
                 f"Insufficient USDC transferred. Found {transferred_amount_usdc:.4f} USDC, "
-                f"expected at least {min_amount_usdc:.4f} USDC to {target_recipient} on {cfg.display_name}."
+                f"expected at least {min_amount_usdc:.4f} USDC to recognized recipient ({self.default_recipient}) on {cfg.display_name}."
             ), None
 
         details = {
@@ -230,7 +261,7 @@ class MultiChainManager:
             "chain_id": cfg.chain_id,
             "tx_hash": tx_hash,
             "payer": payer_addr or receipt.get("from"),
-            "recipient": target_recipient,
+            "recipient": matched_recipient or self.default_recipient,
             "amount_usdc": transferred_amount_usdc,
             "block_number": receipt.get("blockNumber")
         }

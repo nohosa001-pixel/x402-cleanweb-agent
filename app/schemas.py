@@ -221,7 +221,7 @@ class BatchCleanResponse(BaseModel):
 class VaultDepositRequest(BaseModel):
     agent_address: str
     chain: str = "polygon"
-    tx_hash: str
+    tx_hash: Optional[str] = Field(default="", description="On-chain transaction hash verifying USDC transfer")
     amount_usdc: float = Field(..., ge=2.0, le=1000.0, description="Deposit amount must be between 2.0 and 1000.0 USDC")
 
 
