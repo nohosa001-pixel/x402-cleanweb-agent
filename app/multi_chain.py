@@ -177,6 +177,8 @@ class MultiChainManager:
         valid_recipients = self.get_valid_recipients(chain_identifier, expected_recipient)
         
         tx_hash = tx_hash.strip()
+        if not tx_hash.startswith("0x"):
+            tx_hash = "0x" + tx_hash
         if not re.match(r"^0x[a-fA-F0-9]{64}$", tx_hash):
             return False, "Invalid transaction hash format. Must be 0x followed by 64 hex characters.", None
 
@@ -230,12 +232,14 @@ class MultiChainManager:
             if not topics or len(topics) < 3:
                 continue
 
-            topic_0 = topics[0].hex().lower() if hasattr(topics[0], "hex") else str(topics[0]).lower()
-            if topic_0 != TRANSFER_EVENT_TOPIC:
+            topic_0_raw = topics[0].hex() if hasattr(topics[0], "hex") else str(topics[0])
+            topic_0 = ("0x" + topic_0_raw if not topic_0_raw.startswith("0x") else topic_0_raw).lower()
+            if topic_0 != TRANSFER_EVENT_TOPIC.lower():
                 continue
 
             # Topic 2: to
-            topic_2 = topics[2].hex().lower() if hasattr(topics[2], "hex") else str(topics[2]).lower()
+            topic_2_raw = topics[2].hex() if hasattr(topics[2], "hex") else str(topics[2])
+            topic_2 = ("0x" + topic_2_raw if not topic_2_raw.startswith("0x") else topic_2_raw).lower()
             if topic_2 in target_topic_addrs:
                 raw_data = log.get("data", "0x0")
                 if hasattr(raw_data, "hex"):
@@ -245,7 +249,8 @@ class MultiChainManager:
                 amount_usdc = raw_int / (10 ** cfg.decimals)
                 transferred_amount_usdc += amount_usdc
 
-                topic_1 = topics[1].hex().lower() if hasattr(topics[1], "hex") else str(topics[1]).lower()
+                topic_1_raw = topics[1].hex() if hasattr(topics[1], "hex") else str(topics[1])
+                topic_1 = ("0x" + topic_1_raw if not topic_1_raw.startswith("0x") else topic_1_raw).lower()
                 payer_addr = safe_checksum("0x" + topic_1[-40:])
                 matched_recipient = safe_checksum("0x" + topic_2[-40:])
 

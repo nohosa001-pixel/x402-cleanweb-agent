@@ -366,7 +366,12 @@ class X402Verifier:
             or (bearer_token if bearer_token.startswith("0x") and len(bearer_token) == 66 else None)
         )
         if tx_hash:
-            chain_hdr = request.headers.get("x-chain", request.headers.get("x-chain-id", "polygon"))
+            chain_hdr = (
+                request.headers.get("x-chain")
+                or request.headers.get("x-chain-id")
+                or request.headers.get("x-payment-chain")
+                or "polygon"
+            )
             
             # Anti-Replay Check
             if storage_manager.is_tx_used(tx_hash):
