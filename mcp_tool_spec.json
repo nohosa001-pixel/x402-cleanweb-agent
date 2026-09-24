@@ -1,17 +1,22 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "name": "x402-cleanweb-agent",
-  "version": "2.6.0",
+  "version": "2.6.1",
   "protocol": "mcp-2024-11-05",
   "payment": {
     "protocol": "x402",
     "network": "Polygon (137), Base (8453), Arbitrum (42161)",
     "supported_currencies": ["USDC"],
+    "transports": {
+      "stdio": "uvx x402-cleanweb-agent",
+      "sse": "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/mcp-server/sse"
+    },
     "pricing_tiers": {
       "LIGHT": "0.001 USDC (Single Web Clean / Raw Text)",
       "MAP_SITE": "0.002 USDC (Domain Sitemap & URL Tree Discovery)",
       "SEARCH": "0.002 USDC (Fast Agent Web Search & Snippets)",
       "STANDARD": "0.005 USDC (PDF / Batch Scrape)",
+      "CLEAN_EMBED": "0.005 USDC (RAG Web Clean + Semantic Vector Chunking Pipeline)",
       "HEAVY": "0.010 USDC (Gemini AI YouTube Full Audio Summary)",
       "ONCHAIN": "0.020 USDC (EIP-712 Signed Attestation Calldata)",
       "EXTRACT_JSON": "0.030 USDC (Schema-Constrained Web JSON Extractor)",

@@ -17,9 +17,10 @@ client = TestClient(app)
 
 def test_oracle_grounding_402_challenge():
     """Verify that unauthorized requests receive HTTP 402 with 0.035 USDC challenge."""
+    from app.x402_verifier import FREE_TRIAL_LIMIT
     exhausted_id = f"oracle_user_{int(time.time()*1000)}"
-    storage_manager.increment_trial_usage(exhausted_id)
-    storage_manager.increment_trial_usage(exhausted_id)
+    for _ in range(FREE_TRIAL_LIMIT):
+        storage_manager.increment_trial_usage(exhausted_id)
 
     resp = client.post(
         "/api/v1/oracle/grounding",

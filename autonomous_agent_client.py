@@ -258,7 +258,7 @@ class AutonomousX402Agent:
                 paid_res = self.session.get(url, params=params, headers=headers)
 
             if paid_res.status_code == 200:
-                print(f"[x402 Agent] Data successfully acquired.")
+                print("[x402 Agent] Data successfully acquired.")
                 return paid_res.json()
             else:
                 raise RuntimeError(f"Failed to fetch data after payment: {paid_res.text}")
@@ -268,9 +268,17 @@ class AutonomousX402Agent:
 
     # --- High-level Agent Tools ---
 
-    def get_arbitrage_roi(self, url: Optional[str] = None) -> Dict[str, Any]:
+    def get_arbitrage_roi(
+        self,
+        url: Optional[str] = None,
+        input_tokens: int = 50000,
+        llm_price_per_million: float = 2.50
+    ) -> Dict[str, Any]:
         """[Economic Rationality Proof] Calculates mathematical token savings and ROI."""
-        params = {}
+        params: Dict[str, Any] = {
+            "input_tokens": input_tokens,
+            "llm_price_per_million": llm_price_per_million,
+        }
         if url:
             params["url"] = url
         res = requests.get(f"{self.base_url}/api/v1/agent/arbitrage-roi", params=params)
@@ -507,6 +515,121 @@ class AutonomousX402Agent:
     def get_service_health(self, deep: bool = False) -> Dict[str, Any]:
         """[Telemetry] Checks service health, storage stats, and connected EVM chains."""
         res = self.session.get(f"{self.base_url}/health", params={"deep": deep})
+        res.raise_for_status()
+        return res.json()
+
+    def clean_and_embed(
+        self,
+        url: str,
+        chunk_size: int = 500,
+        chunk_overlap: int = 50,
+        onchain_proof: bool = False,
+        **kwargs
+    ) -> Dict[str, Any]:
+        """[RAG Dense Embed] Scrapes webpage, extracts clean markdown, chunks semantically, and generates 768-dim embeddings."""
+        body = {
+            "url": url,
+            "chunk_size": chunk_size,
+            "chunk_overlap": chunk_overlap,
+            "onchain_proof": onchain_proof,
+            "density": kwargs.get("density", "standard")
+        }
+        return self._request_with_x402(
+            "POST",
+            f"{self.base_url}/api/v1/clean-embed",
+            json_body=body,
+            **kwargs
+        )
+
+    def deposit_with_permit(
+        self,
+        amount_usdc: float = 2.0,
+        chain: Optional[str] = None,
+        deadline_sec: int = 3600
+    ) -> Dict[str, Any]:
+        """
+        [Gasless Vault Deposit] Pre-funds Agent Vault using off-chain EIP-2612 Permit signature.
+        Zero on-chain gas required by the calling agent!
+        """
+        if not self.account:
+            raise ValueError("Permit deposit requires agent private key.")
+
+        target_chain = (chain or self.default_chain).lower()
+        chain_info = SUPPORTED_CHAINS.get(target_chain, SUPPORTED_CHAINS["polygon"])
+        chain_id = chain_info["chain_id"]
+        token_contract = chain_info["usdc"]
+        recipient = "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf"
+
+        deadline = int(time.time()) + deadline_sec
+        raw_value = int(round(amount_usdc * 1_000_000))
+
+        from eth_account.messages import encode_typed_data
+        structured_data = {
+            "types": {
+                "EIP712Domain": [
+                    {"name": "name", "type": "string"},
+                    {"name": "version", "type": "string"},
+                    {"name": "chainId", "type": "uint256"},
+                    {"name": "verifyingContract", "type": "address"},
+                ],
+                "Permit": [
+                    {"name": "owner", "type": "address"},
+                    {"name": "spender", "type": "address"},
+                    {"name": "value", "type": "uint256"},
+                    {"name": "nonce", "type": "uint256"},
+                    {"name": "deadline", "type": "uint256"},
+                ],
+            },
+            "primaryType": "Permit",
+            "domain": {
+                "name": "USD Coin",
+                "version": "2",
+                "chainId": chain_id,
+                "verifyingContract": Web3.to_checksum_address(token_contract),
+            },
+            "message": {
+                "owner": self.wallet_address,
+                "spender": Web3.to_checksum_address(recipient),
+                "value": raw_value,
+                "nonce": 0,
+                "deadline": deadline,
+            },
+        }
+        encoded = encode_typed_data(full_message=structured_data)
+        signed = self.account.sign_message(encoded)
+
+        payload = {
+            "owner": self.wallet_address,
+            "spender": recipient,
+            "value_usdc": amount_usdc,
+            "deadline": deadline,
+            "v": signed.v,
+            "r": hex(signed.r),
+            "s": hex(signed.s),
+            "chain": target_chain,
+            "nonce": 0
+        }
+        res = self.session.post(f"{self.base_url}/api/v1/vault/permit-deposit", json=payload)
+        res.raise_for_status()
+        data = res.json()
+        self.session_key = data["session_key"]
+        return data
+
+    def get_merkle_root(self) -> Dict[str, Any]:
+        """[Treasury Audit] Retrieves the latest cryptographic Keccak-256 Merkle root over settled ledger."""
+        res = self.session.get(f"{self.base_url}/api/v1/treasury/merkle-root")
+        res.raise_for_status()
+        return res.json()
+
+    def get_merkle_proof(self, tx_hash: str) -> Dict[str, Any]:
+        """[Audit Proof] Retrieves cryptographic Merkle inclusion audit proof for a transaction hash."""
+        res = self.session.get(f"{self.base_url}/api/v1/treasury/merkle-proof/{tx_hash}")
+        res.raise_for_status()
+        return res.json()
+
+    def get_mcp_sse_info(self) -> Dict[str, Any]:
+        """[MCP Transport] Retrieves remote MCP Server-Sent Events endpoint discovery details."""
+        res = self.session.get(f"{self.base_url}/api/v1/mcp/sse-info")
         res.raise_for_status()
         return res.json()
 

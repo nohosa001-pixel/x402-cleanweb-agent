@@ -48,8 +48,8 @@ def run_e2e_verification():
     else:
         d = r.json()
         assert "$schema" in d, "agent.json missing $schema"
-        assert d["economic_model"]["free_tier"]["discovery_trial_calls"] == 2
-        print("  ✅ [PASS] /.well-known/agent.json (2020-12 schema, 2 trial calls)")
+        assert d["economic_model"]["free_tier"]["discovery_trial_calls"] == 5
+        print("  ✅ [PASS] /.well-known/agent.json (2020-12 schema, 5 trial calls)")
 
     # 1.2 ap2.json
     r = client.get("/.well-known/ap2.json")
@@ -60,7 +60,8 @@ def run_e2e_verification():
         assert "$schema" in d, "ap2.json missing $schema"
         assert "reader_proxy" in d["endpoints"], "ap2.json missing reader_proxy endpoint"
         assert "free_tier" in d, "ap2.json missing free_tier block"
-        print("  ✅ [PASS] /.well-known/ap2.json ($schema, reader_proxy, free_tier aligned)")
+        assert d["free_tier"]["discovery_trial_calls"] == 5
+        print("  ✅ [PASS] /.well-known/ap2.json ($schema, reader_proxy, free_tier aligned with 5 trials)")
 
     # 1.3 mcp server-card & mcp.json
     r_card = client.get("/.well-known/mcp/server-card.json")
@@ -93,42 +94,34 @@ def run_e2e_verification():
     # =========================================================================
     # Step 2: Instant Sandbox Onboarding & 402 Challenge
     # =========================================================================
-    print("\n[PHASE 2] Zero-Friction Sandbox Onboarding & 402 Challenge...")
+    print("\n[PHASE 2] Zero-Friction Sandbox Onboarding (5 Trials) & 402 Challenge...")
     agent_nonce = f"agent_sim_{int(time.time()*1000)}"
 
-    # 2.1 First Free Call
-    r1 = client.get("/api/v1/clean-web?url=https://example.com", headers={"X-Agent-Nonce": agent_nonce})
-    if r1.status_code != 200:
-        errors.append(f"Call 1 failed with {r1.status_code}: {r1.text}")
-    else:
-        d1 = r1.json()
-        assert d1["auth"]["mode"] == "SANDBOX_FREE_TRIAL"
-        assert d1["payment_receipt"]["remaining_trial_calls"] == 1
-        print("  ✅ [PASS] Trial Call 1: HTTP 200, Remaining: 1")
+    # 2.1 5 Free Calls Test
+    for call_i in range(1, 6):
+        r_trial = client.get("/api/v1/clean-web?url=https://example.com", headers={"X-Agent-Nonce": agent_nonce})
+        if r_trial.status_code != 200:
+            errors.append(f"Trial call {call_i} failed with {r_trial.status_code}: {r_trial.text}")
+        else:
+            d_t = r_trial.json()
+            assert d_t["auth"]["mode"] == "SANDBOX_FREE_TRIAL"
+            rem = 5 - call_i
+            assert d_t["payment_receipt"]["remaining_trial_calls"] == rem
+            print(f"  ✅ [PASS] Trial Call {call_i}: HTTP 200, Remaining: {rem}")
 
-    # 2.2 Second Free Call
-    r2 = client.post("/api/v1/clean-web", json={"url": "https://example.com"}, headers={"X-Agent-Nonce": agent_nonce})
-    if r2.status_code != 200:
-        errors.append(f"Call 2 failed with {r2.status_code}: {r2.text}")
+    # 2.2 6th Call -> Intercept HTTP 402 Payment Required
+    r_cutoff = client.get("/api/v1/clean-web?url=https://example.com", headers={"X-Agent-Nonce": agent_nonce})
+    if r_cutoff.status_code != 402:
+        errors.append(f"Call 6 expected 402, got {r_cutoff.status_code}")
     else:
-        d2 = r2.json()
-        assert d2["auth"]["mode"] == "SANDBOX_FREE_TRIAL"
-        assert d2["payment_receipt"]["remaining_trial_calls"] == 0
-        print("  ✅ [PASS] Trial Call 2: HTTP 200, Remaining: 0")
-
-    # 2.3 Third Call -> Intercept HTTP 402 Payment Required
-    r3 = client.get("/api/v1/clean-web?url=https://example.com", headers={"X-Agent-Nonce": agent_nonce})
-    if r3.status_code != 402:
-        errors.append(f"Call 3 expected 402, got {r3.status_code}")
-    else:
-        d3 = r3.json()
-        assert "WWW-Authenticate" in r3.headers or "www-authenticate" in r3.headers
-        assert r3.headers.get("X-Access-Policy") == "OPEN_TO_HUMANS_AND_AGENTS"
+        d3 = r_cutoff.json()
+        assert "WWW-Authenticate" in r_cutoff.headers or "www-authenticate" in r_cutoff.headers
+        assert r_cutoff.headers.get("X-Access-Policy") == "OPEN_TO_HUMANS_AND_AGENTS"
         assert d3["status_code"] == 402
         assert "challenge" in d3
         challenge = d3["challenge"]
         assert "networks" in challenge or "recipient" in challenge
-        print("  ✅ [PASS] Call 3: HTTP 402 Challenge correctly issued with x402 headers and multi-chain terms")
+        print("  ✅ [PASS] Call 6: HTTP 402 Challenge correctly issued with x402 headers and multi-chain terms")
 
     # =========================================================================
     # Step 3: Vault Pre-Funding & Session Key Issuance

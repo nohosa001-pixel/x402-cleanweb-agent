@@ -20,6 +20,7 @@ class PricingTier(str, Enum):
     SECURE_WEB_CLEAN = "SECURE_WEB_CLEAN"  # Web Clean + Security Gate AST/Prompt Audit ($0.005 USDC)
     SECURE_YOUTUBE_CLEAN = "SECURE_YOUTUBE_CLEAN"  # YouTube AI + Security Gate Audit ($0.015 USDC)
     SECURE_ORACLE_GROUNDING = "SECURE_ORACLE_GROUNDING"  # Oracle + Dual Security Gate Attestation ($0.040 USDC)
+    CLEAN_EMBED = "CLEAN_EMBED"  # RAG Web Clean + Semantic Vector Chunking ($0.005 USDC)
 
 
 class PaymentMethod(str, Enum):
@@ -370,5 +371,72 @@ class SearchResponse(BaseModel):
     results: List[SearchResultItem]
     payment_receipt: Optional[PaymentReceipt] = None
     auth: Optional[Dict[str, Any]] = None
+
+
+# --- RAG Dense Vector Embedding Schemas ---
+class EmbeddedChunk(BaseModel):
+    index: int
+    text: str
+    token_count: int
+    embedding: List[float]
+
+
+class CleanEmbedRequest(BaseModel):
+    url: str = Field(..., description="Target webpage URL to scrape, clean, chunk, and embed")
+    chunk_size: Optional[int] = Field(500, ge=100, le=2000, description="Max character length per chunk")
+    chunk_overlap: Optional[int] = Field(50, ge=0, le=500, description="Character overlap between consecutive chunks")
+    density: Optional[str] = Field("standard", description="Markdown density level ('standard', 'dense', 'light')")
+    onchain_proof: bool = Field(False, description="Whether to generate EIP-712 cryptographic attestation")
+
+
+class CleanEmbedResponse(BaseModel):
+    status: str = "success"
+    url: str
+    title: Optional[str] = None
+    total_chunks: int
+    dimension: int = 768
+    chunks: List[EmbeddedChunk]
+    token_analytics: Optional[TokenAnalytics] = None
+    onchain_proof: Optional[OnChainProof] = None
+    payment_receipt: Optional[PaymentReceipt] = None
+    auth: Optional[Dict[str, Any]] = None
+
+
+# --- Gasless EIP-2612 / EIP-3009 Permit Deposit Schemas ---
+class PermitDepositRequest(BaseModel):
+    owner: str = Field(..., description="Agent wallet address that owns USDC and signed the permit")
+    spender: Optional[str] = Field(None, description="Spender contract or treasury address (defaults to server treasury)")
+    value_usdc: float = Field(..., ge=2.0, le=1000.0, description="Deposit amount between 2.0 and 1000.0 USDC")
+    deadline: int = Field(..., description="Unix timestamp expiration for the permit signature")
+    v: int = Field(..., description="ECDSA recovery ID (usually 27 or 28)")
+    r: str = Field(..., description="ECDSA r value (32-byte hex string)")
+    s: str = Field(..., description="ECDSA s value (32-byte hex string)")
+    chain: str = Field("polygon", description="Target EVM chain: 'polygon', 'base', or 'arbitrum'")
+    nonce: Optional[int] = Field(0, description="Token owner's permit nonce")
+
+
+# --- Treasury Merkle Tree & Audit Proof Schemas ---
+class MerkleRootResponse(BaseModel):
+    status: str = "success"
+    merkle_root: str
+    total_leaves: int
+    anchored_tx_count: int
+    timestamp_utc: str
+
+
+class MerkleProofItem(BaseModel):
+    position: str  # "left" or "right"
+    data: str      # "0x..." 32-byte hex
+
+
+class MerkleProofResponse(BaseModel):
+    status: str = "success"
+    tx_hash: str
+    chain: str
+    leaf: str
+    proof: List[MerkleProofItem]
+    merkle_root: str
+    verified: bool
+
 
 

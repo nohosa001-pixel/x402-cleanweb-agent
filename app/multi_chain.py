@@ -45,8 +45,10 @@ CHAIN_REGISTRY: Dict[str, ChainConfig] = {
         usdc_address=safe_checksum(os.getenv("USDC_CONTRACT_ADDRESS", "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359")),
         rpc_urls=[
             os.getenv("POLYGON_RPC_URL", "https://polygon-bor-rpc.publicnode.com"),
+            "https://polygon-rpc.com",
             "https://polygon.drpc.org",
-            "https://1rpc.io/matic"
+            "https://1rpc.io/matic",
+            "https://rpc.ankr.com/polygon"
         ],
         explorer_url="https://polygonscan.com",
         decimals=6
@@ -58,8 +60,10 @@ CHAIN_REGISTRY: Dict[str, ChainConfig] = {
         usdc_address=safe_checksum("0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"),
         rpc_urls=[
             "https://mainnet.base.org",
+            "https://base-rpc.publicnode.com",
             "https://base.drpc.org",
-            "https://1rpc.io/base"
+            "https://1rpc.io/base",
+            "https://rpc.ankr.com/base"
         ],
         explorer_url="https://basescan.org",
         decimals=6
@@ -71,8 +75,10 @@ CHAIN_REGISTRY: Dict[str, ChainConfig] = {
         usdc_address=safe_checksum("0xaf88d065e77c8cC2239327C5EDb3A432268e5831"),
         rpc_urls=[
             "https://arb1.arbitrum.io/rpc",
+            "https://arbitrum-one-rpc.publicnode.com",
             "https://arbitrum.drpc.org",
-            "https://1rpc.io/arb"
+            "https://1rpc.io/arb",
+            "https://rpc.ankr.com/arbitrum"
         ],
         explorer_url="https://arbiscan.io",
         decimals=6

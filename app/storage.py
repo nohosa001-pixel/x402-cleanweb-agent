@@ -140,6 +140,36 @@ class StorageManager:
             finally:
                 conn.close()
 
+    def get_all_used_txs(self, limit: int = 1000) -> List[Dict[str, Any]]:
+        with self._lock:
+            conn = self._get_conn()
+            try:
+                cur = conn.cursor()
+                cur.execute("""
+                SELECT tx_hash, chain, payer, amount_usdc, used_at
+                FROM used_txs
+                ORDER BY used_at ASC, tx_hash ASC
+                LIMIT ?
+                """, (limit,))
+                return [dict(r) for r in cur.fetchall()]
+            finally:
+                conn.close()
+
+    def get_used_tx(self, tx_hash: str) -> Optional[Dict[str, Any]]:
+        with self._lock:
+            conn = self._get_conn()
+            try:
+                cur = conn.cursor()
+                cur.execute("""
+                SELECT tx_hash, chain, payer, amount_usdc, used_at
+                FROM used_txs
+                WHERE tx_hash = ?
+                """, (tx_hash.lower(),))
+                row = cur.fetchone()
+                return dict(row) if row else None
+            finally:
+                conn.close()
+
     # --- Passes ---
     def get_pass(self, pass_token: str) -> Optional[Dict[str, Any]]:
         now = int(time.time())

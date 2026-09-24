@@ -46,7 +46,7 @@ class PDFCleanerEngine:
             if chunk:
                 downloaded += len(chunk)
                 if downloaded > MAX_PDF_SIZE_BYTES:
-                    raise ValueError(f"PDF stream exceeded 15MB limit. Aborted download.")
+                    raise ValueError("PDF stream exceeded 15MB limit. Aborted download.")
                 chunks.append(chunk)
 
         pdf_bytes = b"".join(chunks)

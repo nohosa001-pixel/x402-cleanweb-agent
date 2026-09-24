@@ -9,6 +9,9 @@ def test_all_api_routes_operational():
     routes = []
     for r in app.routes:
         if hasattr(r, "path") and hasattr(r, "methods"):
+            # Exclude infinite streaming SSE transport routes mounted by MCP
+            if r.path.startswith("/mcp-server"):
+                continue
             for m in r.methods:
                 if m not in ("HEAD", "OPTIONS"):
                     routes.append((m, r.path))
@@ -34,7 +37,6 @@ def test_all_api_routes_operational():
         "/api/v1/security/inspect": {"json": {"text": "Hello world inspection", "is_code": False}},
         "/api/v1/legal/terms": {},
         "/api/v1/legal/disclaimer": {},
-        "/api/v1/agent/arbitrage-roi": {"params": {"url": "https://example.com"}},
         "/api/v1/chains": {},
         "/api/v1/pricing": {},
         "/metrics": {},
@@ -52,13 +54,23 @@ def test_all_api_routes_operational():
         "/api/v1/agent/capabilities": {},
         "/api/v1/agent/pricing-catalog": {},
         "/api/v1/agent/arbitrage-roi": {"params": {"input_tokens": 50000}},
-        "/api/v1/agent/integrations/{framework}": {}
+        "/api/v1/agent/integrations/{framework}": {},
+        "/api/v1/clean-web/stream": {"params": {"url": "https://example.com"}},
+        "/r/stream/{target_url:path}": {"path_override": "/r/stream/https://example.com"},
+        "/r/{target_url:path}": {"path_override": "/r/https://example.com"},
+        "/api/v1/clean-embed": {"json": {"url": "https://example.com"}},
+        "/api/v1/vault/permit-deposit": {"json": {"owner": "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf", "value_usdc": 2.0, "deadline": 9999999999, "v": 27, "r": "0x1111111111111111111111111111111111111111111111111111111111111111", "s": "0x2222222222222222222222222222222222222222222222222222222222222222"}},
+        "/api/v1/treasury/merkle-root": {},
+        "/api/v1/treasury/merkle-proof/{tx_hash}": {"path_override": "/api/v1/treasury/merkle-proof/0x0000000000000000000000000000000000000000000000000000000000000000"},
+        "/api/v1/mcp/sse-info": {},
     }
 
     failures = []
     for method, path in routes:
         req_path = path.replace("{framework}", "langchain")
         kwargs = sample_payloads.get(path, sample_payloads.get(req_path, {})).copy()
+        if "path_override" in kwargs:
+            req_path = kwargs.pop("path_override")
         headers = kwargs.pop("headers", {})
         headers["Authorization"] = "Bearer dev-bypass"
 

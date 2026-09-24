@@ -274,9 +274,52 @@ class X402AgentToolkit:
         except Exception as e:
             return json.dumps({"error": f"Failed to retrieve compliance info: {str(e)}"})
 
-    def get_tools_list(self) -> List[Callable]:
-        """Returns a list of callables for LangChain/CrewAI/Smolagents."""
-        return [
+    def clean_and_embed(
+        self,
+        url: str,
+        chunk_size: int = 500,
+        chunk_overlap: int = 50,
+        onchain_proof: bool = False
+    ) -> str:
+        """
+        [0.005 USDC] RAG Dense Vector Embedding Pipeline: Scrapes, noise-reduces, chunks semantically, and generates 768-dim embeddings.
+        """
+        price = 0.020 if onchain_proof else 0.005
+        if not self.budget_guard.can_spend(price):
+            return f"[ERROR: Budget limit exceeded ({self.budget_guard.spent_usdc:.4f}/{self.budget_guard.max_daily_budget_usdc} USDC)]"
+
+        res = self.agent_client.clean_and_embed(
+            url=url,
+            chunk_size=chunk_size,
+            chunk_overlap=chunk_overlap,
+            onchain_proof=onchain_proof
+        )
+        self.budget_guard.record_spend(price, f"clean_and_embed: {url}", res.get("payment_receipt", {}).get("tx_hash"))
+        return json.dumps({
+            "status": "success",
+            "url": res.get("url"),
+            "total_chunks": res.get("total_chunks"),
+            "dimension": res.get("dimension"),
+            "chunks": res.get("chunks", [])[:5]  # first 5 for concise LLM response
+        }, indent=2, ensure_ascii=False)
+
+    def get_merkle_root(self) -> str:
+        """
+        [Free / Audit] Retrieves the latest cryptographic Keccak-256 Merkle root of settled ledger transactions.
+        """
+        res = self.agent_client.get_merkle_root()
+        return json.dumps(res, indent=2)
+
+    def get_merkle_proof(self, tx_hash: str) -> str:
+        """
+        [Free / Audit] Retrieves cryptographic inclusion audit proof for a transaction hash.
+        """
+        res = self.agent_client.get_merkle_proof(tx_hash)
+        return json.dumps(res, indent=2)
+
+    def get_tools_list(self, include_extended: bool = False) -> List[Callable]:
+        """Returns a list of callables for LangChain/CrewAI/Smolagents. Returns 14 standard tools by default or 17 with include_extended=True."""
+        base_tools = [
             self.clean_web,
             self.batch_clean,
             self.clean_youtube,
@@ -292,10 +335,17 @@ class X402AgentToolkit:
             self.get_budget_status,
             self.get_legal_compliance_info
         ]
+        if include_extended:
+            base_tools.extend([
+                self.clean_and_embed,
+                self.get_merkle_root,
+                self.get_merkle_proof
+            ])
+        return base_tools
 
-    def get_openai_function_schemas(self) -> List[Dict[str, Any]]:
+    def get_openai_function_schemas(self, include_extended: bool = False) -> List[Dict[str, Any]]:
         """Returns OpenAI / Anthropic standard Function Calling Tool Schemas."""
-        return [
+        schemas = [
             {
                 "type": "function",
                 "function": {
@@ -502,6 +552,40 @@ class X402AgentToolkit:
                 }
             }
         ]
+        if include_extended:
+            schemas.extend([
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "x402_clean_embed",
+                        "description": "RAG one-stop dense vector embedding pipeline: Scrapes, noise-reduces, chunks semantically, and generates 768-dim embeddings (0.005 USDC).",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "url": {"type": "string", "description": "Target web page URL"},
+                                "chunk_size": {"type": "integer", "default": 500, "description": "Max character length per chunk"},
+                                "chunk_overlap": {"type": "integer", "default": 50, "description": "Overlap between consecutive chunks"}
+                            },
+                            "required": ["url"]
+                        }
+                    }
+                },
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "x402_treasury_merkle_proof",
+                        "description": "Retrieves cryptographic Keccak-256 inclusion audit proof for a settled transaction hash (Free).",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "tx_hash": {"type": "string", "description": "Settled transaction hash to audit"}
+                            },
+                            "required": ["tx_hash"]
+                        }
+                    }
+                }
+            ])
+        return schemas
 
 
 def get_x402_agent_tools(

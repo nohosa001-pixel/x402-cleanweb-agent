@@ -44,7 +44,7 @@
       }
     ],
     "free_tier": {
-      "discovery_trial_calls": 2,
+      "discovery_trial_calls": 5,
       "policy": "INSTANT_SANDBOX_DISCOVERY_PER_NONCE",
       "free_trials": true,
       "trial_header": "X-Agent-Nonce"

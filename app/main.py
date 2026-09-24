@@ -16,7 +16,7 @@ from collections import defaultdict, deque
 import requests
 
 from fastapi import FastAPI, Request, HTTPException, status, Query, Body, Response
-from fastapi.responses import JSONResponse, FileResponse, PlainTextResponse, HTMLResponse
+from fastapi.responses import JSONResponse, FileResponse, PlainTextResponse, HTMLResponse, StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from app.schemas import (
@@ -51,18 +51,29 @@ from app.schemas import (
     SearchRequest,
     SearchResponse,
     SearchResultItem,
+    EmbeddedChunk,
+    CleanEmbedRequest,
+    CleanEmbedResponse,
+    PermitDepositRequest,
+    MerkleProofItem,
+    MerkleProofResponse,
+    MerkleRootResponse,
 )
 from app.x402_verifier import x402_verifier
 from app.cleaners.web_engine import web_cleaner_engine, normalize_url
 from app.cleaners.youtube_engine import youtube_cleaner_engine
 from app.cleaners.pdf_engine import pdf_cleaner_engine
+from app.cleaners.embed_engine import embed_engine
 from app.onchain_signer import onchain_signer
 from app.vault_manager import vault_manager
 from app.storage import storage_manager
 from app.multi_chain import multi_chain_manager
 from app.oracle_engine import oracle_engine
+from app.merkle_engine import merkle_engine, compute_tx_leaf
 from app.security_gate_client import security_gate_client
 from app.diagnostics import diagnostic_engine
+import mcp_server
+from mcp.server.transport_security import TransportSecuritySettings
 
 
 load_dotenv()
@@ -70,7 +81,7 @@ load_dotenv()
 app = FastAPI(
     title="CleanWeb Studio (x402 AI Agent Suite)",
     description="Deterministic Web3 x402 Micropayment MCP & AI Agent Tool Suite with Gemini 3.6 Flash Video Intelligence on Polygon, Base, and Arbitrum.",
-    version="2.5.3",
+    version="2.6.1",
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url="/openapi.json"
@@ -110,6 +121,12 @@ LLMS_TXT_PATH = BASE_DIR / "llms.txt"
 if STATIC_DIR.exists():
     app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
+# Mount Remote Model Context Protocol (MCP) Server-Sent Events (SSE) Transport
+app.mount(
+    "/mcp-server",
+    mcp_server.mcp.sse_app(transport_security=TransportSecuritySettings(enable_dns_rebinding_protection=False))
+)
+
 
 # =========================================================================
 # 🛡️ In-Memory Sliding Window Rate Limiter & Prometheus Metrics Middleware
@@ -128,7 +145,7 @@ METRICS = {
 
 @app.middleware("http")
 async def rate_limit_and_metrics_middleware(request: Request, call_next):
-    # Skip rate limiting for static assets and metrics
+    # Skip rate limiting for static assets, mcp-server, and metrics
     path = request.url.path
     
     # Correctly parse real client IP behind Cloud Run / reverse proxies
@@ -140,7 +157,7 @@ async def rate_limit_and_metrics_middleware(request: Request, call_next):
     else:
         client_ip = "127.0.0.1"
 
-    if not path.startswith("/static") and path not in ("/metrics", "/health"):
+    if not path.startswith("/static") and not path.startswith("/mcp-server") and path not in ("/metrics", "/health"):
         now = time.time()
         q = ip_request_history[client_ip]
         # Purge older timestamps
@@ -163,6 +180,10 @@ async def rate_limit_and_metrics_middleware(request: Request, call_next):
 
     try:
         response = await call_next(request)
+        if hasattr(request, "state") and hasattr(request.state, "payment_receipt"):
+            rcpt = request.state.payment_receipt
+            if getattr(rcpt, "remaining_free_trials", None) is not None:
+                response.headers["X-Agent-Trial-Remaining"] = str(rcpt.remaining_free_trials)
         METRICS["requests_by_status"][response.status_code] += 1
         return response
     except Exception as exc:
@@ -222,7 +243,7 @@ async def root(request: Request):
     return {
         "service": "x402-cleanweb-agent",
         "name": "CleanWeb Studio (Autonomous Agent Data & Spend Firewall)",
-        "version": "2.6.0",
+        "version": "2.6.1",
         "audience": "HUMANS_AND_AUTONOMOUS_AGENTS",
         "access_policy": "OPEN_TO_ALL (Pay-As-You-Go via USDC Pre-Funded Vault)",
         "protocol": "x402 (HTTP 402 Monetized)",
@@ -300,7 +321,7 @@ def health_check(deep: bool = Query(False, description="Run deep 5-pipeline self
     return {
         "status": "healthy",
         "service": "x402-cleanweb-agent",
-        "version": "2.6.0",
+        "version": "2.6.1",
         "storage": "sqlite3_wal_ready",
         "storage_stats": db_stats,
         "chains_connected": ["Polygon(137)", "Base(8453)", "Arbitrum(42161)"],
@@ -379,6 +400,19 @@ async def get_llms_txt():
     raise HTTPException(status_code=404, detail="llms.txt not found")
 
 
+@app.get("/robots.txt", response_class=PlainTextResponse, tags=["Standards"])
+def get_robots_txt():
+    """
+    Standard robots.txt allowing all autonomous agents, crawlers, and swarms with pointer to llms.txt.
+    """
+    return (
+        "User-agent: *\n"
+        "Allow: /\n"
+        "Disallow: /metrics\n"
+        "Sitemap: https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/llms.txt\n"
+    )
+
+
 # =========================================================================
 # 🤖 Autonomous Agent Discovery, Reflection & Arbitrage Endpoints
 # =========================================================================
@@ -392,7 +426,7 @@ def get_agent_capabilities():
     return {
         "status": "active",
         "agent_id": "x402-cleanweb-agent",
-        "version": "2.6.0",
+        "version": "2.6.1",
         "settlement": "x402_usdc_micropayments",
         "supported_chains": [
             {"name": "Polygon PoS", "chain_id": 137, "vault": "0x18fA5a746535d88f61feA10996895c378F705c93"},
@@ -465,6 +499,7 @@ def get_pricing_catalog():
 
 @app.get("/api/v1/agent/arbitrage-roi", tags=["Agent Intelligence"])
 def get_arbitrage_roi(
+    url: Optional[str] = Query(None, description="Optional target URL to calculate token arbitrage for"),
     input_tokens: int = Query(50000, description="Estimated tokens of raw uncleaned web page"),
     llm_price_per_million: float = Query(2.50, description="LLM input token price in USD per 1M tokens (default GPT-4o / Claude 3.5 Sonnet = $2.50)"),
     x402_fee_usdc: float = Query(0.001, description="x402 CleanWeb API fee in USDC")
@@ -746,9 +781,9 @@ def agent_reader_proxy(request: Request, target_url: str):
             f"---\n\n"
         )
         footer = (
-            f"\n\n---\n"
-            f"<!-- x402 CleanWeb Agent Suite (B2A Multi-Chain Micropayments & EIP-712 Oracles) -->\n"
-            f"<!-- Documentation: https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/docs -->\n"
+            "\n\n---\n"
+            "<!-- x402 CleanWeb Agent Suite (B2A Multi-Chain Micropayments & EIP-712 Oracles) -->\n"
+            "<!-- Documentation: https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/docs -->\n"
         )
         return PlainTextResponse(banner + markdown + footer, media_type="text/markdown; charset=utf-8")
     except ValueError as ve:
@@ -764,6 +799,99 @@ def agent_reader_proxy(request: Request, target_url: str):
     except Exception as e:
         safe_refund_vault(receipt)
         raise HTTPException(status_code=500, detail=f"Agent Proxy Extraction Failed: {str(e)}")
+
+
+@app.get("/api/v1/clean-web/stream", tags=["Cleaners"])
+async def clean_web_stream(
+    request: Request,
+    url: str = Query(..., description="Target webpage URL to scrape and stream in chunks"),
+    density: str = Query("standard", description="Markdown density ('standard', 'dense', 'light')"),
+    max_tokens: Optional[int] = Query(None, description="Max token limit for output markdown")
+):
+    """
+    Real-Time Server-Sent Events (SSE) Chunk Streaming for CleanWeb Studio.
+    Emits metadata, markdown paragraph chunks, token analytics, and completion signal.
+    """
+    tier = PricingTier.LIGHT
+    is_auth, receipt, err_resp = x402_verifier.verify_request(request, tier=tier)
+    if not is_auth:
+        return err_resp
+
+    try:
+        data = web_cleaner_engine.fetch_and_clean(url, max_tokens=max_tokens)
+        markdown_text = data.get("markdown_content", "")
+        paragraphs = [p.strip() for p in markdown_text.split("\n\n") if p.strip()]
+        if not paragraphs:
+            paragraphs = [markdown_text]
+
+        async def event_generator():
+            meta_payload = {
+                "url": data["url"],
+                "title": data.get("title"),
+                "total_chunks": len(paragraphs),
+                "timestamp_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+            }
+            yield f"event: metadata\ndata: {json.dumps(meta_payload)}\n\n"
+
+            for i, p in enumerate(paragraphs):
+                chunk_payload = {
+                    "index": i,
+                    "text": p
+                }
+                yield f"event: chunk\ndata: {json.dumps(chunk_payload)}\n\n"
+
+            t_analytics = data.get("token_analytics", {})
+            analytics_payload = {
+                "word_count": data.get("word_count", 0),
+                "token_analytics": t_analytics
+            }
+            yield f"event: analytics\ndata: {json.dumps(analytics_payload)}\n\n"
+            yield "event: done\ndata: [DONE]\n\n"
+
+        return StreamingResponse(event_generator(), media_type="text/event-stream")
+    except Exception as e:
+        safe_refund_vault(receipt)
+        raise HTTPException(status_code=500, detail=f"Streaming failed: {str(e)}")
+
+
+@app.get("/r/stream/{target_url:path}", tags=["Autonomous Agents"])
+async def agent_reader_stream_proxy(request: Request, target_url: str):
+    """
+    Real-time streaming universal proxy for autonomous LLM agents (chunk-by-chunk piping).
+    """
+    target_url = normalize_url(target_url)
+    query_str = request.url.query
+    if query_str:
+        delimiter = "&" if "?" in target_url else "?"
+        target_url = f"{target_url}{delimiter}{query_str}"
+
+    is_auth, receipt, err_resp = x402_verifier.verify_request(request, tier=PricingTier.LIGHT)
+    if not is_auth:
+        return err_resp
+
+    try:
+        data = web_cleaner_engine.fetch_and_clean(target_url)
+        markdown_text = data.get("markdown_content", "")
+        paragraphs = [p.strip() for p in markdown_text.split("\n\n") if p.strip()]
+        if not paragraphs:
+            paragraphs = [markdown_text]
+
+        async def stream_body():
+            for p in paragraphs:
+                yield (p + "\n\n").encode("utf-8")
+
+        headers = {
+            "Content-Type": "text/markdown; charset=utf-8",
+            "X-Agent-Tool": "CleanWeb-Stream",
+            "X-Content-Title": data.get("title", "")
+        }
+        if receipt and getattr(receipt, "remaining_free_trials", None) is not None:
+            headers["X-Agent-Trial-Remaining"] = str(receipt.remaining_free_trials)
+
+        return StreamingResponse(stream_body(), media_type="text/markdown; charset=utf-8", headers=headers)
+    except Exception as e:
+        safe_refund_vault(receipt)
+        raise HTTPException(status_code=500, detail=f"Streaming failed: {str(e)}")
 
 
 @app.get("/api/v1/clean-youtube", response_model=YouTubeCleanResponse, tags=["Cleaners"])
@@ -968,6 +1096,53 @@ def clean_text(
         raise HTTPException(status_code=500, detail=f"Failed to extract plain text: {str(e)}")
 
 
+@app.post("/api/v1/clean-embed", response_model=CleanEmbedResponse, tags=["Cleaners"])
+def clean_embed_post(request: Request, body: CleanEmbedRequest):
+    """
+    One-Stop RAG Dense Vector Embedding Pipeline.
+    Fetches webpage, removes token noise, semantically chunks content,
+    and returns high-dimensional (768-dim) dense vector embeddings.
+    """
+    tier = PricingTier.ONCHAIN if body.onchain_proof else PricingTier.CLEAN_EMBED
+    is_auth, receipt, err_resp = x402_verifier.verify_request(request, tier=tier)
+    if not is_auth:
+        return err_resp
+
+    try:
+        data = embed_engine.clean_and_embed(
+            url=body.url,
+            chunk_size=body.chunk_size or 500,
+            chunk_overlap=body.chunk_overlap or 50,
+            density=body.density or "standard"
+        )
+        proof = None
+        if body.onchain_proof:
+            proof = onchain_signer.sign_cleanweb_attestation(
+                target_url=body.url,
+                content_text="".join(c["text"] for c in data["chunks"])
+            )
+
+        t_analytics = data.get("token_analytics")
+        t_obj = TokenAnalytics(**t_analytics) if t_analytics else None
+        chunks_obj = [EmbeddedChunk(**c) for c in data["chunks"]]
+
+        return CleanEmbedResponse(
+            status="success",
+            url=data["url"],
+            title=data.get("title"),
+            total_chunks=data["total_chunks"],
+            dimension=data["dimension"],
+            chunks=chunks_obj,
+            token_analytics=t_obj,
+            onchain_proof=proof,
+            payment_receipt=receipt,
+            auth=receipt.auth if receipt else None
+        )
+    except Exception as e:
+        safe_refund_vault(receipt)
+        raise HTTPException(status_code=500, detail=f"Embedding pipeline failed: {str(e)}")
+
+
 @app.post("/api/v1/extract-json", response_model=ExtractJsonResponse, tags=["Cleaners"])
 def extract_json(request: Request, body: ExtractJsonRequest):
     tier = PricingTier.EXTRACT_JSON
@@ -1111,6 +1286,30 @@ def deposit_vault(body: VaultDepositRequest):
         return vault_manager.to_response(acc)
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Vault deposit failed: {str(e)}")
+
+
+@app.post("/api/v1/vault/permit-deposit", response_model=VaultBalanceResponse, tags=["Vault"])
+def deposit_vault_permit(body: PermitDepositRequest):
+    """
+    Gasless EIP-2612 / EIP-3009 Permit Vault Deposit.
+    Allows autonomous agents to pre-fund their vault without submitting an on-chain transaction
+    or spending native gas tokens (MATIC, ETH). Verifies off-chain ECDSA signature.
+    """
+    try:
+        acc = vault_manager.deposit_with_permit(
+            owner=body.owner,
+            value_usdc=body.value_usdc,
+            deadline=body.deadline,
+            v=body.v,
+            r=body.r,
+            s=body.s,
+            chain=body.chain,
+            spender=body.spender,
+            nonce=body.nonce or 0
+        )
+        return vault_manager.to_response(acc)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Permit deposit failed: {str(e)}")
 
 
 @app.get("/api/v1/vault/balance", response_model=VaultBalanceResponse, tags=["Vault"])
@@ -1275,6 +1474,94 @@ async def get_treasury_status(wallet_address: Optional[str] = None):
         },
         "supported_networks": ["Polygon (137)", "Base (8453)", "Arbitrum One (42161)"],
         "timestamp_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    }
+
+
+@app.get("/api/v1/treasury/merkle-root", response_model=MerkleRootResponse, tags=["Treasury & Analytics"])
+async def get_merkle_root():
+    """
+    Computes and returns cryptographic Keccak-256 Merkle Root over all settled ledger transactions.
+    Provides verifiable state commitments for autonomous agent audits and treasury transparency.
+    """
+    txs = storage_manager.get_all_used_txs(limit=5000)
+    leaves = [
+        compute_tx_leaf(
+            tx_hash=tx["tx_hash"],
+            chain=tx["chain"],
+            agent_address=tx["payer"],
+            amount_usdc=tx["amount_usdc"],
+            timestamp=tx["used_at"]
+        )
+        for tx in txs
+    ]
+    root, _ = merkle_engine.build_tree(leaves)
+    return MerkleRootResponse(
+        status="success",
+        merkle_root=root,
+        total_leaves=len(leaves),
+        anchored_tx_count=len(txs),
+        timestamp_utc=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    )
+
+
+@app.get("/api/v1/treasury/merkle-proof/{tx_hash}", response_model=MerkleProofResponse, tags=["Treasury & Analytics"])
+async def get_merkle_proof(tx_hash: str):
+    """
+    Generates cryptographic inclusion audit proof for a specific settled transaction against the ledger Merkle tree.
+    Allows autonomous agents to mathematically verify their payment settlement off-chain or in smart contracts.
+    """
+    target_tx = storage_manager.get_used_tx(tx_hash)
+    if not target_tx:
+        raise HTTPException(status_code=404, detail=f"Transaction {tx_hash} not found in settled ledger.")
+
+    txs = storage_manager.get_all_used_txs(limit=5000)
+    leaves = [
+        compute_tx_leaf(
+            tx_hash=tx["tx_hash"],
+            chain=tx["chain"],
+            agent_address=tx["payer"],
+            amount_usdc=tx["amount_usdc"],
+            timestamp=tx["used_at"]
+        )
+        for tx in txs
+    ]
+
+    target_leaf = compute_tx_leaf(
+        tx_hash=target_tx["tx_hash"],
+        chain=target_tx["chain"],
+        agent_address=target_tx["payer"],
+        amount_usdc=target_tx["amount_usdc"],
+        timestamp=target_tx["used_at"]
+    )
+
+    root, _ = merkle_engine.build_tree(leaves)
+    proof_data = merkle_engine.get_proof(target_leaf, leaves)
+    is_valid = merkle_engine.verify_proof(target_leaf, proof_data, root)
+
+    return MerkleProofResponse(
+        status="success",
+        tx_hash=target_tx["tx_hash"],
+        chain=target_tx["chain"],
+        leaf=target_leaf,
+        proof=[MerkleProofItem(**p) for p in proof_data],
+        merkle_root=root,
+        verified=is_valid
+    )
+
+
+@app.get("/api/v1/mcp/sse-info", tags=["Autonomous Agents"])
+async def get_mcp_sse_info():
+    """
+    Returns Remote Model Context Protocol (MCP) SSE Transport discovery metadata.
+    """
+    return {
+        "status": "active",
+        "protocol": "Model Context Protocol (MCP)",
+        "transport": "Server-Sent Events (SSE)",
+        "sse_endpoint": "/mcp-server/sse",
+        "messages_endpoint": "/mcp-server/messages",
+        "version": "2.6.1",
+        "description": "Standardized remote SSE transport for Claude Desktop, Cursor, and Autonomous Agent fleets."
     }
 
 

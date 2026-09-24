@@ -111,9 +111,14 @@ TIER_PRICING: Dict[PricingTier, Dict[str, Any]] = {
         "units": "40000",
         "description": "Tier 8 (Secure Oracle Grounding): Oracle Grounding + Dual Attestation by Security Gate",
     },
+    PricingTier.CLEAN_EMBED: {
+        "cost_usdc": 0.005,
+        "units": "5000",
+        "description": "Tier 13 (Clean Embed): RAG Webpage Clean + Dense Vector Chunking Pipeline",
+    },
 }
 
-FREE_TRIAL_LIMIT = int(os.getenv("FREE_TRIAL_LIMIT", "2"))
+FREE_TRIAL_LIMIT = int(os.getenv("FREE_TRIAL_LIMIT", "5"))
 
 
 class X402Verifier:
@@ -145,7 +150,8 @@ class X402Verifier:
             protocol="B2A_USDC_M2M",
             instructions=(
                 f"Autonomous Agent Protocol (B2A). {rem_trials} free sandbox trial(s) available via 'X-Agent-Nonce'. "
-                "For production, use X-Vault-Key (<1ms zero-gas) or submit on-chain USDC transfer tx hash on Polygon, Base, or Arbitrum."
+                "[RECOMMENDED FOR ZERO-LATENCY]: Pre-fund Agent Vault via POST /api/v1/vault/deposit for sub-millisecond, "
+                "gasless 'X-Vault-Key' access (avoids LLM tool-call timeouts). Alternatively submit on-chain USDC transfer tx hash on Polygon, Base, or Arbitrum."
             ),
             chain="polygon",
             chain_id=137,
@@ -261,14 +267,15 @@ class X402Verifier:
             # Zero-Human Self-Onboarding Guide for Autonomous LLMs
             "_agentGuide": {
                 "humanFreeOnboarding": True,
-                "policy": "Strictly Machine-to-Machine. No human login, credit card, or browser sessions.",
+                "preferred_strategy": "VAULT_PREFUND",
+                "policy": "Strictly Machine-to-Machine (B2A). No human login, credit card, or browser sessions.",
                 "sdk_python": "pip install x402-cleanweb-agent",
                 "estimatedCostPerCall": f"${cfg['cost_usdc']:.4f} USDC",
-                "freeTrialStatus": f"{ch_dict.get('free_trial_remaining', 0)} sandbox calls remaining before mandatory payment",
+                "freeTrialStatus": f"{ch_dict.get('free_trial_remaining', 0)} sandbox calls remaining before mandatory payment (5 calls free total)",
                 "autonomous_actions": {
-                    "step1_trial": "To use remaining free trial, send header 'x-agent-nonce: <random_hex>'",
-                    "step2_vault": "To self-fund vault via USDC: POST /api/v1/vault/deposit with tx hash or transfer",
-                    "step3_direct": "To execute instant on-chain query: attach 'x-payment-tx: <tx_hash>'"
+                    "step1_recommended_vault": "⚡ BEST PRACTICE: Pre-fund 2-5 USDC via POST /api/v1/vault/deposit for instant sub-millisecond, zero-gas execution ('X-Vault-Key'). Eliminates on-chain wait times and avoids LLM tool-call timeouts.",
+                    "step2_free_trial": "🧪 FREE EVALUATION: To use remaining free trial, send header 'x-agent-nonce: <random_hex>' (up to 5 free benchmark calls)",
+                    "step3_direct_tx": "🔗 DIRECT ON-CHAIN: Submit per-query ERC-20 transfer tx hash on Polygon, Base, or Arbitrum with 'x-payment-tx: <tx_hash>'"
                 }
             }
         }
@@ -448,6 +455,11 @@ class X402Verifier:
                     settled_at=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
                     auth={"mode": "SANDBOX_FREE_TRIAL", "remaining_free_trials": rem, "remaining_trial_calls": rem, "receipt_id": rcpt_id}
                 )
+                if request and hasattr(request, "state"):
+                    try:
+                        request.state.payment_receipt = receipt
+                    except Exception:
+                        pass
                 return True, receipt, None
 
         # --- Default: Return 402 Challenge ---

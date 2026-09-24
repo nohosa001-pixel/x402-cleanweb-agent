@@ -4,9 +4,11 @@ Validates new endpoints, MCP tools, Agent Toolkits, Multi-Chain configs, and loc
 """
 
 import json
+import time
 import pytest
 from fastapi.testclient import TestClient
 from app.main import app
+from app.storage import storage_manager
 from mcp_server import (
     oracle_grounding,
     verify_oracle_attestation,
@@ -28,8 +30,13 @@ def client():
 
 def test_clean_text_endpoint_402_and_success(client):
     """Verifies that /api/v1/clean-text enforces 402 and returns plain text with dev bypass."""
+    from app.x402_verifier import FREE_TRIAL_LIMIT
+    exhausted_id = f"exhausted_txt_{int(time.time()*1000)}"
+    for _ in range(FREE_TRIAL_LIMIT):
+        storage_manager.increment_trial_usage(exhausted_id)
+
     # 1. 402 challenge
-    res_402 = client.get("/api/v1/clean-text?url=https://example.com")
+    res_402 = client.get("/api/v1/clean-text?url=https://example.com", headers={"X-Agent-Nonce": exhausted_id})
     assert res_402.status_code == 402
     assert "x402" in res_402.json()
 
@@ -48,12 +55,17 @@ def test_clean_text_endpoint_402_and_success(client):
 
 def test_extract_json_endpoint_402_and_success(client):
     """Verifies that /api/v1/extract-json enforces 402 and extracts structured JSON."""
+    from app.x402_verifier import FREE_TRIAL_LIMIT
+    exhausted_id = f"exhausted_json_{int(time.time()*1000)}"
+    for _ in range(FREE_TRIAL_LIMIT):
+        storage_manager.increment_trial_usage(exhausted_id)
+
     payload = {
         "url": "https://example.com",
         "schema_description": "Extract title, summary, and domain"
     }
     # 1. 402 challenge
-    res_402 = client.post("/api/v1/extract-json", json=payload)
+    res_402 = client.post("/api/v1/extract-json", json=payload, headers={"X-Agent-Nonce": exhausted_id})
     assert res_402.status_code == 402
 
     # 2. Authorized request

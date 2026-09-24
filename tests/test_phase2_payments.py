@@ -47,10 +47,11 @@ def test_vault_deposit_and_deduct():
 
 
 def test_402_challenge_returned_when_unauthorized():
+    from app.x402_verifier import FREE_TRIAL_LIMIT
     # Exhaust free trial identifier
-    ident = f"exhausted_{int(time.time())}"
-    storage_manager.increment_trial_usage(ident)
-    storage_manager.increment_trial_usage(ident)
+    ident = f"exhausted_{int(time.time()*1000)}"
+    for _ in range(FREE_TRIAL_LIMIT):
+        storage_manager.increment_trial_usage(ident)
     
     res = client.get("/api/v1/clean-web?url=https://example.com", headers={"X-Agent-Nonce": ident})
     assert res.status_code == 402

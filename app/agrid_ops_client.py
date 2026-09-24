@@ -5,8 +5,14 @@ import os
 import uuid
 import logging
 import asyncio
-import httpx
+import json
+import urllib.request
 from typing import Optional, Dict, Any
+
+try:
+    import httpx
+except ImportError:
+    httpx = None
 
 logger = logging.getLogger("agrid_ops_client")
 
@@ -43,15 +49,30 @@ async def report_clearing_event_async(
     }
 
     try:
-        async with httpx.AsyncClient(timeout=2.0) as client:
-            res = await client.post(f"{AGRID_OPS_URL}/api/v1/grid/clearing/event", json=event_payload)
-            if res.is_success:
-                data = res.json()
-                logger.info(f"[A.GRID-HQ] Cleared event {event_payload['event_id']} (₩{data.get('amount_krw', 0):,})")
-                return data
-            else:
-                logger.debug(f"[A.GRID-HQ] Non-200 response: {res.status_code}")
-                return None
+        if httpx is not None:
+            async with httpx.AsyncClient(timeout=2.0) as client:
+                res = await client.post(f"{AGRID_OPS_URL}/api/v1/grid/clearing/event", json=event_payload)
+                if res.is_success:
+                    data = res.json()
+                    logger.info(f"[A.GRID-HQ] Cleared event {event_payload['event_id']} (₩{data.get('amount_krw', 0):,})")
+                    return data
+                else:
+                    logger.debug(f"[A.GRID-HQ] Non-200 response: {res.status_code}")
+                    return None
+        else:
+            # Fallback to stdlib urllib via threadpool if httpx is not installed
+            def _sync_post():
+                req = urllib.request.Request(
+                    f"{AGRID_OPS_URL}/api/v1/grid/clearing/event",
+                    data=json.dumps(event_payload).encode("utf-8"),
+                    headers={"Content-Type": "application/json"},
+                    method="POST"
+                )
+                with urllib.request.urlopen(req, timeout=2.0) as resp:
+                    if 200 <= resp.status < 300:
+                        return json.loads(resp.read().decode("utf-8"))
+                    return None
+            return await asyncio.to_thread(_sync_post)
     except Exception as exc:
         # Graceful fallback: Never break CleanWeb operations if central ops agent is offline
         logger.debug(f"[A.GRID-HQ] Central sync skipped (offline or timeout): {exc}")
@@ -69,8 +90,11 @@ def dispatch_clearing_event_background(
 ):
     """Fire-and-forget background dispatcher for FastAPI endpoints."""
     try:
-        loop = asyncio.get_event_loop()
-        if loop.is_running():
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            loop = None
+        if loop and loop.is_running():
             loop.create_task(report_clearing_event_async(
                 operation=operation,
                 amount_usdc=amount_usdc,
@@ -82,3 +106,4 @@ def dispatch_clearing_event_background(
             ))
     except Exception as e:
         logger.debug(f"Failed to dispatch background clearing event: {e}")
+

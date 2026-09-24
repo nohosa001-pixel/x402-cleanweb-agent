@@ -72,7 +72,9 @@ curl -X POST "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/api/v1/clean-w
 |---|---|---|---|---|
 | **🎁 Free Discovery Trial** | Any Endpoint | Free (2-3 queries)| 0 Credits | Attach header `X-Agent-Nonce: <UUID>` |
 | **🌐 Clean Web** | `GET /api/v1/clean-web?url=<URL>` | 0.001 USDC | 1 Credit | Strips ads/clutter, returns pure Markdown with 85%+ token savings |
+| **⚡ Real-Time Stream** | `GET /api/v1/clean-web/stream?url=<URL>`| 0.001 USDC | 1 Credit | Server-Sent Events (SSE) real-time paragraph chunk streaming |
 | **📝 Pure Text Extractor** | `GET /api/v1/clean-text?url=<URL>` | 0.001 USDC | 1 Credit | Ultra-lightweight raw text for vector/RAG embeddings |
+| **🧬 RAG Dense Embed** | `POST /api/v1/clean-embed` | 0.005 USDC | 5 Credits | Scrapes, cleans, chunks semantically, and returns 768-dim embeddings |
 | **🗺️ Site Mapper** | `GET /api/v1/map-site?url=<URL>` | 0.002 USDC | 2 Credits | Domain sitemap & URL tree fast discovery (Firecrawl /map) |
 | **🔍 Agent Search** | `GET /api/v1/search?query=<KEYWORD>`| 0.002 USDC | 2 Credits | Fast real-time keyword search & verified snippets (Tavily) |
 | **📦 Batch Clean** | `POST /api/v1/batch-clean` | 0.005 USDC | 5 Credits | Scrapes up to 10 URLs concurrently in parallel |
@@ -81,6 +83,8 @@ curl -X POST "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/api/v1/clean-w
 | **📊 Structured JSON** | `POST /api/v1/extract-json` | 0.030 USDC | 30 Credits | Extracts key-value structured JSON matching user-defined schema |
 | **🔮 Web3 Signed Oracle** | `POST /api/v1/oracle/grounding` | 0.035 USDC | 35 Credits | Live search + Clean-to-JSON + EIP-712 On-Chain Attestation |
 | **🧠 Deep Research** | `GET /api/v1/deep-research?query=<TOPIC>`| 0.150 USDC | 150 Credits| Multi-source synthesized AI executive research briefing |
+| **⛽ Gasless Permit Deposit**| `POST /api/v1/vault/permit-deposit` | Free | 0 Credits | Pre-funds vault via off-chain EIP-2612 permit (zero gas spent) |
+| **🌳 Treasury Merkle Proof** | `GET /api/v1/treasury/merkle-proof/{tx}`| Free | 0 Credits | Verifies settlement inclusion in Keccak-256 Merkle root |
 | **📐 Arbitrage ROI Calc** | `GET /api/v1/agent/arbitrage-roi` | Free | 0 Credits | Live mathematical cost-benefit analysis |
 
 ---
@@ -89,6 +93,7 @@ curl -X POST "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/api/v1/clean-w
 - **A2A Agent Manifest**: `https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/.well-known/agent.json`
 - **AI Plugin Manifest**: `https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/.well-known/ai-plugin.json`
 - **MCP Server Card**: `https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/.well-known/mcp/server-card.json`
+- **Remote MCP SSE Transport**: `https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/mcp-server/sse`
 - **Capabilities Reflection**: `https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/api/v1/agent/capabilities`
 - **Arbitrage ROI Endpoint**: `https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/api/v1/agent/arbitrage-roi`
 - **Live Pricing Catalog**: `https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/api/v1/agent/pricing-catalog`
@@ -97,6 +102,19 @@ curl -X POST "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/api/v1/clean-w
 ---
 
 ## 💻 1-Second Setup for Claude, Cursor & Windsurf (MCP)
+
+### Remote SSE Transport (Zero Local Install Required):
+```json
+{
+  "mcpServers": {
+    "polygon-x402-cleanweb-remote": {
+      "url": "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/mcp-server/sse"
+    }
+  }
+}
+```
+
+### Local CLI Transport (uvx):
 ```json
 {
   "mcpServers": {

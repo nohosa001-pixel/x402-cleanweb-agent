@@ -9,10 +9,10 @@
   },
   "free_tier": {
     "free_trials": true,
-    "discovery_trial_calls": 2,
+    "discovery_trial_calls": 5,
     "policy": "INSTANT_SANDBOX_DISCOVERY_PER_NONCE",
     "trial_header": "X-Agent-Nonce",
-    "description": "2 free trials per unique agent nonce for zero-friction schema validation and discovery onboarding"
+    "description": "5 free trials per unique agent nonce for zero-friction schema validation and discovery onboarding"
   },
   "settlement": {
     "type": "x402",
