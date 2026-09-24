@@ -1,9 +1,9 @@
 {
   "$schema": "https://modelcontextprotocol.io/schemas/server-card.json",
-  "name": "x402-cleanweb-agent",
+  "name": "x402-cleanweb-oracle",
   "version": "2.6.1",
-  "title": "Polygon x402 CleanWeb & Autonomous Web3 Agent Suite",
-  "description": "Universal MCP server for high-efficiency web cleaning, YouTube transcript analysis, research paper extraction, and EIP-712 Web3 Oracles on Polygon, Base, and Arbitrum. Includes 3 free trial queries out-of-the-box.",
+  "title": "x402 CleanWeb & Autonomous Data Oracle",
+  "description": "Universal remote MCP server for 87% token-compressed web cleaning, YouTube transcript analysis with Gemini 3.6 Flash, RAG embeddings, and verifiable EIP-712 Web3 Oracles on Polygon, Base, and Arbitrum. Includes free trial queries out-of-the-box.",
   "publisher": {
     "name": "x402 AI Autonomous Systems",
     "url": "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app"
@@ -45,7 +45,10 @@
   ],
   "configuration": {
     "mcpServers": {
-      "polygon-x402-cleanweb": {
+      "x402-cleanweb-remote": {
+        "url": "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/mcp-server/sse"
+      },
+      "x402-cleanweb-local": {
         "command": "uvx",
         "args": ["x402-cleanweb-agent"]
       }

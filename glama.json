@@ -1,7 +1,7 @@
 {
   "$schema": "https://glama.ai/mcp/schemas/server.json",
-  "name": "polygon-x402-cleanweb-agent",
-  "description": "The Spend Firewall & Autonomous Agent Data Oracle: Zero-human Web3 micropayment engine for LLM-ready clean web, YouTube transcripts with Gemini 3.6 Flash intelligence, and PDF paper extraction with multi-chain USDC settlement (Polygon, Base, Arbitrum).",
+  "name": "x402-cleanweb-oracle",
+  "description": "x402 CleanWeb & Autonomous Data Oracle: Pure B2A remote MCP server (SSE) providing 87% token-compressed web scraping, YouTube transcripts with Gemini 3.6 Flash, RAG dense vector embeddings, and on-chain verifiable EIP-712 cryptographic data oracles across Polygon, Base, and Arbitrum with gasless micropayments.",
   "homepage": "https://github.com/nohosa001-pixel/x402-cleanweb-agent",
   "maintainers": [
     "nohosa001-pixel"
@@ -10,6 +10,7 @@
     "x402",
     "mcp",
     "web3",
+    "oracle",
     "polygon",
     "base",
     "arbitrum",
@@ -17,6 +18,9 @@
     "youtube-transcript",
     "gemini-ai",
     "pdf-research",
+    "rag",
+    "sse",
+    "eip712",
     "micropayments"
   ],
   "license": "MIT",
