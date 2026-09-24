@@ -745,6 +745,46 @@ def clean_web_post(request: Request, body: CleanWebRequest):
     )
 
 
+@app.get("/r/stream/{target_url:path}", tags=["Autonomous Agents"])
+async def agent_reader_stream_proxy(request: Request, target_url: str):
+    """
+    Real-time streaming universal proxy for autonomous LLM agents (chunk-by-chunk piping).
+    """
+    target_url = normalize_url(target_url)
+    query_str = request.url.query
+    if query_str:
+        delimiter = "&" if "?" in target_url else "?"
+        target_url = f"{target_url}{delimiter}{query_str}"
+
+    is_auth, receipt, err_resp = x402_verifier.verify_request(request, tier=PricingTier.LIGHT)
+    if not is_auth:
+        return err_resp
+
+    try:
+        data = web_cleaner_engine.fetch_and_clean(target_url)
+        markdown_text = data.get("markdown_content", "")
+        paragraphs = [p.strip() for p in markdown_text.split("\n\n") if p.strip()]
+        if not paragraphs:
+            paragraphs = [markdown_text]
+
+        async def stream_body():
+            for p in paragraphs:
+                yield (p + "\n\n").encode("utf-8")
+
+        headers = {
+            "Content-Type": "text/markdown; charset=utf-8",
+            "X-Agent-Tool": "CleanWeb-Stream",
+            "X-Content-Title": data.get("title", "")
+        }
+        if receipt and getattr(receipt, "remaining_free_trials", None) is not None:
+            headers["X-Agent-Trial-Remaining"] = str(receipt.remaining_free_trials)
+
+        return StreamingResponse(stream_body(), media_type="text/markdown; charset=utf-8", headers=headers)
+    except Exception as e:
+        safe_refund_vault(receipt)
+        raise HTTPException(status_code=500, detail=f"Streaming failed: {str(e)}")
+
+
 @app.get("/r/{target_url:path}", response_class=PlainTextResponse, tags=["Autonomous Agents"])
 def agent_reader_proxy(request: Request, target_url: str):
     """
@@ -854,44 +894,7 @@ async def clean_web_stream(
         raise HTTPException(status_code=500, detail=f"Streaming failed: {str(e)}")
 
 
-@app.get("/r/stream/{target_url:path}", tags=["Autonomous Agents"])
-async def agent_reader_stream_proxy(request: Request, target_url: str):
-    """
-    Real-time streaming universal proxy for autonomous LLM agents (chunk-by-chunk piping).
-    """
-    target_url = normalize_url(target_url)
-    query_str = request.url.query
-    if query_str:
-        delimiter = "&" if "?" in target_url else "?"
-        target_url = f"{target_url}{delimiter}{query_str}"
 
-    is_auth, receipt, err_resp = x402_verifier.verify_request(request, tier=PricingTier.LIGHT)
-    if not is_auth:
-        return err_resp
-
-    try:
-        data = web_cleaner_engine.fetch_and_clean(target_url)
-        markdown_text = data.get("markdown_content", "")
-        paragraphs = [p.strip() for p in markdown_text.split("\n\n") if p.strip()]
-        if not paragraphs:
-            paragraphs = [markdown_text]
-
-        async def stream_body():
-            for p in paragraphs:
-                yield (p + "\n\n").encode("utf-8")
-
-        headers = {
-            "Content-Type": "text/markdown; charset=utf-8",
-            "X-Agent-Tool": "CleanWeb-Stream",
-            "X-Content-Title": data.get("title", "")
-        }
-        if receipt and getattr(receipt, "remaining_free_trials", None) is not None:
-            headers["X-Agent-Trial-Remaining"] = str(receipt.remaining_free_trials)
-
-        return StreamingResponse(stream_body(), media_type="text/markdown; charset=utf-8", headers=headers)
-    except Exception as e:
-        safe_refund_vault(receipt)
-        raise HTTPException(status_code=500, detail=f"Streaming failed: {str(e)}")
 
 
 @app.get("/api/v1/clean-youtube", response_model=YouTubeCleanResponse, tags=["Cleaners"])
