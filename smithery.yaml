@@ -1,0 +1,20 @@
+# Smithery.ai MCP Server Configuration
+# https://smithery.ai/docs/config
+startCommand:
+  type: stdio
+  configSchema:
+    type: object
+    properties:
+      x402_gateway_url:
+        type: string
+        description: "x402 CleanWeb Gateway URL"
+        default: "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app"
+      agent_vault_key:
+        type: string
+        description: "Pre-funded Agent Vault Session Key ('X-Vault-Key') for sub-millisecond zero-gas micropayments. Leave empty to use 5 free sandbox trials."
+      agent_private_key:
+        type: string
+        description: "Web3 EVM Private Key for on-chain autonomous micropayments on Polygon, Base, or Arbitrum."
+  command:
+    - python
+    - mcp_server.py
