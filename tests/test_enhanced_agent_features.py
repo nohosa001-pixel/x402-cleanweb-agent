@@ -83,8 +83,13 @@ def test_extract_json_endpoint_402_and_success(client):
 
 def test_deep_research_endpoint_402_and_success(client):
     """Verifies that /api/v1/deep-research enforces 402 and returns synthesized briefings."""
+    from app.x402_verifier import FREE_TRIAL_LIMIT
+    exhausted_id = f"exhausted_research_{int(time.time()*1000)}"
+    for _ in range(FREE_TRIAL_LIMIT):
+        storage_manager.increment_trial_usage(exhausted_id)
+
     # 1. 402 challenge
-    res_402 = client.get("/api/v1/deep-research?query=Python+FastAPI")
+    res_402 = client.get("/api/v1/deep-research?query=Python+FastAPI", headers={"X-Agent-Nonce": exhausted_id})
     assert res_402.status_code == 402
 
     # 2. Authorized request
@@ -168,8 +173,13 @@ def test_multi_chain_configs_present():
 
 def test_map_site_endpoint_402_and_success(client):
     """Verifies that /api/v1/map-site enforces 402 and maps domain URLs."""
+    from app.x402_verifier import FREE_TRIAL_LIMIT
+    exhausted_id = f"exhausted_mapsite_{int(time.time()*1000)}"
+    for _ in range(FREE_TRIAL_LIMIT):
+        storage_manager.increment_trial_usage(exhausted_id)
+
     # 1. 402 challenge
-    res_402 = client.get("/api/v1/map-site?url=https://example.com")
+    res_402 = client.get("/api/v1/map-site?url=https://example.com", headers={"X-Agent-Nonce": exhausted_id})
     assert res_402.status_code == 402
     assert "x402" in res_402.json()
 
@@ -189,8 +199,13 @@ def test_map_site_endpoint_402_and_success(client):
 
 def test_search_endpoint_402_and_success(client):
     """Verifies that /api/v1/search enforces 402 and returns agent search snippets."""
+    from app.x402_verifier import FREE_TRIAL_LIMIT
+    exhausted_id = f"exhausted_search_{int(time.time()*1000)}"
+    for _ in range(FREE_TRIAL_LIMIT):
+        storage_manager.increment_trial_usage(exhausted_id)
+
     # 1. 402 challenge
-    res_402 = client.get("/api/v1/search?query=Ethereum")
+    res_402 = client.get("/api/v1/search?query=Ethereum", headers={"X-Agent-Nonce": exhausted_id})
     assert res_402.status_code == 402
 
     # 2. Authorized request
