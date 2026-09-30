@@ -81,7 +81,7 @@ load_dotenv()
 app = FastAPI(
     title="CleanWeb Studio (x402 AI Agent Suite)",
     description="Deterministic Web3 x402 Micropayment MCP & AI Agent Tool Suite with Gemini 3.6 Flash Video Intelligence on Polygon, Base, Arbitrum, and Solana.",
-    version="2.6.1",
+    version="2.7.0",
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url="/openapi.json"
@@ -243,7 +243,7 @@ async def root(request: Request):
     return {
         "service": "x402-cleanweb-agent",
         "name": "CleanWeb Studio (Autonomous Agent Data & Spend Firewall)",
-        "version": "2.6.1",
+        "version": "2.7.0",
         "audience": "HUMANS_AND_AUTONOMOUS_AGENTS",
         "access_policy": "OPEN_TO_ALL (Pay-As-You-Go via USDC Pre-Funded Vault)",
         "protocol": "x402 (HTTP 402 Monetized)",
@@ -321,7 +321,7 @@ def health_check(deep: bool = Query(False, description="Run deep 5-pipeline self
     return {
         "status": "healthy",
         "service": "x402-cleanweb-agent",
-        "version": "2.6.1",
+        "version": "2.7.0",
         "storage": "sqlite3_wal_ready",
         "storage_stats": db_stats,
         "chains_connected": ["Polygon(137)", "Base(8453)", "Arbitrum(42161)"],
@@ -426,7 +426,7 @@ def get_agent_capabilities():
     return {
         "status": "active",
         "agent_id": "x402-cleanweb-agent",
-        "version": "2.6.1",
+        "version": "2.7.0",
         "settlement": "x402_usdc_micropayments",
         "supported_chains": [
             {"name": "Solana Mainnet-Beta", "chain_id": 101, "vault": "7oZ16YaazQzN6z5uA1nAZWD9oGUDXyvHwXGJLFYyWi3y", "recipient": "411ksMz9RHYVtVMe6RUUErzZYtrU9zzvkgzswKbqx9qp"},
@@ -1566,7 +1566,7 @@ async def get_mcp_sse_info():
         "sse_endpoint": "/mcp-server/sse",
         "messages_endpoint": "/mcp-server/messages",
         "http_jsonrpc_endpoint": "/api/v1/mcp",
-        "version": "2.6.1",
+        "version": "2.7.0",
         "description": "Standardized remote SSE and HTTP JSON-RPC transport for Claude Desktop, Cursor, and Autonomous Agent fleets."
     }
 
@@ -1586,7 +1586,7 @@ async def get_mcp_discovery_info():
     return {
         "status": "active",
         "server": "x402-cleanweb-agent",
-        "version": "2.6.1",
+        "version": "2.7.0",
         "protocol": "mcp-2024-11-05",
         "transports": {
             "http_jsonrpc": "/api/v1/mcp",
@@ -1646,7 +1646,7 @@ async def handle_mcp_http_jsonrpc(request: Request):
                 },
                 "serverInfo": {
                     "name": "x402-cleanweb-agent",
-                    "version": "2.6.1"
+                    "version": "2.7.0"
                 },
                 "instructions": (
                     "x402 CleanWeb & Autonomous Web3 Agent Suite. "
