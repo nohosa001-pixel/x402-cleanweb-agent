@@ -13,10 +13,17 @@ from web3 import Web3
 from web3.exceptions import TransactionNotFound
 
 
+import requests
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
 class SupportedChain(str, Enum):
     POLYGON = "polygon"      # Chain ID 137
     BASE = "base"            # Chain ID 8453 (Coinbase L2)
     ARBITRUM = "arbitrum"    # Chain ID 42161 (Arbitrum One)
+    SOLANA = "solana"        # Cluster Mainnet-Beta (ID 101)
 
 
 class ChainConfig(BaseModel):
@@ -32,7 +39,9 @@ class ChainConfig(BaseModel):
 
 def safe_checksum(addr: str) -> str:
     try:
-        return Web3.to_checksum_address(addr)
+        if addr and addr.startswith("0x"):
+            return Web3.to_checksum_address(addr)
+        return addr
     except Exception:
         return addr
 
@@ -83,6 +92,21 @@ CHAIN_REGISTRY: Dict[str, ChainConfig] = {
         explorer_url="https://arbiscan.io",
         decimals=6
     ),
+    SupportedChain.SOLANA.value: ChainConfig(
+        chain_name="solana",
+        chain_id=101,
+        display_name="Solana Mainnet-Beta",
+        usdc_address=os.getenv("SOLANA_USDC_MINT", "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"),
+        rpc_urls=[
+            os.getenv("SOLANA_RPC_URL", "https://api.mainnet-beta.solana.com"),
+            "https://solana-rpc.publicnode.com",
+            "https://rpc.ankr.com/solana",
+            "https://solana.drpc.org",
+            "https://api.mainnet-beta.solana.com",
+        ],
+        explorer_url="https://solscan.io",
+        decimals=6
+    ),
 }
 
 # ERC-20 Transfer Event Signature: Transfer(address,address,uint256)
@@ -90,13 +114,22 @@ TRANSFER_EVENT_TOPIC = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a
 
 
 class MultiChainManager:
-    """Manages resilient Web3 connections and cross-chain USDC verification with multi-RPC failover."""
+    """Manages resilient Web3 connections and cross-chain USDC verification with multi-RPC failover across Polygon, Base, Arbitrum, and Solana."""
 
     def __init__(self):
         self.default_recipient = safe_checksum(
-            os.getenv("SERVER_WALLET_ADDRESS", "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf")
+            os.getenv("SERVER_WALLET_ADDRESS", "0xA185B43fDD19619f99952AAed6eabf1029bF36a1")
         )
+        self._custom_solana_recipient: Optional[str] = None
         self._rpc_latencies: Dict[str, float] = {}
+
+    @property
+    def solana_recipient(self) -> str:
+        return self._custom_solana_recipient or os.getenv("SOLANA_SERVER_WALLET_ADDRESS", "411ksMz9RHYVtVMe6RUUErzZYtrU9zzvkgzswKbqx9qp")
+
+    @solana_recipient.setter
+    def solana_recipient(self, val: str):
+        self._custom_solana_recipient = val
 
     def get_chain_config(self, chain_identifier: Any) -> ChainConfig:
         if isinstance(chain_identifier, int) or (isinstance(chain_identifier, str) and chain_identifier.isdigit()):
@@ -105,6 +138,8 @@ class MultiChainManager:
                 if cfg.chain_id == c_id:
                     return cfg
         c_str = str(chain_identifier).lower()
+        if c_str in ("solana", "sol", "101"):
+            return CHAIN_REGISTRY[SupportedChain.SOLANA.value]
         if c_str in CHAIN_REGISTRY:
             return CHAIN_REGISTRY[c_str]
         return CHAIN_REGISTRY[SupportedChain.POLYGON.value]
@@ -122,10 +157,57 @@ class MultiChainManager:
         # Fallback default
         return Web3(Web3.HTTPProvider(cfg.rpc_urls[0])), cfg, cfg.rpc_urls[0]
 
+    def _solana_rpc_call(self, rpc_url: str, method: str, params: List[Any], timeout: int = 5) -> Optional[Any]:
+        """Makes a robust JSON-RPC 2.0 call to a Solana RPC node."""
+        try:
+            resp = requests.post(
+                rpc_url,
+                json={"jsonrpc": "2.0", "id": 1, "method": method, "params": params},
+                headers={"Content-Type": "application/json"},
+                timeout=timeout
+            )
+            if resp.status_code == 200:
+                data = resp.json()
+                if "result" in data:
+                    return data["result"]
+        except Exception:
+            pass
+        return None
+
+    def ping_solana(self) -> Dict[str, Any]:
+        """Pings Solana RPC failover pool and returns slot number and latency."""
+        cfg = CHAIN_REGISTRY[SupportedChain.SOLANA.value]
+        for rpc in cfg.rpc_urls:
+            try:
+                t0 = time.time()
+                slot = self._solana_rpc_call(rpc, "getSlot", [], timeout=4)
+                if slot is not None:
+                    lat_ms = round((time.time() - t0) * 1000, 2)
+                    return {
+                        "status": "healthy",
+                        "chain_id": cfg.chain_id,
+                        "display_name": cfg.display_name,
+                        "active_rpc": rpc,
+                        "latest_block": slot,
+                        "latency_ms": lat_ms
+                    }
+            except Exception:
+                continue
+        return {
+            "status": "degraded",
+            "chain_id": cfg.chain_id,
+            "display_name": cfg.display_name,
+            "error": "All Solana RPC endpoints unresponsive"
+        }
+
     def ping_all_chains(self) -> Dict[str, Any]:
-        """Pings all chains and returns latency metrics and block heights."""
+        """Pings all chains (EVM + Solana) and returns latency metrics and block/slot heights."""
         results = {}
         for chain_key, cfg in CHAIN_REGISTRY.items():
+            if chain_key == SupportedChain.SOLANA.value:
+                results[chain_key] = self.ping_solana()
+                continue
+
             start_t = time.time()
             try:
                 w3, _, active_rpc = self.get_healthy_web3(chain_key)
@@ -149,11 +231,18 @@ class MultiChainManager:
 
     def get_valid_recipients(self, chain_identifier: Any = "polygon", extra_recipient: Optional[str] = None) -> List[str]:
         """Returns all recognized recipient addresses (server EOA wallet + deployed AgentPaymentVault contracts)."""
+        c_str = str(chain_identifier).lower()
+        if c_str in ("solana", "sol", "101"):
+            recipients = [self.solana_recipient]
+            if extra_recipient:
+                recipients.append(extra_recipient)
+            return list(set(recipients))
+
         recipients = [self.default_recipient.lower()]
         if extra_recipient:
             recipients.append(safe_checksum(extra_recipient).lower())
             
-        # Add configured AgentPaymentVault contracts across chains
+        # Add configured AgentPaymentVault contracts across EVM chains
         vault_addrs = [
             os.getenv("AGENT_PAYMENT_VAULT_ADDRESS", "0x45ecBfAa2F4B0Bc6ccD3eB2dB9B1Ca49CF121861"),
             os.getenv("BASE_AGENT_PAYMENT_VAULT_ADDRESS", "0x28292D76E07E5539F15F3b97935dE8E0432E76DD"),
@@ -168,6 +257,146 @@ class MultiChainManager:
                 pass
         return list(set(recipients))
 
+    def verify_solana_usdc_transfer(
+        self,
+        tx_signature: str,
+        expected_recipient: Optional[str] = None,
+        min_amount_usdc: float = 0.001
+    ) -> Tuple[bool, str, Optional[Dict[str, Any]]]:
+        """
+        Verifies on-chain Solana SPL USDC transfer for a given transaction signature.
+        Supports standard SPL token transfer, transferChecked, and pre/postTokenBalances delta.
+        """
+        cfg = CHAIN_REGISTRY[SupportedChain.SOLANA.value]
+        target_recipient = expected_recipient or self.solana_recipient
+        tx_sig = tx_signature.strip()
+
+        # Validate signature format (Base58 string or alphanumeric, typically 64-120 chars)
+        if not re.match(r"^[0-9A-Za-z]{64,120}$", tx_sig):
+            return False, "Invalid Solana transaction signature format. Must be alphanumeric 64-120 characters.", None
+
+        max_attempts = 4
+        poll_interval = 1.5
+        tx_data = None
+        last_err = None
+
+        for attempt in range(max_attempts):
+            for rpc in cfg.rpc_urls:
+                try:
+                    result = self._solana_rpc_call(
+                        rpc,
+                        "getTransaction",
+                        [
+                            tx_sig,
+                            {
+                                "encoding": "jsonParsed",
+                                "maxSupportedTransactionVersion": 0,
+                                "commitment": "confirmed"
+                            }
+                        ],
+                        timeout=5
+                    )
+                    if result:
+                        tx_data = result
+                        break
+                except Exception as e:
+                    last_err = e
+                    continue
+            if tx_data:
+                break
+            if attempt < max_attempts - 1:
+                time.sleep(poll_interval)
+
+        if not tx_data:
+            return False, f"Solana transaction not found or unconfirmed on {cfg.display_name} (Last error: {last_err}). Please wait a few seconds and retry.", None
+
+        meta = tx_data.get("meta") or {}
+        if meta.get("err") is not None:
+            return False, f"Solana transaction failed or reverted: {meta.get('err')}", None
+
+        # Verify SPL Token USDC Transfer
+        usdc_mint = cfg.usdc_address
+        transferred_amount_usdc = 0.0
+        payer_addr = None
+        matched_recipient = None
+
+        # Method 1: Check token balance deltas (preTokenBalances vs postTokenBalances)
+        pre_balances = {
+            b.get("accountIndex"): b
+            for b in meta.get("preTokenBalances", [])
+            if b.get("mint") == usdc_mint
+        }
+        for post in meta.get("postTokenBalances", []):
+            if post.get("mint") != usdc_mint:
+                continue
+            owner = post.get("owner", "")
+            if owner == target_recipient or (expected_recipient and owner == expected_recipient):
+                acc_idx = post.get("accountIndex")
+                post_amt = float(post.get("uiTokenAmount", {}).get("uiAmount") or 0.0)
+                pre_b = pre_balances.get(acc_idx, {})
+                pre_amt = float(pre_b.get("uiTokenAmount", {}).get("uiAmount") or 0.0)
+                delta = post_amt - pre_amt
+                if delta > 0:
+                    transferred_amount_usdc += delta
+                    matched_recipient = owner
+
+        # Method 2: Check parsed instructions (transfer or transferChecked)
+        if transferred_amount_usdc <= 0:
+            tx_obj = tx_data.get("transaction", {})
+            msg = tx_obj.get("message", {})
+            instructions = list(msg.get("instructions", []))
+            for inner in meta.get("innerInstructions", []):
+                instructions.extend(inner.get("instructions", []))
+
+            for ix in instructions:
+                parsed = ix.get("parsed")
+                if not isinstance(parsed, dict):
+                    continue
+                ix_type = parsed.get("type")
+                info = parsed.get("info", {})
+                if ix_type in ("transfer", "transferChecked"):
+                    amt = 0.0
+                    if "tokenAmount" in info and "uiAmount" in info["tokenAmount"]:
+                        amt = float(info["tokenAmount"]["uiAmount"] or 0.0)
+                    elif "amount" in info:
+                        amt = float(info["amount"]) / (10 ** cfg.decimals)
+
+                    dest = info.get("destination", "")
+                    authority = info.get("authority") or info.get("source", "")
+                    if dest == target_recipient or info.get("owner") == target_recipient:
+                        transferred_amount_usdc += amt
+                        payer_addr = authority
+                        matched_recipient = target_recipient
+
+        # Extract payer if not yet resolved
+        if not payer_addr:
+            try:
+                account_keys = tx_data.get("transaction", {}).get("message", {}).get("accountKeys", [])
+                if account_keys:
+                    first_key = account_keys[0]
+                    payer_addr = first_key.get("pubkey") if isinstance(first_key, dict) else str(first_key)
+            except Exception:
+                payer_addr = "solana_payer"
+
+        # 6-decimal micro-USDC precision comparison
+        if round(transferred_amount_usdc, 6) < round(min_amount_usdc - 1e-6, 6):
+            return False, (
+                f"Insufficient USDC transferred on Solana. Found {transferred_amount_usdc:.4f} USDC, "
+                f"expected at least {min_amount_usdc:.4f} USDC to recipient ({target_recipient})."
+            ), None
+
+        slot_num = tx_data.get("slot")
+        details = {
+            "chain": cfg.chain_name,
+            "chain_id": cfg.chain_id,
+            "tx_hash": tx_sig,
+            "payer": payer_addr,
+            "recipient": matched_recipient or target_recipient,
+            "amount_usdc": round(transferred_amount_usdc, 6),
+            "block_number": slot_num
+        }
+        return True, "Solana USDC Payment verified successfully.", details
+
     def verify_usdc_transfer(
         self,
         tx_hash: str,
@@ -176,10 +405,17 @@ class MultiChainManager:
         min_amount_usdc: float = 0.001
     ) -> Tuple[bool, str, Optional[Dict[str, Any]]]:
         """
-        Verifies on-chain ERC-20 USDC Transfer event for a given transaction hash.
-        Features automatic retry polling (up to 8s) for pending block mining and multi-RPC failover.
-        Accepts transfers to both the server EOA wallet and the official AgentPaymentVault contracts.
+        Verifies on-chain USDC transfer for either EVM chains (Polygon, Base, Arbitrum) or Solana Mainnet.
+        Features automatic retry polling and multi-RPC failover pool.
         """
+        chain_str = str(chain_identifier).strip().lower()
+        if chain_str in ("solana", "sol", "101"):
+            return self.verify_solana_usdc_transfer(
+                tx_signature=tx_hash,
+                expected_recipient=expected_recipient,
+                min_amount_usdc=min_amount_usdc
+            )
+
         valid_recipients = self.get_valid_recipients(chain_identifier, expected_recipient)
         
         tx_hash = tx_hash.strip()
@@ -192,7 +428,6 @@ class MultiChainManager:
         receipt = None
         last_err = None
 
-        # Robust Retry Polling: poll up to 4 attempts (total ~5 seconds) to accommodate on-chain block mining
         max_attempts = 4
         poll_interval = 1.5
 
@@ -204,7 +439,6 @@ class MultiChainManager:
                     if receipt:
                         break
                 except TransactionNotFound as e:
-                    # Node is responsive & healthy: transaction is simply pending/unmined
                     last_err = e
                     break
                 except Exception as e:
@@ -260,7 +494,6 @@ class MultiChainManager:
                 payer_addr = safe_checksum("0x" + topic_1[-40:])
                 matched_recipient = safe_checksum("0x" + topic_2[-40:])
 
-        # 6-decimal micro-USDC precision comparison to prevent IEEE-754 float precision rejection
         if round(transferred_amount_usdc, 6) < round(min_amount_usdc - 1e-6, 6):
             return False, (
                 f"Insufficient USDC transferred. Found {transferred_amount_usdc:.4f} USDC, "
@@ -278,8 +511,77 @@ class MultiChainManager:
         }
         return True, "USDC Payment verified successfully.", details
 
+    def get_solana_balances(self, wallet_address: Optional[str] = None) -> Dict[str, Any]:
+        """Fetches live on-chain SOL and SPL USDC balances for a wallet on Solana Mainnet."""
+        target_addr = wallet_address or self.solana_recipient
+        cfg = CHAIN_REGISTRY[SupportedChain.SOLANA.value]
+
+        native_bal = 0.0
+        usdc_bal = 0.0
+        slot_num = None
+        last_rpc_used = None
+
+        for rpc in cfg.rpc_urls:
+            try:
+                # 1. Fetch SOL Balance (getBalance in lamports)
+                bal_res = self._solana_rpc_call(rpc, "getBalance", [target_addr], timeout=4)
+                if bal_res is not None and isinstance(bal_res, dict):
+                    lamports = bal_res.get("value", 0)
+                    native_bal = float(lamports) / 1e9
+
+                # 2. Fetch SPL USDC Balance (getTokenAccountsByOwner)
+                token_res = self._solana_rpc_call(
+                    rpc,
+                    "getTokenAccountsByOwner",
+                    [
+                        target_addr,
+                        {"mint": cfg.usdc_address},
+                        {"encoding": "jsonParsed"}
+                    ],
+                    timeout=4
+                )
+                if token_res is not None and isinstance(token_res, dict):
+                    accounts = token_res.get("value", [])
+                    total_token_amount = 0.0
+                    for acc in accounts:
+                        parsed_info = acc.get("account", {}).get("data", {}).get("parsed", {}).get("info", {})
+                        token_amount_obj = parsed_info.get("tokenAmount", {})
+                        ui_amount = token_amount_obj.get("uiAmount")
+                        if ui_amount is not None:
+                            total_token_amount += float(ui_amount)
+                        else:
+                            raw_amt = float(token_amount_obj.get("amount", 0))
+                            total_token_amount += raw_amt / (10 ** cfg.decimals)
+                    usdc_bal = total_token_amount
+
+                # 3. Get latest slot
+                slot_res = self._solana_rpc_call(rpc, "getSlot", [], timeout=3)
+                if slot_res is not None:
+                    slot_num = slot_res
+
+                last_rpc_used = rpc
+                break
+            except Exception:
+                continue
+
+        return {
+            "chain": cfg.chain_name,
+            "chain_id": cfg.chain_id,
+            "display_name": cfg.display_name,
+            "wallet_address": target_addr,
+            "usdc_balance": round(usdc_bal, 4),
+            "native_balance": round(native_bal, 6),
+            "native_symbol": "SOL",
+            "block_number": slot_num,
+            "rpc_node": last_rpc_used
+        }
+
     def get_chain_balances(self, chain_identifier: Any, wallet_address: Optional[str] = None) -> Dict[str, Any]:
-        """Fetches live on-chain Native and USDC balances for a wallet on a specified chain."""
+        """Fetches live on-chain Native and USDC balances for a wallet on a specified chain (EVM or Solana)."""
+        c_str = str(chain_identifier).strip().lower()
+        if c_str in ("solana", "sol", "101"):
+            return self.get_solana_balances(wallet_address)
+
         target_addr = safe_checksum(wallet_address or self.default_recipient)
         cfg = self.get_chain_config(chain_identifier)
         
@@ -304,11 +606,9 @@ class MultiChainManager:
                 if not w3.is_connected():
                     continue
                 
-                # Fetch Native Coin Balance
                 raw_native = w3.eth.get_balance(target_addr)
                 native_bal = float(Web3.from_wei(raw_native, "ether"))
 
-                # Fetch ERC20 USDC Balance
                 usdc_contract = w3.eth.contract(address=cfg.usdc_address, abi=erc20_abi)
                 raw_usdc = usdc_contract.functions.balanceOf(target_addr).call()
                 usdc_bal = float(raw_usdc) / (10 ** cfg.decimals)
@@ -332,18 +632,27 @@ class MultiChainManager:
         }
 
     def get_multi_chain_treasury_summary(self, wallet_address: Optional[str] = None) -> Dict[str, Any]:
-        """Aggregates real-time on-chain USDC treasury balances across all 3 supported chains."""
+        """Aggregates real-time on-chain USDC treasury balances across all 4 supported chains (Polygon, Base, Arbitrum, Solana)."""
         target_addr = safe_checksum(wallet_address or self.default_recipient)
         chains_data = {}
         total_usdc = 0.0
 
-        for chain_key in [SupportedChain.POLYGON.value, SupportedChain.BASE.value, SupportedChain.ARBITRUM.value]:
-            info = self.get_chain_balances(chain_key, target_addr)
+        for chain_key in [
+            SupportedChain.POLYGON.value,
+            SupportedChain.BASE.value,
+            SupportedChain.ARBITRUM.value,
+            SupportedChain.SOLANA.value
+        ]:
+            info = self.get_chain_balances(
+                chain_key,
+                wallet_address if wallet_address else (self.solana_recipient if chain_key == SupportedChain.SOLANA.value else target_addr)
+            )
             chains_data[chain_key] = info
             total_usdc += info.get("usdc_balance", 0.0)
 
         return {
             "treasury_wallet": target_addr,
+            "solana_treasury_wallet": self.solana_recipient,
             "total_usdc_accumulated": round(total_usdc, 4),
             "networks": chains_data,
             "timestamp": int(time.time()),
@@ -352,4 +661,5 @@ class MultiChainManager:
 
 
 multi_chain_manager = MultiChainManager()
+
 

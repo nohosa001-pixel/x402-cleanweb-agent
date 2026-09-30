@@ -63,18 +63,21 @@ def _coerce_val(val, default_val):
 )
 def get_payment_info(
     tier: Optional[str] = Field(default=None, description="Optional specific pricing tier to inspect."),
-    chain: Optional[str] = Field(default=None, description="Optional specific chain name (polygon, base, arbitrum).")
+    chain: Optional[str] = Field(default=None, description="Optional specific chain name (polygon, base, arbitrum, solana).")
 ) -> str:
     poly_cfg = multi_chain_manager.get_chain_config("polygon")
     base_cfg = multi_chain_manager.get_chain_config("base")
     arb_cfg = multi_chain_manager.get_chain_config("arbitrum")
+    sol_cfg = multi_chain_manager.get_chain_config("solana")
     
     return f"""### 💳 CleanWeb Studio x402 Micropayment Architecture
 - **Supported Networks**:
   1. **Polygon (Chain ID: 137)**: USDC `{poly_cfg.usdc_address}`
   2. **Base (Chain ID: 8453)**: USDC `{base_cfg.usdc_address}`
   3. **Arbitrum One (Chain ID: 42161)**: USDC `{arb_cfg.usdc_address}`
-- **Recipient Wallet Address**: `{multi_chain_manager.default_recipient}`
+  4. **Solana Mainnet-Beta (Chain ID: 101)**: SPL USDC `{sol_cfg.usdc_address}`
+- **Recipient Wallet Address (EVM)**: `{multi_chain_manager.default_recipient}`
+- **Recipient Wallet Address (Solana)**: `{multi_chain_manager.solana_recipient}`
 
 **Pricing Tiers (USDC per call)**:
 - `clean_web_content`: **0.001 USDC** (Markdown web extraction & noise stripping)

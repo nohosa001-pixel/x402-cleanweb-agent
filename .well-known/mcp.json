@@ -1,5 +1,4 @@
 {
-  "$schema": "https://modelcontextprotocol.io/schemas/server-card.json",
   "name": "x402-cleanweb-agent",
   "version": "2.5.5",
   "title": "Polygon x402 CleanWeb & Autonomous Web3 Agent Suite",

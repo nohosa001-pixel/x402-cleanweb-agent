@@ -22,7 +22,7 @@ load_dotenv()
 
 # Server Wallet Configuration
 SERVER_WALLET_ADDRESS = Web3.to_checksum_address(
-    os.getenv("SERVER_WALLET_ADDRESS", "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf")
+    os.getenv("SERVER_WALLET_ADDRESS", "0xA185B43fDD19619f99952AAed6eabf1029bF36a1")
 )
 ALLOW_DEV_BYPASS = os.getenv("ALLOW_DEV_BYPASS", "false").lower() in ("1", "true", "yes")
 
@@ -155,12 +155,15 @@ class X402Verifier:
             current_usage = storage_manager.get_trial_usage(trial_id)
             rem_trials = max(0, FREE_TRIAL_LIMIT - current_usage)
 
+        sol_recipient = multi_chain_manager.solana_recipient
+        sol_cfg = multi_chain_manager.get_chain_config("solana")
+
         return PaymentChallenge(
             protocol="B2A_USDC_M2M",
             instructions=(
                 f"Autonomous Agent Protocol (B2A). {rem_trials} free sandbox trial(s) available via 'X-Agent-Nonce'. "
                 "[RECOMMENDED FOR ZERO-LATENCY]: Pre-fund Agent Vault via POST /api/v1/vault/deposit for sub-millisecond, "
-                "gasless 'X-Vault-Key' access (avoids LLM tool-call timeouts). Alternatively submit on-chain USDC transfer tx hash on Polygon, Base, or Arbitrum."
+                "gasless 'X-Vault-Key' access (avoids LLM tool-call timeouts). Alternatively submit on-chain USDC transfer tx hash on Polygon, Base, Arbitrum, or Solana Mainnet."
             ),
             chain="polygon",
             chain_id=137,
@@ -172,18 +175,20 @@ class X402Verifier:
                 "VAULT_BALANCE",             # Priority 1: X-Vault-Key (sub-1ms, 0 gas)
                 "USDC_ONCHAIN_POLYGON",     # Native USDC on Polygon (137)
                 "USDC_ONCHAIN_BASE",        # Native USDC on Base (8453)
-                "USDC_ONCHAIN_ARBITRUM"     # Native USDC on Arbitrum (42161)
+                "USDC_ONCHAIN_ARBITRUM",    # Native USDC on Arbitrum (42161)
+                "USDC_ONCHAIN_SOLANA"       # Native SPL USDC on Solana Mainnet (101)
             ],
             networks=[
                 {"chain": "polygon", "chain_id": 137, "token": "USDC", "address": poly_cfg.usdc_address, "recipient": self.recipient_wallet},
                 {"chain": "base", "chain_id": 8453, "token": "USDC", "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", "recipient": self.recipient_wallet},
-                {"chain": "arbitrum", "chain_id": 42161, "token": "USDC", "address": "0xaf88d065e77c8cC2239327C5EDb3A432268e5831", "recipient": self.recipient_wallet}
+                {"chain": "arbitrum", "chain_id": 42161, "token": "USDC", "address": "0xaf88d065e77c8cC2239327C5EDb3A432268e5831", "recipient": self.recipient_wallet},
+                {"chain": "solana", "chain_id": 101, "token": "USDC", "address": sol_cfg.usdc_address, "recipient": sol_recipient}
             ],
             pass_options={
                 "agent_vault_min_deposit": "2.0 USDC",
                 "agent_vault_deposit_endpoint": "/api/v1/vault/deposit",
                 "zero_gas_micropayments": "Enabled (<1ms deduction via X-Vault-Key)",
-                "supported_chains": ["Polygon (137)", "Base (8453)", "Arbitrum (42161)"]
+                "supported_chains": ["Polygon (137)", "Base (8453)", "Arbitrum (42161)", "Solana Mainnet (SPL)"]
             },
             vault_deposit_endpoint="/api/v1/vault/deposit",
             min_deposit_usdc=2.0,
@@ -200,13 +205,15 @@ class X402Verifier:
         challenge = self.build_402_challenge(tier=tier, ip_or_nonce=identifier)
         cfg = TIER_PRICING.get(tier, TIER_PRICING[PricingTier.LIGHT])
         ch_dict = challenge.model_dump()
+        sol_recipient = multi_chain_manager.solana_recipient
+        sol_cfg = multi_chain_manager.get_chain_config("solana")
 
         headers = {
-            "WWW-Authenticate": f'x402 realm="CleanWeb Studio", amount="{cfg["cost_usdc"]:.4f}", token="USDC", address="{self.recipient_wallet}", chain="Polygon,Base,Arbitrum"',
+            "WWW-Authenticate": f'x402 realm="CleanWeb Studio", amount="{cfg["cost_usdc"]:.4f}", token="USDC", address="{self.recipient_wallet}", chain="Polygon,Base,Arbitrum,Solana"',
             "X-Payment-Amount": f"{cfg['cost_usdc']:.4f}",
             "X-Payment-Recipient": self.recipient_wallet,
             "X-Payment-Token": "USDC",
-            "X-Payment-Networks": "Polygon(137), Base(8453), Arbitrum(42161)",
+            "X-Payment-Networks": "Polygon(137), Base(8453), Arbitrum(42161), Solana(SPL)",
             "X-Vault-Deposit-Endpoint": "/api/v1/vault/deposit",
             "X-Access-Policy": "OPEN_TO_HUMANS_AND_AGENTS",
         }
@@ -218,13 +225,14 @@ class X402Verifier:
             "protocol": "B2A_USDC_M2M",
             "audience": "HUMANS_AND_AUTONOMOUS_AGENTS",
             "access_policy": "OPEN_TO_ALL (Pay-As-You-Go via Pre-funded USDC Vault)",
-            "instructions": "Pay-as-you-go micropayment protocol: Use pre-funded vault balance or deposit 2.0+ USDC on Polygon/Base/Arbitrum.",
+            "instructions": "Pay-as-you-go micropayment protocol: Use pre-funded vault balance or deposit 2.0+ USDC on Polygon/Base/Arbitrum/Solana.",
             "tier_required": tier.value,
             "message": custom_detail or f"HTTP 402 Payment Required: {cfg['description']} ({cfg['cost_usdc']} USDC)",
             "required_usdc": f"{cfg['cost_usdc']:.4f}",
             "amount_usdc": f"{cfg['cost_usdc']:.4f}",
             "recipient": self.recipient_wallet,
             "recipient_wallet": self.recipient_wallet,
+            "solana_recipient": sol_recipient,
             "payment_methods_accepted": ch_dict.get("payment_methods_accepted", []),
             "vault_deposit_endpoint": "/api/v1/vault/deposit",
             "min_deposit_usdc": 2.0,
@@ -240,7 +248,7 @@ class X402Verifier:
                 "token": "USDC",
                 "payment_methods": ch_dict.get("payment_methods_accepted", [])
             },
-            # x402 Foundation Standard Scheme with Pre-built EVM CallData for Zero-Friction Agent Execution
+            # x402 Foundation Standard Scheme with Pre-built CallData for Zero-Friction Agent Execution
             "accepts": [
                 {
                     "scheme": "exact",
@@ -295,6 +303,24 @@ class X402Verifier:
                         "gasLimit": 65000
                     },
                     "extra": {"name": "USDC", "version": "2"}
+                },
+                {
+                    "scheme": "exact",
+                    "network": "solana",
+                    "chain_id": 101,
+                    "maxAmountRequired": str(int(cfg["cost_usdc"] * 1_000_000)),
+                    "asset": sol_cfg.usdc_address,
+                    "resource": "/api/v1/clean-web",
+                    "payTo": sol_recipient,
+                    "callData": "spl_token_transfer",
+                    "transaction": {
+                        "type": "spl_transfer",
+                        "mint": sol_cfg.usdc_address,
+                        "destination": sol_recipient,
+                        "amount": int(cfg["cost_usdc"] * 1_000_000),
+                        "cluster": "mainnet-beta"
+                    },
+                    "extra": {"name": "USDC", "program": "spl-token"}
                 }
             ],
             # Mathematical Arbitrage Proof for Rational AI Agents
@@ -329,6 +355,13 @@ class X402Verifier:
                     "data": make_erc20_transfer_calldata(self.recipient_wallet, int(cfg["cost_usdc"] * 1_000_000)),
                     "value": "0x0",
                     "chain_id": 42161
+                },
+                "solana": {
+                    "type": "spl_token_transfer",
+                    "mint": sol_cfg.usdc_address,
+                    "recipient": sol_recipient,
+                    "amount_micro_usdc": int(cfg["cost_usdc"] * 1_000_000),
+                    "cluster": "mainnet-beta"
                 }
             },
             # Zero-Human Self-Onboarding Guide for Autonomous LLMs
@@ -433,11 +466,21 @@ class X402Verifier:
                     custom_detail=f"Insufficient Vault Balance. Current: {remaining_bal:.4f} USDC, Required: {cost_usdc:.4f} USDC. Please deposit via POST /api/v1/vault/deposit"
                 )
 
-        # --- Strategy 3: Multi-Chain On-Chain TX Hash ---
+        # --- Strategy 3: Multi-Chain On-Chain TX Hash (EVM or Solana) ---
         tx_hash = (
             request.headers.get("x-payment-tx")
             or request.headers.get("x-tx-hash")
-            or (bearer_token if bearer_token.startswith("0x") and len(bearer_token) == 66 else None)
+            or (
+                bearer_token
+                if (bearer_token.startswith("0x") and len(bearer_token) == 66)
+                or (
+                    len(bearer_token) >= 64
+                    and len(bearer_token) <= 120
+                    and not bearer_token.startswith("vault_key_")
+                    and not bearer_token.startswith("pass_")
+                )
+                else None
+            )
         )
         if tx_hash:
             chain_hdr = (
@@ -455,10 +498,13 @@ class X402Verifier:
                     custom_detail="Transaction hash has already been redeemed. Please submit a fresh transaction."
                 )
 
+            is_solana = str(chain_hdr).strip().lower() in ("solana", "sol", "101")
+            target_recipient = multi_chain_manager.solana_recipient if is_solana else self.recipient_wallet
+
             is_valid, reason, details = multi_chain_manager.verify_usdc_transfer(
                 tx_hash=tx_hash,
                 chain_identifier=chain_hdr,
-                expected_recipient=self.recipient_wallet,
+                expected_recipient=target_recipient,
                 min_amount_usdc=cost_usdc
             )
 

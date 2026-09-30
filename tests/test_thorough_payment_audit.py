@@ -71,7 +71,7 @@ def run_thorough_audit():
     print(f"  총 {len(recipients)}개 공인 수신 주소 등록 확인:")
     for r in recipients:
         print(f"   - {r}")
-    assert "0x255f9991233f86b29db847c8d5b8cb9915e80dcf" in recipients
+    assert "0xA185B43fDD19619f99952AAed6eabf1029bF36a1" in recipients
     assert "0x45ecbfaa2f4b0bc6ccd3eb2db9b1ca49cf121861" in recipients
     assert "0x28292d76e07e5539f15f3b97935de8e0432e76dd" in recipients
     print("\n[TEST 5] 에이전트 자산 보호: 서비스 실패 시 자동 환불(Auto-Refund / Rollback) 무결성 검증...")
@@ -116,7 +116,7 @@ def run_thorough_audit():
     }
     # Test that verify_usdc_transfer builds details correctly with matched_recipient
     # by directly inspecting the detail fields
-    matched_recipient = "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf"
+    matched_recipient = "0xA185B43fDD19619f99952AAed6eabf1029bF36a1"
     details = {
         "chain": "polygon",
         "chain_id": 137,

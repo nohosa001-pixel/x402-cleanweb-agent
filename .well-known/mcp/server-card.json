@@ -1,6 +1,5 @@
 {
-  "$schema": "https://modelcontextprotocol.io/schemas/server-card.json",
-  "name": "x402-cleanweb-oracle",
+  "name": "x402-cleanweb-agent",
   "version": "2.6.1",
   "title": "x402 CleanWeb & Autonomous Data Oracle",
   "description": "Universal remote MCP server for 87% token-compressed web cleaning, YouTube transcript analysis with Gemini 3.6 Flash, RAG embeddings, and verifiable EIP-712 Web3 Oracles on Polygon, Base, and Arbitrum. Includes free trial queries out-of-the-box.",

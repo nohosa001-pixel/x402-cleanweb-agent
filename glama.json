@@ -1,7 +1,7 @@
 {
   "$schema": "https://glama.ai/mcp/schemas/server.json",
   "name": "x402-cleanweb-oracle",
-  "description": "x402 CleanWeb & Autonomous Data Oracle: Pure B2A remote MCP server (SSE) providing 87% token-compressed web scraping, YouTube transcripts with Gemini 3.6 Flash, RAG dense vector embeddings, and on-chain verifiable EIP-712 cryptographic data oracles across Polygon, Base, and Arbitrum with gasless micropayments.",
+  "description": "x402 CleanWeb & Autonomous Data Oracle: Pure B2A remote MCP server (SSE) providing 87% token-compressed web scraping, YouTube transcripts with Gemini 3.6 Flash, RAG dense vector embeddings, and on-chain verifiable EIP-712 & Solana Ed25519 cryptographic data oracles across Solana, Polygon, Base, and Arbitrum with gasless micropayments.",
   "homepage": "https://github.com/nohosa001-pixel/x402-cleanweb-agent",
   "maintainers": [
     "nohosa001-pixel"
@@ -11,6 +11,7 @@
     "mcp",
     "web3",
     "oracle",
+    "solana",
     "polygon",
     "base",
     "arbitrum",
@@ -27,7 +28,7 @@
   "tools": [
     {
       "name": "get_payment_info",
-      "description": "Returns complete Web3 x402 micropayment configuration, supported multi-chain USDC contract addresses, EVM network chain IDs (Polygon: 137, Base: 8453, Arbitrum: 42161), recipient wallet address, and pricing tiers for all CleanWeb Studio agent tools. Usage Guidelines: Use this tool to discover network parameters and deposit requirements before making x402 paid queries. Do NOT use for checking individual wallet balances (use get_vault_balance)."
+      "description": "Returns complete Web3 x402 micropayment configuration, supported multi-chain USDC contract addresses, network chain IDs (Solana: 101, Polygon: 137, Base: 8453, Arbitrum: 42161), recipient wallet address, and pricing tiers for all CleanWeb Studio agent tools. Usage Guidelines: Use this tool to discover network parameters and deposit requirements before making x402 paid queries. Do NOT use for checking individual wallet balances (use get_vault_balance)."
     },
     {
       "name": "clean_web_content",

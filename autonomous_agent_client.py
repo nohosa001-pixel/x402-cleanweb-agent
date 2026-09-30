@@ -64,6 +64,16 @@ SUPPORTED_CHAINS: Dict[str, Dict[str, Any]] = {
             "https://arbitrum.llamarpc.com",
             "https://1rpc.io/arb"
         ]
+    },
+    "solana": {
+        "chain_id": 101,
+        "usdc": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+        "rpcs": [
+            "https://api.mainnet-beta.solana.com",
+            "https://solana-rpc.publicnode.com",
+            "https://rpc.ankr.com/solana",
+            "https://solana.drpc.org"
+        ]
     }
 }
 
@@ -72,7 +82,7 @@ DEFAULT_RPC_URLS = SUPPORTED_CHAINS["polygon"]["rpcs"]
 
 class AutonomousX402Agent:
     """
-    Autonomous Web3 AI Agent Client for x402 Protocol on Multi-Chain (Polygon, Base, Arbitrum).
+    Autonomous Web3 AI Agent Client for x402 Protocol on Multi-Chain (Polygon, Base, Arbitrum, Solana).
     
     Usage:
         agent = AutonomousX402Agent(private_key="0x...", default_chain="polygon", auto_refill=True)
@@ -303,7 +313,7 @@ class AutonomousX402Agent:
             "chain": target_chain,
             "chain_id": chain_info["chain_id"],
             "token_contract": chain_info["usdc"],
-            "recipient": "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf",
+            "recipient": "0xA185B43fDD19619f99952AAed6eabf1029bF36a1",
             "amount_raw": str(raw_amount)
         }
         print(f"[x402 Agent] Depositing {amount_usdc} USDC into Agent Vault on {target_chain}...")
@@ -483,7 +493,7 @@ class AutonomousX402Agent:
 
             encoded = encode_typed_data(full_message=structured_data)
             recovered = self.w3.eth.account.recover_message(encoded, signature=signature)
-            target_expected = expected_signer or "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf"
+            target_expected = expected_signer or "0xA185B43fDD19619f99952AAed6eabf1029bF36a1"
 
             is_valid = recovered.lower() == target_expected.lower()
             return {
@@ -558,7 +568,7 @@ class AutonomousX402Agent:
         chain_info = SUPPORTED_CHAINS.get(target_chain, SUPPORTED_CHAINS["polygon"])
         chain_id = chain_info["chain_id"]
         token_contract = chain_info["usdc"]
-        recipient = "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf"
+        recipient = "0xA185B43fDD19619f99952AAed6eabf1029bF36a1"
 
         deadline = int(time.time()) + deadline_sec
         raw_value = int(round(amount_usdc * 1_000_000))

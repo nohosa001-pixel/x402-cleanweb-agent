@@ -51,7 +51,7 @@ def install_config(config_path: str, client_name: str, server_script_path: str) 
             "env": {
                 "PYTHONUNBUFFERED": "1",
                 "POLYGON_RPC_URL": "https://polygon-bor-rpc.publicnode.com",
-                "SERVER_WALLET_ADDRESS": "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf",
+                "SERVER_WALLET_ADDRESS": "0xA185B43fDD19619f99952AAed6eabf1029bF36a1",
                 "USDC_CONTRACT_ADDRESS": "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359"
             }
         }

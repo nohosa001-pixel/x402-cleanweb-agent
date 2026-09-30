@@ -23,7 +23,7 @@ if hasattr(sys.stdout, "reconfigure"):
 load_dotenv(override=True)
 
 GCP_URL = os.getenv("GCP_GATEWAY_URL", "https://x402-cleanweb-agent-212942243360.asia-northeast3.run.app")
-RECIPIENT_WALLET = os.getenv("SERVER_WALLET_ADDRESS", "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf")
+RECIPIENT_WALLET = os.getenv("SERVER_WALLET_ADDRESS", "0xA185B43fDD19619f99952AAed6eabf1029bF36a1")
 USDC_CONTRACT = os.getenv("USDC_CONTRACT_ADDRESS", "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359")
 POLYGON_RPC = os.getenv("POLYGON_RPC_URL", "https://polygon-bor-rpc.publicnode.com")
 
@@ -113,7 +113,7 @@ def render_dashboard(iteration: int = 1):
     print(f" ⏱️  Check Timestamp : {current_time} (Cycle #{iteration})")
     print(f" 🌐 Cloud Run Gateway: {GCP_URL}")
     print(f" 💼 Server Wallet    : {RECIPIENT_WALLET}")
-    print(f" ⛓️  Multi-Chains     : Polygon (137) | Base (8453) | Arbitrum (42161)")
+    print(f" ⛓️  Multi-Chains     : Polygon (137) | Base (8453) | Arbitrum (42161) | Solana (101)")
     print(f"{CYAN}{'-' * 74}{RESET}")
 
     # 1. Cloud Run Gateway Status

@@ -143,7 +143,7 @@ class DiagnosticEngine:
             }
 
     def check_blockchain_rpcs(self) -> Dict[str, Any]:
-        """Pings Polygon, Base, and Arbitrum RPC nodes."""
+        """Pings Polygon, Base, Arbitrum, and Solana RPC nodes."""
         t0 = time.time()
         try:
             statuses = multi_chain_manager.ping_all_chains()
@@ -151,16 +151,16 @@ class DiagnosticEngine:
             
             all_healthy = all(s.get("status") == "healthy" for s in statuses.values())
             return {
-                "name": "3-Chain RPC Nodes (Polygon, Base, Arbitrum)",
+                "name": "4-Chain RPC Nodes (Polygon, Base, Arbitrum, Solana)",
                 "status": "HEALTHY" if all_healthy else "DEGRADED",
                 "latency_ms": elapsed_ms,
                 "chains": statuses,
-                "details": f"All 3 EVM chains connected in {elapsed_ms}ms" if all_healthy else "One or more RPC nodes lagging"
+                "details": f"All 4 chains (EVM + Solana) connected in {elapsed_ms}ms" if all_healthy else "One or more RPC nodes lagging"
             }
         except Exception as e:
             elapsed_ms = round((time.time() - t0) * 1000, 2)
             return {
-                "name": "3-Chain RPC Nodes (Polygon, Base, Arbitrum)",
+                "name": "4-Chain RPC Nodes (Polygon, Base, Arbitrum, Solana)",
                 "status": "CRITICAL",
                 "latency_ms": elapsed_ms,
                 "error": str(e),

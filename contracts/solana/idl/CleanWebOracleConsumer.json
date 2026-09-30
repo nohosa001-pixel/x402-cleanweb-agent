@@ -1,0 +1,119 @@
+{
+  "version": "0.1.0",
+  "name": "cleanweb_oracle_consumer",
+  "metadata": {
+    "address": "21ZR1QCyAbNrRLs1iWEkdbNsfCFdJcy6ip9R2JxDbkTL",
+    "origin": "anchor",
+    "description": "CleanWeb Oracle Consumer: Consumer mixin for verifying AI web groundings & RAG proofs on Solana"
+  },
+  "instructions": [
+    {
+      "name": "consumeGroundingProof",
+      "docs": [
+        "Consume and verify on-chain oracle data grounding proof"
+      ],
+      "accounts": [
+        {
+          "name": "consumerRecord",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "consumer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "verifierProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "dataHash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "timestamp",
+          "type": "i64"
+        },
+        {
+          "name": "signature",
+          "type": {
+            "array": [
+              "u8",
+              64
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "ConsumerProofRecord",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "consumer",
+            "type": "publicKey"
+          },
+          {
+            "name": "dataHash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          },
+          {
+            "name": "verified",
+            "type": "bool"
+          }
+        ]
+      }
+    }
+  ],
+  "types": [],
+  "events": [
+    {
+      "name": "ActionRecorded",
+      "fields": [
+        {
+          "name": "caller",
+          "type": "publicKey",
+          "index": true
+        },
+        {
+          "name": "timestamp",
+          "type": "i64",
+          "index": false
+        }
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "InvalidSignature",
+      "msg": "Cryptographic signature verification failed"
+    },
+    {
+      "code": 6001,
+      "name": "UnauthorizedCaller",
+      "msg": "Caller lacks required authority"
+    }
+  ]
+}

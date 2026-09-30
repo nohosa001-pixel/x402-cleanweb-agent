@@ -16,7 +16,7 @@ from collections import defaultdict, deque
 import requests
 
 from fastapi import FastAPI, Request, HTTPException, status, Query, Body, Response
-from fastapi.responses import JSONResponse, FileResponse, PlainTextResponse, HTMLResponse, StreamingResponse
+from fastapi.responses import JSONResponse, FileResponse, PlainTextResponse, HTMLResponse, StreamingResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from app.schemas import (
@@ -80,7 +80,7 @@ load_dotenv()
 
 app = FastAPI(
     title="CleanWeb Studio (x402 AI Agent Suite)",
-    description="Deterministic Web3 x402 Micropayment MCP & AI Agent Tool Suite with Gemini 3.6 Flash Video Intelligence on Polygon, Base, and Arbitrum.",
+    description="Deterministic Web3 x402 Micropayment MCP & AI Agent Tool Suite with Gemini 3.6 Flash Video Intelligence on Polygon, Base, Arbitrum, and Solana.",
     version="2.6.1",
     docs_url="/docs",
     redoc_url="/redoc",
@@ -429,14 +429,15 @@ def get_agent_capabilities():
         "version": "2.6.1",
         "settlement": "x402_usdc_micropayments",
         "supported_chains": [
-            {"name": "Polygon PoS", "chain_id": 137, "vault": "0x18fA5a746535d88f61feA10996895c378F705c93"},
-            {"name": "Base Mainnet", "chain_id": 8453, "vault": "0x3eD21B72583569769B73a3885d562145b23d57E3"},
-            {"name": "Arbitrum One", "chain_id": 42161, "vault": "0x3eD21B72583569769B73a3885d562145b23d57E3"}
+            {"name": "Solana Mainnet-Beta", "chain_id": 101, "vault": "7oZ16YaazQzN6z5uA1nAZWD9oGUDXyvHwXGJLFYyWi3y", "recipient": "411ksMz9RHYVtVMe6RUUErzZYtrU9zzvkgzswKbqx9qp"},
+            {"name": "Polygon PoS", "chain_id": 137, "vault": "0x45ecBfAa2F4B0Bc6ccD3eB2dB9B1Ca49CF121861", "recipient": "0xA185B43fDD19619f99952AAed6eabf1029bF36a1"},
+            {"name": "Base Mainnet", "chain_id": 8453, "vault": "0x28292D76E07E5539F15F3b97935dE8E0432E76DD", "recipient": "0xA185B43fDD19619f99952AAed6eabf1029bF36a1"},
+            {"name": "Arbitrum One", "chain_id": 42161, "vault": "0x28292D76E07E5539F15F3b97935dE8E0432E76DD", "recipient": "0xA185B43fDD19619f99952AAed6eabf1029bF36a1"}
         ],
         "trial_policy": {
-            "free_calls_per_nonce": 0,
-            "policy": "MANDATORY_PAID_EXECUTION",
-            "free_trials": False,
+            "free_calls_per_nonce": 5,
+            "policy": "INSTANT_SANDBOX_DISCOVERY_PER_NONCE",
+            "free_trials": True,
             "min_vault_deposit_usdc": 2.0
         },
         "performance_sla": {
@@ -472,7 +473,8 @@ def get_pricing_catalog():
     return {
         "currency": "USDC",
         "settlement_type": "micro_prepaid_and_direct_402",
-        "supported_chains": [137, 8453, 42161],
+        "supported_chains": [101, 137, 8453, 42161],
+        "chain_names": ["Solana Mainnet-Beta", "Polygon PoS", "Base Mainnet", "Arbitrum One"],
         "rates": {
             "web_clean_markdown": {"cost_usdc": 0.001, "unit": "per_request"},
             "pdf_paper_clean": {"cost_usdc": 0.005, "unit": "per_request"},
@@ -1455,7 +1457,7 @@ async def get_treasury_status(wallet_address: Optional[str] = None):
     Returns real-time on-chain Native USDC balances across Polygon, Base, and Arbitrum,
     plus aggregated database metrics and earnings estimates.
     """
-    target_wallet = wallet_address or os.getenv("SERVER_WALLET_ADDRESS", "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf")
+    target_wallet = wallet_address or os.getenv("SERVER_WALLET_ADDRESS", "0xA185B43fDD19619f99952AAed6eabf1029bF36a1")
     onchain_data = multi_chain_manager.get_multi_chain_treasury_summary(target_wallet)
     db_stats = storage_manager.get_stats()
     
@@ -1475,7 +1477,7 @@ async def get_treasury_status(wallet_address: Optional[str] = None):
             "active_vault_accounts": vault_users,
             "active_passes_issued": active_passes
         },
-        "supported_networks": ["Polygon (137)", "Base (8453)", "Arbitrum One (42161)"],
+        "supported_networks": ["Polygon (137)", "Base (8453)", "Arbitrum One (42161)", "Solana Mainnet-Beta (101)"],
         "timestamp_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     }
 
@@ -1563,9 +1565,183 @@ async def get_mcp_sse_info():
         "transport": "Server-Sent Events (SSE)",
         "sse_endpoint": "/mcp-server/sse",
         "messages_endpoint": "/mcp-server/messages",
+        "http_jsonrpc_endpoint": "/api/v1/mcp",
         "version": "2.6.1",
-        "description": "Standardized remote SSE transport for Claude Desktop, Cursor, and Autonomous Agent fleets."
+        "description": "Standardized remote SSE and HTTP JSON-RPC transport for Claude Desktop, Cursor, and Autonomous Agent fleets."
     }
+
+
+@app.get("/mcp", tags=["Standards", "Autonomous Agents"])
+@app.get("/api/v1/mcp", tags=["Standards", "Autonomous Agents"])
+async def get_mcp_discovery_info():
+    """
+    Unified HTTP Discovery endpoint for MCP agents and registries.
+    Returns available tools, transports (SSE / HTTP JSON-RPC), and x402 payment specifications.
+    """
+    tools_list = await mcp_server.mcp.list_tools()
+    tools_summary = [
+        {"name": t.name, "description": (t.description or "").split("\n")[0]}
+        for t in tools_list
+    ]
+    return {
+        "status": "active",
+        "server": "x402-cleanweb-agent",
+        "version": "2.6.1",
+        "protocol": "mcp-2024-11-05",
+        "transports": {
+            "http_jsonrpc": "/api/v1/mcp",
+            "sse_stream": "/mcp-server/sse",
+            "sse_messages": "/mcp-server/messages",
+            "sse_info": "/api/v1/mcp/sse-info",
+            "stdio": "uvx x402-cleanweb-agent"
+        },
+        "tools_count": len(tools_summary),
+        "tools": tools_summary,
+        "instructions": (
+            "To use tools via HTTP, send JSON-RPC 2.0 POST requests to /api/v1/mcp with methods "
+            "'initialize', 'tools/list', or 'tools/call'. Free sandbox trials supported via 'X-Agent-Nonce'."
+        )
+    }
+
+
+@app.post("/mcp", tags=["Standards", "Autonomous Agents"])
+@app.post("/api/v1/mcp", tags=["Standards", "Autonomous Agents"])
+async def handle_mcp_http_jsonrpc(request: Request):
+    """
+    High-performance HTTP JSON-RPC 2.0 Endpoint for Model Context Protocol (MCP).
+    Handles standard agent methods:
+      - 'initialize': Handshake & protocol version negotiation
+      - 'notifications/initialized': Post-handshake acknowledgment
+      - 'ping': Heartbeat
+      - 'tools/list': Returns catalog of 14 deterministic agent tools with schemas
+      - 'tools/call': Executes clean-web, clean-youtube, oracle, etc. directly
+    """
+    try:
+        payload = await request.json()
+    except Exception:
+        return JSONResponse(
+            status_code=400,
+            content={
+                "jsonrpc": "2.0",
+                "id": None,
+                "error": {"code": -32700, "message": "Parse error: Invalid JSON body"}
+            }
+        )
+
+    req_id = payload.get("id")
+    method = payload.get("method")
+    params = payload.get("params") or {}
+
+    # 1. Initialize Handshake
+    if method == "initialize":
+        return JSONResponse({
+            "jsonrpc": "2.0",
+            "id": req_id,
+            "result": {
+                "protocolVersion": "2024-11-05",
+                "capabilities": {
+                    "tools": {"listChanged": True},
+                    "prompts": {},
+                    "resources": {}
+                },
+                "serverInfo": {
+                    "name": "x402-cleanweb-agent",
+                    "version": "2.6.1"
+                },
+                "instructions": (
+                    "x402 CleanWeb & Autonomous Web3 Agent Suite. "
+                    "Features Gemini 3.6 Flash Video Summarization, Web noise-stripping, and EIP-712 Oracles on Polygon/Base/Arbitrum. "
+                    "Free sandbox tier available via 'X-Agent-Nonce' header."
+                )
+            }
+        })
+
+    # 2. Initialized Notification / Ping
+    if method in ("notifications/initialized", "initialized", "ping"):
+        return JSONResponse({"jsonrpc": "2.0", "id": req_id, "result": {}})
+
+    # 3. Tools Catalog (tools/list)
+    if method == "tools/list":
+        try:
+            tools_list = await mcp_server.mcp.list_tools()
+            formatted_tools = []
+            for t in tools_list:
+                d = t.model_dump()
+                formatted_tools.append({
+                    "name": d.get("name"),
+                    "description": d.get("description") or "",
+                    "inputSchema": d.get("input_schema") or {"type": "object", "properties": {}}
+                })
+            return JSONResponse({
+                "jsonrpc": "2.0",
+                "id": req_id,
+                "result": {"tools": formatted_tools}
+            })
+        except Exception as exc:
+            return JSONResponse({
+                "jsonrpc": "2.0",
+                "id": req_id,
+                "error": {"code": -32603, "message": f"Internal error listing tools: {str(exc)}"}
+            })
+
+    # 4. Tool Execution (tools/call)
+    if method == "tools/call":
+        tool_name = params.get("name")
+        arguments = params.get("arguments") or {}
+
+        if not tool_name:
+            return JSONResponse({
+                "jsonrpc": "2.0",
+                "id": req_id,
+                "error": {"code": -32602, "message": "Missing required 'name' parameter for tools/call"}
+            })
+
+        try:
+            call_res = await mcp_server.mcp.call_tool(tool_name, arguments)
+            contents = []
+            if hasattr(call_res, "content") and call_res.content:
+                for item in call_res.content:
+                    if hasattr(item, "text"):
+                        contents.append({"type": "text", "text": item.text})
+                    else:
+                        contents.append({"type": "text", "text": str(item)})
+            else:
+                contents.append({"type": "text", "text": str(call_res)})
+
+            return JSONResponse({
+                "jsonrpc": "2.0",
+                "id": req_id,
+                "result": {
+                    "content": contents,
+                    "isError": False
+                }
+            })
+        except Exception as exc:
+            return JSONResponse({
+                "jsonrpc": "2.0",
+                "id": req_id,
+                "result": {
+                    "content": [{"type": "text", "text": f"Error executing tool '{tool_name}': {str(exc)}"}],
+                    "isError": True
+                }
+            })
+
+    # 5. Fallback for Unknown Method
+    return JSONResponse(
+        status_code=400,
+        content={
+            "jsonrpc": "2.0",
+            "id": req_id,
+            "error": {"code": -32601, "message": f"Method '{method}' is not supported on this MCP server"}
+        }
+    )
+
+
+@app.get("/mcp/sse", tags=["Standards", "Autonomous Agents"])
+@app.get("/api/v1/mcp/sse", tags=["Standards", "Autonomous Agents"])
+async def redirect_mcp_sse():
+    """Convenience alias for MCP SSE stream."""
+    return RedirectResponse(url="/mcp-server/sse", status_code=307)
 
 
 # =========================================================================

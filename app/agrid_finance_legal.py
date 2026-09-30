@@ -49,7 +49,7 @@ class CleanWebIntegrationController:
     def __init__(self, treasury_address: Optional[str] = None):
         self.treasury_address = treasury_address or os.getenv(
             "SERVER_WALLET_ADDRESS",
-            "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf"
+            "0xA185B43fDD19619f99952AAed6eabf1029bF36a1"
         )
         self.default_price_usdc = 0.005  # Base CleanWeb query price
         self.cost_cloud_run_usd = 0.0001

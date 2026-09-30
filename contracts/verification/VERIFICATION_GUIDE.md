@@ -25,7 +25,7 @@ This guide provides everything required to verify and publicly display **`AgentP
 * **Source File**: [`contracts/verification/AgentPaymentVault.flattened.sol`](AgentPaymentVault.flattened.sol)
 * **Constructor Arguments**:
   * `_usdcToken` (Polygon Native USDC): `0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359`
-  * `_treasuryWallet` (Server Treasury): `0x255F9991233f86B29dB847c8d5b8CB9915e80dCf`
+  * `_treasuryWallet` (Server Treasury): `0xA185B43fDD19619f99952AAed6eabf1029bF36a1`
 * **ABI-Encoded Constructor Arguments (HEX)**:
 ```text
 0000000000000000000000003c499c542cef5e3811e1192ce70d8cc03d5c3359000000000000000000000000255f9991233f86b29db847c8d5b8cb9915e80dcf
@@ -40,7 +40,7 @@ This guide provides everything required to verify and publicly display **`AgentP
 * **Direct Verification URL**: [https://polygonscan.com/verifyContract?a=0xAECbfBc171F522c35985AABa2FA1F9881A046D66](https://polygonscan.com/verifyContract?a=0xAECbfBc171F522c35985AABa2FA1F9881A046D66)
 * **Source File**: [`contracts/verification/CleanWebOracleConsumer.flattened.sol`](CleanWebOracleConsumer.flattened.sol)
 * **Constructor Arguments**:
-  * `_oracleSigner` (Server Treasury/Signer): `0x255F9991233f86B29dB847c8d5b8CB9915e80dCf`
+  * `_oracleSigner` (Server Treasury/Signer): `0xA185B43fDD19619f99952AAed6eabf1029bF36a1`
 * **ABI-Encoded Constructor Arguments (HEX)**:
 ```text
 000000000000000000000000255f9991233f86b29db847c8d5b8cb9915e80dcf
@@ -55,7 +55,7 @@ This guide provides everything required to verify and publicly display **`AgentP
 * **Direct Verification URL**: [https://polygonscan.com/verifyContract?a=0x18fA451b1d9A9FbbDa6Ebd86F8b42891866ADc46](https://polygonscan.com/verifyContract?a=0x18fA451b1d9A9FbbDa6Ebd86F8b42891866ADc46)
 * **Source File**: [`contracts/verification/CleanWebOracleVerifier.flattened.sol`](CleanWebOracleVerifier.flattened.sol)
 * **Constructor Arguments**:
-  * `_oracleSigner` (Server Treasury/Signer): `0x255F9991233f86B29dB847c8d5b8CB9915e80dCf`
+  * `_oracleSigner` (Server Treasury/Signer): `0xA185B43fDD19619f99952AAed6eabf1029bF36a1`
 * **ABI-Encoded Constructor Arguments (HEX)**:
 ```text
 000000000000000000000000255f9991233f86b29db847c8d5b8cb9915e80dcf

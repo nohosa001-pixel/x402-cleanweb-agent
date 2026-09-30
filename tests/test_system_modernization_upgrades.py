@@ -158,7 +158,7 @@ def test_permit_vault_deposit_and_replay_protection(client):
     Agent signs EIP-2612 typed message -> POST /api/v1/vault/permit-deposit -> vault credited -> replay blocked.
     """
     agent = Account.create()
-    spender = "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf"
+    spender = "0xA185B43fDD19619f99952AAed6eabf1029bF36a1"
     token_contract = "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359"  # Polygon USDC
     amount_usdc = 5.0
     value_raw = int(round(amount_usdc * 1_000_000))

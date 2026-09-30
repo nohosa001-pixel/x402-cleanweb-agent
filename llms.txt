@@ -45,7 +45,7 @@ curl -X POST "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/api/v1/clean-w
 
 ### Mode 2: Pay-Per-Query On-Chain (HTTP 402 Self-Healing)
 - Request any endpoint without payment to receive a machine-readable `402 Payment Required` response.
-- Execute an ERC20 Transfer of USDC to `0x255F9991233f86B29dB847c8d5b8CB9915e80dCf` on Polygon Mainnet (Chain ID 137).
+- Execute an ERC20 Transfer of USDC to `0xA185B43fDD19619f99952AAed6eabf1029bF36a1` on Polygon Mainnet (Chain ID 137).
 - Retry with header `X-Payment-Tx: 0x<POLYGON_TX_HASH>`.
 
 ---

@@ -69,7 +69,7 @@ REQUIRED_RAW_AMOUNT = int(REQUIRED_AMOUNT_USDC * (10 ** USDC_DECIMALS)) # 10,000
 # Server Recipient Wallet
 RECIPIENT_WALLET = safe_checksum_address(
     os.getenv("SERVER_WALLET_ADDRESS"),
-    "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf"
+    "0xA185B43fDD19619f99952AAed6eabf1029bF36a1"
 )
 
 def get_web3_instance():

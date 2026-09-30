@@ -27,7 +27,7 @@ def test_treasury_status_endpoint():
     assert "total_usdc_onchain" in data
     assert "onchain_balances" in data
     assert "db_stats" in data
-    assert len(data["supported_networks"]) == 3
+    assert len(data["supported_networks"]) == 4
 
 
 def test_multi_chain_balances_structure():
@@ -38,3 +38,4 @@ def test_multi_chain_balances_structure():
     assert "polygon" in summary["networks"]
     assert "base" in summary["networks"]
     assert "arbitrum" in summary["networks"]
+    assert "solana" in summary["networks"]

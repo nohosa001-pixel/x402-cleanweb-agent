@@ -73,7 +73,7 @@ gcloud run deploy x402-cleanweb-agent \
     --cpu 1 \
     --min-instances 0 \
     --max-instances 10 \
-    --set-env-vars SERVER_WALLET_ADDRESS=0x255F9991233f86B29dB847c8d5b8CB9915e80dCf,PAYMENT_AMOUNT_USDC=0.01,POLYGON_RPC_URL=https://polygon-bor-rpc.publicnode.com
+    --set-env-vars SERVER_WALLET_ADDRESS=0xA185B43fDD19619f99952AAed6eabf1029bF36a1,PAYMENT_AMOUNT_USDC=0.01,POLYGON_RPC_URL=https://polygon-bor-rpc.publicnode.com
 ```
 
 ---
@@ -84,7 +84,7 @@ gcloud run deploy x402-cleanweb-agent \
 
 | 환경 변수명 | 기본값 / 권장값 | 설명 |
 | --- | --- | --- |
-| `SERVER_WALLET_ADDRESS` | `0x255F9991233f86B29dB847c8d5b8CB9915e80dCf` | 결제(USDC)를 수신할 폴리곤 지갑 주소 |
+| `SERVER_WALLET_ADDRESS` | `0xA185B43fDD19619f99952AAed6eabf1029bF36a1` | 결제(USDC)를 수신할 폴리곤 지갑 주소 |
 | `PAYMENT_AMOUNT_USDC` | `0.01` | 기본 웹 클린 결제 요구 금액 (USDC) |
 | `POLYGON_RPC_URL` | `https://polygon-bor-rpc.publicnode.com` | 폴리곤 메인넷 RPC 노드 주소 |
 | `USDC_CONTRACT_ADDRESS` | `0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359` | 폴리곤 네이티브 USDC 토큰 컨트랙트 |
@@ -182,5 +182,5 @@ gcloud run services update x402-cleanweb-agent --region asia-northeast3 --min-in
 
 서버로 수신되는 모든 마이크로 결제(USDC)는 폴리곤 익스플로러에서 실시간으로 확인할 수 있습니다:
 
-- **수신 지갑 Polygonscan**: [0x255F9991233f86B29dB847c8d5b8CB9915e80dCf](https://polygonscan.com/address/0x255F9991233f86B29dB847c8d5b8CB9915e80dCf)
-- **USDC Token Tracker**: [0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359](https://polygonscan.com/token/0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359?a=0x255F9991233f86B29dB847c8d5b8CB9915e80dCf)
+- **수신 지갑 Polygonscan**: [0xA185B43fDD19619f99952AAed6eabf1029bF36a1](https://polygonscan.com/address/0xA185B43fDD19619f99952AAed6eabf1029bF36a1)
+- **USDC Token Tracker**: [0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359](https://polygonscan.com/token/0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359?a=0xA185B43fDD19619f99952AAed6eabf1029bF36a1)

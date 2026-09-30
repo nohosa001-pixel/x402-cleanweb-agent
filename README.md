@@ -7,7 +7,7 @@
 [![PyPI](https://img.shields.io/pypi/v/x402-cleanweb-agent?style=for-the-badge&logo=pypi&logoColor=white&color=blue)](https://pypi.org/project/x402-cleanweb-agent/)
 [![Tests](https://img.shields.io/badge/Tests-50%2F50%20Passed%20(100%25)-success?style=for-the-badge&logo=pytest&logoColor=white)](https://github.com/nohosa001-pixel/x402-cleanweb-agent)
 [![MCP](https://img.shields.io/badge/MCP-14%20Tools%20Ready-blueviolet?style=for-the-badge&logo=anthropic&logoColor=white)](https://glama.ai/mcp/servers)
-[![Multi-Chain](https://img.shields.io/badge/Chains-Polygon%20%7C%20Base%20%7C%20Arbitrum-8247e5?style=for-the-badge&logo=ethereum&logoColor=white)](https://polygonscan.com/address/0x45ecBfAa2F4B0Bc6ccD3eB2dB9B1Ca49CF121861#code)
+[![Multi-Chain](https://img.shields.io/badge/Chains-Polygon%20%7C%20Base%20%7C%20Arbitrum%20%7C%20Solana-8247e5?style=for-the-badge&logo=ethereum&logoColor=white)](https://solscan.io/account/411ksMz9RHYVtVMe6RUUErzZYtrU9zzvkgzswKbqx9qp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
 ---
@@ -155,7 +155,7 @@ Or configure via local clone:
       "args": ["-u", "mcp_server.py"],
       "env": {
         "POLYGON_RPC_URL": "https://polygon-bor-rpc.publicnode.com",
-        "SERVER_WALLET_ADDRESS": "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf",
+        "SERVER_WALLET_ADDRESS": "0xA185B43fDD19619f99952AAed6eabf1029bF36a1",
         "USDC_CONTRACT_ADDRESS": "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359"
       }
     }
@@ -221,15 +221,17 @@ def clean_web_tool(url: str) -> str:
 
 ---
 
-## 🏛️ Verified On-Chain Smart Contracts (Polygon, Base, Arbitrum)
+## 🏛️ Verified On-Chain Smart Contracts & Accounts (Polygon, Base, Arbitrum, Solana)
 
-CleanWeb operates verified, deterministic smart contracts for on-chain EIP-712 oracle verification and autonomous agent pre-funded vault management.
+CleanWeb operates verified, deterministic smart contracts and native settlement accounts for on-chain EIP-712 oracle verification, autonomous agent pre-funded vault management, and Solana SPL USDC micropayments.
 
-| Contract Name | Polygon Mainnet (137) ✔ | Base Mainnet (8453) ✔ | Arbitrum One (42161) ✔ |
-| :--- | :--- | :--- | :--- |
-| **`AgentPaymentVault`** | [`0x45ecBf...1861`](https://polygonscan.com/address/0x45ecBfAa2F4B0Bc6ccD3eB2dB9B1Ca49CF121861#code) | [`0x28292D...76DD`](https://basescan.org/address/0x28292D76E07E5539F15F3b97935dE8E0432E76DD#code) | [`0x28292D...76DD`](https://arbiscan.io/address/0x28292D76E07E5539F15F3b97935dE8E0432E76DD#code) |
-| **`CleanWebOracleConsumer`** | [`0xAECbfB...6D66`](https://polygonscan.com/address/0xAECbfBc171F522c35985AABa2FA1F9881A046D66) | [`0x2394d8...dabe`](https://basescan.org/address/0x2394d888Bd4FFeD472318B891FA17f7F9119dabe#code) | [`0x2394d8...dabe`](https://arbiscan.io/address/0x2394d888Bd4FFeD472318B891FA17f7F9119dabe#code) |
-| **`CleanWebOracleVerifier`** | [`0x18fA45...Dc46`](https://polygonscan.com/address/0x18fA451b1d9A9FbbDa6Ebd86F8b42891866ADc46) | [`0x3eD259...0740`](https://basescan.org/address/0x3eD259e47ebA439A9A35489787482B0003310740#code) | [`0x3eD259...0740`](https://arbiscan.io/address/0x3eD259e47ebA439A9A35489787482B0003310740#code) |
+| Contract / Account | Polygon Mainnet (137) ✔ | Base Mainnet (8453) ✔ | Arbitrum One (42161) ✔ | Solana Mainnet-Beta (101) ✔ |
+| :--- | :--- | :--- | :--- | :--- |
+| **`AgentPaymentVault`** | [`0x45ecBf...1861`](https://polygonscan.com/address/0x45ecBfAa2F4B0Bc6ccD3eB2dB9B1Ca49CF121861#code) | [`0x28292D...76DD`](https://basescan.org/address/0x28292D76E07E5539F15F3b97935dE8E0432E76DD#code) | [`0x28292D...76DD`](https://arbiscan.io/address/0x28292D76E07E5539F15F3b97935dE8E0432E76DD#code) | [`7oZ16Y...Wi3y (Solscan)`](https://solscan.io/account/7oZ16YaazQzN6z5uA1nAZWD9oGUDXyvHwXGJLFYyWi3y) |
+| **`CleanWebOracleConsumer`** | [`0xAECbfB...6D66`](https://polygonscan.com/address/0xAECbfBc171F522c35985AABa2FA1F9881A046D66) | [`0x2394d8...dabe`](https://basescan.org/address/0x2394d888Bd4FFeD472318B891FA17f7F9119dabe#code) | [`0x2394d8...dabe`](https://arbiscan.io/address/0x2394d888Bd4FFeD472318B891FA17f7F9119dabe#code) | [`21ZR1Q...bkTL (Solscan)`](https://solscan.io/account/21ZR1QCyAbNrRLs1iWEkdbNsfCFdJcy6ip9R2JxDbkTL) |
+| **`CleanWebOracleVerifier`** | [`0x18fA45...Dc46`](https://polygonscan.com/address/0x18fA451b1d9A9FbbDa6Ebd86F8b42891866ADc46) | [`0x3eD259...0740`](https://basescan.org/address/0x3eD259e47ebA439A9A35489787482B0003310740#code) | [`0x3eD259...0740`](https://arbiscan.io/address/0x3eD259e47ebA439A9A35489787482B0003310740#code) | [`9nVrym...iopC (Solscan)`](https://solscan.io/account/9nVrymJgNWCXkuGKn8CCQnSK6aDazFR7z3WL82jZiopC) |
+| **`Treasury Recipient Wallet`** | [`0xA185B4...36a1`](https://polygonscan.com/address/0xA185B43fDD19619f99952AAed6eabf1029bF36a1) | [`0xA185B4...36a1`](https://basescan.org/address/0xA185B43fDD19619f99952AAed6eabf1029bF36a1) | [`0xA185B4...36a1`](https://arbiscan.io/address/0xA185B43fDD19619f99952AAed6eabf1029bF36a1) | [`411ksM...9qp (Solscan)`](https://solscan.io/account/411ksMz9RHYVtVMe6RUUErzZYtrU9zzvkgzswKbqx9qp) |
+| **`Native USDC Token Tracker`** | [`0x3c499c...3359`](https://polygonscan.com/token/0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359) | [`0x833589...2913`](https://basescan.org/token/0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913) | [`0xaf88d0...5831`](https://arbiscan.io/token/0xaf88d065e77c8cC2239327C5EDb3A432268e5831) | [`EPjFWd...YTDt1v (Solscan)`](https://solscan.io/token/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v) |
 
 ---
 

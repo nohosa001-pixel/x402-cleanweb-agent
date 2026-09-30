@@ -2,13 +2,18 @@
 x402 AI Autonomous Agent Suite - Real-Time On-Chain Revenue Watchdog
 --------------------------------------------------------------------------------
 Monitors actual USDC incoming transfers across Polygon, Base, and Arbitrum
-to Server Treasury (0x255F9991233f86B29dB847c8d5b8CB9915e80dCf).
+to Server Treasury (0xA185B43fDD19619f99952AAed6eabf1029bF36a1).
 Tracks live paid queries, agent vault deposits, and calculates net revenue.
 """
 
 import os
 import sys
 import time
+
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
+
 import requests
 from web3 import Web3
 from dotenv import load_dotenv
@@ -18,7 +23,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 load_dotenv()
 
-TREASURY_WALLET = os.getenv("SERVER_WALLET_ADDRESS", "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf")
+TREASURY_WALLET = os.getenv("SERVER_WALLET_ADDRESS", "0xA185B43fDD19619f99952AAed6eabf1029bF36a1")
 
 NETWORKS = {
     "polygon": {
@@ -52,37 +57,26 @@ ERC20_BALANCE_ABI = [
 ]
 
 
+from app.multi_chain import multi_chain_manager
+
+
 def check_multi_chain_revenue():
     print("\n" + "=" * 65)
     print(f"💰 [x402 REVENUE WATCHDOG] Multi-Chain Live Treasury Audit")
-    print(f"💼 Server Treasury Wallet: {TREASURY_WALLET}")
+    print(f"💼 Server EVM Wallet: {TREASURY_WALLET}")
+    print(f"💼 Server Solana Wallet: {multi_chain_manager.solana_recipient}")
     print(f"⏱️  Audit Timestamp: {time.strftime('%Y-%m-%d %H:%M:%S UTC', time.gmtime())}")
     print("=" * 65)
 
-    total_usdc_accumulated = 0.0
+    summary = multi_chain_manager.get_multi_chain_treasury_summary()
+    total_usdc_accumulated = summary.get("total_usdc_accumulated", 0.0)
 
-    for net_key, cfg in NETWORKS.items():
-        try:
-            w3 = Web3(Web3.HTTPProvider(cfg["rpc"], request_kwargs={"timeout": 6}))
-            if not w3.is_connected():
-                print(f"  [{cfg['name']}] ⚠️ RPC Connection Timeout")
-                continue
-
-            usdc_contract = w3.eth.contract(
-                address=Web3.to_checksum_address(cfg["usdc"]),
-                abi=ERC20_BALANCE_ABI
-            )
-            raw_bal = usdc_contract.functions.balanceOf(Web3.to_checksum_address(TREASURY_WALLET)).call()
-            bal_usdc = raw_bal / (10 ** cfg["decimals"])
-            total_usdc_accumulated += bal_usdc
-
-            # Gas balance
-            native_wei = w3.eth.get_balance(Web3.to_checksum_address(TREASURY_WALLET))
-            native_bal = float(w3.from_wei(native_wei, "ether"))
-
-            print(f"  🟢 {cfg['name']:<22} : ${bal_usdc:>10.4f} USDC  (Gas: {native_bal:.4f})")
-        except Exception as e:
-            print(f"  [{cfg['name']}] ❌ Error: {str(e)[:40]}")
+    for net_key, info in summary.get("networks", {}).items():
+        name = info.get("display_name", net_key)
+        bal_usdc = info.get("usdc_balance", 0.0)
+        native_bal = info.get("native_balance", 0.0)
+        native_sym = info.get("native_symbol", "GAS")
+        print(f"  🟢 {name:<22} : ${bal_usdc:>10.4f} USDC  (Gas: {native_bal:.4f} {native_sym})")
 
     print("-" * 65)
     print(f"  💵 TOTAL MULTI-CHAIN TREASURY : ${total_usdc_accumulated:>10.4f} USDC")

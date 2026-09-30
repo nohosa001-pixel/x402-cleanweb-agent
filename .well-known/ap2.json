@@ -22,21 +22,29 @@
         "chain_id": 137,
         "token": "USDC",
         "token_address": "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
-        "recipient_wallet": "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf"
+        "recipient_wallet": "0xA185B43fDD19619f99952AAed6eabf1029bF36a1"
       },
       {
         "chain": "base",
         "chain_id": 8453,
         "token": "USDC",
         "token_address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-        "recipient_wallet": "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf"
+        "recipient_wallet": "0xA185B43fDD19619f99952AAed6eabf1029bF36a1"
       },
       {
         "chain": "arbitrum",
         "chain_id": 42161,
         "token": "USDC",
         "token_address": "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
-        "recipient_wallet": "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf"
+        "recipient_wallet": "0xA185B43fDD19619f99952AAed6eabf1029bF36a1"
+      },
+      {
+        "chain": "solana",
+        "chain_id": 101,
+        "token": "USDC",
+        "token_address": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+        "recipient_wallet": "411ksMz9RHYVtVMe6RUUErzZYtrU9zzvkgzswKbqx9qp",
+        "vault_program": "7oZ16YaazQzN6z5uA1nAZWD9oGUDXyvHwXGJLFYyWi3y"
       }
     ],
     "pricing_tiers": {

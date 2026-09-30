@@ -53,7 +53,7 @@ NETWORKS = {
     }
 }
 
-TREASURY = os.getenv("SERVER_WALLET_ADDRESS", "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf")
+TREASURY = os.getenv("SERVER_WALLET_ADDRESS", "0xA185B43fDD19619f99952AAed6eabf1029bF36a1")
 
 
 def encode_address(addr: str) -> str:

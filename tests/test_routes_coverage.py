@@ -10,7 +10,7 @@ def test_all_api_routes_operational():
     for r in app.routes:
         if hasattr(r, "path") and hasattr(r, "methods"):
             # Exclude infinite streaming SSE transport routes mounted by MCP
-            if r.path.startswith("/mcp-server"):
+            if r.path.startswith("/mcp-server") or r.path in ("/mcp/sse", "/api/v1/mcp/sse"):
                 continue
             for m in r.methods:
                 if m not in ("HEAD", "OPTIONS"):
@@ -31,9 +31,9 @@ def test_all_api_routes_operational():
         "/api/v1/oracle/grounding": {"json": {"query": "Federal Reserve Rate Decision", "max_sources": 1}},
         "/api/v1/oracle/verify": {"json": {"data_hash": "0x482fe666766eeff1aaac00ae74a1b9b7382679e766bd65d3d59018097a7b28ce", "timestamp": 1789639556, "signature": "0x111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111b"}},
         "/api/v1/deep-research": {"params": {"query": "Autonomous Agent Economics", "max_sources": 1}},
-        "/api/v1/vault/deposit": {"json": {"agent_address": "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf", "amount_usdc": 2.0, "chain": "polygon", "tx_hash": ""}},
+        "/api/v1/vault/deposit": {"json": {"agent_address": "0xA185B43fDD19619f99952AAed6eabf1029bF36a1", "amount_usdc": 2.0, "chain": "polygon", "tx_hash": ""}},
         "/api/v1/vault/balance": {"params": {"identifier": "vault_key_demo_agent_sandbox_2026"}},
-        "/api/v1/pass-status": {"params": {"agent_wallet": "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf"}},
+        "/api/v1/pass-status": {"params": {"agent_wallet": "0xA185B43fDD19619f99952AAed6eabf1029bF36a1"}},
         "/api/v1/security/inspect": {"json": {"text": "Hello world inspection", "is_code": False}},
         "/api/v1/legal/terms": {},
         "/api/v1/legal/disclaimer": {},
@@ -59,7 +59,7 @@ def test_all_api_routes_operational():
         "/r/stream/{target_url:path}": {"path_override": "/r/stream/https://example.com"},
         "/r/{target_url:path}": {"path_override": "/r/https://example.com"},
         "/api/v1/clean-embed": {"json": {"url": "https://example.com"}},
-        "/api/v1/vault/permit-deposit": {"json": {"owner": "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf", "value_usdc": 2.0, "deadline": 9999999999, "v": 27, "r": "0x1111111111111111111111111111111111111111111111111111111111111111", "s": "0x2222222222222222222222222222222222222222222222222222222222222222"}},
+        "/api/v1/vault/permit-deposit": {"json": {"owner": "0xA185B43fDD19619f99952AAed6eabf1029bF36a1", "value_usdc": 2.0, "deadline": 9999999999, "v": 27, "r": "0x1111111111111111111111111111111111111111111111111111111111111111", "s": "0x2222222222222222222222222222222222222222222222222222222222222222"}},
         "/api/v1/treasury/merkle-root": {},
         "/api/v1/treasury/merkle-proof/{tx_hash}": {"path_override": "/api/v1/treasury/merkle-proof/0x0000000000000000000000000000000000000000000000000000000000000000"},
         "/api/v1/mcp/sse-info": {},

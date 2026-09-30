@@ -16,6 +16,15 @@ from app.storage import storage_manager
 from app.multi_chain import multi_chain_manager
 
 
+def safe_agent_address(addr: str) -> str:
+    try:
+        if addr and addr.startswith("0x"):
+            return Web3.to_checksum_address(addr)
+        return addr.strip()
+    except Exception:
+        return addr.strip()
+
+
 class VaultManager:
     """Thread-safe and SQLite-backed manager for pre-funded agent payment vault accounts."""
 
@@ -40,7 +49,7 @@ class VaultManager:
         if amount_usdc > self.MAX_DEPOSIT_USDC:
             raise ValueError(f"Deposit amount cannot exceed {self.MAX_DEPOSIT_USDC} USDC.")
 
-        checksum_addr = Web3.to_checksum_address(agent_address)
+        target_addr = safe_agent_address(agent_address)
         
         # Economic Security Guard: Enforce on-chain verification in production
         allow_dev_bypass = os.getenv("ALLOW_DEV_BYPASS", "false").lower() in ("1", "true", "yes")
@@ -60,16 +69,16 @@ class VaultManager:
                 raise ValueError(f"On-chain deposit verification failed: {reason}")
             
             # Record tx
-            storage_manager.record_used_tx(tx_hash, chain, checksum_addr, amount_usdc)
+            storage_manager.record_used_tx(tx_hash, chain, target_addr, amount_usdc)
         else:
             if not (allow_dev_bypass or is_test_env):
                 raise ValueError("Deposit requires a verified on-chain transaction hash (tx_hash) in production.")
 
         # Generate or retain session key
-        existing = storage_manager.get_vault(checksum_addr)
+        existing = storage_manager.get_vault(target_addr)
         session_key = existing["session_key"] if existing and existing.get("session_key") else f"vault_key_{secrets.token_hex(16)}"
         
-        updated_acc = storage_manager.deposit_vault(checksum_addr, amount_usdc, session_key)
+        updated_acc = storage_manager.deposit_vault(target_addr, amount_usdc, session_key)
         return updated_acc
 
     def deposit_with_permit(
@@ -98,7 +107,7 @@ class VaultManager:
             raise ValueError(f"Permit signature has expired (deadline: {deadline}, current: {now}).")
 
         checksum_owner = Web3.to_checksum_address(owner)
-        server_wallet = os.getenv("SERVER_WALLET_ADDRESS", "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf")
+        server_wallet = os.getenv("SERVER_WALLET_ADDRESS", "0xA185B43fDD19619f99952AAed6eabf1029bF36a1")
         target_spender = Web3.to_checksum_address(spender or server_wallet)
 
         # Anti-replay unique permit digest
@@ -224,7 +233,7 @@ class VaultManager:
     def to_response(self, acc_dict: Dict[str, Any]) -> VaultBalanceResponse:
         last_act = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(acc_dict.get("last_active", time.time())))
         return VaultBalanceResponse(
-            agent_address=Web3.to_checksum_address(acc_dict["agent_address"]),
+            agent_address=safe_agent_address(acc_dict["agent_address"]),
             balance_usdc=round(float(acc_dict["balance_usdc"]), 6),
             total_deposited_usdc=round(float(acc_dict["total_deposited"]), 6),
             total_consumed_usdc=round(float(acc_dict["total_consumed"]), 6),

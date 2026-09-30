@@ -1,0 +1,417 @@
+{
+  "version": "0.1.0",
+  "name": "agent_payment_vault",
+  "docs": [
+    "AgentPaymentVault: Solana Anchor Program for Autonomous AI Agent x402 Micropayments",
+    "1:1 Solana native implementation of contracts/AgentPaymentVault.sol"
+  ],
+  "instructions": [
+    {
+      "name": "initialize",
+      "docs": [
+        "1. Initialize the global vault and treasury config"
+      ],
+      "accounts": [
+        {
+          "name": "vaultConfig",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "vault_config"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Mint",
+                "path": "usdc_mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "usdcMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "vaultTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "vault_tokens"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Mint",
+                "path": "usdc_mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "rent",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "treasuryWallet",
+          "type": "publicKey"
+        }
+      ]
+    },
+    {
+      "name": "deposit",
+      "docs": [
+        "2. Agent pre-funds their on-chain vault with Native SPL USDC",
+        "Equivalent to deposit(uint256 amount) in AgentPaymentVault.sol"
+      ],
+      "accounts": [
+        {
+          "name": "vaultConfig",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "vaultTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "agentRecord",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "agent_vault"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Signer",
+                "path": "agent"
+              }
+            ]
+          }
+        },
+        {
+          "name": "agent",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "agentTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "settleAgent",
+      "docs": [
+        "3. Settle agent spent amount to Treasury Wallet (Authority only)",
+        "Equivalent to settleAgentBatch in AgentPaymentVault.sol"
+      ],
+      "accounts": [
+        {
+          "name": "vaultConfig",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "vaultTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "agentRecord",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "treasuryTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "updateTreasury",
+      "docs": [
+        "4. Update the treasury payout wallet (Authority only)"
+      ],
+      "accounts": [
+        {
+          "name": "vaultConfig",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true
+        }
+      ],
+      "args": [
+        {
+          "name": "newTreasuryWallet",
+          "type": "publicKey"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "VaultConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "publicKey"
+          },
+          {
+            "name": "treasuryWallet",
+            "type": "publicKey"
+          },
+          {
+            "name": "usdcMint",
+            "type": "publicKey"
+          },
+          {
+            "name": "vaultTokenAccount",
+            "type": "publicKey"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "vaultBump",
+            "type": "u8"
+          },
+          {
+            "name": "totalSettledUsdc",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AgentVaultRecord",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "agent",
+            "type": "publicKey"
+          },
+          {
+            "name": "balance",
+            "type": "u64"
+          },
+          {
+            "name": "totalDeposited",
+            "type": "u64"
+          },
+          {
+            "name": "totalSpent",
+            "type": "u64"
+          },
+          {
+            "name": "createdAt",
+            "type": "i64"
+          },
+          {
+            "name": "lastUpdatedAt",
+            "type": "i64"
+          }
+        ]
+      }
+    }
+  ],
+  "events": [
+    {
+      "name": "VaultInitialized",
+      "fields": [
+        {
+          "name": "authority",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "treasuryWallet",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "usdcMint",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "vaultTokenAccount",
+          "type": "publicKey",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "Deposited",
+      "fields": [
+        {
+          "name": "agent",
+          "type": "publicKey",
+          "index": true
+        },
+        {
+          "name": "amount",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "newBalance",
+          "type": "u64",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "Settled",
+      "fields": [
+        {
+          "name": "agent",
+          "type": "publicKey",
+          "index": true
+        },
+        {
+          "name": "amount",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "remainingBalance",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "treasury",
+          "type": "publicKey",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "TreasuryUpdated",
+      "fields": [
+        {
+          "name": "previousTreasury",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "newTreasury",
+          "type": "publicKey",
+          "index": false
+        }
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "ZeroDepositAmount",
+      "msg": "Deposit amount must be greater than zero."
+    },
+    {
+      "code": 6001,
+      "name": "ZeroSettleAmount",
+      "msg": "Settlement amount must be greater than zero."
+    },
+    {
+      "code": 6002,
+      "name": "InsufficientAgentBalance",
+      "msg": "Agent vault record has insufficient balance."
+    },
+    {
+      "code": 6003,
+      "name": "Unauthorized",
+      "msg": "Caller is not authorized to execute this action."
+    },
+    {
+      "code": 6004,
+      "name": "MathOverflow",
+      "msg": "Arithmetic overflow."
+    },
+    {
+      "code": 6005,
+      "name": "MathUnderflow",
+      "msg": "Arithmetic underflow."
+    }
+  ],
+  "metadata": {
+    "address": "7oZ16YaazQzN6z5uA1nAZWD9oGUDXyvHwXGJLFYyWi3y",
+    "origin": "CleanWeb x402 Suite",
+    "solscan_verified": true
+  }
+}

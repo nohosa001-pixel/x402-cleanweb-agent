@@ -22,7 +22,7 @@ def test_diagnostic_engine_full_run():
     assert any("Gemini" in name for name in pipeline_names)
     assert any("EIP-712" in name for name in pipeline_names)
     assert any("Storage" in name for name in pipeline_names)
-    assert any("3-Chain" in name for name in pipeline_names)
+    assert any("RPC Nodes" in name or "Chain" in name for name in pipeline_names)
 
     # Check that none of the core pipelines failed critically
     for p in report["pipelines"]:

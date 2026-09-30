@@ -1,8 +1,8 @@
 {
   "protocol": "CleanWeb Studio Oracle x402",
   "version": "1.0.0",
-  "deployer": "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf",
-  "treasury": "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf",
+  "deployer": "0xA185B43fDD19619f99952AAed6eabf1029bF36a1",
+  "treasury": "0xA185B43fDD19619f99952AAed6eabf1029bF36a1",
   "updated_at": "2026-09-14T12:20:00Z",
   "networks": {
     "polygon": {
@@ -71,6 +71,37 @@
         "CleanWebOracleVerifier": {
           "address": "0x3eD259e47ebA439A9A35489787482B0003310740",
           "explorer_link": "https://arbiscan.io/address/0x3eD259e47ebA439A9A35489787482B0003310740#code"
+        }
+      }
+    },
+    "solana": {
+      "chain_name": "solana",
+      "chainId": 101,
+      "display_name": "Solana Mainnet-Beta",
+      "rpc_url": "https://api.mainnet-beta.solana.com",
+      "explorer_url": "https://solscan.io",
+      "status": "verified",
+      "usdc_token": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+      "contracts": {
+        "AgentPaymentVault": {
+          "address": "7oZ16YaazQzN6z5uA1nAZWD9oGUDXyvHwXGJLFYyWi3y",
+          "explorer_link": "https://solscan.io/account/7oZ16YaazQzN6z5uA1nAZWD9oGUDXyvHwXGJLFYyWi3y"
+        },
+        "CleanWebOracleConsumer": {
+          "address": "21ZR1QCyAbNrRLs1iWEkdbNsfCFdJcy6ip9R2JxDbkTL",
+          "explorer_link": "https://solscan.io/account/21ZR1QCyAbNrRLs1iWEkdbNsfCFdJcy6ip9R2JxDbkTL"
+        },
+        "CleanWebOracleVerifier": {
+          "address": "9nVrymJgNWCXkuGKn8CCQnSK6aDazFR7z3WL82jZiopC",
+          "explorer_link": "https://solscan.io/account/9nVrymJgNWCXkuGKn8CCQnSK6aDazFR7z3WL82jZiopC"
+        },
+        "ServerRecipientWallet": {
+          "address": "411ksMz9RHYVtVMe6RUUErzZYtrU9zzvkgzswKbqx9qp",
+          "explorer_link": "https://solscan.io/account/411ksMz9RHYVtVMe6RUUErzZYtrU9zzvkgzswKbqx9qp"
+        },
+        "SPLUSDCTokenTracker": {
+          "address": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+          "explorer_link": "https://solscan.io/token/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
         }
       }
     }

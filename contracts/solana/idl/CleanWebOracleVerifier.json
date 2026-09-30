@@ -1,0 +1,96 @@
+{
+  "version": "0.1.0",
+  "name": "cleanweb_oracle_verifier",
+  "metadata": {
+    "address": "9nVrymJgNWCXkuGKn8CCQnSK6aDazFR7z3WL82jZiopC",
+    "origin": "anchor",
+    "description": "CleanWeb Oracle Verifier: Native Ed25519 / EIP-712 cryptographic signature proof verification library on Solana"
+  },
+  "instructions": [
+    {
+      "name": "verifyOracleSignature",
+      "docs": [
+        "Verify Ed25519 cryptographic signature issued by CleanWeb Oracle Signer"
+      ],
+      "accounts": [
+        {
+          "name": "oracleAuthority",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "dataHash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "timestamp",
+          "type": "i64"
+        },
+        {
+          "name": "signature",
+          "type": {
+            "array": [
+              "u8",
+              64
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "OracleAuthorityAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "oraclePublicKey",
+            "type": "publicKey"
+          },
+          {
+            "name": "totalAttestationsVerified",
+            "type": "u64"
+          }
+        ]
+      }
+    }
+  ],
+  "types": [],
+  "events": [
+    {
+      "name": "ActionRecorded",
+      "fields": [
+        {
+          "name": "caller",
+          "type": "publicKey",
+          "index": true
+        },
+        {
+          "name": "timestamp",
+          "type": "i64",
+          "index": false
+        }
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "InvalidSignature",
+      "msg": "Cryptographic signature verification failed"
+    },
+    {
+      "code": 6001,
+      "name": "UnauthorizedCaller",
+      "msg": "Caller lacks required authority"
+    }
+  ]
+}

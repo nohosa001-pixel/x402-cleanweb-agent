@@ -218,7 +218,7 @@ def cmd_deposit(
         print("  (Or define AGENT_PRIVATE_KEY in your .env file)")
         print("\n[Method B] Manual Transfer to Server Treasury:")
         print("  1. Transfer 2.0+ USDC to Treasury Wallet:")
-        print("     👉 0x255F9991233f86B29dB847c8d5b8CB9915e80dCf")
+        print("     👉 0xA185B43fDD19619f99952AAed6eabf1029bF36a1")
         print("     Supported: Polygon (137), Base (8453), Arbitrum (42161)")
         print("  2. Submit your Tx Hash via curl or API:")
         print(f"     curl -X POST {base_url}/api/v1/vault/deposit \\")
@@ -304,7 +304,7 @@ Examples:
     # 5. deposit
     sub_dep = subparsers.add_parser("deposit", help="Deposit USDC into Agent Payment Vault")
     sub_dep.add_argument("--amount", type=float, default=2.0, help="USDC amount to deposit (min 2.0)")
-    sub_dep.add_argument("--chain", type=str, default="polygon", choices=["polygon", "base", "arbitrum"], help="Target blockchain")
+    sub_dep.add_argument("--chain", type=str, default="polygon", choices=["polygon", "base", "arbitrum", "solana"], help="Target blockchain")
     sub_dep.add_argument("--key", type=str, default=None, help="Agent Private Key (0x...) or reads AGENT_PRIVATE_KEY")
     sub_dep.add_argument("--rpc", type=str, default=None, help="Custom RPC endpoint URL")
 

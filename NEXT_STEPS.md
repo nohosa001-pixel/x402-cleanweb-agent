@@ -6,7 +6,7 @@
 * **운영 상태**: 🟢 **정식 라이브 서비스 운영 중 (Production Live)**
 * **릴리즈 버전**: PyPI `v2.6.1` (현대화 5대 업그레이드 배포 완료)
 * **핵심 인프라**: GCP Cloud Run (3대 Triad 서비스 무장애 가동)
-* **스마트 컨트랙트**: 3개 체인(Polygon, Base, Arbitrum) 100% 온체인 검증 완료
+* **멀티체인 결제망**: 4개 체인(Polygon, Base, Arbitrum, Solana Mainnet-Beta) 100% 온체인 검증 & 트레저리 연동 완료
 
 ---
 
