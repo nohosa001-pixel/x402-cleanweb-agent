@@ -37,13 +37,13 @@ CleanWeb의 3개 EVM 스마트 컨트랙트(`contracts/*.sol`)는 각각 **솔�
 
 1. **[Solscan.io](https://solscan.io)** 또는 **[SolanaFM Developer Portal](https://portal.solana.fm)** 에 접속합니다.
 2. 대표님 공개키 지갑(Phantom 등)으로 연결합니다:
-   - Public Key: `411ksMz9RHYVtVMe6RUUErzZYtrU9zzvkgzswKbqx9qp`
+   * Public Key: `411ksMz9RHYVtVMe6RUUErzZYtrU9zzvkgzswKbqx9qp`
 3. 위 표에 명시된 **Solana Program ID**를 각각 입력하여 프로그램 상세 화면으로 이동합니다:
-   - 예: `CWV1tUqD8gXy2pE8YqR8sW7V3zY8gB1sX402AgentVlt` (`AgentPaymentVault`)
+   * 예: `7oZ16YaazQzN6z5uA1nAZWD9oGUDXyvHwXGJLFYyWi3y` (`AgentPaymentVault`)
 4. **[Upload IDL]** 버튼을 클릭하고 해당 IDL JSON 파일을 업로드합니다:
-   - `contracts/solana/idl/AgentPaymentVault.json`
-   - `contracts/solana/idl/CleanWebOracleConsumer.json`
-   - `contracts/solana/idl/CleanWebOracleVerifier.json`
+   * `contracts/solana/idl/AgentPaymentVault.json`
+   * `contracts/solana/idl/CleanWebOracleConsumer.json`
+   * `contracts/solana/idl/CleanWebOracleVerifier.json`
 5. 업로드 완료 즉시 Solscan / SolanaFM 탐색기 화면에 EVM과 동일한 대화형 함수 호출 및 온체인 잔액 조회 인터페이스가 생성되어 초록색 인증 뱃지를 획득합니다!
 
 ---
@@ -57,7 +57,7 @@ Anchor CLI가 설치된 환경에서 온체인에 IDL 계정을 초기화하여 
 anchor idl init \
   --provider.cluster mainnet \
   --filepath contracts/solana/idl/AgentPaymentVault.json \
-  CWV1tUqD8gXy2pE8YqR8sW7V3zY8gB1sX402AgentVlt
+  7oZ16YaazQzN6z5uA1nAZWD9oGUDXyvHwXGJLFYyWi3y
 ```
 
 ---
@@ -72,6 +72,6 @@ anchor build --verifiable
 
 # OtterSec / SolanaFM 소스코드 검증 요청
 solana-verify verify-from-repo \
-  --program-id CWV1tUqD8gXy2pE8YqR8sW7V3zY8gB1sX402AgentVlt \
+  --program-id 7oZ16YaazQzN6z5uA1nAZWD9oGUDXyvHwXGJLFYyWi3y \
   https://github.com/nohosa001-pixel/x402-cleanweb-agent
 ```
