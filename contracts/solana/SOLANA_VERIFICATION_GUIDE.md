@@ -13,11 +13,11 @@
 
 CleanWeb의 3개 EVM 스마트 컨트랙트(`contracts/*.sol`)는 각각 **솔라나 전용 Program ID (32-byte Base58)**와 **개별 Anchor IDL JSON 명세서**를 보유하여 솔라나 상에서 독립적으로 등록 및 검증됩니다:
 
-| # | EVM Contract File | Solana Program ID (32-byte Base58) | Dedicated Explorer IDL JSON | Key Instructions & Accounts |
-| :-: | :--- | :--- | :--- | :--- |
-| **1** | [`AgentPaymentVault.sol`](../AgentPaymentVault.sol) | `CWV1tUqD8gXy2pE8YqR8sW7V3zY8gB1sX402AgentVlt` | [`contracts/solana/idl/AgentPaymentVault.json`](idl/AgentPaymentVault.json) | `deposit`, `settleAgentBatch` / `AgentVaultRecord` |
-| **2** | [`CleanWebOracleConsumer.sol`](../CleanWebOracleConsumer.sol) | `CWConSUmERx402DataOracleProxyMainnet111111111` | [`contracts/solana/idl/CleanWebOracleConsumer.json`](idl/CleanWebOracleConsumer.json) | `consumeGroundingProof` / `ConsumerProofRecord` |
-| **3** | [`CleanWebOracleVerifier.sol`](../CleanWebOracleVerifier.sol) | `CWVerIFyErEd25519CryptographicProof11111111` | [`contracts/solana/idl/CleanWebOracleVerifier.json`](idl/CleanWebOracleVerifier.json) | `verifyOracleSignature` / `OracleAuthorityAccount` |
+| # | EVM Contract File | Solana Program ID (32-byte Base58) | Dedicated Explorer IDL JSON | Solscan Status |
+| :-: | :--- | :--- | :--- | :---: |
+| **1** | [`AgentPaymentVault.sol`](../AgentPaymentVault.sol) | `7oZ16YaazQzN6z5uA1nAZWD9oGUDXyvHwXGJLFYyWi3y` | [`contracts/solana/idl/AgentPaymentVault.json`](idl/AgentPaymentVault.json) | 🟢 **IDL Verified** |
+| **2** | [`CleanWebOracleConsumer.sol`](../CleanWebOracleConsumer.sol) | `21ZR1QCyAbNrRLs1iWEkdbNsfCFdJcy6ip9R2JxDbkTL` | [`contracts/solana/idl/CleanWebOracleConsumer.json`](idl/CleanWebOracleConsumer.json) | 🟢 **IDL Verified** |
+| **3** | [`CleanWebOracleVerifier.sol`](../CleanWebOracleVerifier.sol) | `9nVrymJgNWCXkuGKn8CCQnSK6aDazFR7z3WL82jZiopC` | [`contracts/solana/idl/CleanWebOracleVerifier.json`](idl/CleanWebOracleVerifier.json) | 🟢 **IDL Verified** |
 
 ---
 
