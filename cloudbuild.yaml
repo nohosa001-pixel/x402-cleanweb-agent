@@ -30,6 +30,9 @@ steps:
       - '--max-instances'
       - '10'
 
+options:
+  releaseChannel: 'STABLE'
+
 images:
   - 'gcr.io/$PROJECT_ID/x402-cleanweb-agent:latest'
   - 'gcr.io/$PROJECT_ID/x402-cleanweb-agent:$BUILD_ID'
