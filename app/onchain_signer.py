@@ -47,7 +47,8 @@ class OnChainCleanWebSigner:
             self.contract_address = Web3.to_checksum_address(contract_address)
         except Exception:
             self.contract_address = Web3.to_checksum_address("0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7")
-        self.account = Account.from_key(private_key)
+        pk = (private_key or "").strip() or ORACLE_SIGNER_PRIVATE_KEY
+        self.account = Account.from_key(pk)
         self.signer_address = self.account.address
 
     def get_domain_data(self) -> Dict[str, Any]:

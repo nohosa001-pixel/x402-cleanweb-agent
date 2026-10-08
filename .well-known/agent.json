@@ -3,7 +3,7 @@
   "protocol_version": "1.0.0",
   "agent_id": "x402-cleanweb-agent",
   "name": "x402 CleanWeb & Autonomous Web3 Agent Suite",
-  "description": "Deterministic Web3 x402 Micropayment MCP & AI Agent Tool Suite with Gemini 3.6 Flash Video Intelligence, PDF Papers, Web Crawling, and On-Chain EIP-712 Oracles on Polygon, Base, and Arbitrum.",
+  "description": "Deterministic Web3 x402 Micropayment MCP & AI Agent Tool Suite with Gemini 3.6 Flash Video Intelligence, PDF Papers, Web Crawling, and On-Chain EIP-712 & Solana Ed25519 Oracles across Solana, Polygon, Base, and Arbitrum.",
   "provider": {
     "organization": "x402 Autonomous Systems",
     "url": "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app",

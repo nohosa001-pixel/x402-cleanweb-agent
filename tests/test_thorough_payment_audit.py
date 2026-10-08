@@ -72,9 +72,9 @@ def run_thorough_audit():
     print(f"  총 {len(recipients)}개 공인 수신 주소 등록 확인:")
     for r in recipients:
         print(f"   - {r}")
-    assert "0xA185B43fDD19619f99952AAed6eabf1029bF36a1" in recipients
-    assert "0x45ecbfaa2f4b0bc6ccd3eb2db9b1ca49cf121861" in recipients
-    assert "0x28292d76e07e5539f15f3b97935de8e0432e76dd" in recipients
+    assert "0xA185B43fDD19619f99952AAed6eabf1029bF36a1".lower() in recipients
+    assert "0x45ecbfaa2f4b0bc6ccd3eb2db9b1ca49cf121861".lower() in recipients
+    assert "0x28292d76e07e5539f15f3b97935de8e0432e76dd".lower() in recipients
     print("\n[TEST 5] 에이전트 자산 보호: 서비스 실패 시 자동 환불(Auto-Refund / Rollback) 무결성 검증...")
     from app.vault_manager import vault_manager
     demo_key = "vault_key_demo_agent_sandbox_2026"

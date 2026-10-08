@@ -78,20 +78,17 @@ def run_lifecycle_permutations_audit():
     agent_ephemeral_nonce = f"agent_sim_{secrets.token_hex(8)}"
     headers_trial = {"X-Agent-Nonce": agent_ephemeral_nonce}
 
-    # 2.1 Trial Call 1
-    r2_1 = client.get("/api/v1/clean-web?url=https://example.com", headers=headers_trial)
-    assert r2_1.status_code == 200
-    print("  ✅ [CASE 2.1] Trial Call #1: HTTP 200 Granted, Content Received")
+    # 2.1 & 2.2 Sandbox Trial Calls exhaustion
+    from app.x402_verifier import FREE_TRIAL_LIMIT
+    for i in range(FREE_TRIAL_LIMIT):
+        r_trial = client.get("/api/v1/clean-web?url=https://example.com", headers=headers_trial)
+        assert r_trial.status_code == 200, f"Trial #{i+1} failed: {r_trial.status_code}"
+    print(f"  ✅ [CASE 2.1 & 2.2] Trial Calls (x{FREE_TRIAL_LIMIT}): HTTP 200 Granted, Sandbox Quota Exhausted")
 
-    # 2.2 Trial Call 2
-    r2_2 = client.get("/api/v1/clean-web?url=https://example.com", headers=headers_trial)
-    assert r2_2.status_code == 200
-    print("  ✅ [CASE 2.2] Trial Call #2: HTTP 200 Granted, Sandbox Quota Exhausted")
-
-    # 2.3 Trial Call 3 (Must fail with 402)
+    # 2.3 Trial Cutoff (Must fail with 402)
     r2_3 = client.get("/api/v1/clean-web?url=https://example.com", headers=headers_trial)
     assert r2_3.status_code == 402
-    print("  ✅ [CASE 2.3] Trial Call #3: Strict HTTP 402 Cutoff Enforced")
+    print("  ✅ [CASE 2.3] Trial Call Exhaustion: Strict HTTP 402 Cutoff Enforced")
 
     # 2.4 Same Nonce Retry (Cannot bypass)
     r2_4 = client.get("/api/v1/clean-text?url=https://example.com", headers=headers_trial)

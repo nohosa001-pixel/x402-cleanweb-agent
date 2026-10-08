@@ -2,9 +2,10 @@
 Pydantic Schemas and Data Models for x402-cleanweb-agent.
 """
 
+import re
 from typing import Dict, Any, Optional, List
 from enum import Enum
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class PricingTier(str, Enum):
@@ -224,6 +225,18 @@ class VaultDepositRequest(BaseModel):
     chain: str = "polygon"
     tx_hash: Optional[str] = Field(default="", description="On-chain transaction hash verifying USDC transfer")
     amount_usdc: float = Field(..., ge=2.0, le=1000.0, description="Deposit amount must be between 2.0 and 1000.0 USDC")
+
+    @field_validator("agent_address")
+    @classmethod
+    def validate_agent_address(cls, v: str) -> str:
+        addr = (v or "").strip()
+        if not addr:
+            raise ValueError("agent_address cannot be empty.")
+        is_evm = bool(re.match(r"^0x[a-fA-F0-9]{40}$", addr))
+        is_solana = bool(re.match(r"^[1-9A-HJ-NP-Za-km-z]{32,44}$", addr))
+        if not (is_evm or is_solana):
+            raise ValueError("agent_address must be a valid EVM address (0x...) or Solana public key.")
+        return addr
 
 
 class VaultBalanceResponse(BaseModel):
