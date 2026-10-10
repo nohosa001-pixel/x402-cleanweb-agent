@@ -159,16 +159,21 @@ def cmd_pricing(base_url: str = DEFAULT_GATEWAY_URL):
 
 def cmd_test(url: str = "https://news.ycombinator.com", vault_key: Optional[str] = None, base_url: str = DEFAULT_GATEWAY_URL):
     """Execute a 10-second instant extraction test using sandbox or active vault key"""
-    active_key = vault_key or os.getenv("AGENT_VAULT_KEY") or "vault_key_demo_agent_sandbox_2026"
+    active_key = vault_key or os.getenv("AGENT_VAULT_KEY")
     print("=" * 70)
     print("⚡ [x402 CLI] Testing Instant Clean Web Extraction...")
     print(f"🌐 Target URL : {url}")
     print(f"🔗 Gateway    : {base_url}")
-    print(f"🔑 Vault Key  : {active_key}")
+    headers = {}
+    if active_key:
+        print(f"🔑 Vault Key  : {active_key}")
+        headers["X-Vault-Key"] = active_key
+    else:
+        print("🔑 Auth Mode  : Sandbox Discovery Trial")
+        headers["X-Agent-Nonce"] = f"cli_test_{int(time.time())}"
     print("=" * 70)
     t0 = time.time()
     try:
-        headers = {"X-Vault-Key": active_key}
         encoded_url = urllib.parse.quote(url, safe=":/")
         res = _format_json_request(f"{base_url}/api/v1/clean-web?url={encoded_url}", headers=headers, method="GET")
         latency = round((time.time() - t0) * 1000, 1)

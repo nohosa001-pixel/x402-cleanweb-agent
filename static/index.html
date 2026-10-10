@@ -1666,12 +1666,15 @@
         });
       }
 
-      try {
+        const activeKey = localStorage.getItem("cleanweb_vault_key") || "";
         const headers = {
-          "Authorization": "Bearer dev-bypass",
-          "X-Vault-Key": "vault_key_demo_agent_sandbox_2026",
           "Content-Type": "application/json"
         };
+        if (activeKey) {
+          headers["X-Vault-Key"] = activeKey;
+        } else {
+          headers["X-Agent-Nonce"] = "web_portal_" + Math.random().toString(36).substring(2, 10);
+        }
 
         const res = await fetch(endpoint, {
           method: method,

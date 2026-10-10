@@ -56,7 +56,7 @@ class X402CleanWebTool(BaseTool):
         default_factory=lambda: os.getenv("X402_GATEWAY_URL", "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app")
     )
     vault_key: Optional[str] = Field(
-        default_factory=lambda: os.getenv("AGENT_VAULT_KEY", "WELCOME100")
+        default_factory=lambda: os.getenv("AGENT_VAULT_KEY")
     )
     timeout: int = Field(default=25)
 

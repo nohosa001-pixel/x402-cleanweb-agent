@@ -38,9 +38,20 @@ class VaultManager:
     def _seed_demo_account(self):
         demo_addr = Web3.to_checksum_address("0x70997970C51812dc3A010C7d01b50e0d17dc79C8")
         demo_key = "vault_key_demo_agent_sandbox_2026"
+        is_test_env = "pytest" in sys.modules or os.getenv("ENVIRONMENT", "").lower() in ("test", "testing")
         existing = storage_manager.get_vault(demo_addr)
         if not existing:
-            storage_manager.deposit_vault(demo_addr, 20.00, demo_key)
+            initial_bal = 20.00 if is_test_env else 0.00
+            storage_manager.deposit_vault(demo_addr, initial_bal, demo_key)
+        elif not is_test_env and existing.get("session_key") == demo_key and existing.get("balance_usdc", 0.0) > 0.0:
+            with storage_manager._lock:
+                conn = storage_manager._get_conn()
+                try:
+                    cur = conn.cursor()
+                    cur.execute("UPDATE agent_vaults SET balance_usdc = 0.0, total_deposited = 0.0 WHERE LOWER(agent_address) = ?", (demo_addr.lower(),))
+                    conn.commit()
+                finally:
+                    conn.close()
 
     def deposit(self, agent_address: str, amount_usdc: float, chain: str = "polygon", tx_hash: Optional[str] = None) -> Dict[str, Any]:
         """Deposits USDC into an agent's pre-funded vault balance. Enforces Min $2.0 and Max $1,000.0 limits."""

@@ -52,7 +52,14 @@ def test_cmd_balance_demo_account(capsys):
 
 def test_cmd_test_execution(capsys):
     """Test instant extraction command via CLI"""
-    cmd_test("https://news.ycombinator.com")
+    mock_payload = {
+        "title": "Hacker News",
+        "word_count": 520,
+        "clean_markdown": "# Hacker News\nTop stories...",
+        "raw_html_length": 80000
+    }
+    with patch("x402_cleanweb_agent._format_json_request", return_value=mock_payload):
+        cmd_test("https://news.ycombinator.com")
     captured = capsys.readouterr().out
     assert "Testing Instant Clean Web Extraction" in captured
     assert "Extraction Success" in captured

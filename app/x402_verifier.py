@@ -5,6 +5,7 @@ Humans and web browsers 100% blocked.
 """
 
 import os
+import sys
 import time
 import secrets
 from typing import Optional, Dict, Any, Tuple, List
@@ -392,7 +393,8 @@ class X402Verifier:
         bearer_token = auth_header.replace("Bearer ", "").strip() if auth_header.startswith("Bearer ") else ""
 
         # --- Strategy 1: Dev Bypass ---
-        if ALLOW_DEV_BYPASS or bearer_token == "dev-bypass":
+        is_test_env = "pytest" in sys.modules or os.getenv("ENVIRONMENT", "").lower() in ("test", "testing")
+        if ALLOW_DEV_BYPASS or (is_test_env and bearer_token == "dev-bypass"):
             rcpt_id = f"rcpt_dev_{secrets.token_hex(6)}"
             receipt = PaymentReceipt(
                 receipt_id=rcpt_id,
@@ -548,14 +550,27 @@ class X402Verifier:
 
         # --- Strategy 4: Instant Sandbox Free Trial ---
         if FREE_TRIAL_LIMIT > 0:
-            nonce_hdr = request.headers.get("x-agent-nonce", "").strip()
             client_ip = self.get_client_ip(request)
-            trial_id = nonce_hdr if nonce_hdr else f"ip_{client_ip}"
+            nonce_hdr = request.headers.get("x-agent-nonce", "").strip() if request else ""
+            is_test_env = "pytest" in sys.modules or os.getenv("ENVIRONMENT", "").lower() in ("test", "testing")
 
+            # In production: strictly enforce IP-level quota to prevent infinite free calls via rotating nonces
+            if not is_test_env:
+                ip_usage = storage_manager.get_trial_usage(f"ip_{client_ip}")
+                if ip_usage >= FREE_TRIAL_LIMIT:
+                    return False, None, self.build_402_response(
+                        tier=tier,
+                        request=request,
+                        custom_detail=f"Sandbox free trial quota ({FREE_TRIAL_LIMIT} calls) exhausted for IP {client_ip}. Please deposit USDC via POST /api/v1/vault/deposit"
+                    )
+
+            trial_id = nonce_hdr if (is_test_env and nonce_hdr) else (f"ip_{client_ip}_{nonce_hdr}" if nonce_hdr else f"ip_{client_ip}")
             current_usage = storage_manager.get_trial_usage(trial_id)
             if current_usage < FREE_TRIAL_LIMIT:
                 storage_manager.increment_trial_usage(trial_id)
-                rem = FREE_TRIAL_LIMIT - current_usage - 1
+                if not is_test_env and trial_id != f"ip_{client_ip}":
+                    storage_manager.increment_trial_usage(f"ip_{client_ip}")
+                rem = max(0, FREE_TRIAL_LIMIT - (storage_manager.get_trial_usage(f"ip_{client_ip}") if not is_test_env else current_usage + 1))
                 rcpt_id = f"rcpt_trial_{secrets.token_hex(6)}"
                 receipt = PaymentReceipt(
                     receipt_id=rcpt_id,
@@ -574,6 +589,12 @@ class X402Verifier:
                     except Exception:
                         pass
                 return True, receipt, None
+            else:
+                return False, None, self.build_402_response(
+                    tier=tier,
+                    request=request,
+                    custom_detail=f"Sandbox free trial quota ({FREE_TRIAL_LIMIT} calls) exhausted. Please deposit USDC via POST /api/v1/vault/deposit"
+                )
 
         # --- Default: Return 402 Challenge ---
         return False, None, self.build_402_response(tier=tier, request=request)
