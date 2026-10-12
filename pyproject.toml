@@ -91,7 +91,8 @@ include = ["app*"]
 exclude = ["app.__pycache__*", "tests*", "*.pyc"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["tests", "integrations"]
 python_files = ["test_*.py"]
+pythonpath = ["."]
 asyncio_mode = "auto"
 

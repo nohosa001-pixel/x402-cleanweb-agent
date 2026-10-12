@@ -21,10 +21,10 @@ try:
     from langchain_core.tools import BaseTool
     from langchain_core.callbacks import CallbackManagerForToolRun, AsyncCallbackManagerForToolRun
 except ImportError:
-    # Fallback dummy class if langchain_core is not installed in local environment
-    class BaseTool:  # type: ignore
-        name: str
-        description: str
+    # Fallback dummy class adhering to Pydantic BaseModel if langchain_core is not installed in local environment
+    class BaseTool(BaseModel):  # type: ignore
+        name: str = ""
+        description: str = ""
         args_schema: Optional[Type[BaseModel]] = None
     CallbackManagerForToolRun = Any  # type: ignore
     AsyncCallbackManagerForToolRun = Any  # type: ignore
