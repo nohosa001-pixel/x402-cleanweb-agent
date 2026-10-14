@@ -1,0 +1,50 @@
+# ==============================================================================
+# CleanWeb Agent x402 - Sovereign Machine Crawler & Agent Directive
+# Standard: robots.txt + LLMs-Txt + A.GRID AP2/1.0 Protocol
+# ==============================================================================
+
+# 1. Specialized AI Engine & LLM Crawlers (Perplexity, OpenAI, Anthropic, Cursor)
+User-agent: GPTBot
+User-agent: ChatGPT-User
+User-agent: ClaudeBot
+User-agent: Claude-Web
+User-agent: PerplexityBot
+User-agent: Cursor-Agent
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: Amazonbot
+User-agent: cohere-ai
+User-agent: Meta-ExternalAgent
+User-agent: Bytespider
+User-agent: CCBot
+
+# Full Access to Universal Reader, Token Arbitrage & MCP SSE Transports
+Allow: /
+Allow: /r/
+Allow: /r/stream/
+Allow: /llms.txt
+Allow: /sitemap.xml
+Allow: /api/v1/agent/capabilities
+Allow: /api/v1/agent/arbitrage-roi
+Allow: /api/v1/clean-web
+Allow: /mcp-server/sse
+Allow: /mcp-server/messages
+Allow: /api/v1/system/diagnostics
+Allow: /health
+Disallow: /metrics
+
+# 2. General Web Crawlers
+User-agent: *
+Allow: /
+Allow: /r/
+Allow: /llms.txt
+Allow: /sitemap.xml
+Allow: /api/v1/agent/capabilities
+Allow: /api/v1/agent/arbitrage-roi
+Disallow: /metrics
+
+# 3. Protocol Discovery References
+Sitemap: https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/sitemap.xml
+LLMs-Txt: https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/llms.txt
+Agent-Proxy: https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/r/
+Agent-Hub: https://agent-security-gate-x402-212942243360.asia-northeast3.run.app/hub/

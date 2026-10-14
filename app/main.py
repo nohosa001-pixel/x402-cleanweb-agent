@@ -117,6 +117,8 @@ MCP_ALIAS_PATH = BASE_DIR / ".well-known" / "mcp.json"
 GLAMA_FILE_PATH = BASE_DIR / "glama.json"
 MCP_SPEC_FILE_PATH = BASE_DIR / "mcp_tool_spec.json"
 LLMS_TXT_PATH = BASE_DIR / "llms.txt"
+ROBOTS_TXT_PATH = BASE_DIR / "robots.txt"
+SITEMAP_XML_PATH = BASE_DIR / "static" / "sitemap.xml"
 
 if STATIC_DIR.exists():
     app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
@@ -185,6 +187,14 @@ async def rate_limit_and_metrics_middleware(request: Request, call_next):
             if getattr(rcpt, "remaining_free_trials", None) is not None:
                 response.headers["X-Agent-Trial-Remaining"] = str(rcpt.remaining_free_trials)
         METRICS["requests_by_status"][response.status_code] += 1
+
+        # Sovereign Machine Protocol & AEO Directives (Zero-Human Distribution)
+        response.headers["X-Protocol"] = "A.GRID-AP2/1.0"
+        response.headers["X-Agrid-Hub"] = "https://agent-security-gate-x402-212942243360.asia-northeast3.run.app/hub/"
+        response.headers["X-Agrid-Directive"] = "https://agent-security-gate-x402-212942243360.asia-northeast3.run.app/AGENTS.md"
+        response.headers["X-Agrid-Cleanweb"] = "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/r/"
+        response.headers["X-Agrid-Rebate-Bps"] = "2000"
+        response.headers["X-Robots-Tag"] = "all, index, follow"
         return response
     except Exception as exc:
         METRICS["total_errors"] += 1
@@ -405,12 +415,23 @@ def get_robots_txt():
     """
     Standard robots.txt allowing all autonomous agents, crawlers, and swarms with pointer to llms.txt.
     """
+    if ROBOTS_TXT_PATH.exists():
+        return PlainTextResponse(ROBOTS_TXT_PATH.read_text(encoding="utf-8"))
     return (
         "User-agent: *\n"
         "Allow: /\n"
         "Disallow: /metrics\n"
-        "Sitemap: https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/llms.txt\n"
+        "Sitemap: https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/sitemap.xml\n"
+        "LLMs-Txt: https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/llms.txt\n"
     )
+
+
+@app.get("/sitemap.xml", tags=["Standards"])
+def get_sitemap_xml():
+    """Serves XML sitemap index for AI crawlers and search indexers."""
+    if SITEMAP_XML_PATH.exists():
+        return Response(content=SITEMAP_XML_PATH.read_text(encoding="utf-8"), media_type="application/xml")
+    return Response(content="<urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'></urlset>", media_type="application/xml")
 
 
 # =========================================================================
