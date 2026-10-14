@@ -80,7 +80,7 @@ load_dotenv()
 
 app = FastAPI(
     title="CleanWeb Studio (x402 AI Agent Suite)",
-    description="Deterministic Web3 x402 Micropayment MCP & AI Agent Tool Suite with Gemini 3.6 Flash Video Intelligence on Polygon, Base, Arbitrum, and Solana.",
+    description="Deterministic Web3 x402 Micropayment MCP & AI Agent Tool Suite with Gemini 3.8 Flash Video Intelligence on Polygon, Base, Arbitrum, and Solana.",
     version="2.7.0",
     docs_url="/docs",
     redoc_url="/redoc",
@@ -335,7 +335,7 @@ def run_system_diagnostics():
     """
     Executes real-time deep self-audit across 5 mission-critical pipelines:
     1. Agent Security Gate Ingress Defense (Live Cloud Run & Latency SLA)
-    2. Gemini 3.6 Flash Video/Knowledge AI
+    2. Gemini 3.8 Flash Video/Knowledge AI
     3. EIP-712 Cryptographic On-Chain Signer
     4. SQLite WAL Storage & Agent Vault Ledger
     5. Multi-Chain RPC Nodes (Polygon, Base, Arbitrum)
@@ -449,7 +449,7 @@ def get_agent_capabilities():
         "tools": [
             {"name": "clean_web", "cost_usdc": 0.001, "description": "Fetch web page and convert to ad-free clean Markdown."},
             {"name": "batch_clean", "cost_usdc": 0.005, "description": "Scrape up to 10 URLs concurrently in parallel."},
-            {"name": "clean_youtube", "cost_usdc": 0.010, "description": "Gemini 3.6 Flash video intelligence and transcript extractor."},
+            {"name": "clean_youtube", "cost_usdc": 0.010, "description": "Gemini 3.8 Flash video intelligence and transcript extractor."},
             {"name": "clean_pdf", "cost_usdc": 0.005, "description": "Converts PDF research papers into structured Markdown."},
             {"name": "clean_text", "cost_usdc": 0.001, "description": "Purifies raw text, strips boilerplate and noisy markup."},
             {"name": "map_site", "cost_usdc": 0.002, "description": "Fast recursive sitemap and URL tree discovery."},
@@ -1355,7 +1355,7 @@ def get_pass_status(agent_wallet: str = Query(..., description="Agent Address or
 def oracle_grounding(request: Request, body: OracleGroundingRequest):
     """
     Autonomous Agent Web3 Oracle Grounding Pipeline.
-    Performs real-time web search, noise-free extraction, Gemini 3.6 Flash JSON structuring,
+    Performs real-time web search, noise-free extraction, Gemini 3.8 Flash JSON structuring,
     and signs the payload with EIP-712 cryptographic attestation (0.035 USDC or 0.040 USDC with Security Gate audit).
     """
     tier = PricingTier.SECURE_ORACLE_GROUNDING if body.secure_audit else PricingTier.ORACLE_GROUNDING
@@ -1650,7 +1650,7 @@ async def handle_mcp_http_jsonrpc(request: Request):
                 },
                 "instructions": (
                     "x402 CleanWeb & Autonomous Web3 Agent Suite. "
-                    "Features Gemini 3.6 Flash Video Summarization, Web noise-stripping, and EIP-712 Oracles on Polygon/Base/Arbitrum. "
+                    "Features Gemini 3.8 Flash Video Summarization, Web noise-stripping, and EIP-712 Oracles on Polygon/Base/Arbitrum. "
                     "Free sandbox tier available via 'X-Agent-Nonce' header."
                 )
             }

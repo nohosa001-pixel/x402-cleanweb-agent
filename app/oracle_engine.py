@@ -245,7 +245,7 @@ Format the JSON with keys:
                 from google import genai
                 client = genai.Client(api_key=GEMINI_API_KEY)
                 response = client.models.generate_content(
-                    model=os.getenv("GEMINI_MODEL", "gemini-1.5-flash"),
+                    model=os.getenv("GEMINI_MODEL", "gemini-3.8-flash"),
                     contents=prompt,
                     config={"response_mime_type": "application/json"}
                 )
@@ -352,7 +352,7 @@ Output strictly valid JSON only. Do not include markdown codeblocks or preamble.
                 from google import genai
                 client = genai.Client(api_key=GEMINI_API_KEY)
                 response = client.models.generate_content(
-                    model=os.getenv("GEMINI_MODEL", "gemini-1.5-flash"),
+                    model=os.getenv("GEMINI_MODEL", "gemini-3.8-flash"),
                     contents=prompt,
                     config={"response_mime_type": "application/json"}
                 )

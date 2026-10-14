@@ -43,6 +43,16 @@ class VaultManager:
         if not existing:
             initial_bal = 20.00 if is_test_env else 0.00
             storage_manager.deposit_vault(demo_addr, initial_bal, demo_key)
+        elif is_test_env:
+            if existing.get("balance_usdc", 0.0) < 1.0:
+                with storage_manager._lock:
+                    conn = storage_manager._get_conn()
+                    try:
+                        cur = conn.cursor()
+                        cur.execute("UPDATE agent_vaults SET balance_usdc = 20.0, total_deposited = 20.0 WHERE LOWER(agent_address) = ?", (demo_addr.lower(),))
+                        conn.commit()
+                    finally:
+                        conn.close()
         elif not is_test_env and existing.get("session_key") == demo_key and existing.get("balance_usdc", 0.0) > 0.0:
             with storage_manager._lock:
                 conn = storage_manager._get_conn()

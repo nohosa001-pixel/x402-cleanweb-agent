@@ -83,25 +83,47 @@ class YouTubeCleanerEngine:
             pass
         return {"title": f"YouTube Video ({video_id})", "author_name": "YouTube Creator"}
 
-    def fetch_gemini_summary(self, video_id: str, prompt_text: str = "") -> Optional[str]:
+    def fetch_gemini_summary(self, video_id: str, prompt_text: str = "", title: str = "", channel: str = "") -> Optional[str]:
         """Uses Google Gemini REST API to analyze and extract video summary."""
+        # Stop Gemini service if disabled or not configured
+        if os.getenv("GEMINI_ENABLED", "false").lower() not in ("true", "1", "yes"):
+            return None
+
         api_key = os.getenv("GEMINI_API_KEY", "")
         if not api_key:
             return None
 
-        # Use Gemini 3.6 Flash Video Intelligence
-        model_name = os.getenv("GEMINI_MODEL", "gemini-3.6-flash")
+        # Use Gemini 3.8 Flash Video Intelligence
+        model_name = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}"
         headers = {"Content-Type": "application/json"}
         
-        prompt = (
-            f"You are an expert video analyst. Analyze the YouTube video with ID '{video_id}' (URL: https://www.youtube.com/watch?v={video_id}). "
-            f"Provide a comprehensive, high-density structured summary including: "
-            f"1. Executive Summary\n2. Key Topics & Timelines\n3. Core Insights & Actionable Takeaways.\n"
-            f"Write in fluent Korean (or English if original is international)."
-        )
+        video_title = title or f"YouTube Video ({video_id})"
+        video_channel = channel or "YouTube Creator"
+
         if prompt_text:
-            prompt += f"\nContext/Subtitles: {prompt_text[:3500]}"
+            prompt = (
+                f"You are an expert video analyst. Analyze the following YouTube video content.\n"
+                f"Video Title: {video_title}\n"
+                f"Channel / Creator: {video_channel}\n"
+                f"URL: https://www.youtube.com/watch?v={video_id}\n\n"
+                f"Context / Video Subtitles / Transcript:\n{prompt_text[:7000]}\n\n"
+                f"Provide a comprehensive, high-density structured summary in fluent Korean (or English if original is international):\n"
+                f"1. 🎬 Executive Summary (개요 및 핵심 주제)\n"
+                f"2. 📌 Key Topics & Timelines (주요 내용 및 타임라인/흐름)\n"
+                f"3. 💡 Core Insights & Actionable Takeaways (핵심 인사이트 & 결론)"
+            )
+        else:
+            prompt = (
+                f"You are an expert video analyst. The user requested an analysis of this YouTube video, "
+                f"but direct subtitles/captions are disabled or unavailable for this video:\n"
+                f"Video Title: {video_title}\n"
+                f"Channel / Creator: {video_channel}\n"
+                f"URL: https://www.youtube.com/watch?v={video_id}\n\n"
+                f"Based on the video title, creator, and topic, provide a helpful topic overview in fluent Korean: "
+                f"explain what this video/topic is about, key concepts involved, and why it is significant. "
+                f"Note that direct subtitles were unavailable so this overview is grounded on video metadata and topic knowledge."
+            )
 
         payload = {
             "contents": [
@@ -123,17 +145,29 @@ class YouTubeCleanerEngine:
                 if candidates:
                     parts = candidates[0].get("content", {}).get("parts", [])
                     if parts:
-                        return parts[0].get("text", "")
+                        text = parts[0].get("text", "").strip()
+                        # Reject standard Gemini refusal strings when no transcript was given
+                        refusal_markers = [
+                            "cannot access or watch",
+                            "cannot access the specific youtube video",
+                            "i cannot access youtube",
+                            "i don't have access to the video",
+                            "unable to access the youtube video",
+                            "i cannot directly access or view youtube"
+                        ]
+                        if any(marker in text.lower() for marker in refusal_markers):
+                            return None
+                        return text
         except Exception:
             pass
         return None
 
     def fetch_invidious_subtitles(self, video_id: str, lang: str = "ko,en") -> Optional[str]:
         """Tries Invidious instances to retrieve video captions/subtitles."""
-        for inst in INVIDIOUS_INSTANCES:
+        for inst in INVIDIOUS_INSTANCES[:3]:
             try:
                 api_url = f"{inst}/api/v1/videos/{video_id}"
-                r = requests.get(api_url, timeout=4)
+                r = requests.get(api_url, timeout=2.0)
                 if r.status_code != 200:
                     continue
                 data = r.json()
@@ -178,33 +212,67 @@ class YouTubeCleanerEngine:
         transcript = ""
         method_used = "oembed_fallback"
 
-        # Step 1. Try official public transcript via youtube_transcript_api (Compliance-First)
+        # Step 1. Try official public transcript via youtube_transcript_api (Supports both v0.x and v1.x+)
         try:
             from youtube_transcript_api import YouTubeTranscriptApi
-            t_list = YouTubeTranscriptApi.get_transcript(video_id, languages=[l.strip() for l in lang.split(",")])
-            transcript = " ".join([item["text"] for item in t_list])
-            method_used = "youtube_transcript_api"
+            req_langs = [l.strip() for l in lang.split(",") if l.strip()]
+            snippets = None
+
+            if hasattr(YouTubeTranscriptApi, "get_transcript"):
+                # Legacy API (v0.x)
+                try:
+                    snippets = YouTubeTranscriptApi.get_transcript(video_id, languages=req_langs)
+                except Exception:
+                    pass
+            else:
+                # Modern API (v1.x+)
+                api = YouTubeTranscriptApi()
+                try:
+                    tl = api.list(video_id)
+                    try:
+                        tr = tl.find_transcript(req_langs)
+                    except Exception:
+                        tr = next(iter(tl), None)
+                    if tr:
+                        snippets = tr.fetch()
+                except Exception:
+                    try:
+                        snippets = api.fetch(video_id, languages=req_langs)
+                    except Exception:
+                        pass
+
+            if snippets:
+                parts = []
+                for s in snippets:
+                    if hasattr(s, "text"):
+                        parts.append(s.text)
+                    elif isinstance(s, dict) and "text" in s:
+                        parts.append(s["text"])
+                if parts:
+                    transcript = " ".join(parts).strip()
+                    if transcript:
+                        method_used = "youtube_transcript_api"
         except Exception:
             pass
 
-        # Step 2. Try Google Gemini Flash Video Intelligence
-        ai_summary = self.fetch_gemini_summary(video_id, prompt_text=transcript)
-        if ai_summary:
-            if not transcript:
-                transcript = f"AI Extracted Knowledge Summary for Video: {title}\n\n" + ai_summary
-                method_used = "gemini_3.6_flash_ai"
-            else:
-                method_used = "hybrid_gemini_flash_transcript"
-
-        # Step 3. Emergency fallback only if no transcript and no Gemini summary
-        if not transcript or method_used == "oembed_fallback":
+        # Step 2. Emergency fallback to Invidious public nodes if no transcript fetched
+        if not transcript:
             invidious_sub = self.fetch_invidious_subtitles(video_id, lang=lang)
-            if invidious_sub and len(invidious_sub) > 100:
+            if invidious_sub and len(invidious_sub) > 50:
                 transcript = invidious_sub
                 method_used = "invidious_subtitles"
 
+        # Step 3. Google Gemini Flash Video Intelligence
+        ai_summary = self.fetch_gemini_summary(video_id, prompt_text=transcript, title=title, channel=channel)
+        if ai_summary:
+            if transcript:
+                method_used = "hybrid_gemini_flash_transcript"
+            else:
+                transcript = f"AI Knowledge Overview for Video: {title}\n\n" + ai_summary
+                method_used = "gemini_3.8_flash_ai"
+
         if not transcript:
-            transcript = f"Title: {title}\nChannel: {channel}\nURL: https://www.youtube.com/watch?v={video_id}\n\n(Notice: Subtitles are disabled on this video and Gemini AI fallback provided video metadata)."
+            transcript = f"Title: {title}\nChannel: {channel}\nURL: https://www.youtube.com/watch?v={video_id}\n\n(Notice: Subtitles are disabled or unavailable for this video)."
 
         clean_tokens = max(1, len(transcript) // 4)
 

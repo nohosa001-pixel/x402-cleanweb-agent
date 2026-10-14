@@ -79,7 +79,7 @@ curl -X POST "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/api/v1/clean-w
 | **🔍 Agent Search** | `GET /api/v1/search?query=<KEYWORD>`| 0.002 USDC | 2 Credits | Fast real-time keyword search & verified snippets (Tavily) |
 | **📦 Batch Clean** | `POST /api/v1/batch-clean` | 0.005 USDC | 5 Credits | Scrapes up to 10 URLs concurrently in parallel |
 | **📑 PDF Paper Extractor** | `GET /api/v1/clean-pdf?url=<URL>` | 0.005 USDC | 5 Credits | Converts arXiv research papers and reports into clean Markdown |
-| **🎬 YouTube Transcript** | `GET /api/v1/clean-youtube?url=<URL>` | 0.010 USDC | 10 Credits | Gemini 3.6 Flash video intelligence & timestamped transcripts |
+| **🎬 YouTube Transcript** | `GET /api/v1/clean-youtube?url=<URL>` | 0.010 USDC | 10 Credits | Gemini 3.8 Flash video intelligence & timestamped transcripts |
 | **📊 Structured JSON** | `POST /api/v1/extract-json` | 0.030 USDC | 30 Credits | Extracts key-value structured JSON matching user-defined schema |
 | **🔮 Web3 Signed Oracle** | `POST /api/v1/oracle/grounding` | 0.035 USDC | 35 Credits | Live search + Clean-to-JSON + EIP-712 On-Chain Attestation |
 | **🧠 Deep Research** | `GET /api/v1/deep-research?query=<TOPIC>`| 0.150 USDC | 150 Credits| Multi-source synthesized AI executive research briefing |

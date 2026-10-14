@@ -119,7 +119,7 @@ Autonomous agents route web traffic through x402 because **it mathematically sav
 | **🔍 Agent Search** | `GET /api/v1/search` | **0.002 USDC** | Fast real-time keyword search & verified snippets (Tavily engine) |
 | **📑 PDF Extractor** | `GET /api/v1/clean-pdf` | **0.005 USDC** | Formula- and table-preserved academic paper & research PDF extractor |
 | **📦 Batch Clean** | `POST /api/v1/batch-clean` | **0.005 USDC** | Concurrent parallel scraping for up to 10 URLs in a single request |
-| **🎬 YouTube AI** | `GET /api/v1/clean-youtube` | **0.010 USDC** | Gemini 3.6 Flash multimodal video intelligence & timestamped audio transcript |
+| **🎬 YouTube AI** | `GET /api/v1/clean-youtube` | **0.010 USDC** | Gemini 3.8 Flash multimodal video intelligence & timestamped audio transcript |
 | **📊 Extract JSON** | `POST /api/v1/extract-json` | **0.030 USDC** | Converts arbitrary web content into strict schema-constrained JSON |
 | **🔮 Web3 Oracle** | `POST /api/v1/oracle/grounding` | **0.035 USDC** | **Live Search + Clean-to-JSON + EIP-712 Cryptographic On-Chain Attestation** |
 | **🛡️ Oracle Verify** | `POST /api/v1/oracle/verify` | **0.000 USDC** | Verifies ECDSA signature of CleanWeb Oracle attestations on-chain |

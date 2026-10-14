@@ -58,13 +58,13 @@ class DiagnosticEngine:
             }
 
     def check_gemini_engine(self) -> Dict[str, Any]:
-        """Verifies Gemini 3.6 Flash credentials and model configuration."""
+        """Verifies Gemini 3.8 Flash credentials and model configuration."""
         api_key = os.getenv("GEMINI_API_KEY", "")
-        model = os.getenv("GEMINI_MODEL", "gemini-3.6-flash")
+        model = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
         
         if not api_key:
             return {
-                "name": "Gemini 3.6 Flash Video & Knowledge Engine",
+                "name": "Gemini 3.8 Flash Video & Knowledge Engine",
                 "status": "DEGRADED",
                 "latency_ms": 0.0,
                 "details": "GEMINI_API_KEY missing; fallback to raw transcript parsing active"
@@ -72,7 +72,7 @@ class DiagnosticEngine:
         
         masked_key = api_key[:6] + "..." + api_key[-4:] if len(api_key) > 10 else "***"
         return {
-            "name": "Gemini 3.6 Flash Video & Knowledge Engine",
+            "name": "Gemini 3.8 Flash Video & Knowledge Engine",
             "status": "HEALTHY",
             "latency_ms": 1.0,
             "model": model,

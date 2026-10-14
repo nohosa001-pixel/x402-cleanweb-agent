@@ -150,7 +150,7 @@ class YouTubeCleanResponse(BaseModel):
     title: Optional[str] = None
     channel: Optional[str] = None
     duration_sec: Optional[int] = None
-    method_used: str  # "gemini_3.6_flash_ai", "invidious_subtitles", "youtube_transcript_api", "oembed_fallback"
+    method_used: str  # "gemini_3.8_flash_ai", "gemini_3.6_flash_ai", "hybrid_gemini_flash_transcript", "youtube_transcript_api", "oembed_fallback"
     engine: Optional[str] = "hybrid_video_intelligence"
     transcript: str
     ai_summary: Optional[str] = None

@@ -22,6 +22,8 @@ if hasattr(sys.stdout, "reconfigure"):
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
+os.environ["ENVIRONMENT"] = "testing"
+
 from fastapi.testclient import TestClient
 from app.main import app
 

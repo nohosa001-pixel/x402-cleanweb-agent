@@ -1,7 +1,7 @@
 {
   "$schema": "https://glama.ai/mcp/schemas/server.json",
   "name": "x402-cleanweb-oracle",
-  "description": "x402 CleanWeb & Autonomous Data Oracle: Pure B2A remote MCP server (SSE) providing 87% token-compressed web scraping, YouTube transcripts with Gemini 3.6 Flash, RAG dense vector embeddings, and on-chain verifiable EIP-712 & Solana Ed25519 cryptographic data oracles across Solana, Polygon, Base, and Arbitrum with gasless micropayments.",
+  "description": "x402 CleanWeb & Autonomous Data Oracle: Pure B2A remote MCP server (SSE) providing 87% token-compressed web scraping, YouTube transcripts with Gemini 3.8 Flash, RAG dense vector embeddings, and on-chain verifiable EIP-712 & Solana Ed25519 cryptographic data oracles across Solana, Polygon, Base, and Arbitrum with gasless micropayments.",
   "homepage": "https://github.com/nohosa001-pixel/x402-cleanweb-agent",
   "maintainers": [
     "nohosa001-pixel"
