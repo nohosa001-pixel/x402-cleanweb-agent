@@ -12,6 +12,7 @@ from typing import Optional, Dict, Any, List, Tuple
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from bs4 import BeautifulSoup, Comment
 from app.cleaners.security import is_safe_url
+from app.cleaners.sanitizer import cleanweb_sanitizer, CSS_HIDDEN_PATTERNS
 
 
 DEFAULT_HEADERS = {
@@ -97,6 +98,8 @@ class WebCleanerEngine:
             r = self.session.get(jina_url, headers=headers, timeout=12)
             if r.status_code == 200 and len(r.text) > 100:
                 md_content = r.text.strip()
+                purified = cleanweb_sanitizer.purify(md_content, is_html=False)
+                md_content = purified.sanitized_content
                 title_match = re.search(r"^Title:\s*(.+)$", md_content, re.MULTILINE)
                 title = title_match.group(1).strip() if title_match else url
                 
@@ -114,6 +117,14 @@ class WebCleanerEngine:
                     "word_count": word_count,
                     "estimated_reading_time_sec": max(1, int(word_count / 3.5)),
                     "engine": "jina_reader_waf_bypass",
+                    "security_audit": {
+                        "is_safe": purified.is_safe,
+                        "threats_detected": purified.threats_detected,
+                        "hidden_css_blocks_removed": 0,
+                        "zero_width_chars_removed": purified.zero_width_chars_removed,
+                        "exfiltration_links_neutralized": purified.exfiltration_links_neutralized,
+                        "content_hash": purified.content_hash
+                    },
                     "token_analytics": {
                         "raw_html_estimated_tokens": raw_tokens,
                         "clean_markdown_estimated_tokens": clean_tokens,
@@ -182,6 +193,7 @@ class WebCleanerEngine:
                     raise ve
 
         html_text = resp.text[:2_000_000]
+        html_text, zw_removed = cleanweb_sanitizer.strip_unicode_steganography(html_text)
         raw_tokens = max(1, len(html_text) // 4)
         soup = BeautifulSoup(html_text, "html.parser")
 
@@ -195,6 +207,22 @@ class WebCleanerEngine:
         ]
         for tag in soup(unwanted_tags):
             tag.decompose()
+
+        # Remove hidden CSS containers and stealth elements
+        hidden_css_blocks = 0
+        for el in soup.find_all(style=True):
+            style_str = el.get("style", "").lower()
+            if any(pat.search(style_str) for pat in CSS_HIDDEN_PATTERNS):
+                el.decompose()
+                hidden_css_blocks += 1
+
+        for el in soup.find_all(attrs={"hidden": True}):
+            el.decompose()
+            hidden_css_blocks += 1
+
+        for el in soup.find_all(attrs={"aria-hidden": "true"}):
+            el.decompose()
+            hidden_css_blocks += 1
 
         # Remove HTML comments
         for comment in soup.find_all(string=lambda s: isinstance(s, Comment)):
@@ -258,6 +286,10 @@ class WebCleanerEngine:
         # Normalize multiple newlines
         markdown_body = re.sub(r"\n{3,}", "\n\n", markdown_body)
 
+        # Multi-Vector Content Purification & Indirect Prompt Injection Scrubber
+        purified = cleanweb_sanitizer.purify(markdown_body, is_html=False)
+        markdown_body = purified.sanitized_content
+
         # Apply agent-specified max_tokens limit if requested
         if max_tokens and max_tokens > 0:
             char_limit = max_tokens * 4
@@ -282,6 +314,14 @@ class WebCleanerEngine:
             "estimated_reading_time_sec": reading_time_sec,
             "engine": "cleanweb_fast_parser",
             "latency_ms": latency_ms,
+            "security_audit": {
+                "is_safe": purified.is_safe,
+                "threats_detected": purified.threats_detected,
+                "hidden_css_blocks_removed": hidden_css_blocks,
+                "zero_width_chars_removed": zw_removed + purified.zero_width_chars_removed,
+                "exfiltration_links_neutralized": purified.exfiltration_links_neutralized,
+                "content_hash": purified.content_hash
+            },
             "token_analytics": {
                 "raw_html_estimated_tokens": raw_tokens,
                 "clean_markdown_estimated_tokens": clean_tokens,
