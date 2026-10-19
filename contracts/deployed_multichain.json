@@ -25,6 +25,10 @@
         "CleanWebOracleVerifier": {
           "address": "0x18fA451b1d9A9FbbDa6Ebd86F8b42891866ADc46",
           "explorer_link": "https://polygonscan.com/address/0x18fA451b1d9A9FbbDa6Ebd86F8b42891866ADc46#code"
+        },
+        "MineralTradeEscrow": {
+          "address": "0x8eB40eF1f032dd66CD54c6e1D0C29980C31d5E57",
+          "explorer_link": "https://polygonscan.com/address/0x8eB40eF1f032dd66CD54c6e1D0C29980C31d5E57"
         }
       }
     },
@@ -38,8 +42,8 @@
       "usdc_token": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
       "contracts": {
         "AgentPaymentVault": {
-          "address": "0x28292D76E07E5539F15F3b97935dE8E0432E76DD",
-          "explorer_link": "https://basescan.org/address/0x28292D76E07E5539F15F3b97935dE8E0432E76DD#code"
+          "address": "0x8eB40eF1f032dd66CD54c6e1D0C29980C31d5E57",
+          "explorer_link": "https://basescan.org/address/0x8eB40eF1f032dd66CD54c6e1D0C29980C31d5E57"
         },
         "CleanWebOracleConsumer": {
           "address": "0x2394d888Bd4FFeD472318B891FA17f7F9119dabe",
@@ -48,6 +52,15 @@
         "CleanWebOracleVerifier": {
           "address": "0x3eD259e47ebA439A9A35489787482B0003310740",
           "explorer_link": "https://basescan.org/address/0x3eD259e47ebA439A9A35489787482B0003310740#code"
+        },
+        "MineralsOracleConsumer": {
+          "address": "0xF0A781372cd7E32485603823390c791495140ca9",
+          "explorer_link": "https://basescan.org/address/0xF0A781372cd7E32485603823390c791495140ca9",
+          "primarySymbol": "Cu"
+        },
+        "MineralTradeEscrow": {
+          "address": "0xbFc79F55E410508aBCa2FF8ebA1120de4F209f68",
+          "explorer_link": "https://basescan.org/address/0xbFc79F55E410508aBCa2FF8ebA1120de4F209f68"
         }
       }
     },
@@ -61,8 +74,8 @@
       "usdc_token": "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
       "contracts": {
         "AgentPaymentVault": {
-          "address": "0x28292D76E07E5539F15F3b97935dE8E0432E76DD",
-          "explorer_link": "https://arbiscan.io/address/0x28292D76E07E5539F15F3b97935dE8E0432E76DD#code"
+          "address": "0xC089E5f72a7F5550Bb383C31B04Bf430a4E31372",
+          "explorer_link": "https://arbiscan.io/address/0xC089E5f72a7F5550Bb383C31B04Bf430a4E31372"
         },
         "CleanWebOracleConsumer": {
           "address": "0x2394d888Bd4FFeD472318B891FA17f7F9119dabe",
@@ -71,6 +84,15 @@
         "CleanWebOracleVerifier": {
           "address": "0x3eD259e47ebA439A9A35489787482B0003310740",
           "explorer_link": "https://arbiscan.io/address/0x3eD259e47ebA439A9A35489787482B0003310740#code"
+        },
+        "MineralsOracleConsumer": {
+          "address": "0x75F36e1682f283feBfB683dD40e93785715cE404",
+          "explorer_link": "https://arbiscan.io/address/0x75F36e1682f283feBfB683dD40e93785715cE404",
+          "primarySymbol": "Cu"
+        },
+        "MineralTradeEscrow": {
+          "address": "0x1884025dD7E510a4490533eC46A362fCb08D3822",
+          "explorer_link": "https://arbiscan.io/address/0x1884025dD7E510a4490533eC46A362fCb08D3822"
         }
       }
     },
