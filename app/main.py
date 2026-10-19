@@ -71,6 +71,7 @@ from app.multi_chain import multi_chain_manager
 from app.oracle_engine import oracle_engine
 from app.merkle_engine import merkle_engine, compute_tx_leaf
 from app.security_gate_client import security_gate_client
+from app.security_gate_middleware import SecurityGateMiddleware
 from app.diagnostics import diagnostic_engine
 import mcp_server
 from mcp.server.transport_security import TransportSecuritySettings
@@ -81,7 +82,7 @@ load_dotenv()
 app = FastAPI(
     title="CleanWeb Studio (x402 AI Agent Suite)",
     description="Deterministic Web3 x402 Micropayment MCP & AI Agent Tool Suite with Gemini 3.8 Flash Video Intelligence on Polygon, Base, Arbitrum, and Solana.",
-    version="2.8.0",
+    version="2.8.1",
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url="/openapi.json"
@@ -103,8 +104,14 @@ app.add_middleware(
         "X-Vault-Deposit-Endpoint",
         "X-Agent-Trial-Remaining",
         "X-Access-Policy",
+        "X-Security-Gate-Status",
+        "X-Security-Gate-Latency",
+        "X-Security-Gate-Version",
     ]
 )
+
+# 1-Line Zero-Friction Security Gate Defense (<2ms Prompt Injection / Jailbreak Filter)
+app.add_middleware(SecurityGateMiddleware)
 
 BASE_DIR = Path(__file__).parent.parent
 STATIC_DIR = BASE_DIR / "static"
