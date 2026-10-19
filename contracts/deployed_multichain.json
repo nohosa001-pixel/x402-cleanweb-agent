@@ -15,20 +15,20 @@
       "usdc_token": "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
       "contracts": {
         "AgentPaymentVault": {
-          "address": "0x45ecBfAa2F4B0Bc6ccD3eB2dB9B1Ca49CF121861",
-          "explorer_link": "https://polygonscan.com/address/0x45ecBfAa2F4B0Bc6ccD3eB2dB9B1Ca49CF121861#code"
+          "address": "0xbFc79F55E410508aBCa2FF8ebA1120de4F209f68",
+          "explorer_link": "https://polygonscan.com/address/0xbFc79F55E410508aBCa2FF8ebA1120de4F209f68"
         },
         "CleanWebOracleConsumer": {
-          "address": "0xAECbfBc171F522c35985AABa2FA1F9881A046D66",
-          "explorer_link": "https://polygonscan.com/address/0xAECbfBc171F522c35985AABa2FA1F9881A046D66#code"
+          "address": "0x4693a3644ac4E215Bed9ADb841212D4ee83D0675",
+          "explorer_link": "https://polygonscan.com/address/0x4693a3644ac4E215Bed9ADb841212D4ee83D0675"
         },
         "CleanWebOracleVerifier": {
-          "address": "0x18fA451b1d9A9FbbDa6Ebd86F8b42891866ADc46",
-          "explorer_link": "https://polygonscan.com/address/0x18fA451b1d9A9FbbDa6Ebd86F8b42891866ADc46#code"
+          "address": "0x5eE3C093D8D473670A5F67306d75316123A019a9",
+          "explorer_link": "https://polygonscan.com/address/0x5eE3C093D8D473670A5F67306d75316123A019a9"
         },
         "MineralTradeEscrow": {
-          "address": "0x8eB40eF1f032dd66CD54c6e1D0C29980C31d5E57",
-          "explorer_link": "https://polygonscan.com/address/0x8eB40eF1f032dd66CD54c6e1D0C29980C31d5E57"
+          "address": "0xd1F37196A1fe73Caa89ce7f4a58D6Fe49FD47655",
+          "explorer_link": "https://polygonscan.com/address/0xd1F37196A1fe73Caa89ce7f4a58D6Fe49FD47655"
         }
       }
     },
