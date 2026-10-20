@@ -107,3 +107,84 @@ def dispatch_clearing_event_background(
     except Exception as e:
         logger.debug(f"Failed to dispatch background clearing event: {e}")
 
+async def dispatch_early_signal_to_agrid_async(
+    signal_type: str,
+    importance_score: float,
+    summary_clean_text: str,
+    merkle_root: str,
+    source_url: str,
+    metadata: Optional[Dict[str, Any]] = None,
+) -> Optional[Dict[str, Any]]:
+    """
+    Directly dispatches fresh, high-value ground truth signals to A.GRID central headquarters (Priority 0).
+    Executed with fast non-blocking timeout (2.0s) with graceful fallback.
+    """
+    if not AGRID_SYNC_ENABLED:
+        return None
+
+    signal_payload = {
+        "signal_id": f"sig_cw_{uuid.uuid4().hex[:12]}",
+        "source_service": "cleanweb-studio",
+        "signal_type": signal_type,
+        "importance_score": float(importance_score),
+        "summary_clean_text": summary_clean_text[:5000] if summary_clean_text else "",
+        "merkle_root": merkle_root,
+        "source_url": source_url,
+        "metadata": metadata or {},
+    }
+
+    try:
+        if httpx is not None:
+            async with httpx.AsyncClient(timeout=2.0) as client:
+                res = await client.post(f"{AGRID_OPS_URL}/api/v1/grid/signals/early", json=signal_payload)
+                if res.is_success:
+                    data = res.json()
+                    logger.info(f"[A.GRID-HQ] Dispatched early signal {signal_payload['signal_id']} (Type: {signal_type}, Score: {importance_score})")
+                    return data
+                else:
+                    logger.debug(f"[A.GRID-HQ] Signal dispatch non-200: {res.status_code}")
+                    return None
+        else:
+            def _sync_post():
+                req = urllib.request.Request(
+                    f"{AGRID_OPS_URL}/api/v1/grid/signals/early",
+                    data=json.dumps(signal_payload).encode("utf-8"),
+                    headers={"Content-Type": "application/json"},
+                    method="POST"
+                )
+                with urllib.request.urlopen(req, timeout=2.0) as resp:
+                    if 200 <= resp.status < 300:
+                        return json.loads(resp.read().decode("utf-8"))
+                    return None
+            return await asyncio.to_thread(_sync_post)
+    except Exception as exc:
+        logger.debug(f"[A.GRID-HQ] Early signal dispatch skipped (offline or timeout): {exc}")
+        return None
+
+
+def dispatch_early_signal_background(
+    signal_type: str,
+    importance_score: float,
+    summary_clean_text: str,
+    merkle_root: str,
+    source_url: str,
+    metadata: Optional[Dict[str, Any]] = None,
+):
+    """Fire-and-forget background dispatcher for early intelligence signals."""
+    try:
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            loop = None
+        if loop and loop.is_running():
+            loop.create_task(dispatch_early_signal_to_agrid_async(
+                signal_type=signal_type,
+                importance_score=importance_score,
+                summary_clean_text=summary_clean_text,
+                merkle_root=merkle_root,
+                source_url=source_url,
+                metadata=metadata,
+            ))
+    except Exception as e:
+        logger.debug(f"Failed to dispatch background early signal: {e}")
+
