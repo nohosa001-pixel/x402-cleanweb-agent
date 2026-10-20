@@ -19,7 +19,7 @@ import urllib.request
 import urllib.parse
 from typing import Dict, Any, Optional
 
-DEFAULT_GATEWAY = "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app"
+DEFAULT_GATEWAY = "https://x402-cleanweb-agent-212942243360.asia-northeast3.run.app"
 SOLANA_MAINNET_CHAIN_ID = 101
 SOLANA_TREASURY_PUBKEY = "411ksMz9RHYVtVMe6RUUErzZYtrU9zzvkgzswKbqx9qp"
 SOLANA_USDC_MINT = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
