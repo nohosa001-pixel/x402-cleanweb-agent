@@ -1860,3 +1860,6 @@ async def get_legal_disclaimer():
 
 
 
+
+from app.brain_router import router as brain_router
+app.include_router(brain_router, prefix="/api/v1/brain", tags=["Eliza Brain Intelligence"])
