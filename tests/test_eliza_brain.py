@@ -62,5 +62,50 @@ class TestElizaBrain(unittest.TestCase):
 
         asyncio.run(_run())
 
+    def test_agrid_early_signal_dispatch_live_mock(self):
+        from unittest.mock import patch, MagicMock
+        from app.agrid_ops_client import dispatch_early_signal_to_agrid_async
+
+        async def _run():
+            mock_res = MagicMock()
+            mock_res.is_success = True
+            mock_res.status_code = 200
+            mock_res.json.return_value = {
+                "status": "DISPATCHED",
+                "signal_id": "sig_test_123",
+                "priority": "P0_IMMEDIATE"
+            }
+
+            with patch("httpx.AsyncClient.post", return_value=mock_res):
+                res = await dispatch_early_signal_to_agrid_async(
+                    signal_type="EUDR_POLICY_SHIFT",
+                    importance_score=0.95,
+                    summary_clean_text="EU Parliament postpones reporting deadline by 6 months.",
+                    merkle_root="0x1234abcd",
+                    source_url="https://ec.europa.eu/forests"
+                )
+                self.assertIsNotNone(res)
+                self.assertEqual(res["status"], "DISPATCHED")
+
+        asyncio.run(_run())
+
+    def test_agrid_early_signal_dispatch_graceful_fallback(self):
+        from unittest.mock import patch
+        from app.agrid_ops_client import dispatch_early_signal_to_agrid_async
+
+        async def _run():
+            with patch("httpx.AsyncClient.post", side_effect=Exception("Network Timeout")):
+                res = await dispatch_early_signal_to_agrid_async(
+                    signal_type="MINERAL_SUPPLY_DISRUPTION",
+                    importance_score=0.88,
+                    summary_clean_text="Cobalt export tariff hike announced.",
+                    merkle_root="0xdeadbeef",
+                    source_url="https://mining.gov.example"
+                )
+                self.assertIsNone(res)
+
+        asyncio.run(_run())
+
 if __name__ == "__main__":
     unittest.main()
+
