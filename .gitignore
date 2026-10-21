@@ -12,3 +12,4 @@ data/*.db
 data/
 *.log
 *.bak
+node_modules/
