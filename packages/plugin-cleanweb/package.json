@@ -1,5 +1,5 @@
 {
-  "name": "elizaos-plugin-cleanweb",
+  "name": "cleanweb-eliza-plugin",
   "version": "1.0.0",
   "description": "CleanWeb 87% token-compressed ad-free web intelligence, fresh ground truth discovery, and Solana x402 autonomous micropayments for ElizaOS",
   "main": "dist/index.js",
@@ -38,5 +38,10 @@
   "devDependencies": {
     "typescript": "^5.8.2",
     "@types/node": "^22.13.0"
-  }
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ]
 }
