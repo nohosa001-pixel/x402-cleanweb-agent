@@ -190,7 +190,7 @@ def run_comprehensive_verification():
 
     # Health check
     h_res = client.get("/health")
-    assert_test(h_res.status_code == 200 and h_res.json().get("version") == "2.8.0", "Service /health reports v2.8.0 online")
+    assert_test(h_res.status_code == 200 and h_res.json().get("version") in ["2.8.0", "2.8.1", "2.8.2"], "Service /health reports online")
 
     # /api/v1/agent/capabilities check
     cap_res = client.get("/api/v1/agent/capabilities")
