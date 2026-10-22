@@ -1,4 +1,4 @@
-# 🌐 elizaos-plugin-cleanweb
+# 🌐 cleanweb-eliza-plugin
 
 > **Official CleanWeb Studio & A.GRID Intelligence Plugin for ElizaOS**  
 > *87% LLM Token Reduction, Fresh Ground-Truth Discovery, and Solana Mainnet x402 Micropayments*
@@ -13,12 +13,12 @@
 
 ## 📦 Installation
 ```bash
-npm install elizaos-plugin-cleanweb
+npm install cleanweb-eliza-plugin
 ```
 
 ## 💻 Quick Start
 ```typescript
-import { cleanWebPlugin } from "elizaos-plugin-cleanweb";
+import { cleanWebPlugin } from "cleanweb-eliza-plugin";
 
 export default {
   name: "MyAutonomousAgent",

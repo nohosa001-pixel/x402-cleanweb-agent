@@ -20,7 +20,7 @@ from typing import Dict, Any, Optional
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
 
-X402_GATEWAY_URL = os.getenv("X402_GATEWAY_URL", "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app")
+X402_GATEWAY_URL = os.getenv("X402_GATEWAY_URL", "https://x402-cleanweb-agent-212942243360.asia-northeast3.run.app")
 AGENT_VAULT_KEY = os.getenv("AGENT_VAULT_KEY", "WELCOME100")
 
 
