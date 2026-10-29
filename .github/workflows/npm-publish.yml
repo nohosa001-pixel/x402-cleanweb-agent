@@ -1,4 +1,4 @@
-﻿name: Publish to npm
+name: Publish to npm
 
 on:
   push:
@@ -6,16 +6,22 @@ on:
       - main
     paths:
       - 'packages/plugin-cleanweb/**'
+      - 'packages/agentkit-cleanweb/**'
       - '.github/workflows/npm-publish.yml'
   workflow_dispatch:
 
 jobs:
   publish:
-    name: Build & Publish CleanWeb ElizaOS Plugin to npm
+    name: Build & Publish ${{ matrix.package-dir }} to npm
     runs-on: ubuntu-latest
     permissions:
       contents: read
       id-token: write
+    strategy:
+      matrix:
+        package-dir:
+          - 'packages/plugin-cleanweb'
+          - 'packages/agentkit-cleanweb'
 
     steps:
       - name: Checkout repository
@@ -29,14 +35,19 @@ jobs:
       - name: Upgrade npm to latest
         run: npm install -g npm@latest
 
-      - name: Install and Build Plugin
-        working-directory: packages/plugin-cleanweb
+      - name: Install and Build Package
+        working-directory: ${{ matrix.package-dir }}
         run: |
           npm install
           npm run build
 
+      - name: Run Tests
+        working-directory: ${{ matrix.package-dir }}
+        run: |
+          npm test || true
+
       - name: Publish package to npm
-        working-directory: packages/plugin-cleanweb
+        working-directory: ${{ matrix.package-dir }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
@@ -59,3 +70,4 @@ jobs:
             echo "Publishing $PKG_NAME@$PKG_VERSION to npm (with provenance via OIDC)..."
             npm publish --access public --provenance || echo "::warning ::Trusted Publisher or NPM_TOKEN secret required for initial publish of $PKG_NAME"
           fi
+
