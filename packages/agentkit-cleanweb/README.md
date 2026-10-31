@@ -4,8 +4,22 @@
 > Pure B2A (Business-to-Agent) 87% Token Noise Reduction, Research PDF Parser, YouTube Gemini Flash Intelligence, and Base Mainnet EIP-712 Ground Truth Attestations.
 
 [![npm version](https://img.shields.io/npm/v/agentkit-cleanweb.svg)](https://www.npmjs.com/package/agentkit-cleanweb)
+[![PyPI Core](https://img.shields.io/pypi/v/x402-cleanweb-agent?label=PyPI%20Core%20%28x402-cleanweb-agent%29&color=blue)](https://pypi.org/project/x402-cleanweb-agent/)
+[![ElizaOS Plugin](https://img.shields.io/npm/v/cleanweb-eliza-plugin?label=cleanweb-eliza-plugin&color=cb3837)](https://www.npmjs.com/package/cleanweb-eliza-plugin)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Base Mainnet](https://img.shields.io/badge/Base%20Mainnet-8453-blue)](https://basescan.org)
+
+---
+
+## 🔗 Official CleanWeb Multi-Registry Suite (npm ↔ PyPI Companion Packages)
+
+For full-stack multi-agent deployments, pair `agentkit-cleanweb` with the official **Python Core / MCP Server (`PyPI`)** and **ElizaOS v2 Plugin (`npm`)**:
+
+| Registry | Package | Role in Your Agent Stack | Install Command |
+| :---: | :--- | :--- | :--- |
+| **npm** | [**`agentkit-cleanweb`**](https://www.npmjs.com/package/agentkit-cleanweb) | **Coinbase AgentKit Action Provider** (Base Mainnet EIP-712 & x402 Vaults) | `npm install agentkit-cleanweb @coinbase/agentkit` |
+| **PyPI** | [**`x402-cleanweb-agent`**](https://pypi.org/project/x402-cleanweb-agent/) | **Python Core Engine, Claude/Cursor MCP Server & Dual-Core Eliza Brain** | `pip install x402-cleanweb-agent` *(or `uvx x402-cleanweb-agent`)* |
+| **npm** | [**`cleanweb-eliza-plugin`**](https://www.npmjs.com/package/cleanweb-eliza-plugin) | **ElizaOS v2 Plugin** (Solana x402 Micropayments & A.GRID Priority 0 Dispatch) | `npm install cleanweb-eliza-plugin` |
 
 ---
 
@@ -31,7 +45,11 @@ On GPT-4o or Claude 3.5 Sonnet, scraping a single 80KB page costs ~$0.05 in inpu
 ### 1. Installation
 
 ```bash
+# TypeScript / Coinbase AgentKit
 npm install agentkit-cleanweb @coinbase/agentkit
+
+# Companion Python Core & MCP Server (Optional: for local self-hosting & Claude/Cursor MCP)
+pip install x402-cleanweb-agent
 ```
 
 ### 2. Register Action Provider with AgentKit
@@ -105,12 +123,13 @@ console.log(`EIP-712 Signature: ${proof.attestation?.signature}`);
 
 ---
 
-## 🔒 Security & SafeGuard
+## 🔒 Dual-Core Security Gate & ElizaOS Brain Integration
 
-CleanWeb is fully integrated with **Agent Security Gate x402**, ensuring that all scraped content is scanned for:
-1. **Indirect Prompt Injection** and DAN jailbreak patterns.
-2. **AST Malicious Code Execution** payload traps.
-3. **Hallucination & Contradiction Filtering**.
+CleanWeb is powered by the **Dual-Core Cognitive Fortress** ([`x402-cleanweb-agent` on PyPI](https://pypi.org/project/x402-cleanweb-agent/)), ensuring that all scraped content passes through a 5-stage zero-trust pipeline:
+1. **Indirect Prompt Injection & Steganography Neutralization**
+2. **AST Malicious Code Execution Firewall**
+3. **ElizaOS Brain Causality & Brier Score Ground-Truth Verification**
+4. **Double Cryptographic Seal (Keccak-256 Merkle Root + EIP-712 Signature)**
 
 ---
 

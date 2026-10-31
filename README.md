@@ -1,14 +1,30 @@
-# ⚡ Multi-Chain & Solana x402 Autonomous AI Agent Suite & Spend Firewall (v2.8.2)
+# ⚡ Multi-Chain & Solana x402 Autonomous AI Agent Suite & Spend Firewall (v2.8.3)
 
 > **"High-Throughput Clean Web Markdown, YouTube Intelligence & Cryptographic Web3 Oracles for Autonomous AI Agents & Swarms."**  
 > *Zero credit cards required. Pure B2A (Business-to-Agent) USDC micropayments & pre-funded vaults on Solana, Polygon, Base, and Arbitrum with Solscan Verified IDLs & EIP-712 spend policy attestations.*
 
-[![Version](https://img.shields.io/badge/Version-2.8.2-00f2fe?style=for-the-badge&logo=fastapi&logoColor=black)](https://github.com/nohosa001-pixel/x402-cleanweb-agent)
+[![Version](https://img.shields.io/badge/Version-2.8.3-00f2fe?style=for-the-badge&logo=fastapi&logoColor=black)](https://github.com/nohosa001-pixel/x402-cleanweb-agent)
 [![PyPI](https://img.shields.io/pypi/v/x402-cleanweb-agent?style=for-the-badge&logo=pypi&logoColor=white&color=blue)](https://pypi.org/project/x402-cleanweb-agent/)
-[![Tests](https://img.shields.io/badge/Tests-78%2F78%20Passed%20(100%25)-success?style=for-the-badge&logo=pytest&logoColor=white)](https://github.com/nohosa001-pixel/x402-cleanweb-agent)
+[![npm agentkit](https://img.shields.io/npm/v/agentkit-cleanweb?style=for-the-badge&logo=npm&logoColor=white&label=agentkit-cleanweb&color=cb3837)](https://www.npmjs.com/package/agentkit-cleanweb)
+[![npm eliza](https://img.shields.io/npm/v/cleanweb-eliza-plugin?style=for-the-badge&logo=npm&logoColor=white&label=cleanweb-eliza-plugin&color=cb3837)](https://www.npmjs.com/package/cleanweb-eliza-plugin)
+[![Tests](https://img.shields.io/badge/Tests-84%2F84%20Passed%20(100%25)-success?style=for-the-badge&logo=pytest&logoColor=white)](https://github.com/nohosa001-pixel/x402-cleanweb-agent)
 [![MCP](https://img.shields.io/badge/MCP-14%20Tools%20Ready-blueviolet?style=for-the-badge&logo=anthropic&logoColor=white)](https://glama.ai/mcp/servers)
 [![Multi-Chain](https://img.shields.io/badge/Chains-Polygon%20%7C%20Base%20%7C%20Arbitrum%20%7C%20Solana-8247e5?style=for-the-badge&logo=ethereum&logoColor=white)](https://solscan.io/account/411ksMz9RHYVtVMe6RUUErzZYtrU9zzvkgzswKbqx9qp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+
+---
+
+## 📦 Official Multi-Registry Ecosystem Suite (PyPI ↔ npm)
+
+CleanWeb is distributed natively across both **Python (PyPI)** and **TypeScript/Node.js (npm)** registries. Install the companion package for your stack—or combine the Python MCP/Oracle Core with TypeScript agent frameworks:
+
+| Registry | Package Name | Target Ecosystem | 1-Line Install Command |
+| :---: | :--- | :--- | :--- |
+| **PyPI** | [**`x402-cleanweb-agent`**](https://pypi.org/project/x402-cleanweb-agent/) | **Python Core, FastAPI Oracle, Claude/Cursor MCP Server & Dual-Core Eliza Brain** | `pip install x402-cleanweb-agent` *(or `uvx x402-cleanweb-agent`)* |
+| **npm** | [**`agentkit-cleanweb`**](https://www.npmjs.com/package/agentkit-cleanweb) | **Coinbase AgentKit Action Provider (Base Mainnet EIP-712 & x402 Vaults)** | `npm install agentkit-cleanweb @coinbase/agentkit` |
+| **npm** | [**`cleanweb-eliza-plugin`**](https://www.npmjs.com/package/cleanweb-eliza-plugin) | **ElizaOS v2 Plugin (Solana x402 Micropayments & A.GRID Priority 0 Feed)** | `npm install cleanweb-eliza-plugin` |
+
+> 💡 **Full-Stack Hybrid Pattern (Recommended)**: Run `pip install x402-cleanweb-agent` on your backend/MCP host for local Dual-Core Security Gate + Eliza Brain scrubbing, and connect your TypeScript agents via `npm install agentkit-cleanweb` or `npm install cleanweb-eliza-plugin`.
 
 ---
 
@@ -25,32 +41,38 @@
 
 ---
 
-## 🤖 1-Minute Framework Integration (ElizaOS, LangChain & CrewAI)
+## 🤖 1-Minute Framework Integration (Coinbase AgentKit, ElizaOS, LangChain & CrewAI)
 
-Equip your autonomous agents with x402 clean web extraction in under 1 minute:
+Equip your autonomous agents across TypeScript (npm) and Python (PyPI) in under 1 minute:
 
-```python
-# ElizaOS (v2) Autonomous Web3 Agent Action Provider
-from examples.elizaos_plugin_example import ElizaOSCleanWebAction
+```typescript
+// TypeScript: Official Coinbase AgentKit Action Provider (npm: agentkit-cleanweb)
+import { cleanWebActionProvider } from "agentkit-cleanweb";
 
-action = ElizaOSCleanWebAction()
-res = action.handler("https://paulgraham.com/greatwork.html")
-print(res["markdown"])  # Clean markdown with 87% token reduction
+const cleanWeb = cleanWebActionProvider({ vaultKey: process.env.AGENT_VAULT_KEY });
+```
+
+```typescript
+// TypeScript: Official ElizaOS v2 Plugin (npm: cleanweb-eliza-plugin)
+import { cleanWebPlugin } from "cleanweb-eliza-plugin";
+
+export default { name: "AlphaScoutAgent", plugins: [cleanWebPlugin] };
 ```
 
 ```python
-# LangChain Agent Tool Example
+# Python: ElizaOS / Dual-Core Gate-Brain Bridge (PyPI: x402-cleanweb-agent)
+from app.integrated_gate_brain_bridge import IntegratedGateBrainBridge
+
+bridge = IntegratedGateBrainBridge(require_x402_payment=False)
+res = bridge.execute_pipeline("https://paulgraham.com/greatwork.html", "https://paulgraham.com")
+```
+
+```python
+# Python: LangChain & CrewAI Agent Tools
 from examples.langchain_agent_example import clean_web_tool
-
-result = clean_web_tool.invoke({"url": "https://paulgraham.com/greatwork.html"})
-print(result)  # Clean markdown with 87% token noise reduction
-```
-
-```python
-# CrewAI Researcher Tool Example
 from examples.crewai_agent_example import clean_web_for_crewai
 
-content = clean_web_for_crewai("https://paulgraham.com/greatwork.html")
+result = clean_web_tool.invoke({"url": "https://paulgraham.com/greatwork.html"})
 ```
 
 ---
@@ -235,31 +257,12 @@ CleanWeb operates verified, deterministic smart contracts and native settlement 
 
 ---
 
-## 🧪 Production Readiness Review: 43/43 Tests Passed (100%)
+## 🧪 Production Readiness Review: 84/84 Tests Passed (100%)
 
-Verified across all 38+ FastAPI routes, 14 agent tools, multi-chain settlement vaults, and EIP-712 attestations:
+Verified across all 38+ FastAPI routes, 14 agent tools, Dual-Core Gate-Brain cognitive pipeline, multi-chain settlement vaults, and EIP-712 attestations:
 
 ```bash
 python -m pytest tests/ -v
-```
-
-```text
-tests/test_agent_discovery.py::test_well_known_manifests PASSED              [  2%]
-tests/test_agent_discovery.py::test_agent_capabilities_reflection PASSED     [  4%]
-tests/test_agent_discovery.py::test_agent_pricing_catalog PASSED             [  6%]
-tests/test_agent_discovery.py::test_agent_arbitrage_roi PASSED               [  9%]
-tests/test_agent_discovery.py::test_agent_framework_integrations PASSED      [ 11%]
-tests/test_diagnostics.py::test_run_full_diagnostic PASSED                  [ 13%]
-tests/test_diagnostics.py::test_diagnostics_endpoint PASSED                 [ 16%]
-tests/test_enhanced_agent_features.py (16 tests) PASSED                      [ 53%]
-tests/test_oracle_grounding.py (3 tests) PASSED                              [ 60%]
-tests/test_payment_comprehensive.py (4 tests) PASSED                         [ 69%]
-tests/test_phase1_cleaners.py (4 tests) PASSED                               [ 79%]
-tests/test_phase2_payments.py (5 tests) PASSED                               [ 90%]
-tests/test_routes_coverage.py::test_all_api_routes_operational PASSED         [ 93%]
-tests/test_treasury.py (3 tests) PASSED                                      [100%]
-
-================== 43 passed, 2 warnings in 85.93s (100%) ==================
 ```
 
 ---

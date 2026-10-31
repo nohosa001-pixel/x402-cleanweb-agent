@@ -1,6 +1,6 @@
 {
   "name": "agentkit-cleanweb",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Official Coinbase AgentKit Action Provider for CleanWeb 87% Token Reduction, Research PDF Parser, YouTube Gemini Intelligence, and Base Mainnet EIP-712 Oracle Grounding",
   "main": "dist/index.js",
   "module": "dist/index.js",
