@@ -12,7 +12,8 @@ from typing import Optional, Dict, Any, List, Tuple
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from bs4 import BeautifulSoup, Comment
 from app.cleaners.security import is_safe_url
-from app.cleaners.sanitizer import cleanweb_sanitizer, CSS_HIDDEN_PATTERNS
+import json
+from app.cleaners.sanitizer import cleanweb_sanitizer, CSS_HIDDEN_PATTERNS, EXFIL_PARAM_PATTERN
 
 
 DEFAULT_HEADERS = {
@@ -40,6 +41,84 @@ def normalize_url(url: str) -> str:
     if not re.match(r'^https?://', cleaned, re.IGNORECASE):
         cleaned = 'https://' + cleaned
     return cleaned
+
+
+
+
+def extract_spa_hydration_data(soup: BeautifulSoup) -> Dict[str, Any]:
+    """
+    Extracts structured content from Single-Page Application (SPA) hydration state:
+    Next.js (__NEXT_DATA__), Nuxt.js (__NUXT_DATA__), and Schema.org JSON-LD (application/ld+json).
+    Zero-overhead, pure Python execution without spinning up heavy headless browsers.
+    """
+    hydration_result: Dict[str, Any] = {
+        "framework": None,
+        "extracted_texts": [],
+        "title": None,
+        "metadata": {}
+    }
+
+    # 1. Next.js Hydration State
+    next_script = soup.find("script", id="__NEXT_DATA__")
+    if next_script and next_script.string:
+        try:
+            next_data = json.loads(next_script.string)
+            hydration_result["framework"] = "Next.js"
+            props = next_data.get("props", {}).get("pageProps", {})
+
+            def _walk_json(obj, depth=0):
+                if depth > 6:
+                    return
+                if isinstance(obj, str):
+                    s = obj.strip()
+                    if len(s) > 25 and not s.startswith("http") and not s.startswith("{"):
+                        hydration_result["extracted_texts"].append(s)
+                elif isinstance(obj, dict):
+                    for k, v in obj.items():
+                        if k.lower() in ("title", "headline") and isinstance(v, str):
+                            if not hydration_result["title"]:
+                                hydration_result["title"] = v
+                        _walk_json(v, depth + 1)
+                elif isinstance(obj, list):
+                    for item in obj:
+                        _walk_json(item, depth + 1)
+
+            _walk_json(props)
+        except Exception:
+            pass
+
+    # 2. Nuxt.js Hydration State
+    nuxt_script = soup.find("script", id="__NUXT_DATA__")
+    if nuxt_script and nuxt_script.string:
+        try:
+            nuxt_data = json.loads(nuxt_script.string)
+            hydration_result["framework"] = "Nuxt.js"
+            if isinstance(nuxt_data, list):
+                for item in nuxt_data:
+                    if isinstance(item, str) and len(item.strip()) > 25:
+                        hydration_result["extracted_texts"].append(item.strip())
+        except Exception:
+            pass
+
+    # 3. Schema.org JSON-LD Structured Data
+    for ld_script in soup.find_all("script", type="application/ld+json"):
+        if ld_script.string:
+            try:
+                ld_data = json.loads(ld_script.string)
+                items = ld_data if isinstance(ld_data, list) else [ld_data]
+                for item in items:
+                    if isinstance(item, dict):
+                        for k in ("headline", "name"):
+                            if item.get(k) and not hydration_result["title"]:
+                                hydration_result["title"] = str(item[k]).strip()
+                        for body_field in ("articleBody", "description", "text"):
+                            body_val = item.get(body_field)
+                            if body_val and isinstance(body_val, str) and len(body_val.strip()) > 20:
+                                hydration_result["extracted_texts"].append(body_val.strip())
+            except Exception:
+                pass
+
+    return hydration_result
 
 
 class WebCleanerEngine:
@@ -136,14 +215,22 @@ class WebCleanerEngine:
             pass
         return None
 
-    def fetch_and_clean(self, url: str, respect_robots_txt: bool = False, max_tokens: Optional[int] = None) -> Dict[str, Any]:
-        """Fetches a URL and parses it into clean Markdown with automatic WAF fallback, connection pooling, and token metrics."""
+    def fetch_and_clean(
+        self,
+        url: str,
+        respect_robots_txt: bool = False,
+        max_tokens: Optional[int] = None,
+        preserve_alt_text: bool = True,
+        dynamic_render: bool = False,
+        scroll_depth: int = 0
+    ) -> Dict[str, Any]:
+        """Fetches a URL and parses it into clean Markdown with SPA hydration, multimodal alt-text, WAF fallback, and token metrics."""
         url = normalize_url(url)
 
         if not is_safe_url(url):
             raise ValueError(f"Blocked URL ({url}): Access to local/private network or cloud metadata services is prohibited for security.")
 
-        cache_key = f"{url}_robots_{respect_robots_txt}_max_{max_tokens}"
+        cache_key = f"{url}_robots_{respect_robots_txt}_max_{max_tokens}_alt_{preserve_alt_text}_dyn_{dynamic_render}_sc_{scroll_depth}"
         cached = self._get_from_cache(cache_key)
         if cached:
             cached["cached"] = True
@@ -170,9 +257,36 @@ class WebCleanerEngine:
 
         start_time = time.time()
         resp = None
+        html_text = None
         try:
-            resp = self.session.get(url, timeout=self.timeout_sec)
-            resp.raise_for_status()
+            if dynamic_render:
+                try:
+                    from playwright.sync_api import sync_playwright
+                    with sync_playwright() as p:
+                        browser = p.chromium.launch(headless=True)
+                        page = browser.new_page()
+                        page.goto(url, wait_until="networkidle", timeout=self.timeout_sec * 1000)
+                        for _ in range(max(1, scroll_depth)):
+                            page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+                            time.sleep(0.3)
+                        rendered_html = page.content()
+                        browser.close()
+                    html_text = rendered_html[:2_000_000]
+                except ImportError:
+                    jina_res = self._fetch_jina_fallback(url)
+                    if jina_res:
+                        jina_res["latency_ms"] = round((time.time() - start_time) * 1000, 2)
+                        jina_res["engine"] = "cleanweb_dynamic_jina_headless"
+                        self._set_cache(cache_key, jina_res)
+                        return jina_res
+                    resp = self.session.get(url, timeout=self.timeout_sec)
+                    resp.raise_for_status()
+                except Exception:
+                    resp = self.session.get(url, timeout=self.timeout_sec)
+                    resp.raise_for_status()
+            else:
+                resp = self.session.get(url, timeout=self.timeout_sec)
+                resp.raise_for_status()
         except Exception as primary_err:
             # Try Jina Reader Fallback
             jina_res = self._fetch_jina_fallback(url)
@@ -183,22 +297,25 @@ class WebCleanerEngine:
             raise primary_err
 
         # Safeguard: Protect against memory bombs and runaway payloads
-        content_length = resp.headers.get("Content-Length")
-        if content_length:
-            try:
-                if int(content_length) > 10 * 1024 * 1024:
-                    raise ValueError(f"Target webpage exceeds maximum allowed size of 10MB (got {int(content_length)/(1024*1024):.1f}MB).")
-            except ValueError as ve:
-                if "exceeds maximum" in str(ve):
-                    raise ve
-
-        html_text = resp.text[:2_000_000]
+        if resp is not None:
+            content_length = resp.headers.get("Content-Length")
+            if content_length:
+                try:
+                    if int(content_length) > 10 * 1024 * 1024:
+                        raise ValueError(f"Target webpage exceeds maximum allowed size of 10MB (got {int(content_length)/(1024*1024):.1f}MB).")
+                except ValueError as ve:
+                    if "exceeds maximum" in str(ve):
+                        raise ve
+            html_text = resp.text[:2_000_000]
         html_text, zw_removed = cleanweb_sanitizer.strip_unicode_steganography(html_text)
         raw_tokens = max(1, len(html_text) // 4)
         soup = BeautifulSoup(html_text, "html.parser")
 
+        # Extract SPA Hydration State (Next.js, Nuxt.js, JSON-LD) prior to tag stripping
+        spa_data = extract_spa_hydration_data(soup)
+
         # Extract title
-        title = soup.title.string.strip() if soup.title and soup.title.string else url
+        title = soup.title.string.strip() if soup.title and soup.title.string else (spa_data.get("title") or url)
 
         # Remove noisy tags
         unwanted_tags = [
@@ -243,8 +360,25 @@ class WebCleanerEngine:
         if title:
             markdown_lines.append(f"# {title}\n")
 
-        for elem in main_content.find_all(["h1", "h2", "h3", "h4", "p", "ul", "ol", "pre", "blockquote", "table"]):
+        for elem in main_content.find_all(["h1", "h2", "h3", "h4", "h5", "h6", "p", "ul", "ol", "pre", "blockquote", "table", "img"]):
             tag_name = elem.name.lower()
+            if tag_name == "img":
+                if preserve_alt_text:
+                    alt = elem.get("alt", "").strip()
+                    src = elem.get("src", "").strip()
+                    w = elem.get("width", "")
+                    h = elem.get("height", "")
+                    if str(w).lower() in ("0", "1", "0px", "1px") or str(h).lower() in ("0", "1", "0px", "1px"):
+                        continue
+                    if alt:
+                        if EXFIL_PARAM_PATTERN.search(src):
+                            markdown_lines.append(f"\n![{alt}][EXFILTRATION_IMAGE_BLOCKED]\n")
+                        elif src:
+                            markdown_lines.append(f"\n![{alt}]({src})\n")
+                        else:
+                            markdown_lines.append(f"\n[Image: {alt}]\n")
+                continue
+
             text = elem.get_text(separator=" ", strip=True)
             if not text or len(text) < 2:
                 continue
@@ -272,6 +406,18 @@ class WebCleanerEngine:
                 markdown_lines.append(f"\n```\n{text}\n```\n")
 
         markdown_body = "\n".join(markdown_lines).strip()
+        # SPA Hydration Fallback for client-side rendered Single Page Apps
+        if (not markdown_body or len(markdown_body) < 150) and spa_data.get("extracted_texts"):
+            spa_lines = [f"# {title}\n"]
+            if spa_data.get("framework"):
+                spa_lines.append(f"*(Hydrated via {spa_data['framework']} State)*\n")
+            seen_texts = set()
+            for t_item in spa_data["extracted_texts"]:
+                if t_item not in seen_texts:
+                    seen_texts.add(t_item)
+                    spa_lines.append(f"{t_item}\n")
+            markdown_body = "\n".join(spa_lines).strip()
+
         if not markdown_body or len(markdown_body) < 50:
             # Fallback to plain text
             markdown_body = f"# {title}\n\n" + soup.get_text(separator="\n", strip=True)
@@ -287,7 +433,7 @@ class WebCleanerEngine:
         markdown_body = re.sub(r"\n{3,}", "\n\n", markdown_body)
 
         # Multi-Vector Content Purification & Indirect Prompt Injection Scrubber
-        purified = cleanweb_sanitizer.purify(markdown_body, is_html=False)
+        purified = cleanweb_sanitizer.purify(markdown_body, is_html=False, preserve_alt_text=preserve_alt_text)
         markdown_body = purified.sanitized_content
 
         # Apply agent-specified max_tokens limit if requested
@@ -314,6 +460,11 @@ class WebCleanerEngine:
             "estimated_reading_time_sec": reading_time_sec,
             "engine": "cleanweb_fast_parser",
             "latency_ms": latency_ms,
+            "spa_hydration": {
+                "detected": bool(spa_data.get("framework") or spa_data.get("extracted_texts")),
+                "framework": spa_data.get("framework"),
+                "hydrated_elements": len(spa_data.get("extracted_texts", []))
+            },
             "security_audit": {
                 "is_safe": purified.is_safe,
                 "threats_detected": purified.threats_detected,

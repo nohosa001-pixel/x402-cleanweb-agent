@@ -688,7 +688,10 @@ def clean_web(
     max_tokens: Optional[int] = Query(None, description="Max token limit for output markdown to prevent LLM context overflow"),
     onchain_proof: bool = Query(False, description="Whether to generate EIP-712 cryptographic attestation"),
     secure_audit: bool = Query(False, description="Run real-time AST, prompt injection, and EIP-712 security audit via Security Gate Agent"),
-    respect_robots_txt: bool = Query(False, description="Whether to enforce target domain robots.txt compliance")
+    respect_robots_txt: bool = Query(False, description="Whether to enforce target domain robots.txt compliance"),
+    preserve_alt_text: bool = Query(True, description="Preserve descriptive image alt text for multimodal LLMs while neutralizing covert tracking channels"),
+    dynamic_render: bool = Query(False, description="Enable client-side JavaScript rendering and SPA hydration extraction"),
+    scroll_depth: int = Query(0, description="Number of infinite scroll iterations")
 ):
     if secure_audit:
         tier = PricingTier.SECURE_WEB_CLEAN
@@ -702,7 +705,14 @@ def clean_web(
         return err_resp
 
     try:
-        data = web_cleaner_engine.fetch_and_clean(url, respect_robots_txt=respect_robots_txt, max_tokens=max_tokens)
+        data = web_cleaner_engine.fetch_and_clean(
+            url,
+            respect_robots_txt=respect_robots_txt,
+            max_tokens=max_tokens,
+            preserve_alt_text=preserve_alt_text,
+            dynamic_render=dynamic_render,
+            scroll_depth=scroll_depth
+        )
         proof = None
         if onchain_proof:
             proof = onchain_signer.sign_cleanweb_attestation(

@@ -33,7 +33,7 @@ load_dotenv(override=True)
 # MCP Server Initialization
 mcp = MCPServer(
     name="x402-cleanweb-agent",
-    version="2.8.3",
+    version="2.8.4",
     description="Deterministic Web3 x402 Micropayment MCP Suite for Web, YouTube Gemini AI, and PDF Papers on Solana, Polygon, Base, and Arbitrum."
 )
 
@@ -173,13 +173,12 @@ def get_payment_info(
     name="clean_web_content",
     description=(
         "Scrapes and converts any target web page into clean, LLM-ready structured Markdown, stripping ads, "
-        "cookie banners, navigation clutter, modals, and script noise.\n\n"
+        "cookie banners, navigation clutter, modals, and script noise. Supports SPA hydration & multimodal alt-text.\n\n"
         "Usage Guidelines:\n"
-        "- Use this tool to ingest real-time web articles, blogs, and documentation into LLM context windows.\n"
+        "- Use this tool to ingest real-time web articles, blogs, SPAs, and documentation into LLM context windows.\n"
         "- Returns: Clean markdown body, page title, word count, and extraction metadata.\n"
-        "- Do NOT use for YouTube video parsing (use `clean_youtube_transcript`).\n"
-        "- Do NOT use for PDF whitepapers or academic papers (use `clean_pdf_research`).\n"
-        "- Do NOT use for paywalled, login-required, or bot-blocked sites."
+        "- Preserve alt text: Extracts descriptive image alt text (![alt](url)) for multimodal reasoning while neutralizing tracking pixels.\n"
+        "- SPA & Dynamic: Supports Next.js/Nuxt.js/JSON-LD hydration state extraction and dynamic rendering for client-side apps."
     )
 )
 def clean_web_content(
@@ -196,14 +195,41 @@ def clean_web_content(
     respect_robots_txt: bool = Field(
         default=False,
         description="Whether to enforce target domain robots.txt Disallow rules (compliance-mode)."
+    ),
+    preserve_alt_text: bool = Field(
+        default=True,
+        description="Preserve descriptive image alt text (![alt](url)) for multimodal LLMs while neutralizing tracking pixels."
+    ),
+    dynamic_render: bool = Field(
+        default=False,
+        description="Enable client-side JavaScript rendering and SPA hydration extraction for single-page apps."
+    ),
+    scroll_depth: int = Field(
+        default=0,
+        description="Number of infinite scroll iterations to trigger dynamic lazy-loaded content (default: 0)."
+    ),
+    max_tokens: Optional[int] = Field(
+        default=None,
+        description="Optional maximum tokens to truncate markdown output."
     )
 ) -> str:
     pay_err = _enforce_mcp_payment(auth_token_or_tx, 0.001, "clean_web_content")
     if pay_err:
         return pay_err
     respect_robots_txt = _coerce_val(respect_robots_txt, False)
+    preserve_alt_text = _coerce_val(preserve_alt_text, True)
+    dynamic_render = _coerce_val(dynamic_render, False)
+    scroll_depth = _coerce_val(scroll_depth, 0)
+    max_tokens = _coerce_val(max_tokens, None)
     try:
-        data = web_cleaner_engine.fetch_and_clean(url, respect_robots_txt=respect_robots_txt)
+        data = web_cleaner_engine.fetch_and_clean(
+            url,
+            respect_robots_txt=respect_robots_txt,
+            max_tokens=max_tokens,
+            preserve_alt_text=preserve_alt_text,
+            dynamic_render=dynamic_render,
+            scroll_depth=scroll_depth
+        )
         return f"✅ [CLEAN WEB SUCCESS]\n\n# {data['title']}\n\n{data['markdown_content']}"
     except Exception as e:
         return f"❌ [FETCH ERROR]: {str(e)}"

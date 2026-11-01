@@ -123,10 +123,11 @@ SECRET_PATTERNS = [
 
 
 class CleanwebHTMLParser(HTMLParser):
-    """Parses HTML, detects hidden text containers, strips scripts and dangerous tags."""
+    """Parses HTML, detects hidden text containers, strips scripts, and extracts safe image alt text."""
 
-    def __init__(self):
+    def __init__(self, preserve_alt_text: bool = True):
         super().__init__()
+        self.preserve_alt_text: bool = preserve_alt_text
         self.output_pieces: List[str] = []
         self.hidden_injections: List[str] = []
         self.dangerous_tags_removed: int = 0
@@ -143,6 +144,32 @@ class CleanwebHTMLParser(HTMLParser):
         if tag_lower in DANGEROUS_HTML_TAGS:
             self._in_dangerous_tag = True
             self.dangerous_tags_removed += 1
+            return
+
+        if tag_lower == "img":
+            if self.preserve_alt_text and self._current_hidden_level == 0 and not self._in_dangerous_tag:
+                alt_text = ""
+                src_url = ""
+                is_tracking_pixel = False
+                for attr_name, attr_val in attrs:
+                    if not attr_val:
+                        continue
+                    a_name = attr_name.lower()
+                    a_val = attr_val.strip()
+                    if a_name == "alt":
+                        alt_text = a_val
+                    elif a_name == "src":
+                        src_url = a_val
+                    elif a_name in ("width", "height") and a_val.lower() in ("0", "1", "0px", "1px"):
+                        is_tracking_pixel = True
+                if alt_text and not is_tracking_pixel:
+                    if src_url:
+                        if EXFIL_PARAM_PATTERN.search(src_url):
+                            self.output_pieces.append(f" ![{alt_text}][EXFILTRATION_IMAGE_BLOCKED] ")
+                        else:
+                            self.output_pieces.append(f" ![{alt_text}]({src_url}) ")
+                    else:
+                        self.output_pieces.append(f" [Image: {alt_text}] ")
             return
 
         is_hidden = False
@@ -276,9 +303,9 @@ class CleanwebSanitizer:
         return "".join(normalized)
 
     @classmethod
-    def sanitize_html_content(cls, raw_html: str) -> Tuple[str, int, int, List[str]]:
-        """Parses HTML, removes hidden CSS containers, strips dangerous tags."""
-        parser = CleanwebHTMLParser()
+    def sanitize_html_content(cls, raw_html: str, preserve_alt_text: bool = True) -> Tuple[str, int, int, List[str]]:
+        """Parses HTML, removes hidden CSS containers, strips dangerous tags, and preserves image alt text."""
+        parser = CleanwebHTMLParser(preserve_alt_text=preserve_alt_text)
         try:
             parser.feed(raw_html)
             parser.close()
@@ -304,21 +331,25 @@ class CleanwebSanitizer:
 
         def md_sub(m):
             nonlocal neutralized_count
-            url = m.group(1)
+            alt = m.group(1)
+            url = m.group(2)
             if EXFIL_PARAM_PATTERN.search(url):
                 neutralized_count += 1
-                return "[EXFILTRATION_IMAGE_BLOCKED]"
+                return f"![{alt}][EXFILTRATION_IMAGE_BLOCKED]" if alt else "[EXFILTRATION_IMAGE_BLOCKED]"
             return m.group(0)
 
-        clean_text = re.sub(r"!\[.*?\]\((https?:\/\/[^\s\)]+)\)", md_sub, text)
+        clean_text = re.sub(r"!\[(.*?)\]\((https?:\/\/[^\s\)]+)\)", md_sub, text)
 
         def html_sub(m):
             nonlocal neutralized_count
-            src = m.group(1)
-            if EXFIL_PARAM_PATTERN.search(src):
+            full_match = m.group(0)
+            src_m = re.search(r"src=['\"](https?:\/\/[^'\"]+)['\"]", full_match, re.IGNORECASE)
+            alt_m = re.search(r"alt=['\"]([^'\"]*)['\"]", full_match, re.IGNORECASE)
+            alt = alt_m.group(1).strip() if alt_m else ""
+            if src_m and EXFIL_PARAM_PATTERN.search(src_m.group(1)):
                 neutralized_count += 1
-                return "<!-- EXFILTRATION_IMAGE_BLOCKED -->"
-            return m.group(0)
+                return f"<!-- EXFILTRATION_IMAGE_BLOCKED: {alt} -->" if alt else "<!-- EXFILTRATION_IMAGE_BLOCKED -->"
+            return full_match
 
         clean_text = re.sub(r"<img[^>]+src=['\"](https?:\/\/[^'\"]+)['\"][^>]*>", html_sub, clean_text, flags=re.IGNORECASE)
 
@@ -331,7 +362,7 @@ class CleanwebSanitizer:
         return clean_text, neutralized_count
 
     @classmethod
-    def purify(cls, raw_content: str, is_html: Optional[bool] = None) -> CleanwebResult:
+    def purify(cls, raw_content: str, is_html: Optional[bool] = None, preserve_alt_text: bool = True) -> CleanwebResult:
         """Main purification pipeline."""
         start_time = time.perf_counter()
 
@@ -368,7 +399,7 @@ class CleanwebSanitizer:
         extracted_hidden_texts: List[str] = []
 
         if is_html:
-            cleaned_text, hidden_blocks_removed, dangerous_tags_removed, extracted_hidden_texts = cls.sanitize_html_content(neutralized_text)
+            cleaned_text, hidden_blocks_removed, dangerous_tags_removed, extracted_hidden_texts = cls.sanitize_html_content(neutralized_text, preserve_alt_text=preserve_alt_text)
             if hidden_blocks_removed > 0:
                 threats_found.append(f"HIDDEN_CSS_CONTAINER_INJECTION ({hidden_blocks_removed} blocks stripped)")
             if dangerous_tags_removed > 0:
