@@ -8,6 +8,13 @@ Write-Host "========================================================" -Foregroun
 
 # 1. Check gcloud CLI
 if (-not (Get-Command gcloud -ErrorAction SilentlyContinue)) {
+    if (Test-Path "$env:LOCALAPPDATA\Google\Cloud SDK\google-cloud-sdk\bin") {
+        $env:PATH = "$env:LOCALAPPDATA\Google\Cloud SDK\google-cloud-sdk\bin;" + $env:PATH
+    } elseif (Test-Path "C:\Users\nohos\AppData\Local\Google\Cloud SDK\google-cloud-sdk\bin") {
+        $env:PATH = "C:\Users\nohos\AppData\Local\Google\Cloud SDK\google-cloud-sdk\bin;" + $env:PATH
+    }
+}
+if (-not (Get-Command gcloud -ErrorAction SilentlyContinue)) {
     Write-Host "[ERROR] gcloud CLI is not installed or not in PATH." -ForegroundColor Red
     exit 1
 }
