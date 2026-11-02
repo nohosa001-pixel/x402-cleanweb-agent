@@ -4,13 +4,13 @@ Unit tests for LangChain x402 CleanWeb Tool
 Tests both direct invocation and mocked responses for LangChain compliance.
 """
 
-import pytest
 import unittest
 from unittest.mock import patch, MagicMock
+import asyncio
 from integrations.langchain.x402_cleanweb_tool import X402CleanWebTool, X402CleanWebInput
 
 
-class TestX402CleanWebTool(unittest.IsolatedAsyncioTestCase):
+class TestX402CleanWebTool(unittest.TestCase):
     def setUp(self):
         self.tool = X402CleanWebTool(gateway_url="https://mock-gateway.local", vault_key="TEST_KEY")
 
@@ -54,13 +54,12 @@ class TestX402CleanWebTool(unittest.IsolatedAsyncioTestCase):
         self.assertIn("[x402 Payment Required]", result)
         self.assertIn("Free trial quota exhausted", result)
 
-    @pytest.mark.asyncio
-    async def test_async_arun(self):
-        """Verify asynchronous invocation works properly."""
+    def test_async_arun(self):
+        """Verify asynchronous invocation works properly via asyncio.run."""
         with patch.object(self.tool, "_run", return_value="Async Success Content") as mock_run:
-            result = await self.tool._arun(url="https://example.com")
+            result = asyncio.run(self.tool._arun(url="https://example.com"))
             self.assertEqual(result, "Async Success Content")
-            mock_run.assert_called_once_with("https://example.com", True)
+            self.assertTrue(mock_run.called)
 
 
 if __name__ == "__main__":

@@ -5,6 +5,7 @@ Enables autonomous AI agents to fetch clean, noise-free Markdown with 87% token
 savings and zero credit card dependency via x402 micropayments.
 
 Complies with LangChain standard BaseTool specification (동기 _run, 비동기 _arun, Pydantic v2 args_schema).
+Supports v2.8.4 Multimodal Alt-Text Preservation and Zero-Overhead SPA Hydration.
 """
 
 from __future__ import annotations
@@ -40,6 +41,18 @@ class X402CleanWebInput(BaseModel):
         default=True,
         description="Whether to return pure stripped markdown optimized for LLM token savings."
     )
+    preserve_alt_text: bool = Field(
+        default=True,
+        description="Preserve descriptive image alt text (![alt](url)) for multimodal LLMs while neutralizing covert tracking pixels."
+    )
+    dynamic_render: bool = Field(
+        default=False,
+        description="Enable client-side JavaScript rendering and SPA hydration extraction for single-page apps."
+    )
+    scroll_depth: int = Field(
+        default=0,
+        description="Number of infinite scroll iterations to trigger dynamic lazy-loaded content."
+    )
 
 
 class X402CleanWebTool(BaseTool):
@@ -52,6 +65,7 @@ class X402CleanWebTool(BaseTool):
     description: str = (
         "A high-throughput web scraping and cleaning tool. "
         "Transforms cluttered HTML webpages into 87% token-reduced clean Markdown. "
+        "Supports multimodal image alt-text preservation and SPA hydration extraction. "
         "Useful for web research, reading articles, documentation, or news without ad noise. "
         "Input should be a valid web URL."
     )
@@ -81,14 +95,23 @@ class X402CleanWebTool(BaseTool):
         self,
         url: str,
         raw_markdown: bool = True,
+        preserve_alt_text: bool = True,
+        dynamic_render: bool = False,
+        scroll_depth: int = 0,
         run_manager: Optional[CallbackManagerForToolRun] = None,
     ) -> str:
         """Synchronously execute the web clean request."""
         try:
             headers = self._build_headers()
+            params = {
+                "url": url,
+                "preserve_alt_text": preserve_alt_text,
+                "dynamic_render": dynamic_render,
+                "scroll_depth": scroll_depth
+            }
             response = requests.get(
                 f"{self.gateway_url.rstrip('/')}/api/v1/clean-web",
-                params={"url": url},
+                params=params,
                 headers=headers,
                 timeout=self.timeout
             )
@@ -123,10 +146,18 @@ class X402CleanWebTool(BaseTool):
         self,
         url: str,
         raw_markdown: bool = True,
+        preserve_alt_text: bool = True,
+        dynamic_render: bool = False,
+        scroll_depth: int = 0,
         run_manager: Optional[AsyncCallbackManagerForToolRun] = None,
     ) -> str:
         """Asynchronously execute the web clean request."""
         import asyncio
-        # Run sync request in default executor for lightweight non-blocking execution
-        loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, self._run, url, raw_markdown)
+        return await asyncio.to_thread(
+            self._run,
+            url,
+            raw_markdown,
+            preserve_alt_text,
+            dynamic_render,
+            scroll_depth
+        )

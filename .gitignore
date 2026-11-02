@@ -13,3 +13,8 @@ data/
 *.log
 *.bak
 node_modules/
+
+llama-hub/
+packages/*/dist/
+packages/*/*.egg-info/
+packages/*/build/

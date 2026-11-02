@@ -135,3 +135,4 @@ class X402CleanWebReader(BaseReader):
                 documents.append(error_doc)
 
         return documents
+

@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llama-index-readers-x402-cleanweb"
+version = "0.1.0"
+description = "LlamaIndex official data reader integration for x402 CleanWeb Studio (87% token reduction, multimodal alt-text, and prompt injection defense)"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [
+    { name = "nohosa001-pixel", email = "nohosa001@gmail.com" }
+]
+keywords = [
+    "llamaindex",
+    "llamahub",
+    "web-scraping",
+    "token-reduction",
+    "prompt-injection",
+    "cleanweb",
+    "x402",
+    "solana",
+    "base",
+    "polygon"
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12"
+]
+dependencies = [
+    "requests>=2.31.0"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["llama_index*"]
+
+[tool.llamahub]
+contains_example = false
+import_path = "llama_index.readers.x402_cleanweb"
+
+[tool.llamahub.class_authors]
+X402CleanWebReader = "nohosa001-pixel"
+
