@@ -38,8 +38,11 @@ CleanWeb is distributed natively across both **Python (PyPI)** and **TypeScript/
 | **PyPI** | [**`x402-cleanweb-agent`**](https://pypi.org/project/x402-cleanweb-agent/) | **Python Core, FastAPI Oracle, Claude/Cursor MCP Server & Dual-Core Eliza Brain** | `pip install x402-cleanweb-agent` *(or `uvx x402-cleanweb-agent`)* |
 | **npm** | [**`agentkit-cleanweb`**](https://www.npmjs.com/package/agentkit-cleanweb) | **Coinbase AgentKit Action Provider (Base Mainnet EIP-712 & x402 Vaults)** | `npm install agentkit-cleanweb @coinbase/agentkit` |
 | **npm** | [**`cleanweb-eliza-plugin`**](https://www.npmjs.com/package/cleanweb-eliza-plugin) | **ElizaOS v2 Plugin (Solana x402 Micropayments & A.GRID Priority 0 Feed)** | `npm install cleanweb-eliza-plugin` |
+| **npm** | [**`elizaos-plugin-security-gate`**](https://www.npmjs.com/package/elizaos-plugin-security-gate) | **Security Gate & Polygon OMS Spend Firewall (Prompt-Injection Defense)** | `npm install elizaos-plugin-security-gate` |
 
-> 💡 **Full-Stack Hybrid Pattern (Recommended)**: Run `pip install x402-cleanweb-agent` on your backend/MCP host for local Dual-Core Security Gate + Eliza Brain scrubbing, and connect your TypeScript agents via `npm install agentkit-cleanweb` or `npm install cleanweb-eliza-plugin`.
+> 💡 **Full-Stack Zero-Trust Pattern (Recommended)**:
+> 1. Use **`cleanweb-eliza-plugin`** (or `x402-cleanweb-agent`) for 87% token-compressed, ad-free web ground truth.
+> 2. Guard outbound transactions and web payloads via **`elizaos-plugin-security-gate`** with **Polygon Open Money Stack (OMS) spend controls** (`SecurityGateOMSPolicy.sol` verified on Polygon: `0x4A28F9A2E6D0DcB69791980560FC8364A514f205`) and sub-second **Solana (`501`) settlements**.
 
 ---
 
