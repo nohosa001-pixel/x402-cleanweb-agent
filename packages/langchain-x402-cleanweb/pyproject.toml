@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "langchain-x402-cleanweb"
+version = "0.1.0"
+description = "LangChain official tool integration for x402 CleanWeb Agent (87% token reduction, multimodal alt-text, anti-prompt injection, and autonomous micropayments)"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [
+    { name = "nohosa001-pixel", email = "nohosa001@gmail.com" }
+]
+keywords = [
+    "langchain",
+    "langchain-tool",
+    "langchain-community",
+    "web-scraping",
+    "token-reduction",
+    "prompt-injection",
+    "cleanweb",
+    "x402",
+    "solana",
+    "base",
+    "polygon"
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12"
+]
+dependencies = [
+    "requests>=2.31.0",
+    "pydantic>=2.0",
+    "langchain-core>=0.1.0"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["langchain_x402_cleanweb*"]
+
+[project.urls]
+Homepage = "https://github.com/nohosa001-pixel/x402-cleanweb-agent"
+Repository = "https://github.com/nohosa001-pixel/langchain-x402-cleanweb"
+Documentation = "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/docs"
