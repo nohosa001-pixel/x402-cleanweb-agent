@@ -5,7 +5,7 @@ Pydantic Schemas and Data Models for x402-cleanweb-agent.
 import re
 from typing import Dict, Any, Optional, List
 from enum import Enum
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 
 class PricingTier(str, Enum):
@@ -110,12 +110,41 @@ class ScrapeMetadata(BaseModel):
 
 # --- Web Cleaner Schemas ---
 class CleanWebRequest(BaseModel):
-    url: str = Field(..., description="Target webpage URL to scrape and convert to markdown")
+    url: Optional[str] = Field(None, description="Target webpage URL to scrape and convert to markdown")
+    target_url: Optional[str] = Field(None, description="Tolerant alias for url")
+    link: Optional[str] = Field(None, description="Tolerant alias for url")
+    input: Optional[str] = Field(None, description="Tolerant alias for url")
+    query: Optional[str] = Field(None, description="Tolerant alias for url")
+    target: Optional[str] = Field(None, description="Tolerant alias for url")
     density: Optional[str] = Field("standard", description="Markdown density level ('standard', 'dense', 'light')")
     max_tokens: Optional[int] = Field(None, description="Max token limit for output markdown to prevent LLM context overflow")
     onchain_proof: bool = Field(False, description="Whether to generate EIP-712 cryptographic attestation")
     secure_audit: bool = Field(False, description="Run real-time AST, prompt injection, and EIP-712 security audit")
     respect_robots_txt: bool = Field(False, description="Whether to enforce target domain robots.txt compliance")
+    preserve_alt_text: bool = Field(True, description="Preserve descriptive image alt text for multimodal LLMs")
+    dynamic_render: bool = Field(False, description="Enable client-side JavaScript rendering and SPA hydration extraction")
+    scroll_depth: int = Field(0, description="Number of infinite scroll iterations")
+
+    @model_validator(mode="before")
+    @classmethod
+    def normalize_url_and_params(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            if not data.get("url"):
+                for candidate in ["target_url", "link", "input", "query", "target", "uri", "web_url", "source", "page"]:
+                    val = data.get(candidate)
+                    if val and isinstance(val, str):
+                        url_match = re.search(r'''https?://[^\s"'<>]+''', val)
+                        if url_match:
+                            data["url"] = url_match.group(0)
+                            break
+                        elif val.startswith(("http://", "https://")):
+                            data["url"] = val
+                            break
+            elif isinstance(data["url"], str):
+                url_match = re.search(r'''https?://[^\s"'<>]+''', data["url"])
+                if url_match:
+                    data["url"] = url_match.group(0)
+        return data
 
 
 class WebCleanResponse(BaseModel):

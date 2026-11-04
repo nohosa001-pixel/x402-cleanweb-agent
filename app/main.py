@@ -4,6 +4,7 @@ Enterprise-grade high-concurrency micro-agent service with rate limiting, Promet
 """
 
 import os
+import re
 import hmac
 import hashlib
 import json
@@ -683,7 +684,12 @@ def get_framework_integration(framework: str):
 @app.get("/api/v1/clean-web", response_model=WebCleanResponse, tags=["Cleaners"])
 def clean_web(
     request: Request,
-    url: str = Query(..., description="Target webpage URL to scrape and convert to markdown"),
+    url: Optional[str] = Query(None, description="Target webpage URL to scrape and convert to markdown"),
+    target_url: Optional[str] = Query(None, description="Tolerant alias for url"),
+    link: Optional[str] = Query(None, description="Tolerant alias for url"),
+    query: Optional[str] = Query(None, description="Tolerant alias for url"),
+    input: Optional[str] = Query(None, description="Tolerant alias for url"),
+    target: Optional[str] = Query(None, description="Tolerant alias for url"),
     density: str = Query("standard", description="Markdown density ('standard', 'dense', 'light')"),
     max_tokens: Optional[int] = Query(None, description="Max token limit for output markdown to prevent LLM context overflow"),
     onchain_proof: bool = Query(False, description="Whether to generate EIP-712 cryptographic attestation"),
@@ -693,9 +699,38 @@ def clean_web(
     dynamic_render: bool = Query(False, description="Enable client-side JavaScript rendering and SPA hydration extraction"),
     scroll_depth: int = Query(0, description="Number of infinite scroll iterations")
 ):
-    if secure_audit:
+    # Tolerant URL resolution across all query aliases and raw query string
+    resolved_url = None
+    for candidate in [url, target_url, link, query, input, target]:
+        if isinstance(candidate, str) and candidate.strip():
+            resolved_url = candidate.strip()
+            break
+
+    if not resolved_url and hasattr(request, "query_params"):
+        for k, v in request.query_params.items():
+            if isinstance(v, str) and ("http://" in v or "https://" in v):
+                m = re.search(r'''https?://[^\s"'<>]+''', v)
+                if m:
+                    resolved_url = m.group(0)
+                    break
+    elif isinstance(resolved_url, str):
+        m = re.search(r'''https?://[^\s"'<>]+''', resolved_url)
+        if m:
+            resolved_url = m.group(0)
+
+    if not resolved_url:
+        raise HTTPException(
+            status_code=400,
+            detail="Missing target webpage URL. Pass ?url=https://... or any alias like ?target_url=, ?link=, ?query=, ?input="
+        )
+    url = resolved_url
+    
+    is_secure_audit = secure_audit is True
+    is_onchain_proof = onchain_proof is True
+
+    if is_secure_audit:
         tier = PricingTier.SECURE_WEB_CLEAN
-    elif onchain_proof:
+    elif is_onchain_proof:
         tier = PricingTier.ONCHAIN
     else:
         tier = PricingTier.LIGHT
@@ -705,23 +740,29 @@ def clean_web(
         return err_resp
 
     try:
+        eff_respect_robots = respect_robots_txt if isinstance(respect_robots_txt, bool) else bool(getattr(respect_robots_txt, 'default', False))
+        eff_max_tokens = max_tokens if isinstance(max_tokens, int) else getattr(max_tokens, 'default', None)
+        eff_preserve_alt = preserve_alt_text if isinstance(preserve_alt_text, bool) else bool(getattr(preserve_alt_text, 'default', True))
+        eff_dynamic_render = dynamic_render if isinstance(dynamic_render, bool) else bool(getattr(dynamic_render, 'default', False))
+        eff_scroll_depth = scroll_depth if isinstance(scroll_depth, int) else int(getattr(scroll_depth, 'default', 0))
+
         data = web_cleaner_engine.fetch_and_clean(
             url,
-            respect_robots_txt=respect_robots_txt,
-            max_tokens=max_tokens,
-            preserve_alt_text=preserve_alt_text,
-            dynamic_render=dynamic_render,
-            scroll_depth=scroll_depth
+            respect_robots_txt=eff_respect_robots,
+            max_tokens=eff_max_tokens,
+            preserve_alt_text=eff_preserve_alt,
+            dynamic_render=eff_dynamic_render,
+            scroll_depth=eff_scroll_depth
         )
         proof = None
-        if onchain_proof:
+        if is_onchain_proof:
             proof = onchain_signer.sign_cleanweb_attestation(
                 target_url=url,
                 content_text=data["markdown_content"]
             )
 
         sec_audit_obj = None
-        if secure_audit:
+        if is_secure_audit:
             audit_raw = security_gate_client.inspect_content(
                 text=data["markdown_content"],
                 is_code=False,
@@ -773,9 +814,14 @@ def clean_web(
 @app.post("/api/v1/clean-web", response_model=WebCleanResponse, tags=["Cleaners"])
 def clean_web_post(request: Request, body: CleanWebRequest):
     """
-    POST variant supporting JSON payload bodies: {"url": "https://...", "onchain_proof": false}
+    POST variant supporting JSON payload bodies with tolerant alias parsing (target_url, link, input, query).
     Essential for autonomous LLM agents and LangChain / CrewAI tool invocation.
     """
+    if not body.url:
+        raise HTTPException(
+            status_code=400,
+            detail="Missing target webpage URL in body. Provide {'url': 'https://...'} or aliases {'target_url', 'link', 'input', 'query'}."
+        )
     return clean_web(
         request=request,
         url=body.url,
@@ -783,7 +829,10 @@ def clean_web_post(request: Request, body: CleanWebRequest):
         max_tokens=body.max_tokens,
         onchain_proof=body.onchain_proof,
         secure_audit=body.secure_audit,
-        respect_robots_txt=body.respect_robots_txt
+        respect_robots_txt=body.respect_robots_txt,
+        preserve_alt_text=body.preserve_alt_text,
+        dynamic_render=body.dynamic_render,
+        scroll_depth=body.scroll_depth
     )
 
 
@@ -961,7 +1010,7 @@ def clean_youtube(
     try:
         data = youtube_cleaner_engine.clean_youtube(url, lang=lang)
         proof = None
-        if onchain_proof:
+        if is_onchain_proof:
             proof = onchain_signer.sign_cleanweb_attestation(
                 target_url=data["url"],
                 content_text=data["transcript"]
@@ -1032,7 +1081,7 @@ def clean_pdf(
     try:
         data = pdf_cleaner_engine.clean_pdf(url, max_pages=max_pages)
         proof = None
-        if onchain_proof:
+        if is_onchain_proof:
             proof = onchain_signer.sign_cleanweb_attestation(
                 target_url=data["url"],
                 content_text=data["text_content"]
