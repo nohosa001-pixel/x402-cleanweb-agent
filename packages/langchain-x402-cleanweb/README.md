@@ -1,5 +1,7 @@
 # LangChain x402 CleanWeb Integration
 
+[![LangChain Official Integration](https://img.shields.io/badge/LangChain-Official%20Provider-1C3C3C?style=for-the-badge&logo=langchain&logoColor=white)](https://docs.langchain.com/oss/python/integrations/providers/all_providers) [![PyPI](https://img.shields.io/pypi/v/langchain-x402-cleanweb?style=for-the-badge&logo=pypi&logoColor=white&color=blue)](https://pypi.org/project/langchain-x402-cleanweb/)
+
 Official LangChain tool integration for **x402 CleanWeb Studio** (`x402-cleanweb-agent`).
 
 Enables autonomous LangChain agents, conversational bots, and RAG pipelines to scrape and ingest web content at scale without drowning LLM context windows in boilerplate HTML, navigation scripts, tracking pixels, and ads.

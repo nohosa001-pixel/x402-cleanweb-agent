@@ -4,6 +4,7 @@
 > *Zero credit cards required. Pure B2A (Business-to-Agent) USDC micropayments & pre-funded vaults on Solana, Polygon, Base, and Arbitrum with Solscan Verified IDLs & EIP-712 spend policy attestations.*
 
 [![Version](https://img.shields.io/badge/Version-2.8.4-00f2fe?style=for-the-badge&logo=fastapi&logoColor=black)](https://github.com/nohosa001-pixel/x402-cleanweb-agent)
+[![LangChain Official Integration](https://img.shields.io/badge/LangChain-Official%20Provider-1C3C3C?style=for-the-badge&logo=langchain&logoColor=white)](https://docs.langchain.com/oss/python/integrations/providers/all_providers)
 [![PyPI](https://img.shields.io/pypi/v/x402-cleanweb-agent?style=for-the-badge&logo=pypi&logoColor=white&color=blue)](https://pypi.org/project/x402-cleanweb-agent/)
 [![npm agentkit](https://img.shields.io/npm/v/agentkit-cleanweb?style=for-the-badge&logo=npm&logoColor=white&label=agentkit-cleanweb&color=cb3837)](https://www.npmjs.com/package/agentkit-cleanweb)
 [![npm eliza](https://img.shields.io/npm/v/cleanweb-eliza-plugin?style=for-the-badge&logo=npm&logoColor=white&label=cleanweb-eliza-plugin&color=cb3837)](https://www.npmjs.com/package/cleanweb-eliza-plugin)
