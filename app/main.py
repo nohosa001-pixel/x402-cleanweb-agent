@@ -996,9 +996,10 @@ def clean_youtube(
     onchain_proof: bool = Query(False, description="Whether to generate EIP-712 cryptographic attestation"),
     secure_audit: bool = Query(False, description="Run Security Gate audit on transcript and AI summary")
 ):
+    eff_onchain = onchain_proof is True or getattr(onchain_proof, 'default', None) is True
     if secure_audit:
         tier = PricingTier.SECURE_YOUTUBE_CLEAN
-    elif onchain_proof:
+    elif eff_onchain:
         tier = PricingTier.ONCHAIN
     else:
         tier = PricingTier.HEAVY
@@ -1010,7 +1011,7 @@ def clean_youtube(
     try:
         data = youtube_cleaner_engine.clean_youtube(url, lang=lang)
         proof = None
-        if is_onchain_proof:
+        if eff_onchain:
             proof = onchain_signer.sign_cleanweb_attestation(
                 target_url=data["url"],
                 content_text=data["transcript"]
@@ -1073,7 +1074,8 @@ def clean_pdf(
     max_pages: int = Query(30, description="Max pages to parse"),
     onchain_proof: bool = Query(False, description="Whether to generate EIP-712 cryptographic attestation")
 ):
-    tier = PricingTier.ONCHAIN if onchain_proof else PricingTier.STANDARD
+    eff_onchain = onchain_proof is True or getattr(onchain_proof, 'default', None) is True
+    tier = PricingTier.ONCHAIN if eff_onchain else PricingTier.STANDARD
     is_auth, receipt, err_resp = x402_verifier.verify_request(request, tier=tier)
     if not is_auth:
         return err_resp
@@ -1081,7 +1083,7 @@ def clean_pdf(
     try:
         data = pdf_cleaner_engine.clean_pdf(url, max_pages=max_pages)
         proof = None
-        if is_onchain_proof:
+        if eff_onchain:
             proof = onchain_signer.sign_cleanweb_attestation(
                 target_url=data["url"],
                 content_text=data["text_content"]
