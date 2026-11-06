@@ -15,6 +15,7 @@ from dotenv import load_dotenv
 from typing import Optional, Dict, Any, List
 from collections import defaultdict, deque
 import requests
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from fastapi import FastAPI, Request, HTTPException, status, Query, Body, Response
 from fastapi.responses import JSONResponse, FileResponse, PlainTextResponse, HTMLResponse, StreamingResponse, RedirectResponse
@@ -156,6 +157,153 @@ METRICS = {
 
 
 @app.middleware("http")
+async def clean_markdown_trailing_url_middleware(request: Request, call_next):
+    """
+    Catches and auto-redirects URLs with trailing punctuation artifacts from markdown / chat auto-linkers
+    (e.g., '/dashboard)', '/dashboard.', '/r/stream/...%60', etc.) back to clean endpoints with HTTP 301.
+    Preserves legit static file extensions like .json, .js, .css, .html, .svg, .png, .txt.
+    """
+    path = request.url.path
+    clean_path = path
+    changed = False
+
+    # 1. Strip raw trailing punctuation characters including markdown backticks, quotes, parens
+    trailing_outer = "`*~\"'!,;)]>\\"
+    if any(clean_path.endswith(ch) for ch in trailing_outer):
+        clean_path = clean_path.rstrip(trailing_outer)
+        changed = True
+
+    # 2. Handle common URL-encoded punctuation suffixes
+    outer_encoded = [
+        ("%60", "`"), ("%29", ")"), ("%5D", "]"), ("%3E", ">"),
+        ("%22", "\""), ("%27", "'"), ("%2C", ","), ("%3B", ";"), ("%25", "%")
+    ]
+    for enc, _ in outer_encoded:
+        if clean_path.endswith(enc):
+            clean_path = clean_path[:-len(enc)]
+            changed = True
+
+    # 3. Strip trailing curly brace '}' or '%7D' ONLY if NOT part of a balanced placeholder like {url}
+    last_seg = clean_path.split("/")[-1]
+    if not (last_seg.startswith("{") and last_seg.endswith("}")):
+        if clean_path.endswith("}"):
+            clean_path = clean_path.rstrip("}")
+            changed = True
+    if not (last_seg.startswith("%7B") and last_seg.endswith("%7D")):
+        if clean_path.endswith("%7D"):
+            clean_path = clean_path[:-3]
+            changed = True
+
+    # 4. Strip trailing period ONLY if it is not part of a known file extension
+    if clean_path.endswith("."):
+        clean_path = clean_path.rstrip(".")
+        changed = True
+
+    if changed and clean_path != path:
+        clean_url = clean_path or "/"
+        if request.url.query:
+            clean_url = f"{clean_url}?{request.url.query}"
+        return RedirectResponse(url=clean_url, status_code=301)
+    return await call_next(request)
+
+
+# Fast <3ms Scanner Shield & Error Envelopes (FastAPI & Agent Compatible)
+@app.exception_handler(StarletteHTTPException)
+async def custom_http_exception_handler(request: Request, exc: StarletteHTTPException):
+    detail_msg = exc.detail if exc.detail else "HTTP Error"
+
+    if exc.status_code == 404:
+        if detail_msg == "Not Found":
+            return JSONResponse(
+                status_code=404,
+                content={
+                    "detail": f"Endpoint '{request.url.path}' was not found on CleanWeb Studio.",
+                    "error": {
+                        "code": "ENDPOINT_NOT_FOUND",
+                        "message": f"Endpoint '{request.url.path}' was not found on CleanWeb Studio.",
+                        "recoverable": True,
+                        "suggested_action": "Consult /openapi.json or /docs for valid endpoints.",
+                        "valid_entrypoints": [
+                            "/api/v1/clean-web",
+                            "/r/https://news.ycombinator.com",
+                            "/mcp-server/sse",
+                            "/openapi.json",
+                            "/llms.txt"
+                        ]
+                    }
+                }
+            )
+        return JSONResponse(
+            status_code=404,
+            content={
+                "detail": detail_msg,
+                "error": {
+                    "code": "RESOURCE_NOT_FOUND",
+                    "message": detail_msg,
+                }
+            }
+        )
+
+    if exc.status_code == 405:
+        return JSONResponse(
+            status_code=405,
+            content={
+                "detail": f"HTTP method '{request.method}' is not supported for '{request.url.path}'.",
+                "error": {
+                    "code": "METHOD_NOT_ALLOWED",
+                    "message": f"HTTP method '{request.method}' is not supported for '{request.url.path}'.",
+                    "recoverable": True,
+                    "suggested_action": "This endpoint may require a POST request with JSON payload or consult /docs.",
+                    "docs_url": "/docs",
+                    "dashboard_url": "/dashboard"
+                }
+            }
+        )
+
+    if exc.status_code >= 500:
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={
+                "detail": str(detail_msg),
+                "error": {
+                    "code": "SERVER_ERROR",
+                    "message": "The CleanWeb engine intercepted an unhandled condition safely.",
+                    "recoverable": True,
+                    "detail": str(detail_msg)
+                }
+            }
+        )
+
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "detail": detail_msg,
+            "error": {"code": "HTTP_ERROR", "detail": detail_msg}
+        }
+    )
+
+
+@app.exception_handler(Exception)
+async def global_unhandled_exception_handler(request: Request, exc: Exception):
+    """Zero-crash shield against unhandled internal exceptions / template crashes."""
+    return JSONResponse(
+        status_code=500,
+        content={
+            "detail": "An internal exception occurred safely intercepted by the resilience shield.",
+            "error": {
+                "code": "INTERNAL_EXCEPTION_SHIELDED",
+                "message": "CleanWeb intercepted an unexpected condition safely.",
+                "recoverable": True,
+                "suggested_action": "Verify URL parameters or inspect /openapi.json.",
+                "path": request.url.path,
+                "docs_url": "/docs",
+                "dashboard_url": "/dashboard"
+            }
+        }
+    )
+
+
+@app.middleware("http")
 async def rate_limit_and_metrics_middleware(request: Request, call_next):
     # Skip rate limiting for static assets, mcp-server, and metrics
     path = request.url.path
@@ -254,13 +402,17 @@ def safe_refund_vault(receipt: Optional[PaymentReceipt]):
 # =========================================================================
 # 🏠 Root & Interactive Dashboard Endpoints
 # =========================================================================
-@app.get("/", tags=["System"])
+@app.api_route("/", methods=["GET", "HEAD", "OPTIONS", "POST"], tags=["System"])
 async def root(request: Request):
+    if request.method in ("HEAD", "OPTIONS"):
+        return Response(status_code=200, headers={"Allow": "GET, HEAD, OPTIONS, POST"})
+
     accept_header = request.headers.get("accept", "")
     if "text/html" in accept_header and INDEX_HTML_PATH.exists():
         return FileResponse(INDEX_HTML_PATH, media_type="text/html")
 
     return {
+        "status": "online",
         "service": "x402-cleanweb-agent",
         "name": "CleanWeb Studio (Autonomous Agent Data & Spend Firewall)",
         "version": __version__,
@@ -313,6 +465,7 @@ async def root(request: Request):
             "agent_pricing_catalog": "/api/v1/agent/pricing-catalog",
             "agent_arbitrage_roi": "/api/v1/agent/arbitrage-roi",
             "agent_integrations": "/api/v1/agent/integrations/{framework}",
+            "openai_models": "/v1/models",
             "metrics": "/metrics",
             "health": "/health"
         },
@@ -322,6 +475,65 @@ async def root(request: Request):
             "data_retention": "Zero-Data Retention (In-memory ephemeral processing only, GDPR compliant)",
             "sanctions_compliance": "OFAC SDN List 100% Screened & Blocked"
         }
+    }
+
+
+@app.get("/v1/models", tags=["OpenAI Compatibility"], summary="List OpenAI-compatible models")
+@app.get("/models", tags=["OpenAI Compatibility"], include_in_schema=False)
+@app.get("/api/v1/models", tags=["OpenAI Compatibility"], include_in_schema=False)
+@app.get("/openai/v1/models", tags=["OpenAI Compatibility"], include_in_schema=False)
+async def list_openai_compatible_models():
+    """
+    OpenAI-compatible Model Registry for autonomous AI agent frameworks
+    (Cursor, AutoGen, LangChain, LiteLLM, threads-api-watcher).
+    """
+    return {
+        "object": "list",
+        "data": [
+            {
+                "id": "cleanweb-reader-v2",
+                "object": "model",
+                "created": 1730000000,
+                "owned_by": "x402-cleanweb-agent",
+                "permission": [],
+                "root": "cleanweb-reader-v2",
+                "parent": None,
+                "capabilities": {
+                    "token_compression": "87% noise stripped",
+                    "streaming_support": True,
+                    "x402_usdc_settlement": True,
+                },
+                "description": "Zero-friction clean web & PDF extraction engine for LLMs"
+            },
+            {
+                "id": "cleanweb-youtube-gemini",
+                "object": "model",
+                "created": 1730000000,
+                "owned_by": "x402-cleanweb-agent",
+                "permission": [],
+                "root": "cleanweb-youtube-gemini",
+                "parent": None,
+                "capabilities": {
+                    "video_intelligence": True,
+                    "multimodal_transcript": True,
+                },
+                "description": "Multimodal YouTube video intelligence & chapter summarizer"
+            }
+        ]
+    }
+
+
+@app.get("/v1/models/{model_id}", tags=["OpenAI Compatibility"], summary="Retrieve specific model descriptor")
+@app.get("/models/{model_id}", tags=["OpenAI Compatibility"], include_in_schema=False)
+async def get_openai_compatible_model(model_id: str):
+    return {
+        "id": model_id,
+        "object": "model",
+        "created": 1730000000,
+        "owned_by": "x402-cleanweb-agent",
+        "permission": [],
+        "root": model_id,
+        "parent": None,
     }
 
 
@@ -841,6 +1053,21 @@ async def agent_reader_stream_proxy(request: Request, target_url: str):
     """
     Real-time streaming universal proxy for autonomous LLM agents (chunk-by-chunk piping).
     """
+    clean_target = target_url.strip("{}'`\" \t\r\n")
+    if not clean_target or clean_target.upper() in ("URL", "TARGET_URL", "HTTP://{URL}", "HTTPS://{URL}"):
+        return JSONResponse(
+            status_code=400,
+            content={
+                "detail": f"'{target_url}' is a documentation placeholder. Please provide a valid webpage URL.",
+                "error": {
+                    "code": "INVALID_TEMPLATE_PARAMETER",
+                    "message": f"'{target_url}' is a documentation placeholder. Please provide a valid webpage URL.",
+                    "example": "/r/stream/https://news.ycombinator.com",
+                    "docs_url": "/docs"
+                }
+            }
+        )
+
     target_url = normalize_url(target_url)
     query_str = request.url.query
     if query_str:
@@ -873,7 +1100,7 @@ async def agent_reader_stream_proxy(request: Request, target_url: str):
         return StreamingResponse(stream_body(), media_type="text/markdown; charset=utf-8", headers=headers)
     except Exception as e:
         safe_refund_vault(receipt)
-        raise HTTPException(status_code=500, detail=f"Streaming failed: {str(e)}")
+        raise HTTPException(status_code=502, detail=f"Target webpage streaming failed: {str(e)}")
 
 
 @app.get("/r/{target_url:path}", response_class=PlainTextResponse, tags=["Autonomous Agents"])
@@ -885,6 +1112,21 @@ def agent_reader_proxy(request: Request, target_url: str):
     Returns pure, token-optimized Markdown with 87% token noise removed.
     Includes 3 free sandbox calls per agent IP/nonce, or pre-funded vault balance.
     """
+    clean_target = target_url.strip("{}'`\" \t\r\n")
+    if not clean_target or clean_target.upper() in ("URL", "TARGET_URL", "HTTP://{URL}", "HTTPS://{URL}"):
+        return JSONResponse(
+            status_code=400,
+            content={
+                "detail": f"'{target_url}' is a documentation placeholder. Please provide a valid webpage URL.",
+                "error": {
+                    "code": "INVALID_TEMPLATE_PARAMETER",
+                    "message": f"'{target_url}' is a documentation placeholder. Please provide a valid webpage URL.",
+                    "example": "/r/https://news.ycombinator.com",
+                    "docs_url": "/docs"
+                }
+            }
+        )
+
     # 1. Robustly normalize scheme and collapsed slashes
     target_url = normalize_url(target_url)
 

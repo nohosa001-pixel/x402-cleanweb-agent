@@ -31,6 +31,8 @@ Allow: /mcp-server/sse
 Allow: /mcp-server/messages
 Allow: /api/v1/system/diagnostics
 Allow: /health
+Allow: /v1/models
+Allow: /models
 Disallow: /metrics
 
 # 2. General Web Crawlers
@@ -39,6 +41,7 @@ Allow: /
 Allow: /r/
 Allow: /llms.txt
 Allow: /sitemap.xml
+Allow: /v1/models
 Allow: /api/v1/agent/capabilities
 Allow: /api/v1/agent/arbitrage-roi
 Disallow: /metrics
