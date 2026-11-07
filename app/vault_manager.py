@@ -128,7 +128,7 @@ class VaultManager:
             raise ValueError(f"Permit signature has expired (deadline: {deadline}, current: {now}).")
 
         checksum_owner = Web3.to_checksum_address(owner)
-        server_wallet = os.getenv("SERVER_WALLET_ADDRESS", "0xA185B43fDD19619f99952AAed6eabf1029bF36a1")
+        server_wallet = os.getenv("SERVER_WALLET_ADDRESS", "0xEbA2821B8E37eb5a231c074345c991Cb1F139920")
         target_spender = Web3.to_checksum_address(spender or server_wallet)
 
         # Anti-replay unique permit digest

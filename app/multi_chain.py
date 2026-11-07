@@ -118,14 +118,14 @@ class MultiChainManager:
 
     def __init__(self):
         self.default_recipient = safe_checksum(
-            os.getenv("SERVER_WALLET_ADDRESS", "0xA185B43fDD19619f99952AAed6eabf1029bF36a1")
+            os.getenv("SERVER_WALLET_ADDRESS", "0xEbA2821B8E37eb5a231c074345c991Cb1F139920")
         )
         self._custom_solana_recipient: Optional[str] = None
         self._rpc_latencies: Dict[str, float] = {}
 
     @property
     def solana_recipient(self) -> str:
-        return self._custom_solana_recipient or os.getenv("SOLANA_SERVER_WALLET_ADDRESS", "411ksMz9RHYVtVMe6RUUErzZYtrU9zzvkgzswKbqx9qp")
+        return self._custom_solana_recipient or os.getenv("SOLANA_SERVER_WALLET_ADDRESS", "G7doJyFj1tw2mTpApCoyeCPqA3QzyuuKwKNAZvzLErsT")
 
     @solana_recipient.setter
     def solana_recipient(self, val: str):

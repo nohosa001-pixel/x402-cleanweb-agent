@@ -1790,7 +1790,7 @@ async def get_treasury_status(wallet_address: Optional[str] = None):
     Returns real-time on-chain Native USDC balances across Polygon, Base, and Arbitrum,
     plus aggregated database metrics and earnings estimates.
     """
-    target_wallet = wallet_address or os.getenv("SERVER_WALLET_ADDRESS", "0xA185B43fDD19619f99952AAed6eabf1029bF36a1")
+    target_wallet = wallet_address or os.getenv("SERVER_WALLET_ADDRESS", "0xEbA2821B8E37eb5a231c074345c991Cb1F139920")
     onchain_data = multi_chain_manager.get_multi_chain_treasury_summary(target_wallet)
     db_stats = storage_manager.get_stats()
     

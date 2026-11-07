@@ -23,7 +23,7 @@ load_dotenv()
 
 # Server Wallet Configuration
 SERVER_WALLET_ADDRESS = Web3.to_checksum_address(
-    os.getenv("SERVER_WALLET_ADDRESS", "0xA185B43fDD19619f99952AAed6eabf1029bF36a1")
+    os.getenv("SERVER_WALLET_ADDRESS", "0xEbA2821B8E37eb5a231c074345c991Cb1F139920")
 )
 ALLOW_DEV_BYPASS = os.getenv("ALLOW_DEV_BYPASS", "false").lower() in ("1", "true", "yes")
 
