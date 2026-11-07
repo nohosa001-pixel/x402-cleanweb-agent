@@ -540,6 +540,17 @@ class X402Verifier:
                     )
                 except Exception:
                     pass
+
+                try:
+                    from app.telegram_notifier import notify_payment_received
+                    notify_payment_received(
+                        chain=chain_hdr,
+                        amount_usdc=details.get("amount_usdc", cost_usdc),
+                        payer=details.get("payer", "onchain_agent"),
+                        tx_hash=tx_hash
+                    )
+                except Exception:
+                    pass
                 return True, receipt, None
             else:
                 return False, None, self.build_402_response(

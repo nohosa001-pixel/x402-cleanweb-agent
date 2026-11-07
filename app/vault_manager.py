@@ -100,6 +100,13 @@ class VaultManager:
         session_key = existing["session_key"] if existing and existing.get("session_key") else f"vault_key_{secrets.token_hex(16)}"
         
         updated_acc = storage_manager.deposit_vault(target_addr, amount_usdc, session_key)
+
+        try:
+            from app.telegram_notifier import notify_payment_received
+            notify_payment_received(chain=chain, amount_usdc=amount_usdc, payer=target_addr, tx_hash=tx_hash or "")
+        except Exception:
+            pass
+
         return updated_acc
 
     def deposit_with_permit(
