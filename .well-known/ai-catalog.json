@@ -1,5 +1,4 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "catalog_version": "1.0.0",
   "name": "x402 CleanWeb & Autonomous Web3 Agent Suite",
   "version": "2.8.4",
