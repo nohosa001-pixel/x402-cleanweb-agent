@@ -123,6 +123,8 @@ INDEX_HTML_PATH = STATIC_DIR / "index.html"
 AP2_FILE_PATH = BASE_DIR / ".well-known" / "ap2.json"
 AGENT_MANIFEST_PATH = BASE_DIR / ".well-known" / "agent.json"
 AI_PLUGIN_PATH = BASE_DIR / ".well-known" / "ai-plugin.json"
+AI_CATALOG_PATH = BASE_DIR / ".well-known" / "ai-catalog.json"
+ARD_PATH = BASE_DIR / ".well-known" / "ard.json"
 MCP_SERVER_CARD_PATH = BASE_DIR / ".well-known" / "mcp" / "server-card.json"
 MCP_ALIAS_PATH = BASE_DIR / ".well-known" / "mcp.json"
 GLAMA_FILE_PATH = BASE_DIR / "glama.json"
@@ -610,6 +612,22 @@ async def get_ai_plugin_manifest():
     if AI_PLUGIN_PATH.exists():
         return FileResponse(AI_PLUGIN_PATH, media_type="application/json")
     raise HTTPException(status_code=404, detail="ai-plugin.json not found")
+
+
+@app.get("/.well-known/ai-catalog.json", tags=["Standards"])
+@app.get("/ai-catalog.json", tags=["Standards"])
+async def get_ai_catalog_manifest():
+    if AI_CATALOG_PATH.exists():
+        return FileResponse(AI_CATALOG_PATH, media_type="application/json")
+    raise HTTPException(status_code=404, detail="ai-catalog.json not found")
+
+
+@app.get("/.well-known/ard.json", tags=["Standards"])
+@app.get("/ard.json", tags=["Standards"])
+async def get_ard_manifest():
+    if ARD_PATH.exists():
+        return FileResponse(ARD_PATH, media_type="application/json")
+    raise HTTPException(status_code=404, detail="ard.json not found")
 
 
 @app.get("/.well-known/mcp/server-card.json", tags=["Standards"])

@@ -1,0 +1,51 @@
+{
+  "$schema": "https://agentprobe.org/schemas/ai-catalog-v1.json",
+  "name": "x402 CleanWeb & Autonomous Web3 Agent Suite",
+  "version": "2.8.4",
+  "description": "Deterministic Web3 x402 Micropayment MCP & AI Agent Tool Suite with Gemini 3.6 Flash Video Intelligence, 87% Token Compression, Research PDF Parsers, and On-Chain EIP-712 & Solana Oracles across Solana, Polygon, Base, and Arbitrum.",
+  "homepage": "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app",
+  "documentation": "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/docs",
+  "llms_spec": "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/llms.txt",
+  "provider": {
+    "name": "x402 Autonomous Systems & A-GRID",
+    "url": "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app",
+    "repository": "https://github.com/nohosa001-pixel/x402-cleanweb-agent",
+    "pypi": "https://pypi.org/project/x402-cleanweb-agent/"
+  },
+  "capabilities": [
+    "mcp",
+    "x402_micropayments",
+    "token_compression_87pct",
+    "prompt_injection_defense",
+    "youtube_gemini_intelligence",
+    "research_pdf_parsing",
+    "eip712_oracle"
+  ],
+  "interfaces": {
+    "mcp": {
+      "endpoint": "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/api/v1/mcp",
+      "transport": "http-post",
+      "tools_count": 14,
+      "server_card": "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/.well-known/mcp/server-card.json"
+    },
+    "openapi": {
+      "url": "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/openapi.json",
+      "docs_url": "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/docs"
+    },
+    "agent_manifest": {
+      "url": "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/.well-known/agent.json"
+    }
+  },
+  "payment": {
+    "protocol": "x402-v1",
+    "supported_currencies": ["USDC"],
+    "supported_chains": [
+      {"chain": "polygon", "chain_id": 137, "recipient": "0xEbA2821B8E37eb5a231c074345c991Cb1F139920"},
+      {"chain": "base", "chain_id": 8453, "recipient": "0xEbA2821B8E37eb5a231c074345c991Cb1F139920"},
+      {"chain": "arbitrum", "chain_id": 42161, "recipient": "0xEbA2821B8E37eb5a231c074345c991Cb1F139920"},
+      {"chain": "solana", "cluster": "mainnet-beta", "recipient": "G7doJyFj1tw2mTpApCoyeCPqA3QzyuuKwKNAZvzLErsT"}
+    ],
+    "vault_custody": "D'CENT Biometric Hardware Wallet (Cold Storage)"
+  },
+  "status": "HEALTHY_ONLINE"
+}
