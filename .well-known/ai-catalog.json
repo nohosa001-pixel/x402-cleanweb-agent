@@ -1,5 +1,6 @@
 {
-  "$schema": "https://agentprobe.org/schemas/ai-catalog-v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "catalog_version": "1.0.0",
   "name": "x402 CleanWeb & Autonomous Web3 Agent Suite",
   "version": "2.8.4",
   "description": "Deterministic Web3 x402 Micropayment MCP & AI Agent Tool Suite with Gemini 3.6 Flash Video Intelligence, 87% Token Compression, Research PDF Parsers, and On-Chain EIP-712 & Solana Oracles across Solana, Polygon, Base, and Arbitrum.",
@@ -49,3 +50,4 @@
   },
   "status": "HEALTHY_ONLINE"
 }
+
