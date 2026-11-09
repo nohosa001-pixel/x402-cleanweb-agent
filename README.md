@@ -5,6 +5,7 @@
 
 [![Version](https://img.shields.io/badge/Version-2.8.4-00f2fe?style=for-the-badge&logo=fastapi&logoColor=black)](https://github.com/nohosa001-pixel/x402-cleanweb-agent)
 [![LangChain Official Integration](https://img.shields.io/badge/LangChain-Official%20Provider-1C3C3C?style=for-the-badge&logo=langchain&logoColor=white)](https://docs.langchain.com/oss/python/integrations/providers/all_providers)
+[![LlamaIndex](https://img.shields.io/badge/LlamaIndex-Official%20Reader-8A2BE2?style=for-the-badge&logo=llamaindex&logoColor=white)](https://pypi.org/project/llama-index-readers-x402-cleanweb/)
 [![PyPI](https://img.shields.io/pypi/v/x402-cleanweb-agent?style=for-the-badge&logo=pypi&logoColor=white&color=blue)](https://pypi.org/project/x402-cleanweb-agent/)
 [![npm agentkit](https://img.shields.io/npm/v/agentkit-cleanweb?style=for-the-badge&logo=npm&logoColor=white&label=agentkit-cleanweb&color=cb3837)](https://www.npmjs.com/package/agentkit-cleanweb)
 [![npm eliza](https://img.shields.io/npm/v/cleanweb-eliza-plugin?style=for-the-badge&logo=npm&logoColor=white&label=cleanweb-eliza-plugin&color=cb3837)](https://www.npmjs.com/package/cleanweb-eliza-plugin)
@@ -37,6 +38,7 @@ CleanWeb is distributed natively across both **Python (PyPI)** and **TypeScript/
 | Registry | Package Name | Target Ecosystem | 1-Line Install Command |
 | :---: | :--- | :--- | :--- |
 | **PyPI** | [**`x402-cleanweb-agent`**](https://pypi.org/project/x402-cleanweb-agent/) | **Python Core, FastAPI Oracle, Claude/Cursor MCP Server & Dual-Core Eliza Brain** | `pip install x402-cleanweb-agent` *(or `uvx x402-cleanweb-agent`)* |
+| **PyPI** | [**`llama-index-readers-x402-cleanweb`**](https://pypi.org/project/llama-index-readers-x402-cleanweb/) | **LlamaIndex High-Purity RAG Reader (87% Token Compression & Injection Defense)** | `pip install llama-index-readers-x402-cleanweb` |
 | **npm** | [**`agentkit-cleanweb`**](https://www.npmjs.com/package/agentkit-cleanweb) | **Coinbase AgentKit Action Provider (Base Mainnet EIP-712 & x402 Vaults)** | `npm install agentkit-cleanweb @coinbase/agentkit` |
 | **npm** | [**`cleanweb-eliza-plugin`**](https://www.npmjs.com/package/cleanweb-eliza-plugin) | **ElizaOS v2 Plugin (Solana x402 Micropayments & A.GRID Priority 0 Feed)** | `npm install cleanweb-eliza-plugin` |
 | **npm** | [**`elizaos-plugin-security-gate`**](https://www.npmjs.com/package/elizaos-plugin-security-gate) | **Security Gate & Polygon OMS Spend Firewall (Prompt-Injection Defense)** | `npm install elizaos-plugin-security-gate` |
@@ -84,6 +86,18 @@ from app.integrated_gate_brain_bridge import IntegratedGateBrainBridge
 
 bridge = IntegratedGateBrainBridge(require_x402_payment=False)
 res = bridge.execute_pipeline("https://paulgraham.com/greatwork.html", "https://paulgraham.com")
+```
+
+```python
+# Python: LlamaIndex High-Purity RAG Reader (pip install llama-index-readers-x402-cleanweb)
+from llama_index.readers.x402_cleanweb import X402CleanWebReader
+from llama_index.core import VectorStoreIndex
+
+# 87% token-compressed, prompt-injection defended web documents for vector search
+documents = X402CleanWebReader().load_data(["https://paulgraham.com/greatwork.html"])
+index = VectorStoreIndex.from_documents(documents)
+query_engine = index.as_query_engine()
+response = query_engine.query("What are the core habits of great work?")
 ```
 
 ```python
