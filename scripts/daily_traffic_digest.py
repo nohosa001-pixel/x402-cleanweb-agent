@@ -25,8 +25,8 @@ load_dotenv()
 
 from app.multi_chain import multi_chain_manager
 
-TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "8776757422:AAEYnvFNHI33YSObQbUEf8FMa8NqaTUuBNc")
-TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "8884575098")
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
+TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
 
 SERVICES = [
     {"name": "EUDRAgent Platform", "url": "https://eudragent.com/health", "domain": "eudragent.com"},
