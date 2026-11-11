@@ -87,3 +87,35 @@ def test_clean_content_preserved_without_false_positives():
     assert result.risk_score == 0.0
     assert len(result.threats_detected) == 0
     assert "Busan and Rotterdam" in result.sanitized_content
+
+
+def test_nested_style_and_decomposed_elements_resilience():
+    from app.cleaners.web_engine import web_cleaner_engine
+    from unittest.mock import patch, MagicMock
+
+    body_text = "This is a legitimate article content that exceeds one hundred characters easily. " * 3
+    html_with_nested_styles = f"""
+    <html>
+      <head><title>Test Nested Styles</title></head>
+      <body>
+        <main>
+          <h1>Test Heading</h1>
+          <div style="display: none;">
+            <p style="color: red;">Nested paragraph inside display none</p>
+            <span style="font-weight: bold;">Deep nested span</span>
+          </div>
+          <p>{body_text}</p>
+        </main>
+      </body>
+    </html>
+    """
+    mock_resp = MagicMock()
+    mock_resp.text = html_with_nested_styles
+    mock_resp.status_code = 200
+    mock_resp.headers = {"Content-Length": str(len(html_with_nested_styles))}
+
+    with patch("app.cleaners.web_engine.is_safe_url", return_value=True), patch.object(web_cleaner_engine.session, "get", return_value=mock_resp):
+        res = web_cleaner_engine.fetch_and_clean("https://news.ycombinator.com/test", respect_robots_txt=False)
+        assert res["title"] == "Test Nested Styles"
+        assert "This is a legitimate article content" in res["markdown_content"]
+        assert "Nested paragraph" not in res["markdown_content"]

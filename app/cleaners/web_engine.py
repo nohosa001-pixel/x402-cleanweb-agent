@@ -327,17 +327,24 @@ class WebCleanerEngine:
 
         # Remove hidden CSS containers and stealth elements
         hidden_css_blocks = 0
-        for el in soup.find_all(style=True):
-            style_str = el.get("style", "").lower()
-            if any(pat.search(style_str) for pat in CSS_HIDDEN_PATTERNS):
+        for el in list(soup.find_all(style=True)):
+            if not hasattr(el, "attrs") or el.attrs is None:
+                continue
+            style_val = el.attrs.get("style", "")
+            style_str = " ".join(style_val) if isinstance(style_val, list) else str(style_val)
+            if any(pat.search(style_str.lower()) for pat in CSS_HIDDEN_PATTERNS):
                 el.decompose()
                 hidden_css_blocks += 1
 
-        for el in soup.find_all(attrs={"hidden": True}):
+        for el in list(soup.find_all(attrs={"hidden": True})):
+            if not hasattr(el, "attrs") or el.attrs is None:
+                continue
             el.decompose()
             hidden_css_blocks += 1
 
-        for el in soup.find_all(attrs={"aria-hidden": "true"}):
+        for el in list(soup.find_all(attrs={"aria-hidden": "true"})):
+            if not hasattr(el, "attrs") or el.attrs is None:
+                continue
             el.decompose()
             hidden_css_blocks += 1
 
@@ -361,13 +368,15 @@ class WebCleanerEngine:
             markdown_lines.append(f"# {title}\n")
 
         for elem in main_content.find_all(["h1", "h2", "h3", "h4", "h5", "h6", "p", "ul", "ol", "pre", "blockquote", "table", "img"]):
+            if not hasattr(elem, "attrs") or elem.attrs is None:
+                continue
             tag_name = elem.name.lower()
             if tag_name == "img":
                 if preserve_alt_text:
-                    alt = elem.get("alt", "").strip()
-                    src = elem.get("src", "").strip()
-                    w = elem.get("width", "")
-                    h = elem.get("height", "")
+                    alt = str(elem.attrs.get("alt", "")).strip()
+                    src = str(elem.attrs.get("src", "")).strip()
+                    w = elem.attrs.get("width", "")
+                    h = elem.attrs.get("height", "")
                     if str(w).lower() in ("0", "1", "0px", "1px") or str(h).lower() in ("0", "1", "0px", "1px"):
                         continue
                     if alt:
