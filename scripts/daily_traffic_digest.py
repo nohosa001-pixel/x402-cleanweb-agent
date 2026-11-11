@@ -38,19 +38,25 @@ SERVICES = [
 def probe_services():
     results = []
     for s in SERVICES:
-        start = time.time()
-        try:
-            req = urllib.request.Request(s["url"], headers={"User-Agent": "A-GRID-Watchdog/1.0"})
-            with urllib.request.urlopen(req, timeout=5) as resp:
-                latency_ms = (time.time() - start) * 1000
-                status_ok = resp.status == 200
-                results.append({
-                    "name": s["name"],
-                    "status": "🟢 정상" if status_ok else f"⚠️ {resp.status}",
-                    "latency": f"{latency_ms:.1f}ms",
-                    "ok": status_ok
-                })
-        except Exception as e:
+        success = False
+        for attempt in range(2):
+            start = time.time()
+            try:
+                req = urllib.request.Request(s["url"], headers={"User-Agent": "A-GRID-Watchdog/1.0"})
+                with urllib.request.urlopen(req, timeout=10) as resp:
+                    latency_ms = (time.time() - start) * 1000
+                    status_ok = resp.status == 200
+                    results.append({
+                        "name": s["name"],
+                        "status": "🟢 정상" if status_ok else f"⚠️ {resp.status}",
+                        "latency": f"{latency_ms:.1f}ms",
+                        "ok": status_ok
+                    })
+                    success = True
+                    break
+            except Exception:
+                time.sleep(1.0)
+        if not success:
             results.append({
                 "name": s["name"],
                 "status": "🔴 장애",
@@ -178,3 +184,4 @@ def generate_and_dispatch_digest():
 
 if __name__ == "__main__":
     generate_and_dispatch_digest()
+

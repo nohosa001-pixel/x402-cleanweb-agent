@@ -6,3 +6,4 @@ echo   A-GRID 24/7 Daily Traffic & Revenue Digest Dispatcher
 echo ========================================================
 python scripts\daily_traffic_digest.py
 pause
+
