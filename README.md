@@ -16,6 +16,16 @@
 
 ---
 
+> [!IMPORTANT]
+> **📢 OFFICIAL PROTOCOL UPGRADE NOTICE: Transition to CleanWeb v3.0.0 (Effective November 21, 2026)**
+>
+> Following 14,000+ global package downloads and active adoption across autonomous AI frameworks, CleanWeb is executing a 7-day transition (Nov 14 – Nov 21, 2026) to **v3.0.0 (Cloud-Native Thin Client & Pure x402 M2M Gateway)**:
+> - **Deprecation of Local Monolithic Execution**: Local standalone engine bundling in `x402-cleanweb-agent` (`v2.8.x` and below) will be deprecated and **yanked on PyPI** upon the `v3.0.0` release on **November 21, 2026**.
+> - **Remote SSE MCP Standard**: All Claude Desktop, Cursor, and Windsurf clients should migrate to the zero-install Remote Cloud MCP Gateway (`https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/sse`) or `v3.0.0` Thin Client SDK.
+> - **Pure M2M x402 Enforcement**: Strict IP-based daily sandbox limits apply during transition, followed by full x402 USDC vault settlement (Polygon, Base, Arbitrum, Solana) for WAF-bypass scraping, YouTube Gemini AI, Deep Research, and EIP-712 Cryptographic Oracles.
+
+---
+
 ## 🚀 New in v2.8.4 (Community-Driven Release from r/mcp)
 
 CleanWeb v2.8.4 brings major performance & capability upgrades inspired directly by community feedback on `r/mcp`:
