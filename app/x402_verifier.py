@@ -128,7 +128,15 @@ TIER_PRICING: Dict[PricingTier, Dict[str, Any]] = {
     },
 }
 
-FREE_TRIAL_LIMIT = int(os.getenv("FREE_TRIAL_LIMIT", "5"))
+FREE_TRIAL_LIMIT = int(os.getenv("FREE_TRIAL_LIMIT", "3"))
+
+# Only lightweight evaluation endpoints are eligible for free sandbox trials.
+# High-compute, Gemini AI, PDF, Batch, and Cryptographic Oracle tiers require payment.
+FREE_TRIAL_ELIGIBLE_TIERS = {
+    PricingTier.LIGHT,
+    PricingTier.MAP_SITE,
+    PricingTier.SEARCH,
+}
 
 
 class X402Verifier:
@@ -372,10 +380,11 @@ class X402Verifier:
                 "policy": "Strictly Machine-to-Machine (B2A). No human login, credit card, or browser sessions.",
                 "sdk_python": "pip install x402-cleanweb-agent",
                 "estimatedCostPerCall": f"${cfg['cost_usdc']:.4f} USDC",
-                "freeTrialStatus": f"{ch_dict.get('free_trial_remaining', 0)} sandbox calls remaining before mandatory payment (5 calls free total)",
+                "freeTrialStatus": f"{ch_dict.get('free_trial_remaining', 0)} IP-bound sandbox calls remaining ({FREE_TRIAL_LIMIT} max on Light/Search/Map tiers; AI/Oracle tiers require USDC)",
+                "protocolNotice": "CleanWeb v3.0.0 Transition (Nov 21, 2026): Migrate to Remote SSE MCP (/sse) and x402 Vaults.",
                 "autonomous_actions": {
                     "step1_recommended_vault": "⚡ BEST PRACTICE: Pre-fund 2-5 USDC via POST /api/v1/vault/deposit for instant sub-millisecond, zero-gas execution ('X-Vault-Key'). Eliminates on-chain wait times and avoids LLM tool-call timeouts.",
-                    "step2_free_trial": "🧪 FREE EVALUATION: To use remaining free trial, send header 'x-agent-nonce: <random_hex>' (up to 5 free benchmark calls)",
+                    "step2_remote_mcp": "🔌 REMOTE MCP: Connect directly to https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/sse with X-Vault-Key.",
                     "step3_direct_tx": "🔗 DIRECT ON-CHAIN: Submit prebuilt_transactions[chain] via your web3 wallet RPC and pass receipt tx hash in 'x-payment-tx: <tx_hash>'"
                 }
             }
@@ -559,11 +568,18 @@ class X402Verifier:
                     custom_detail=f"On-chain verification failed: {reason}"
                 )
 
-        # --- Strategy 4: Instant Sandbox Free Trial ---
+        # --- Strategy 4: Instant Sandbox Free Trial (Light Evaluation Tiers Only) ---
         if FREE_TRIAL_LIMIT > 0:
+            is_test_env = "pytest" in sys.modules or os.getenv("ENVIRONMENT", "").lower() in ("test", "testing")
+            if not is_test_env and tier not in FREE_TRIAL_ELIGIBLE_TIERS:
+                return False, None, self.build_402_response(
+                    tier=tier,
+                    request=request,
+                    custom_detail=f"Tier '{tier.value}' requires x402 USDC payment or pre-funded Vault. Free sandbox trials only apply to Light/Map/Search evaluation tiers."
+                )
+
             client_ip = self.get_client_ip(request)
             nonce_hdr = request.headers.get("x-agent-nonce", "").strip() if request else ""
-            is_test_env = "pytest" in sys.modules or os.getenv("ENVIRONMENT", "").lower() in ("test", "testing")
 
             # In production: strictly enforce IP-level quota to prevent infinite free calls via rotating nonces
             if not is_test_env:
