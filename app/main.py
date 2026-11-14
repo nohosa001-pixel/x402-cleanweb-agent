@@ -2088,6 +2088,8 @@ async def handle_mcp_http_jsonrpc(request: Request):
     )
 
 
+@app.get("/sse", tags=["Standards", "Autonomous Agents"])
+@app.get("/sse/", tags=["Standards", "Autonomous Agents"])
 @app.get("/mcp/sse", tags=["Standards", "Autonomous Agents"])
 @app.get("/api/v1/mcp/sse", tags=["Standards", "Autonomous Agents"])
 async def redirect_mcp_sse():
