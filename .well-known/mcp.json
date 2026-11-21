@@ -1,0 +1,55 @@
+{
+  "name": "x402-cleanweb-agent",
+  "version": "3.0.1",
+  "title": "x402 CleanWeb & Autonomous Data Oracle (Remote SSE + HTTP JSON-RPC)",
+  "description": "Universal remote MCP server for 87% token-compressed web & PDF cleaning, Indirect Prompt Injection & Hidden White-Text PDF sanitization, YouTube transcript analysis, and verifiable EIP-712 & Solana Ed25519 Web3 Oracles across Solana, Polygon, Base, and Arbitrum. Supports X-Request-ID traceability and X-Idempotency-Key deduplication.",
+  "publisher": {
+    "name": "x402 AI Autonomous Systems",
+    "url": "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nohosa001-pixel/x402-cleanweb-agent"
+  },
+  "package": {
+    "registry": "pypi",
+    "name": "x402-cleanweb-agent",
+    "url": "https://pypi.org/project/x402-cleanweb-agent/"
+  },
+  "transport": {
+    "type": "sse",
+    "url": "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/mcp-server/sse",
+    "sse_alias": "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/sse",
+    "http_jsonrpc": "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/api/v1/mcp"
+  },
+  "capabilities": {
+    "tools": true,
+    "resources": false,
+    "prompts": true
+  },
+  "tools_count": 14,
+  "tools": [
+    "get_payment_info",
+    "clean_web_content",
+    "clean_youtube_transcript",
+    "clean_pdf_research",
+    "get_vault_balance",
+    "clean_batch_scrape",
+    "get_pass_status",
+    "oracle_grounding",
+    "verify_oracle_attestation",
+    "clean_text_raw",
+    "map_site",
+    "search_web_quick",
+    "extract_json_schema",
+    "deep_research_topic"
+  ],
+  "configuration": {
+    "mcpServers": {
+      "polygon-x402-cleanweb": {
+        "command": "uvx",
+        "args": ["x402-cleanweb-agent"]
+      }
+    }
+  }
+}

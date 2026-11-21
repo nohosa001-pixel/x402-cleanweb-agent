@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "ap2_version": "2.0.0",
+  "name": "x402-cleanweb-agent",
+  "description": "Deterministic Web3 x402 Micropayment MCP & AI Agent Tool Suite with Gemini 3.6 Flash Video Intelligence across Solana, Polygon, Base, and Arbitrum",
+  "provider": {
+    "name": "x402 AI Agent Team",
+    "url": "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app"
+  },
+  "free_tier": {
+    "free_trials": true,
+    "discovery_trial_calls": 5,
+    "policy": "INSTANT_SANDBOX_DISCOVERY_PER_NONCE",
+    "trial_header": "X-Agent-Nonce",
+    "description": "5 free trials per unique agent nonce for zero-friction schema validation and discovery onboarding"
+  },
+  "settlement": {
+    "type": "x402",
+    "networks": [
+      {
+        "chain": "polygon",
+        "chain_id": 137,
+        "token": "USDC",
+        "token_address": "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
+        "recipient_wallet": "0xEbA2821B8E37eb5a231c074345c991Cb1F139920"
+      },
+      {
+        "chain": "base",
+        "chain_id": 8453,
+        "token": "USDC",
+        "token_address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "recipient_wallet": "0xEbA2821B8E37eb5a231c074345c991Cb1F139920"
+      },
+      {
+        "chain": "arbitrum",
+        "chain_id": 42161,
+        "token": "USDC",
+        "token_address": "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
+        "recipient_wallet": "0xEbA2821B8E37eb5a231c074345c991Cb1F139920"
+      },
+      {
+        "chain": "solana",
+        "chain_id": 101,
+        "token": "USDC",
+        "token_address": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+        "recipient_wallet": "G7doJyFj1tw2mTpApCoyeCPqA3QzyuuKwKNAZvzLErsT",
+        "vault_program": "7oZ16YaazQzN6z5uA1nAZWD9oGUDXyvHwXGJLFYyWi3y"
+      }
+    ],
+    "pricing_tiers": {
+      "LIGHT": { "amount_usdc": "0.001", "description": "Single web clean markdown" },
+      "SECURE_WEB_CLEAN": { "amount_usdc": "0.005", "description": "Web clean + Security Gate AST/Prompt injection audit" },
+      "STANDARD": { "amount_usdc": "0.005", "description": "PDF paper / batch clean" },
+      "HEAVY": { "amount_usdc": "0.010", "description": "Gemini AI YouTube audio analysis" },
+      "SECURE_YOUTUBE_CLEAN": { "amount_usdc": "0.015", "description": "YouTube AI + Security Gate transcript audit" },
+      "ONCHAIN": { "amount_usdc": "0.020", "description": "EIP-712 Signed attestation" },
+      "MAP_SITE": { "amount_usdc": "0.002", "description": "Domain sitemap and URL tree discovery" },
+      "SEARCH": { "amount_usdc": "0.002", "description": "Fast agent web search with verified snippets" },
+      "EXTRACT_JSON": { "amount_usdc": "0.030", "description": "Schema-constrained JSON extractor" },
+      "ORACLE_GROUNDING": { "amount_usdc": "0.035", "description": "Web3 Signed Oracle Grounding" },
+      "SECURE_ORACLE_GROUNDING": { "amount_usdc": "0.040", "description": "Oracle Grounding + Dual Security Gate Attestation" },
+      "DEEP_RESEARCH": { "amount_usdc": "0.150", "description": "Multi-source AI deep research briefing" }
+    },
+    "security_gate_provider": {
+      "name": "agent-security-gate-x402",
+      "url": "https://agent-security-gate-x402-212942243360.asia-northeast3.run.app",
+      "features": ["Jailbreak Radar", "AST Code Safety", "NLI Hallucination Check", "EIP-712 Attestation"]
+    }
+  },
+  "endpoints": {
+    "clean_web": "/api/v1/clean-web",
+    "clean_text": "/api/v1/clean-text",
+    "clean_youtube": "/api/v1/clean-youtube",
+    "clean_pdf": "/api/v1/clean-pdf",
+    "clean_batch": "/api/v1/clean-batch",
+    "map_site": "/api/v1/map-site",
+    "search": "/api/v1/search",
+    "extract_json": "/api/v1/extract-json",
+    "oracle_grounding": "/api/v1/oracle/grounding",
+    "oracle_verify": "/api/v1/oracle/verify",
+    "deep_research": "/api/v1/deep-research",
+    "vault_deposit": "/api/v1/vault/deposit",
+    "vault_balance": "/api/v1/vault/balance",
+    "pass_status": "/api/v1/pass-status",
+    "legal_terms": "/api/v1/legal/terms",
+    "legal_disclaimer": "/api/v1/legal/disclaimer",
+    "reader_proxy": "/r/{target_url}",
+    "llms_txt": "/llms.txt",
+    "mcp_tools": "/mcp/tools"
+  }
+}

@@ -1,0 +1,79 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "x402-cleanweb-agent"
+version = "3.0.1"
+description = "Cloud-Native Thin Client & Remote MCP Gateway for x402 CleanWeb (87% Token Compression, Indirect Prompt Injection & White-Text PDF Defense, Multi-Chain USDC Micropayments)"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [
+    { name = "x402 AI Agent Team", email = "developer@x402.agent" }
+]
+keywords = [
+    "ai-agent",
+    "x402",
+    "b2a",
+    "oracle",
+    "eip712",
+    "mcp",
+    "polygon",
+    "base",
+    "arbitrum",
+    "solana",
+    "web3",
+    "micropayments",
+    "prompt-injection-defense",
+    "pdf-sanitizer"
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12"
+]
+dependencies = [
+    "pydantic>=2.6.0",
+    "mcp>=1.0.0",
+    "web3>=6.0.0",
+    "eth-account>=0.11.0",
+    "requests>=2.31.0",
+    "python-dotenv>=1.0.0",
+    "httpx>=0.25.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "httpx>=0.27.0"
+]
+
+[project.urls]
+Homepage = "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app"
+Documentation = "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/docs"
+Repository = "https://github.com/nohosa001-pixel/x402-cleanweb-agent"
+Issues = "https://github.com/nohosa001-pixel/x402-cleanweb-agent/issues"
+
+[project.scripts]
+x402-cleanweb-agent = "mcp_server:main"
+x402-agent = "mcp_server:main"
+x402-mcp = "mcp_server:main"
+x402-cli = "x402_cleanweb_agent:main"
+
+[tool.setuptools]
+py-modules = ["mcp_server", "thin_mcp_proxy", "autonomous_agent_client", "agent_tools", "x402_cleanweb_agent"]
+packages = []
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "integrations"]
+python_files = ["test_*.py"]
+pythonpath = ["."]
+asyncio_mode = "auto"

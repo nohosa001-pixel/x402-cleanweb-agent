@@ -1,0 +1,86 @@
+{
+  "$schema": "https://glama.ai/mcp/schemas/server.json",
+  "name": "x402-cleanweb-oracle",
+  "description": "x402 CleanWeb & Autonomous Data Oracle: Pure B2A remote MCP server (SSE) providing 87% token-compressed web scraping, YouTube transcripts with Gemini 3.8 Flash, RAG dense vector embeddings, and on-chain verifiable EIP-712 & Solana Ed25519 cryptographic data oracles across Solana, Polygon, Base, and Arbitrum with gasless micropayments.",
+  "homepage": "https://github.com/nohosa001-pixel/x402-cleanweb-agent",
+  "maintainers": [
+    "nohosa001-pixel"
+  ],
+  "tags": [
+    "x402",
+    "mcp",
+    "web3",
+    "oracle",
+    "solana",
+    "polygon",
+    "base",
+    "arbitrum",
+    "web-scraper",
+    "youtube-transcript",
+    "gemini-ai",
+    "pdf-research",
+    "rag",
+    "sse",
+    "eip712",
+    "micropayments"
+  ],
+  "license": "MIT",
+  "tools": [
+    {
+      "name": "get_payment_info",
+      "description": "Returns complete Web3 x402 micropayment configuration, supported multi-chain USDC contract addresses, network chain IDs (Solana: 101, Polygon: 137, Base: 8453, Arbitrum: 42161), recipient wallet address, and pricing tiers for all CleanWeb Studio agent tools. Usage Guidelines: Use this tool to discover network parameters and deposit requirements before making x402 paid queries. Do NOT use for checking individual wallet balances (use get_vault_balance)."
+    },
+    {
+      "name": "clean_web_content",
+      "description": "Scrapes and converts any target web page into clean, LLM-ready structured Markdown, stripping ads, cookie banners, navigation clutter, modals, and script noise. Returns clean markdown body, page title, word count, and extraction metadata. Usage Guidelines: Use this tool to ingest real-time web articles, blogs, and documentation into LLM context windows. Do NOT use for video audio parsing (use clean_youtube_transcript) or online PDF whitepapers (use clean_pdf_research). Do NOT use on paywalled or bot-blocked sites."
+    },
+    {
+      "name": "clean_youtube_transcript",
+      "description": "Extracts high-precision subtitles, timestamped transcripts, and comprehensive AI summaries for public YouTube videos using Google Gemini Flash intelligence. Returns structured video metadata, bullet-point summary, and cleaned transcript. Usage Guidelines: Use to ingest YouTube lecture, tutorial, tech talk, or podcast transcripts into agent workflows without token waste. Do NOT use for general web articles (use clean_web_content) or PDF whitepapers (use clean_pdf_research). Do NOT use on private, unlisted, or live streams without captions."
+    },
+    {
+      "name": "clean_pdf_research",
+      "description": "Parses and extracts structured plain text, sections, and academic metadata from online PDF whitepapers and arXiv research documents. Limit: PDF file size must be under 15MB, maximum 100 pages. Returns title, page count, word count, and parsed plain text. Usage Guidelines: Use when ingesting scientific papers, technical specs, or financial PDF reports. Do NOT use for general HTML web pages (use clean_web_content) or YouTube videos (use clean_youtube_transcript). Do NOT use on encrypted or password-protected PDFs."
+    },
+    {
+      "name": "get_vault_balance",
+      "description": "Checks the remaining pre-funded USDC balance, total usage, and session status for an agent wallet address or session key. Usage Guidelines: Use before executing heavy tasks to verify sufficient balance for zero-latency execution. Returns agent address, balance in USDC, total deposited/consumed, queries handled, and session key. Do NOT use for querying network pricing (use get_payment_info)."
+    },
+    {
+      "name": "clean_batch_scrape",
+      "description": "Concurrently scrapes and extracts clean markdown from up to 10 URLs in parallel with high-speed async processing. Returns a JSON array of parsed web documents with individual status codes and content bodies. Usage Guidelines: Use when an agent needs to perform multi-source research across multiple search results simultaneously. Do NOT use for single URLs (use clean_web_content)."
+    },
+    {
+      "name": "get_pass_status",
+      "description": "Checks the active subscription status, remaining query quota, and validity period for an agent EVM wallet address (0x...) or Agent VIP Pass Token. Returns pass tier, remaining balance, and expiration timestamp. Usage Guidelines: Use to verify micropayment allowance or query entitlements before dispatching heavy scrape batches."
+    },
+    {
+      "name": "oracle_grounding",
+      "description": "Executes real-time web search, noise-free markdown extraction, Gemini AI JSON structuring, and cryptographically signs the result with an on-chain verifiable EIP-712 attestation (0.035 USDC). Returns structured facts JSON, summary markdown, source URLs, and EIP-712 cryptographic signature (v, r, s)."
+    },
+    {
+      "name": "verify_oracle_attestation",
+      "description": "Verifies an EIP-712 cryptographic attestation produced by CleanWeb Oracle off-chain without consuming gas. Returns verification status, recovered signer, and oracle authenticity check."
+    },
+    {
+      "name": "clean_text_raw",
+      "description": "Extracts pure, tag-free plain text optimized for RAG embedding and vector indexing (0.001 USDC). Strips all HTML/markdown artifacts for instant vector ingestion."
+    },
+    {
+      "name": "map_site",
+      "description": "Discovers domain sitemap or internal URL tree of any website (0.002 USDC). Firecrawl /map equivalent for web crawling agents."
+    },
+    {
+      "name": "search_web_quick",
+      "description": "Performs fast real-time keyword web search returning titles, verified URLs, and snippets (0.002 USDC). Tavily equivalent."
+    },
+    {
+      "name": "extract_json_schema",
+      "description": "Extracts schema-constrained structured JSON data from any webpage using Gemini AI (0.030 USDC). Direct structured attribute ingestion."
+    },
+    {
+      "name": "deep_research_topic",
+      "description": "Performs multi-source web crawling and AI synthesis to generate an executive research briefing (0.150 USDC). Deep multi-source intelligence."
+    }
+  ]
+}

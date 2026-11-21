@@ -1,0 +1,11 @@
+# v3.0.0 Cloud-Native Thin Client sdist policy:
+# Never ship server-side app/ engine, internal scripts, or test suites in PyPI sdist.
+prune app
+prune tests
+prune scripts
+prune packages
+prune docs
+prune integrations
+prune deploy
+prune data
+exclude main.py monitor_dashboard.py polygon_agent.py test_interactive.py
