@@ -3,8 +3,6 @@ import tomllib
 
 import mcp_server
 import thin_mcp_proxy
-from app.cleaners.web_engine import web_cleaner_engine
-from app.cleaners.pdf_engine import pdf_cleaner_engine
 
 
 def test_thin_gateway_headers_mapping():
@@ -32,11 +30,9 @@ def test_mcp_server_thin_client_mode_forwards_to_remote_gateway(monkeypatch):
     monkeypatch.setenv("X402_THIN_CLIENT_MODE", "1")
     monkeypatch.setenv("X402_GATEWAY_URL", "https://gateway.cleanweb.test")
 
-    def forbidden_local_scrape(*args, **kwargs):
-        raise AssertionError("Local scraper must NOT run in v3.0.0 Thin Client mode!")
-
-    monkeypatch.setattr(web_cleaner_engine, "fetch_and_clean", forbidden_local_scrape)
-    monkeypatch.setattr(pdf_cleaner_engine, "clean_pdf", forbidden_local_scrape)
+    # Ensure server-side app/ engines are absent/unused in Thin Client mode
+    monkeypatch.setattr(mcp_server, "web_cleaner_engine", None)
+    monkeypatch.setattr(mcp_server, "pdf_cleaner_engine", None)
 
     captured = []
 
