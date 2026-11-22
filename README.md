@@ -1,9 +1,9 @@
-# ⚡ Multi-Chain & Solana x402 Autonomous AI Agent Suite & Spend Firewall (v2.8.4)
+# ⚡ Multi-Chain & Solana x402 Autonomous AI Agent Suite & Spend Firewall (v3.0.1)
 
 > **"High-Throughput Clean Web Markdown, YouTube Intelligence & Cryptographic Web3 Oracles for Autonomous AI Agents & Swarms."**  
 > *Zero credit cards required. Pure B2A (Business-to-Agent) USDC micropayments & pre-funded vaults on Solana, Polygon, Base, and Arbitrum with Solscan Verified IDLs & EIP-712 spend policy attestations.*
 
-[![Version](https://img.shields.io/badge/Version-2.8.4-00f2fe?style=for-the-badge&logo=fastapi&logoColor=black)](https://github.com/nohosa001-pixel/x402-cleanweb-agent)
+[![Version](https://img.shields.io/badge/Version-3.0.1-00f2fe?style=for-the-badge&logo=fastapi&logoColor=black)](https://github.com/nohosa001-pixel/x402-cleanweb-agent)
 [![LangChain Official Integration](https://img.shields.io/badge/LangChain-Official%20Provider-1C3C3C?style=for-the-badge&logo=langchain&logoColor=white)](https://docs.langchain.com/oss/python/integrations/providers/all_providers)
 [![LlamaIndex](https://img.shields.io/badge/LlamaIndex-Official%20Reader-8A2BE2?style=for-the-badge&logo=llamaindex&logoColor=white)](https://pypi.org/project/llama-index-readers-x402-cleanweb/)
 [![PyPI](https://img.shields.io/pypi/v/x402-cleanweb-agent?style=for-the-badge&logo=pypi&logoColor=white&color=blue)](https://pypi.org/project/x402-cleanweb-agent/)
@@ -17,12 +17,12 @@
 ---
 
 > [!IMPORTANT]
-> **📢 OFFICIAL PROTOCOL UPGRADE NOTICE: Transition to CleanWeb v3.0.0 (Effective November 21, 2026)**
+> **🚀 CleanWeb v3.0.1 — Cloud-Native Thin Client & Pure x402 M2M Gateway (Live)**
 >
-> Following 14,000+ global package downloads and active adoption across autonomous AI frameworks, CleanWeb is executing a 7-day transition (Nov 14 – Nov 21, 2026) to **v3.0.0 (Cloud-Native Thin Client & Pure x402 M2M Gateway)**:
-> - **Deprecation of Local Monolithic Execution**: Local standalone engine bundling in `x402-cleanweb-agent` (`v2.8.x` and below) will be deprecated and **yanked on PyPI** upon the `v3.0.0` release on **November 21, 2026**.
-> - **Remote SSE MCP Standard**: All Claude Desktop, Cursor, and Windsurf clients should migrate to the zero-install Remote Cloud MCP Gateway (`https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/sse`) or `v3.0.0` Thin Client SDK.
-> - **Pure M2M x402 Enforcement**: Strict IP-based daily sandbox limits apply during transition, followed by full x402 USDC vault settlement (Polygon, Base, Arbitrum, Solana) for WAF-bypass scraping, YouTube Gemini AI, Deep Research, and EIP-712 Cryptographic Oracles.
+> Following 14,400+ global package downloads across PyPI and npm, CleanWeb has completed its migration to **v3.0.1 (Cloud-Native Thin Client & Pure x402 M2M Gateway)**:
+> - **Zero-Install Remote SSE MCP**: Connect Claude Desktop, Cursor, and Windsurf directly to `https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/sse` or run the lightweight `v3.0.1` Thin Client (`uvx x402-cleanweb-agent`) with zero heavy server dependencies.
+> - **Hidden White-Text PDF & Indirect Prompt Injection Defense**: Server-side Cloud Run sanitizer strips invisible white-on-white (`rg`/`g`/`k`), `3 Tr` invisible-render text, `<2pt` hidden fonts, and covert tracking pixels before returning purified Markdown.
+> - **Pure M2M x402 USDC Settlement**: Automated on-chain & pre-funded vault settlement across Polygon, Base, Arbitrum, and Solana with `X-Request-ID` traceability and `X-Idempotency-Key` deduplication. Legacy monolithic packages (`<= 2.8.4`) have been yanked on PyPI.
 
 ---
 
@@ -47,7 +47,8 @@ CleanWeb is distributed natively across both **Python (PyPI)** and **TypeScript/
 
 | Registry | Package Name | Target Ecosystem | 1-Line Install Command |
 | :---: | :--- | :--- | :--- |
-| **PyPI** | [**`x402-cleanweb-agent`**](https://pypi.org/project/x402-cleanweb-agent/) | **Python Core, FastAPI Oracle, Claude/Cursor MCP Server & Dual-Core Eliza Brain** | `pip install x402-cleanweb-agent` *(or `uvx x402-cleanweb-agent`)* |
+| **PyPI** | [**`x402-cleanweb-agent`**](https://pypi.org/project/x402-cleanweb-agent/) | **v3.0.1 Cloud-Native Thin Client SDK & Remote MCP Gateway (Claude/Cursor/CLI)** | `pip install x402-cleanweb-agent` *(or `uvx x402-cleanweb-agent`)* |
+| **PyPI** | [**`langchain-x402-cleanweb`**](https://pypi.org/project/langchain-x402-cleanweb/) | **Official LangChain / LangGraph Tools (`X-Request-ID` & x402 Vault Support)** | `pip install langchain-x402-cleanweb` |
 | **PyPI** | [**`llama-index-readers-x402-cleanweb`**](https://pypi.org/project/llama-index-readers-x402-cleanweb/) | **LlamaIndex High-Purity RAG Reader (87% Token Compression & Injection Defense)** | `pip install llama-index-readers-x402-cleanweb` |
 | **npm** | [**`agentkit-cleanweb`**](https://www.npmjs.com/package/agentkit-cleanweb) | **Coinbase AgentKit Action Provider (Base Mainnet EIP-712 & x402 Vaults)** | `npm install agentkit-cleanweb @coinbase/agentkit` |
 | **npm** | [**`cleanweb-eliza-plugin`**](https://www.npmjs.com/package/cleanweb-eliza-plugin) | **ElizaOS v2 Plugin (Solana x402 Micropayments & A.GRID Priority 0 Feed)** | `npm install cleanweb-eliza-plugin` |
@@ -91,11 +92,11 @@ export default { name: "AlphaScoutAgent", plugins: [cleanWebPlugin] };
 ```
 
 ```python
-# Python: ElizaOS / Dual-Core Gate-Brain Bridge (PyPI: x402-cleanweb-agent)
-from app.integrated_gate_brain_bridge import IntegratedGateBrainBridge
+# Python: Official LangChain / LangGraph Tool (pip install langchain-x402-cleanweb)
+from langchain_x402_cleanweb import CleanWebTool
 
-bridge = IntegratedGateBrainBridge(require_x402_payment=False)
-res = bridge.execute_pipeline("https://paulgraham.com/greatwork.html", "https://paulgraham.com")
+tool = CleanWebTool(vault_key="your_x402_vault_key")
+res = tool.invoke({"url": "https://paulgraham.com/greatwork.html"})
 ```
 
 ```python
@@ -210,19 +211,13 @@ Connect CleanWeb directly to Claude Desktop, Cursor, or any Model Context Protoc
 }
 ```
 
-Or configure via local clone:
+Or connect zero-install via **Remote SSE MCP** (recommended for Cursor / Windsurf / Cloud Agents):
 
 ```json
 {
   "mcpServers": {
     "polygon-x402-cleanweb": {
-      "command": "python",
-      "args": ["-u", "mcp_server.py"],
-      "env": {
-        "POLYGON_RPC_URL": "https://polygon-bor-rpc.publicnode.com",
-        "SERVER_WALLET_ADDRESS": "0xA185B43fDD19619f99952AAed6eabf1029bF36a1",
-        "USDC_CONTRACT_ADDRESS": "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359"
-      }
+      "url": "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/sse"
     }
   }
 }
