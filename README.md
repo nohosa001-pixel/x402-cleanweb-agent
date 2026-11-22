@@ -20,6 +20,7 @@
 > **🚀 CleanWeb v3.0.1 — Cloud-Native Thin Client & Pure x402 M2M Gateway (Live)**
 >
 > Following 14,400+ global package downloads across PyPI and npm, CleanWeb has completed its migration to **v3.0.1 (Cloud-Native Thin Client & Pure x402 M2M Gateway)**:
+>
 > - **Zero-Install Remote SSE MCP**: Connect Claude Desktop, Cursor, and Windsurf directly to `https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/sse` or run the lightweight `v3.0.1` Thin Client (`uvx x402-cleanweb-agent`) with zero heavy server dependencies.
 > - **Hidden White-Text PDF & Indirect Prompt Injection Defense**: Server-side Cloud Run sanitizer strips invisible white-on-white (`rg`/`g`/`k`), `3 Tr` invisible-render text, `<2pt` hidden fonts, and covert tracking pixels before returning purified Markdown.
 > - **Pure M2M x402 USDC Settlement**: Automated on-chain & pre-funded vault settlement across Polygon, Base, Arbitrum, and Solana with `X-Request-ID` traceability and `X-Idempotency-Key` deduplication. Legacy monolithic packages (`<= 2.8.4`) have been yanked on PyPI.
@@ -55,6 +56,7 @@ CleanWeb is distributed natively across both **Python (PyPI)** and **TypeScript/
 | **npm** | [**`elizaos-plugin-security-gate`**](https://www.npmjs.com/package/elizaos-plugin-security-gate) | **Security Gate & Polygon OMS Spend Firewall (Prompt-Injection Defense)** | `npm install elizaos-plugin-security-gate` |
 
 > 💡 **Full-Stack Zero-Trust Pattern (Recommended)**:
+>
 > 1. Use **`cleanweb-eliza-plugin`** (or `x402-cleanweb-agent`) for 87% token-compressed, ad-free web ground truth.
 > 2. Guard outbound transactions and web payloads via **`elizaos-plugin-security-gate`** with **Polygon Open Money Stack (OMS) spend controls** (`SecurityGateOMSPolicy.sol` verified on Polygon: `0x4A28F9A2E6D0DcB69791980560FC8364A514f205`) and sub-second **Solana (`501`) settlements**.
 
@@ -62,14 +64,14 @@ CleanWeb is distributed natively across both **Python (PyPI)** and **TypeScript/
 
 ## 🌐 Live Production Gateway & Endpoints
 
-* **Production Gateway**: `https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app`
-* **Agent LLM Standard (`llms.txt`)**: [`https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/llms.txt`](https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/llms.txt)
-* **A2A Agent Manifest**: [`/.well-known/agent.json`](https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/.well-known/agent.json)
-* **OpenAI Plugin Manifest**: [`/.well-known/ai-plugin.json`](https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/.well-known/ai-plugin.json)
-* **MCP Server Card**: [`/.well-known/mcp/server-card.json`](https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/.well-known/mcp/server-card.json)
-* **Arbitrage ROI Calculator**: [`/api/v1/agent/arbitrage-roi`](https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/api/v1/agent/arbitrage-roi)
-* **Interactive Studio Dashboard**: `https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/dashboard`
-* **Interactive OpenAPI Specs**: `https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/docs`
+- **Production Gateway**: `https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app`
+- **Agent LLM Standard (`llms.txt`)**: [`https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/llms.txt`](https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/llms.txt)
+- **A2A Agent Manifest**: [`/.well-known/agent.json`](https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/.well-known/agent.json)
+- **OpenAI Plugin Manifest**: [`/.well-known/ai-plugin.json`](https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/.well-known/ai-plugin.json)
+- **MCP Server Card**: [`/.well-known/mcp/server-card.json`](https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/.well-known/mcp/server-card.json)
+- **Arbitrage ROI Calculator**: [`/api/v1/agent/arbitrage-roi`](https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/api/v1/agent/arbitrage-roi)
+- **Interactive Studio Dashboard**: `https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/dashboard`
+- **Interactive OpenAPI Specs**: `https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/docs`
 
 ---
 
@@ -153,11 +155,11 @@ print("Clean Markdown Preview:\n", res["clean_markdown"][:300])
 
 Autonomous agents route web traffic through x402 because **it mathematically saves the operator money on every query**:
 
-* **Direct Scraping Cost**: 80KB HTML ≈ 20,000 tokens ($0.05 USD input cost on GPT-4o / Claude 3.5 Sonnet).
-* **x402 CleanWeb Cost**: $0.001 API fee + 2,600 clean tokens ($0.0065 USD) = **$0.0075 USD Total**.
-* **Net Savings**: **$0.0425 USD saved per web query (85% net dollar reduction)**.
-* **Service Fee ROI**: **4,250% ROI on the $0.001 fee**.
-* **Live Arbitrage Endpoint**: `GET /api/v1/agent/arbitrage-roi?input_tokens=50000`
+- **Direct Scraping Cost**: 80KB HTML ≈ 20,000 tokens ($0.05 USD input cost on GPT-4o / Claude 3.5 Sonnet).
+- **x402 CleanWeb Cost**: $0.001 API fee + 2,600 clean tokens ($0.0065 USD) = **$0.0075 USD Total**.
+- **Net Savings**: **$0.0425 USD saved per web query (85% net dollar reduction)**.
+- **Service Fee ROI**: **4,250% ROI on the $0.001 fee**.
+- **Live Arbitrage Endpoint**: `GET /api/v1/agent/arbitrage-roi?input_tokens=50000`
 
 ```json
 {
@@ -314,8 +316,8 @@ CleanWeb Studio operates strictly under the **Transformative Non-Expressive Text
 3. **Zero-Data Retention (GDPR Compliant)**: All fetched HTML and raw assets are processed ephemerally in RAM and purged immediately upon response transmission.
 4. **100% OFAC Sanctions Filtering**: All micropayment addresses are verified against OFAC Specially Designated Nationals (SDN) lists.
 5. **Full Legal Endpoints**:
-   * `GET /api/v1/legal/terms`: Official Machine-to-Machine Terms of Service
-   * `GET /api/v1/legal/disclaimer`: Full Legal & Financial Disclaimer
+   - `GET /api/v1/legal/terms`: Official Machine-to-Machine Terms of Service
+   - `GET /api/v1/legal/disclaimer`: Full Legal & Financial Disclaimer
 
 ---
 
